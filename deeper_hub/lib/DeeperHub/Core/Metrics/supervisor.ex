@@ -1,6 +1,6 @@
-defmodule DeeperHub.Core.Supervisor do
+defmodule DeeperHub.Core.Metrics.Supervisor do
   @moduledoc false
   # Supervisor for DeeperHub.Core.Metrics
 
-  # TODO: Implement DeeperHub.Core.Supervisor logic
+  # TODO: Implement DeeperHub.Core.Metrics.Supervisor logic
 end

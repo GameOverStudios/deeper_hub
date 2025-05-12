@@ -1,6 +1,6 @@
-defmodule DeeperHub.Core.Internationalization do
+defmodule DeeperHub.Core.Internationalization.I18nImpl do
   @moduledoc false
-  # Main module for DeeperHub.Core.Internationalization
+  # Implementação principal para DeeperHub.Core.Internationalization
 
   # TODO: Implement DeeperHub.Core.Internationalization logic
 end

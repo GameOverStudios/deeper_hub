@@ -1,6 +1,6 @@
-defmodule DeeperHub.Communication.Mailer do
+defmodule DeeperHub.Communication.Mailer.MailerImpl do
   @moduledoc false
-  # Facade for DeeperHub.Communication.Mailer
+  # Implementação de DeeperHub.Communication.Mailer
 
   # TODO: Implement DeeperHub.Communication.Mailer logic
 end
