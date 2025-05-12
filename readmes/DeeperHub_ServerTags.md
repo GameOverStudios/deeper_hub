@@ -1,278 +1,249 @@
-# Módulo: `DeeperHub.ServerTags` 🚀
+# Módulo: `DeeperHub.ServerTags` 🏷️
 
 ## 📜 1. Visão Geral do Módulo `DeeperHub.ServerTags`
 
-O módulo `DeeperHub.ServerTags` é responsável por gerenciar as **tags (etiquetas)** associadas aos servidores na plataforma DeeperHub. As tags são palavras-chave ou frases curtas que descrevem características, modos de jogo, comunidades ou outros aspectos relevantes de um servidor, ajudando os usuários a encontrar servidores de seu interesse e permitindo que os proprietários categorizem seus servidores.
-
-Este módulo lida com a criação de novas tags, a associação de tags a servidores, a remoção dessas associações e a consulta de servidores por tags ou tags por servidor. 😊
+O módulo `DeeperHub.ServerTags` é responsável por gerenciar o sistema de tags (etiquetas) associadas aos servidores dentro da plataforma DeeperHub. As tags permitem categorizar e descrever servidores com palavras-chave, facilitando a descoberta, filtragem e organização dos servidores pelos usuários. Este módulo lida com a criação, atribuição e consulta de tags. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
-*   **Criação e Gerenciamento de Tags (`create_tag/1`, `get_tag_by_name/1`, `update_tag/2`, `delete_tag/1`):**
-    *   Permitir a criação de novas tags (potencialmente com moderação ou sugestão).
-    *   Evitar a duplicação de tags (normalizando a entrada, ex: lowercase, sem espaços extras).
-    *   Permitir a atualização (ex: renomear, adicionar descrição) ou exclusão de tags (com cuidado para as associações existentes).
-*   **Associação de Tags a Servidores (`add_tag_to_server/3`, `remove_tag_from_server/3`):**
-    *   Permitir que proprietários de servidores (ou administradores) associem tags existentes a um servidor.
+*   **Gerenciamento de Definições de Tags (Opcional, pode ser via `DeeperHub.Lists`):**
+    *   Se as tags forem um conjunto pré-definido ou curado, este módulo (ou `DeeperHub.Lists`) pode gerenciar o CRUD para as definições de tags (nome, descrição, categoria da tag).
+    *   Se as tags forem \"folksonômicas\" (criadas livremente pelos usuários), o foco é na associação.
+*   **Associação de Tags a Servidores:**
+    *   Permitir que proprietários de servidores (ou administradores) associem tags relevantes aos seus servidores.
     *   Permitir a remoção de tags de um servidor.
-    *   Limitar o número de tags por servidor (configurável).
-*   **Consulta de Tags e Servidores:**
-    *   Listar todas as tags associadas a um servidor específico (`list_tags_by_server/1`).
-    *   Listar todos os servidores associados a uma ou mais tags (`list_servers_by_tags/2`).
-    *   Listar todas as tags disponíveis no sistema, possivelmente com contagem de uso (`list_tags/1`).
-    *   Listar tags populares ou em tendência (`list_popular_tags/1`).
-*   **Normalização e Validação de Tags:**
-    *   Validar o formato das tags (ex: comprimento, caracteres permitidos).
-    *   Normalizar tags para consistência (ex: converter para minúsculas, remover espaços extras, tratar sinônimos se avançado).
-*   **Sugestão de Tags (Opcional):**
-    *   Sugerir tags existentes enquanto um usuário digita.
-*   **Observabilidade:**
-    *   Registrar logs e métricas para operações com tags.
-    *   Publicar eventos de domínio (tag criada, tag associada a servidor) no `Core.EventBus`.
-*   **Caching:**
-    *   Cachear listas de tags populares ou tags por servidor para melhorar o desempenho.
+*   **Listagem e Consulta de Tags:**
+    *   Listar todas as tags associadas a um servidor específico.
+    *   Listar todos os servidores associados a uma ou mais tags específicas.
+    *   Sugerir tags populares ou relevantes durante a criação/edição de um servidor.
+    *   Contar a popularidade das tags (quantos servidores usam cada tag).
+*   **Validação e Moderação (Opcional):**
+    *   Validar tags (ex: comprimento, caracteres permitidos).
+    *   Moderar tags criadas por usuários para remover conteúdo inadequado ou spam.
+*   **Busca por Tags:**
+    *   Permitir que usuários busquem servidores utilizando tags como critério de filtro.
 
 ## 🏗️ 3. Arquitetura e Design
 
+`DeeperHub.ServerTags` atuará como uma fachada para um serviço de lógica de negócio e componentes de persistência.
+
+*   **Interface Pública (`DeeperHub.ServerTags.ServerTagsFacade` ou `DeeperHub.ServerTags`):** Funções como `add_tag_to_server/2`, `list_tags_for_server/1`, `list_servers_by_tag/1`.
+*   **Serviço de Tags de Servidor (`DeeperHub.ServerTags.Services.TagService`):**
+    *   Contém a lógica de negócio principal para associar tags a servidores, criar novas tags (se permitido), e consultar tags.
+*   **Schemas Ecto:**
+    *   `DeeperHub.ServerTags.Schema.Tag`: Define uma tag global (se as tags forem gerenciadas centralmente, como em `DeeperHub.Lists`). Campos: `id`, `name`, `slug`, `description`, `category`.
+    *   `DeeperHub.ServerTags.Schema.ServerTagLink` (ou `ServerHasTag`): Tabela de junção para a relação muitos-para-muitos entre Servidores e Tags. Campos: `server_id`, `tag_id`.
+    *   Alternativamente, se as tags forem simples strings diretamente no schema do Servidor (ex: um campo `tags :: {:array, :string}`), este módulo ainda assim gerenciaria a lógica de busca e sugestão. No entanto, ter uma entidade `Tag` separada é mais flexível.
+*   **Cache (`DeeperHub.ServerTags.Cache` ou via `Core.Cache`):**
+    *   Cache para tags populares ou tags frequentemente associadas a servidores.
+*   **Integrações:**
+    *   `DeeperHub.Core.Repo`: Para persistência.
+    *   `DeeperHub.Servers`: Para associar tags a servidores e buscar servidores por tag.
+    *   `DeeperHub.Accounts`: Para permissões de quem pode adicionar/remover tags.
+    *   `DeeperHub.Lists` (Potencial): Se as definições de tag forem gerenciadas como um tipo de lista.
+
+**Padrões de Design:**
+
+*   **Fachada (Facade).**
+*   **Serviço de Domínio.**
+
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.ServerTags` (Fachada Pública):**
-    *   Ponto de entrada para todas as operações relacionadas a tags de servidor.
-    *   Delega para o `ServerTagsService`.
-2.  **`DeeperHub.ServerTags.Services.ServerTagsService` (ou `DefaultServerTagsService`):**
-    *   **Responsabilidade:** Orquestra a lógica de negócio para tags.
-    *   **Interações:**
-        *   `DeeperHub.Core.Repo`: Para CRUD com `TagSchema` e `ServerTagLinkSchema` (tabela de junção).
-        *   `DeeperHub.Core.Cache`: Para cachear tags populares e tags por servidor.
-        *   `DeeperHub.Core.EventBus`: Para publicar eventos.
-        *   `DeeperHub.Core.ConfigManager`: Para obter configurações (limite de tags, caracteres permitidos).
-3.  **Schemas Ecto:**
-    *   **`DeeperHub.ServerTags.Schema.Tag`:** Representa uma tag única no sistema (ex: `id`, `name`, `description`, `usage_count`).
-    *   **`DeeperHub.ServerTags.Schema.ServerTagLink` (ou `ServerTagAssociation`):** Tabela de junção many-to-many entre `Servers` e `Tags` (ex: `server_id`, `tag_id`, `added_by_user_id`, `added_at`).
-4.  **`DeeperHub.ServerTags.Storage` (ou lógica dentro do `ServerTagsService`):**
-    *   Encapsula as consultas Ecto.
-5.  **`DeeperHub.ServerTags.CachedAdapter` (Opcional, da documentação original):**
-    *   Se for decidido ter uma camada de cache explícita para este módulo, além do `Core.Cache`.
-
-### 3.2. Estrutura de Diretórios (Proposta)
-
-```
-lib/deeper_hub/server_tags/
-├── server_tags.ex                    # Fachada Pública
-│
-├── services/
-│   └── server_tags_service.ex        # Serviço principal
-│
-├── schemas/                          # (Ou schema/)
-│   ├── tag.ex
-│   └── server_tag_link.ex
-│
-├── storage.ex                        # (Opcional) Módulo de queries Ecto
-├── supervisor.ex                     # (Se houver GenServers, ex: para calcular popularidade)
-└── telemetry.ex
-```
+*   **`DeeperHub.ServerTags.ServerTagsFacade`:** Ponto de entrada.
+*   **`DeeperHub.ServerTags.Services.TagService`:** Lógica de negócio.
+*   **`DeeperHub.ServerTags.Schema.Tag`:** Schema da tag (se for uma entidade).
+*   **`DeeperHub.ServerTags.Schema.ServerTagLink`:** Schema da associação.
+*   **`DeeperHub.ServerTags.Supervisor`:** Supervisiona processos.
 
 ### 3.3. Decisões de Design Importantes
 
-*   **Tabela de Tags Únicas:** Manter uma tabela separada para tags (`TagSchema`) para evitar redundância de strings de tag e permitir o gerenciamento centralizado de tags (descrições, sinônimos, etc.).
-*   **Normalização na Criação/Associação:** Tags devem ser normalizadas (ex: minúsculas, sem espaços extras nas pontas) antes de serem salvas ou associadas para garantir consistência.
-*   **Contagem de Uso:** O campo `usage_count` na `TagSchema` pode ser atualizado (atomicamente ou por um worker) sempre que uma tag é associada/desassociada de um servidor, facilitando a listagem de tags populares.
-*   **Autorização:** A adição/remoção de tags a um servidor deve ser restrita ao proprietário do servidor ou administradores.
+*   **Modelo de Tags:**
+    *   **Tags Centralizadas/Curadas:** Tags são definidas por administradores (possivelmente usando `DeeperHub.Lists`), e proprietários de servidores escolhem a partir dessa lista. Vantagem: consistência, controle.
+    *   **Folksonomia (Tags Livres):** Proprietários de servidores podem criar qualquer tag. Vantagem: flexibilidade, descoberta orgânica. Desvantagem: pode levar a inconsistências (ex: \"rpg\", \"role-playing-game\") e necessidade de moderação.
+    *   **Híbrido:** Permitir tags livres mas com sugestões de tags existentes/populares e moderação.
+*   **Armazenamento:** Se tags são entidades separadas com uma tabela de junção, ou um array de strings no schema do servidor. Entidades separadas são mais robustas para busca e gerenciamento.
 
 ## 🛠️ 4. Casos de Uso Principais
 
-*   **Proprietário Adiciona Tags a um Servidor:**
-    *   Na página de edição do servidor, o proprietário digita \"PvP\", \"Survival\", \"Economy\".
-    *   A UI chama `DeeperHub.ServerTags.add_tags_to_server(server_id, [\"PvP\", \"Survival\", \"Economy\"], current_user_id)`.
-    *   O `ServerTagsService` normaliza as tags, encontra/cria as tags na tabela `Tag`, e cria as associações na `ServerTagLink`. O `usage_count` das tags é incrementado.
-*   **Jogador Filtra Servidores por Tag:**
-    *   Jogador seleciona a tag \"RPG\" na interface de busca.
-    *   A UI/API chama `DeeperHub.Servers.list_servers(%{tags: [\"rpg\"]})`.
-    *   O `DeeperHub.Servers` internamente chama `DeeperHub.ServerTags.list_servers_by_tags([\"rpg\"])` para obter os `server_ids` relevantes.
-*   **Administrador Modera uma Tag:**
-    *   Um admin edita uma tag \"mmorpg\" para adicionar uma descrição ou corrigir um erro de digitação.
-    *   Chama `DeeperHub.ServerTags.update_tag(tag_id, %{description: \"Massively Multiplayer Online Role-Playing Game\"})`.
+*   **Proprietário de Servidor Adiciona Tags:** Ao configurar seu servidor, o proprietário adiciona tags como \"RPG\", \"PvP\", \"Comunidade Amigável\".
+*   **Usuário Filtra Servidores por Tag:** Um usuário busca por servidores e aplica o filtro \"RPG\" para ver apenas servidores com essa tag.
+*   **Sistema Sugere Tags:** Ao criar um servidor, o sistema sugere tags populares ou relevantes com base na descrição do servidor.
+*   **Administrador Modera Tags:** Um admin remove uma tag inadequada ou mescla tags duplicadas (ex: \"RPG\" e \"RolePlaying\").
 
-## 🌊 5. Fluxos Importantes
+## 🌊 5. Fluxos Importantes (Opcional)
 
-### Fluxo de Adicionar uma Tag a um Servidor
+**Fluxo de Adicionar uma Tag a um Servidor (com tags centralizadas):**
 
-1.  **Solicitação:** `DeeperHub.ServerTags.add_tag_to_server(server_id, \"new_tag_name\", user_id)`.
-2.  **`ServerTagsService.add_tag_to_server/3`:**
-    *   Verifica se `user_id` tem permissão para modificar tags do `server_id` (via `DeeperHub.Auth/RBAC` e consulta ao proprietário do servidor).
-    *   Normaliza `new_tag_name` (ex: para minúsculas, trim).
-    *   **Encontra ou Cria a Tag:**
-        *   Chama `Storage.get_tag_by_name(normalized_tag_name)`.
-        *   Se não encontrada, chama `Storage.create_tag(%{name: normalized_tag_name})`.
-        *   Se a criação falhar, retorna erro.
-    *   Obtém o `tag_id`.
-    *   Verifica se a associação `(server_id, tag_id)` já existe na `ServerTagLinkSchema`.
-        *   Se sim, não faz nada ou atualiza `added_at` (dependendo da lógica).
-        *   Se não:
-            *   Cria uma nova entrada em `ServerTagLinkSchema` com `server_id`, `tag_id`, `added_by_user_id`.
-            *   Incrementa `usage_count` na `TagSchema` para o `tag_id` (atomicamente).
-            *   Publica evento `server_tag_added` no `Core.EventBus`.
-            *   Invalida caches relevantes (ex: tags do servidor, listagem de servidores por tag).
-    *   Retorna `{:ok, tag_struct}`.
+1.  Proprietário do servidor, através da UI/API, seleciona a tag \"RPG\" para adicionar ao seu servidor \"Mundo Fantástico\".
+2.  `DeeperHub.API` (Controller) chama `DeeperHub.ServerTags.add_tag_to_server(server_id, \"RPG\")`.
+3.  `ServerTagsFacade` delega para `DeeperHub.ServerTags.Services.TagService.add_tag/2`.
+4.  `TagService`:
+    *   Verifica se o usuário tem permissão para modificar as tags do servidor.
+    *   Busca a tag \"RPG\" no `DeeperHub.Lists` (ou no `Schema.Tag` próprio). Se não existir e o sistema permitir criação dinâmica por usuários autorizados, cria a tag.
+    *   Verifica se a associação entre \"Mundo Fantástico\" e \"RPG\" já existe na tabela `ServerTagLink`.
+    *   Se não existir, cria um novo registro `ServerTagLink` e o persiste via `Core.Repo`.
+    *   Invalida caches relevantes (ex: cache de tags do servidor \"Mundo Fantástico\").
+    *   Publica um evento `ServerTagAddedEvent` no `Core.EventBus`.
+5.  Retorna `{:ok, updated_server_tags_list}`.
 
-## 📡 6. API (Funções Públicas da Fachada `DeeperHub.ServerTags`)
+## 📡 6. API (Se Aplicável)
 
-### 6.1. `DeeperHub.ServerTags.add_tags_to_server(server_id :: String.t(), tag_names :: list(String.t()), current_user_id :: String.t()) :: {:ok, list(Tag.t())} | {:error, term()}`
+### 6.1. `DeeperHub.ServerTags.add_tag_to_server/3`
 
-*   **Descrição:** Associa uma lista de tags a um servidor. Cria as tags se não existirem. Verifica permissão.
-*   **Retorno:** Lista das structs `Tag` associadas, ou erro.
+*   **Descrição:** Associa uma tag a um servidor. Se a tag não existir e o sistema permitir, ela pode ser criada.
+*   **`@spec`:** `add_tag_to_server(server_id :: String.t(), tag_name :: String.t(), opts :: Keyword.t()) :: {:ok, Tag.t() | list(Tag.t())} | {:error, reason}`
+*   **Parâmetros:**
+    *   `server_id` (String): O ID do servidor.
+    *   `tag_name` (String): O nome da tag a ser adicionada (ex: \"RPG\", \"Minecraft\").
+    *   `opts` (Keyword.t()): Opções adicionais.
+        *   `created_by_user_id` (String): ID do usuário realizando a ação (para auditoria/permissão).
+*   **Retorno:**
+    *   `{:ok, tag_struct}`: Se uma nova tag foi criada e associada.
+    *   `{:ok, list_of_tags_for_server}`: Retorna a lista atualizada de tags do servidor.
+    *   `{:error, :server_not_found | :tag_creation_failed | :association_failed | :unauthorized | reason}`.
+*   **Exemplo de Uso (Elixir):**
+    ```elixir
+    case DeeperHub.ServerTags.add_tag_to_server(\"server_123\", \"PvP Focused\", created_by_user_id: current_user.id) do
+      {:ok, _updated_tags} -> Logger.info(\"Tag 'PvP Focused' adicionada ao servidor server_123.\")
+      {:error, reason} -> Logger.error(\"Falha ao adicionar tag: #{inspect(reason)}\")
+    end
+    ```
 
-### 6.2. `DeeperHub.ServerTags.remove_tag_from_server(server_id :: String.t(), tag_name :: String.t(), current_user_id :: String.t()) :: :ok | {:error, term()}`
+### 6.2. `DeeperHub.ServerTags.list_tags_for_server/1`
 
-*   **Descrição:** Remove a associação de uma tag de um servidor. Verifica permissão. Decrementa `usage_count`.
+*   **Descrição:** Lista todas as tags associadas a um servidor específico.
+*   **`@spec`:** `list_tags_for_server(server_id :: String.t()) :: {:ok, list(Tag.t() | String.t())} | {:error, reason}`
+    *   O retorno pode ser `list(Tag.t())` se tags forem entidades ou `list(String.t())` se forem apenas strings.
+*   **Parâmetros:**
+    *   `server_id` (String): O ID do servidor.
+*   **Retorno:** Lista de tags associadas ao servidor.
+*   **Exemplo de Uso (Elixir):**
+    ```elixir
+    {:ok, server_tags} = DeeperHub.ServerTags.list_tags_for_server(\"server_123\")
+    # server_tags => [%Tag{name: \"RPG\"}, %Tag{name: \"PvP Focused\"}]
+    ```
 
-### 6.3. `DeeperHub.ServerTags.list_tags_by_server(server_id :: String.t(), opts :: keyword()) :: {:ok, list(Tag.t())}`
+### 6.3. `DeeperHub.ServerTags.list_servers_by_tag/2`
 
-*   **Descrição:** Lista todas as tags associadas a um servidor.
-*   **`opts`:** `:limit`, `:sort_by` (ex: `:name`, `:usage_count`).
+*   **Descrição:** Lista todos os servidores que possuem uma tag específica.
+*   **`@spec`:** `list_servers_by_tag(tag_name :: String.t(), opts :: Keyword.t()) :: {:ok, list(Server.t())} | {:error, reason}`
+*   **Parâmetros:**
+    *   `tag_name` (String): O nome da tag.
+    *   `opts` (Keyword.t()): Opções de paginação e ordenação.
+*   **Retorno:** Lista de servidores que possuem a tag.
+*   **Exemplo de Uso (Elixir):**
+    ```elixir
+    {:ok, rpg_servers} = DeeperHub.ServerTags.list_servers_by_tag(\"RPG\", limit: 10)
+    ```
 
-### 6.4. `DeeperHub.ServerTags.list_servers_by_tags(tag_names :: list(String.t()), opts :: keyword()) :: {:ok, list(Server.t()), Pagination.t()}`
-
-*   **Descrição:** Lista servidores que possuem *todas* as tags especificadas (AND) ou *qualquer uma* (OR, configurável).
-*   **`opts`:** `:match_type` (`:all` | `:any`), `:page`, `:per_page`, `:preload_servers_with`.
-
-### 6.5. `DeeperHub.ServerTags.list_tags(opts :: keyword()) :: {:ok, list(Tag.t()), Pagination.t()}`
-
-*   **Descrição:** Lista todas as tags únicas no sistema.
-*   **`opts`:** `:sort_by` (`:name`, `:usage_count`), `:page`, `:per_page`, `:search_term`.
-
-### 6.6. `DeeperHub.ServerTags.list_popular_tags(limit :: integer(), opts :: keyword()) :: {:ok, list(Tag.t())}`
-
-*   **Descrição:** Lista as tags mais usadas.
-*   **`opts`:** `:min_usage_count`.
-
-### 6.7. `DeeperHub.ServerTags.create_tag(attrs :: map(), current_user_id :: String.t()) :: {:ok, Tag.t()} | {:error, Ecto.Changeset.t()}` (Admin)
-
-*   **Descrição:** Cria uma nova tag globalmente (requer permissão de admin).
-*   **`attrs`:** `%{name: String.t(), description: String.t() | nil}`.
-
-### 6.8. `DeeperHub.ServerTags.suggest_tags(partial_name :: String.t(), limit :: integer()) :: {:ok, list(String.t())}` (Nova Sugestão)
-
-*   **Descrição:** Sugere nomes de tags existentes com base em uma entrada parcial.
+*(Outras funções como `remove_tag_from_server/3`, `suggest_tags/1`, `list_popular_tags/1` seriam documentadas aqui).*
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager`:
-
-*   **`[:server_tags, :max_tags_per_server]`** (Integer): Número máximo de tags que um servidor pode ter. (Padrão: `10`)
-*   **`[:server_tags, :max_tag_length]`** (Integer): Comprimento máximo de uma string de tag. (Padrão: `25`)
-*   **`[:server_tags, :min_tag_length]`** (Integer): Comprimento mínimo. (Padrão: `2`)
-*   **`[:server_tags, :allowed_chars_regex]`** (String): Regex para caracteres permitidos em tags (ex: `^[a-zA-Z0-9\\-\\#\\+]+$`).
-*   **`[:server_tags, :auto_lowercase_tags]`** (Boolean): Se as tags devem ser convertidas automaticamente para minúsculas. (Padrão: `true`)
-*   **`[:server_tags, :cache, :popular_tags_ttl_seconds]`** (Integer): TTL para cache de tags populares. (Padrão: `3600`)
-*   **`[:server_tags, :cache, :tags_by_server_ttl_seconds]`** (Integer): TTL para cache de tags por servidor. (Padrão: `600`)
+*   **ConfigManager (`DeeperHub.Core.ConfigManager`):**
+    *   `[:server_tags, :max_tags_per_server]`: Número máximo de tags que um servidor pode ter. (Padrão: `10`)
+    *   `[:server_tags, :allow_user_created_tags]`: (Boolean) Se os usuários podem criar novas tags livremente ou devem escolher de uma lista predefinida. (Padrão: `true`)
+    *   `[:server_tags, :moderation_required_for_new_tags]`: (Boolean) Se novas tags criadas por usuários requerem aprovação de admin. (Padrão: `false`)
+    *   `[:server_tags, :tag_name_max_length]`: Comprimento máximo para o nome de uma tag. (Padrão: `50`)
+    *   `[:server_tags, :tag_name_regex_validation]`: Regex para validar caracteres permitidos em nomes de tag.
+    *   `[:server_tags, :cache_ttl_popular_tags_seconds]`: TTL para cache de tags populares.
 
 ## 🔗 8. Dependências
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.Repo`: Para persistência.
-*   `DeeperHub.Core.ConfigManager`, `Core.EventBus`, `Core.Logger`, `Core.Metrics`, `Core.Cache`.
-*   `DeeperHub.Auth` e `DeeperHub.RBAC`: Para verificar permissões de proprietários/admins para modificar tags de um servidor.
-*   `DeeperHub.Servers`: Para validar `server_id` e, potencialmente, para o `ServerTags` ser um submódulo dele.
+*   `DeeperHub.Core.Repo`
+*   `DeeperHub.Core.ConfigManager`
+*   `DeeperHub.Core.Cache` (Opcional)
+*   `DeeperHub.Servers` (para associação e busca)
+*   `DeeperHub.Accounts` (para permissões)
+*   `DeeperHub.Lists` (Se as definições de tags forem gerenciadas lá)
+*   `DeeperHub.Core.Logger`, `DeeperHub.Core.Metrics`
 
 ### 8.2. Bibliotecas Externas
 
-*   `Ecto`.
+*   `Ecto`
 
 ## 🤝 9. Como Usar / Integração
 
-*   **Módulo `DeeperHub.Servers`:**
-    *   Ao exibir detalhes de um servidor, chama `ServerTags.list_tags_by_server/1`.
-    *   Ao listar servidores com filtro de tag, chama `ServerTags.list_servers_by_tags/2`.
-*   **Interface de Gerenciamento de Servidor (UI/API):**
-    *   Permite que proprietários chamem `ServerTags.add_tags_to_server/3` e `ServerTags.remove_tag_from_server/3`.
-*   **Sistema de Busca:**
-    *   Pode usar `ServerTags.list_servers_by_tags/2` como parte de uma busca facetada.
-    *   Pode usar `ServerTags.suggest_tags/2` para autocomplete no campo de busca de tags.
+*   **Módulo `Servers`:** Ao criar/editar um servidor, permite ao proprietário adicionar ou remover tags usando `ServerTags.add_tag_to_server/3` e `ServerTags.remove_tag_from_server/3`.
+*   **Sistema de Busca:** Utiliza `ServerTags.list_servers_by_tag/2` para filtrar resultados de busca de servidores.
+*   **UI:** Exibe tags na página de detalhes do servidor e permite clicar em tags para ver outros servidores com a mesma tag.
 
 ## ✅ 10. Testes e Observabilidade
 
 ### 10.1. Testes
 
-*   Testar a criação de tags (com normalização e prevenção de duplicatas).
-*   Testar a associação e desassociação de tags a servidores, incluindo verificação de permissão.
-*   Testar a atualização do `usage_count`.
-*   Testar as funções de listagem (`list_tags_by_server`, `list_servers_by_tags`, `list_popular_tags`) com diferentes cenários e filtros.
-*   Testar a validação de formato e limites de tags.
-*   Localização: `test/deeper_hub/server_tags/`.
+*   Testar a adição e remoção de tags de um servidor.
+*   Testar a criação de novas tags (se permitido).
+*   Testar a listagem de tags por servidor e de servidores por tag.
+*   Testar validações de nome de tag e limites.
+*   Localização: `test/deeper_hub/server_tags/`
 
 ### 10.2. Métricas
 
-*   `deeper_hub.server_tags.tag.created.count`
-*   `deeper_hub.server_tags.tag.associated_to_server.count` (tags: `server_id`, `tag_name`)
-*   `deeper_hub.server_tags.tag.removed_from_server.count` (tags: `server_id`, `tag_name`)
-*   `deeper_hub.server_tags.usage_count.updates.count` (tags: `tag_name`)
-*   `deeper_hub.server_tags.cache.hit.count` (tags: `cache_type` (`popular`, `by_server`))
-*   `deeper_hub.server_tags.cache.miss.count` (tags: `cache_type`)
+*   `deeper_hub.server_tags.tag.added_to_server.count` (Contador): Tags: `server_id`, `tag_name`.
+*   `deeper_hub.server_tags.tag.removed_from_server.count` (Contador): Tags: `server_id`, `tag_name`.
+*   `deeper_hub.server_tags.tag.created.count` (Contador): (Se usuários podem criar tags) Tags: `tag_name`.
+*   `deeper_hub.server_tags.servers_by_tag_query.duration_ms` (Histograma): Tags: `tag_name`.
 
 ### 10.3. Logs
 
-*   **Nível INFO:** Nova tag criada, tag associada/removida de servidor.
-*   **Nível WARNING:** Tentativa de adicionar tag inválida ou exceder limite de tags por servidor. Tentativa não autorizada de modificar tags.
+*   `Logger.info(\"Tag '#{tag_name}' adicionada ao servidor #{server_id} por user_id: #{uid}\", module: DeeperHub.ServerTags.Services.TagService)`
+*   `Logger.warning(\"Tentativa de adicionar tag inválida '#{tag_name}' ao servidor #{server_id}\", module: DeeperHub.ServerTags.Services.TagService)`
 
 ### 10.4. Telemetria
 
-*   `[:deeper_hub, :server_tags, :tag, :created | :updated | :deleted]`
-    *   Metadados: `%{tag_id: id, name: name, admin_id: id}`
-*   `[:deeper_hub, :server_tags, :association, :created | :deleted]`
-    *   Metadados: `%{server_id: id, tag_id: id, user_id: id}`
-*   `[:deeper_hub, :server_tags, :query, :list_by_server | :list_by_tags | :list_popular]`
-    *   Metadados: `%{filters: map, result_count: count}`
+*   `[:deeper_hub, :server_tags, :tag_added_to_server]`
+*   `[:deeper_hub, :server_tags, :tag_removed_from_server]`
+*   `[:deeper_hub, :server_tags, :tag_created]`
 
 ## ❌ 11. Tratamento de Erros
 
-*   Retornar `{:error, changeset}` para falhas de validação Ecto.
-*   Retornar `{:error, :unauthorized}` para falhas de permissão.
-*   Retornar `{:error, :limit_exceeded}` se tentar adicionar mais tags que o permitido.
-*   Falhas ao interagir com o cache não devem impedir a operação principal, mas devem ser logadas.
+*   `{:error, :server_not_found}`
+*   `{:error, :tag_not_found}` (se usando tags pré-definidas)
+*   `{:error, :max_tags_reached}`
+*   `{:error, :invalid_tag_name}`
+*   `{:error, :unauthorized_action}`
 
 ## 🛡️ 12. Considerações de Segurança
 
-*   **Validação de Entrada:** Validar rigorosamente o nome das tags para prevenir XSS se as tags forem exibidas diretamente sem escaping adicional (embora devam ser escapadas na renderização).
-*   **Moderação de Tags:** Considerar um sistema de moderação ou lista negra para tags ofensivas ou inadequadas, especialmente se as tags puderem ser criadas livremente pelos usuários.
-*   **Autorização:** Garantir que apenas usuários autorizados (proprietários de servidor, admins) possam adicionar/remover tags de um servidor.
+*   **Validação de Nomes de Tag:** Se as tags são criadas por usuários, sanitizar e validar os nomes para prevenir XSS ou conteúdo ofensivo.
+*   **Moderação:** Implementar um sistema de moderação se as tags forem geradas livremente para lidar com tags inapropriadas ou spam.
+*   **Permissões:** Apenas usuários autorizados (donos de servidor, administradores) devem poder adicionar/remover tags.
 
 ## 🧑‍💻 13. Contribuição
 
-*   Mantenha a lógica de normalização de tags consistente.
-*   Garanta que o `usage_count` seja atualizado corretamente.
-*   Pense na performance das queries de listagem, especialmente `list_servers_by_tags` que pode envolver joins complexos ou múltiplas queries.
+*   Melhorar os algoritmos de sugestão de tags.
+*   Integrar com sistemas de análise de texto para sugerir tags automaticamente com base na descrição do servidor.
 
 ## 🔮 14. Melhorias Futuras e TODOs
 
-*   [ ] Implementar um sistema de sugestão de tags baseado em IA/ML com base na descrição do servidor ou em tags de servidores similares.
-*   [ ] Adicionar suporte para hierarquia de tags ou categorias de tags.
-*   [ ] Permitir que administradores \"fixem\" ou \"promovam\" certas tags.
-*   [ ] Criar um worker para recalcular `usage_count` periodicamente para garantir consistência, caso as atualizações atômicas se tornem um gargalo.
-*   [ ] Interface administrativa para gerenciamento global de tags (merge de tags duplicadas/sinônimas, exclusão, edição de descrições).
+*   [ ] Suporte para categorias de tags.
+*   [ ] Permitir que usuários sigam tags para descobrir novos servidores.
+*   [ ] Sistema de \"sinônimos\" de tags para agrupar tags semanticamente similares (ex: \"RPG\" e \"Role-playing\").
+*   [ ] Interface de administração para gerenciar tags (mesclar, deletar, categorizar).
+*   [ ] Ranking de popularidade de tags.
 
 ---
 
-*Última atualização: 2025-05-12*
+*Última atualização: YYYY-MM-DD*
 
 ---
 
-Este módulo de tags é um bom exemplo de como uma funcionalidade aparentemente simples pode ter várias nuances e interações.
-
-Agora, qual o próximo? Podemos seguir com outro \"submódulo\" do `DeeperHub.Servers`, como `ServerReviews` ou `ServerPackages`, ou voltar para um módulo Core ou de Segurança?"""),
+Próximo é o `DeeperHub.ServerReviews`. Mesmo esquema: você já tem um, mas pediu um novo seguindo o padrão. Correto?"""),
             ],
         ),
         types.Content(
             role="user",
             parts=[
-                types.Part.from_text(text="""continue"""),
+                types.Part.from_text(text="""Isso!!! Manda vê!"""),
             ],
         ),
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ok, vamos continuar com outro submódulo importante que interage com `DeeperHub.Servers`: o `DeeperHub.ServerReviews`. Este módulo lida com o feedback e avaliações dos usuários sobre os servidores.
+                types.Part.from_text(text="""Beleza! Vamos criar o README completo para `DeeperHub.ServerReviews`, que é uma parte crucial para a comunidade em torno dos servidores.
 
 ---
 

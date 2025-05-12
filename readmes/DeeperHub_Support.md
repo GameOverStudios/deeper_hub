@@ -1,328 +1,403 @@
-# Módulo: `DeeperHub.Support` 🚀
+# Módulo: `DeeperHub.Support` 🎫
 
 ## 📜 1. Visão Geral do Módulo `DeeperHub.Support`
 
-O módulo `DeeperHub.Support` é responsável por gerenciar o **sistema de tickets de suporte** da plataforma DeeperHub. Ele permite que os usuários criem solicitações de suporte (tickets) para relatar problemas, fazer perguntas ou solicitar assistência. A equipe de suporte (ou administradores) pode então visualizar, gerenciar, responder e resolver esses tickets.
-
-Este módulo abrange todo o ciclo de vida de um ticket, desde sua criação até a resolução, incluindo atribuição a agentes, comunicação entre usuário e suporte, e categorização. 😊
+O módulo `DeeperHub.Support` é responsável por gerenciar o sistema de suporte ao cliente/usuário dentro da plataforma DeeperHub. Ele permite que usuários criem tickets de suporte para relatar problemas, fazerencia o ciclo de vida desses tickets, desde a criação até a resolução, facilitando a comunicação entre os usuários e a equipe de suporte. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
-*   **Criação de Tickets (`create_ticket/1`):**
-    *   Permitir que usuários autenticados (e, opcionalmente, visitantes não autenticados, se configurado) criem novos tickets de suporte.
-    *   Capturar informações essenciais: assunto, descrição detalhada do problema/pergunta, categoria do problema, prioridade (definida pelo usuário ou sistema), informações do usuário (se logado).
-    *   Permitir o anexo de arquivos (imagens, logs) aos tickets (integrando com um serviço de armazenamento de arquivos).
-*   **Gerenciamento de Tickets (para Usuários e Suporte):**
-    *   Listar tickets (`list_tickets/1`, `list_user_tickets/2`) com filtros (status, prioridade, categoria, atribuído a) e paginação.
-    *   Visualizar detalhes de um ticket específico (`get_ticket/1`), incluindo todo o histórico de mensagens.
-    *   Atualizar status de um ticket (ex: Aberto, Em Andamento, Aguardando Resposta do Usuário, Resolvido, Fechado) (`update_ticket_status/2`).
-    *   Atribuir tickets a agentes de suporte específicos (se houver um sistema de agentes).
-    *   Definir prioridade de tickets.
-*   **Comunicação no Ticket:**
-    *   Permitir que usuários e agentes de suporte adicionem mensagens/respostas a um ticket existente (`add_message_to_ticket/3` - Nova Sugestão).
-    *   Manter um histórico cronológico de todas as comunicações dentro de um ticket.
+*   **Criação de Tickets de Suporte:**
+    *   Permitir que usuários criem novos tickets com assunto, descrição detalhada, categoria, prioridade e anexos (opcional).
+*   **Gerenciamento do Ciclo de Vida do Ticket:**
+    *   Atribuição de tickets a agentes de suporte (manual ou automática).
+    *   Acompanhamento do status do ticket (ex: Aberto, Em Andamento, Aguardando Resposta do Usuário, Aguardando Resposta da Equipe, Resolvido, Fechado).
+    *   Registro de todas as interações e mensagens trocadas dentro de um ticket.
+*   **Comunicação:**
+    *   Permitir que usuários e agentes de suporte adicionem mensagens e respostas aos tickets.
+    *   Suporte para formatação de texto e anexos nas mensagens.
+*   **Listagem e Busca de Tickets:**
+    *   Permitir que usuários visualizem seus tickets abertos e históricos.
+    *   Fornecer uma interface para agentes de suporte visual perguntas ou solicitar assistência, e que a equipe de suporte gerencie, responda e resolva esses tickets. O objetivo é fornecer um canal de comunicação eficiente para resolução de questões e melhoria da experiência do usuário. 😊
+
+## 🎯 2. Responsabilidades e Funcionalidades Chave
+
+*   **Criação de Tickets de Suporte:**
+    *   Permitir que usuários criem novos tickets com assunto, descrição detalhada, categoria, prioridade e anexos (opcional).
+*   **Gerenciamento de Tickets:**
+    *   CRUD para Tickets (`SupportTicket`): visualizar, atualizar status (aberto, em andamento, pendente de resposta do usuário, resolvido, fechado), atribuir a agentes de suporte.
+    *   Adicionar comentários/respostas internas e para o usuário em um ticket.
+    *   Visualizar o histórico de um ticket.
+*   **Listagem e Filtragem de Tickets:**
+    *   Permitir que usuários vejam seus próprios tickets.
+    *   Permitir que a equipe de suporte veja todos os tickets ou filtre por status, prioridade, atribuição, categoria, etc.
+    *   Paginação e ordenação de listas de tickets.
+*   **Notificações:**
+    *   Notificar usuários sobre atualizações em seus tickets (nova resposta, mudança de status) via `DeeperHub.Notifications`.
+    *   Notificar a equipe de suporte sobre novos tickets ou atualizações em tickets atribuídos.
 *   **Categorização e Priorização:**
-    *   Permitir a definição de categorias de tickets (ex: Problema Técnico, Dúvida de Cobrança, Sugestão).
-    *   Permitir a definição de níveis de prioridade (ex: Baixa, Média, Alta, Urgente).
-*   **Notificações (Integração com `DeeperHub.Notifications`):**
-    *   Notificar o usuário quando um ticket é criado ou atualizado pela equipe de suporte.
-    *   Notificar a equipe de suporte (ou agente atribuído) quando um novo ticket é criado ou um usuário responde a um ticket existente (via `NotificationIntegration`).
-*   **Base de Conhecimento (FAQ) (Integração/Opcional):**
-    *   Sugerir artigos relevantes da base de conhecimento enquanto o usuário cria um ticket para tentar resolver o problema autonomamente.
-    *   Permitir que agentes de suporte criem ou vinculem artigos da base de conhecimento a partir de tickets.
-*   **Escalação de Tickets:**
-    *   Mecanismo para escalar tickets que não são resolvidos dentro de um SLA (Service Level Agreement) ou que requerem atenção especializada (`check_request_escalation/2` - pode ser parte da lógica de atualização de status).
-*   **Relatórios e Estatísticas:**
-    *   Fornecer dados sobre o volume de tickets, tempos de resposta, tempos de resolução, satisfação do cliente (se houver pesquisa pós-resolução), etc. (`count_tickets_by_status/0`).
-*   **Limitação de Taxa (`RateLimitIntegration`):**
-    *   Aplicar rate limiting na criação de tickets e adição de mensagens para prevenir abuso.
-*   **Validação e Sanitização de Conteúdo:**
-    *   Validar e sanitizar o conteúdo dos tickets e mensagens para prevenir XSS e outros problemas (via `DeeperHub.Services.Shared.ContentValidation`).
-*   **Auditoria:**
-    *   Registrar todas as ações importantes em um ticket (criação, mudança de status, atribuição, resposta) no `DeeperHub.Audit`.
+    *   Permitir a categorização de tickets (ex: \"Problema Técnico\", \"Dúvida de Faturamento\", \"Sugestão\").
+    *   Definir níveis de prioridade para tickets (ex: Baixa, Média, Alta, Urgente).
+izarem e gerenciarem a fila de tickets (com filtros por status, prioridade, agente, etc.).
+    *   Busca de tickets por palavras-chave, ID, usuário, etc.
+*   **Notificações:**
+    *   Notificar usuários sobre atualizações em seus tickets (nova resposta, mudança de status) via `DeeperHub.Notifications`.
+    *   Notificar agentes de suporte sobre novos tickets ou tickets atribuídos a eles.
+*   **Priorização e SLA (Service Level Agreement):**
+    *   Definir prioridades para tickets.
+    *   (Opcional) Rastrear o tempo de resposta e resolução para garantir o cumprimento de SLAs.
+*   **Categorização de Tickets:**
+    *   Permitir a categorização de tickets para melhor organização e encaminhamento (ex: Técnico, Cobrança, Dúvida Geral).
+*   **Base de Conhecimento/FAQ (Integração Opcional):**
+    *   Sugerir artigos da base de conhecimento relevantes enquanto o usuário cria um ticket.
+    *   Permitir que agentes transformem respostas de tickets em artigos da base de conhecimento.
+*   **Administração e Relatórios:**
+    *   Interface para administradores configurarem o sistema de suporte (categorias, prioridades, regras de atribuição).
+    *   Geração de relatórios sobre o desempenho do suporte (tempo médio de resposta, volume de tickets, satisfação do cliente).
 
 ## 🏗️ 3. Arquitetura e Design
 
+`DeeperHub.Support` será uma fachada que interage com serviços de lógica de negócio e componentes de persistência.
+
+*   **Interface Pública (`DeeperHub.Support.SupportFacade` ou `DeeperHub.Support`):** Funções como `create_ticket/1`, `get_ticket/1`, `add_message_to_ticket/3`, `list_user_tickets/2`.
+*   **Serviço de Tickets (`DeeperHub.Support.Services.TicketService`):**
+    *   Contém a lógica de negócio principal para criar, atualizar, e gerenciar o estado dos tickets e mensagens.
+*   **Schemas Ecto:**
+    *   `DeeperHub.Support.Schema.SupportTicket`: Define um ticket de suporte.
+    *   `DeeperHub.Support.Schema.TicketMessage` (Novo Sugerido): Define uma mensagem individual dentro de um ticket.
+    *   `DeeperHub.Support.Schema.TicketCategory` (Opcional): Para categorias de tickets.
+    *   `Deeper*   **Anexos:**
+    *   Permitir que usuários e equipe de suporte anexem arquivos (logs, screenshots) aos tickets.
+*   **Métricas e Relatórios de Suporte:**
+    *   Coletar métricas como tempo de primeira resposta, tempo de resolução, número de tickets por categoria/status.
+    *   Gerar relatórios sobre o desempenho do suporte.
+*   **Base de Conhecimento/FAQ (Integração Potencial):**
+    *   Sugerir artigos da base de conhecimento relevantes ao usuário durante a criação do ticket.
+    *   Permitir que agentes de suporte facilmente referenciem ou criem artigos da base de conhecimento a partir de tickets.
+*   **Rate Limiting:**
+    *   Aplicar limites na criação de tickets ou adição de mensagens para prevenir abuso (via `DeeperHub.Services.Support.RateLimitIntegration`).
+*   **Validação e Sanitização de Conteúdo:**
+    *   Validar e sanitizar o conteúdo dos tickets e mensagens para prevenir XSS e outros problemas (via `DeeperHub.Services.Shared.ContentValidation`).
+
+## 🏗️ 3. Arquitetura e Design
+
+`DeeperHub.Support` atuará como uma fachada para um serviço de lógica de negócio e componentes de persistência.
+
+*   **Interface Pública (`DeeperHub.Support.SupportFacade` ou `DeeperHub.Support`):** Funções como `create_ticket/1`, `get_ticket/1`, `list_user_tickets/2`, `add_reply_to_ticket/3`.
+*   **Serviço de Suporte (`DeeperHub.Support.Services.SupportService` ou `DefaultSupportService`):**
+    *   Contém a lógica de negócio principal para gerenciar tickets.
+*   **Schemas Ecto:**
+    *   `DeeperHub.Support.Schema.SupportTicket`: Define um ticket de suporte.
+    *   `DeeperHub.Support.Schema.TicketMessage` (Novo Sugerido): Define uma mensagem/resposta dentro de um ticket.
+    *   `DeeperHub.Support.Schema.TicketAttachment` (Novo Sugerido): Define um anexo de ticket.
+*   **Integrações:**
+    *   `DeeperHub.Core.Repo`: Para persistência.
+    *   `DeeperHub.Core.EventBus`: Para publicar eventos (ex: `TicketCreatedEvent`, `TicketUpdatedEvent`).
+    *   `DeeperHub.Notifications`: Para enviar notificações a usuários e equipe de suporte.
+    *   `DeeperHub.Services.Shared.ContentValidation`: Para validar o conteúdo dos tickets.
+    *   `DeeperHub.Services.Support.RateLimitIntegration`: Para controle de taxa.
+    *   `DeeperHub.Core.BackgroundTaskManager`: Para tarefas como envio de lembretes ou escalonamento automático.
+
+**Padrões de Design:**
+
+*   **Fachada (Facade).**
+*   **Serviço de Domínio.**
+
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.Support` (Fachada Pública):**
-    *   Ponto de entrada para todas as operações relacionadas a tickets de suporte.
-    *   Delega para o `SupportService`.
-2.  **`DeeperHub.Support.Services.SupportService` (ou `DefaultSupportService`):**
-    *   **Responsabilidade:** Orquestra a lógica de negócio principal para o sistema de suporte.
-    *   **Interações:**
-        *   `DeeperHub.Core.Repo`: Para CRUD com `SupportTicketSchema` e `TicketMessageSchema`.
-        *   `DeeperHub.Accounts`: Para informações do usuário.
-        *   `DeeperHub.Auth`/`RBAC`: Para verificar permissões (ex: quem pode ver/responder/gerenciar tickets).
-        *   `DeeperHub.Notifications`: Para enviar notificações sobre atualizações de tickets.
-        *   `DeeperHub.Services.Shared.ContentValidation`: Para validar e sanitizar descrições e mensagens.
-        *   `DeeperHub.Core.EventBus`: Para publicar eventos (ex: `ticket.created`, `ticket.message_added`).
-        *   `DeeperHub.Core.ConfigManager`: Para configurações (categorias, prioridades padrão).
-        *   `DeeperHub.Support.RateLimitIntegration`.
-3.  **Schemas Ecto:**
-    *   **`DeeperHub.Support.Schemas.SupportTicketSchema` (ex-`SupportTicket`):** Entidade principal do ticket (id, user_id, subject, description, status, priority, category, assigned_agent_id, created_at, updated_at, resolved_at, closed_at).
-    *   **`DeeperHub.Support.Schemas.TicketMessageSchema` (Nova Sugestão):** Para armazenar as mensagens trocadas dentro de um ticket (ticket_id, user_id/agent_id, content, created_at, attachments).
-    *   **`DeeperHub.Support.Schemas.TicketCategorySchema` (Nova Sugestão):** Definições de categorias de tickets.
-    *   **`DeeperHub.Support.Schemas.TicketPrioritySchema` (Nova Sugestão):** Definições de prioridades.
-4.  **`DeeperHub.Support.Storage` (ou lógica dentro do `SupportService`):**
-    *   Encapsula as queries Ecto.
-5.  **`DeeperHub.Support.NotificationIntegration`:**
-    *   Lida especificamente com a lógica de quando e como enviar notificações relacionadas a tickets.
-6.  **`DeeperHub.Support.RateLimitIntegration`:**
-    *   Aplica políticas de rate limiting.
-7.  **Workers (Opcional):**
-    *   `TicketEscalationWorker`: Para verificar SLAs e escalar tickets.
-    *   `TicketReminderWorker`: Para enviar lembretes sobre tickets aguardando resposta.
-    *   `TicketAutoCloseWorker`: Para fechar automaticamente tickets resolvidos após um período de inatividade.
-
-### 3.2. Estrutura de Diretórios (Proposta)
-
-```
-lib/deeper_hub/support/
-├── support.ex                        # Fachada Pública
-│
-├── services/
-│   └── support_service.ex            # Serviço principal
-│
-├── schemas/                          # (Ou schema/)
-│   ├── support_ticket_schema.ex
-│   ├── ticket_message_schema.ex
-│   ├── ticket_category_schema.ex
-│   └── ticket_priority_schema.ex
-│
-├── storage.ex                        # (Opcional) Módulo de queries Ecto
-│
-├── integrations/                     # Renomeado de NotificationIntegration para ser mais genérico
-│   ├── notification_integration.ex
-│   ├── audit_integration.ex          # Para logar no DeeperHub.Audit
-│   └── event_integration.ex          # Para publicar no Core.EventBus
-│
-├── rate_limit_integration.ex
-│
-├── workers/                          # Opcional
-│   ├── ticket_escalation_worker.ex
-│   ├── ticket_reminder_worker.ex
-│   └── ticket_auto_close_worker.ex
-│
-├── supervisor.ex
-└── telemetry.ex
-```
-*(O `DefaultSupportService` e `SupportAdapter` da documentação original são consolidados no `SupportService` e na fachada `Support`)*
+*   **`DeeperHub.Support.SupportFacade`:** Ponto de entrada.
+*   **`DeeperHub.Support.Services.DefaultSupportService`:** Lógica de negócio.
+*   **`DeeperHub.Support.Schema.SupportTicket`:** Schema principal.
+*   **`DeeperHub.Support.Schema.TicketMessage`:** Schema para mensagens/respostas.
+*   **`DeeperHub.Support.NotificationIntegration`:** Lida com o envio de notificações específicas de suporte.
+*   **`DeeperHub.Support.RateLimitIntegration`:** Gerencia a limitação de taxa para operações de suporte.
+*   **`DeeperHub.Support.Supervisor`:** Supervisiona processos.
 
 ### 3.3. Decisões de Design Importantes
 
-*   **Ciclo de Vida do Ticket:** Definir claramente os diferentes status de um ticket e as transições permitidas entre eles.
-*   **Comunicação Clara:** Manter um histórico claro de todas as mensagens trocadas entre o usuário e a equipe de suporte dentro do ticket.
-*   **Notificações Eficazes:** Notificar as partes corretas no momento certo sobre atualizações nos tickets.
-*   **Métricas de Suporte:** Rastrear métricas chave (tempo de primeira resposta, tempo de resolução) é vital para a qualidade do serviço.
+*   **Fluxo de Status do Ticket:** Definir claramente os possíveis status de um ticket e as transições permitidas entre eles.
+*   **Hub.Support.Schema.TicketPriority` (Opcional): Para prioridades de tickets.
+*   **Serviço de Notificações (via `DeeperHub.Support.NotificationIntegration`):**
+    *   Lida com o envio de notificações para usuários e agentes.
+*   **Rate Limiting (via `DeeperHub.Support.RateLimitIntegration`):**
+    *   Protege contra abuso na criação de tickets ou mensagens.
+*   **Integrações:**
+    *   `DeeperHub.Core.Repo`: Para persistência.
+    *   `DeeperHub.Core.EventBus`: Para publicar eventos (ex: `TicketCreatedEvent`, `TicketUpdatedEvent`).
+    *   `DeeperHub.Notifications`: Para enviar emails/alertas sobre tickets.
+    *   `DeeperHub.Accounts`: Para associar tickets a usuários.
+    *   `DeeperHub.Core.InputValidator` e `DeeperHub.Services.Shared.ContentValidation`: Para validar e sanitizar o conteúdo dos tickets.
+
+**Padrões de Design:**
+
+*   **Fachada (Facade).**
+*   **Serviço de Domínio.**
+*   **State Machine:** Para gerenciar os diferentes status de um ticket e as transições permitidas.
+
+### 3.1. Componentes Principais
+
+*   **`DeeperHub.Support.SupportFacade`:** Ponto de entrada.
+*   **`DeeperHub.Support.Services.TicketService`:** Lógica de negócio principal.
+*   **`DeeperHub.Support.Schema.SupportTicket`:** Schema do ticket.
+*   **`DeeperHub.Support.Schema.TicketMessage`:** Schema das mensagens do ticket.
+*   **`DeeperHub.Support.NotificationIntegration`:** Envia notificações.
+*   **`DeeperHub.Support.RateLimitIntegration`:** Controla limites de taxa.
+*   **`DeeperHub.Support.Supervisor`:** Supervisiona processos.
+*   **Workers (ex: `TicketReminderWorker`, `AutoCloseWorker`):** Para tarefas periódicas como enviar lembretes ou fechar tickets inativos.
+
+### 3.3. Decisões de Design Importantes
+
+*   **Modelo de Dados:** Definir claramente a relação entre Tickets, Mensagens, Usuários e Agentes.
+*   **Fluxo de Status do Ticket:** Mapear todos os possíveis status de um ticket e as transições válidas entre eles.
+*   **Atribuição de Tickets:** Decidir sobre a estratégia de atribuição (manual, round-robin, baseada em categoria/habilidade).
 
 ## 🛠️ 4. Casos de Uso Principais
 
-*   **Usuário Cria um Novo Ticket de Suporte:**
-    *   Usuário preenche formulário na seção de ajuda.
-    *   API chama `DeeperHub.Support.create_ticket(user_id, ticket_attrs)`.
-    *   Serviço valida dados, sanitiza, persiste. Notifica o usuário da criação e a equipe de suporte sobre o novo ticket.
-*   **Agente de Suporte Responde a um Ticket:**
-    *   Agente visualiza o ticket em seu painel.
-    *   Escreve uma resposta e atualiza o status (ex: para \"Aguardando Resposta do Usuário\").
-    *   API chama `DeeperHub.Support.add_message_to_ticket(agent_id, ticket_id, message_content)` e `DeeperHub.Support.update_ticket_status(ticket_id, new_status, agent_id)`.
-    *   Notifica o usuário sobre a nova resposta.
-*   **Ticket é Resolvido:**
-    *   Após a solução do problema, o agente ou o usuário marca o ticket como resolvido.
-    *   API chama `DeeperHub.Support.update_ticket_status(ticket_id, :resolved, agent_or_user_id)`.
-    *   (Opcional) Envia uma pesquisa de satisfação.
+*   **Usuário Cria um Novo Ticket:** Um usuário preenche um formulário no site/app para relatar um problema.
+*   **Agente de Suporte Responde a um Ticket:** Um agente visualiza o ticket, escreve uma resposta e atualiza o status.
+*   **Usuário Adiciona Informações a um Ticket Existente:** O usuário responde a uma solicitação de mais informações da equipe de suporte.
+*   **Ticket é Resolvido e Fechado:** Após a solução do problema, o ticket é marcado como resolvido e, eventualmente, fechado.
+*   **Administrador Visualiza Relatórios de Suporte:** Um gerente de suporte analisa métricas como volume de tickets por categoria e tempo médio de resolução.
 
-## 🌊 5. Fluxos Importantes
+## 🌊 5. Fluxos Importantes (Opcional)
 
-### Fluxo de Criação e Primeira Resposta de um Ticket
+**Fluxo de Criação de um Novo Ticket:**
 
-1.  **Usuário (UI):** Submete o formulário de novo ticket.
-2.  **Controller API:** Chama `DeeperHub.Support.create_ticket(current_user.id, params[\"ticket\"])`.
-3.  **`SupportService.create_ticket/2`:**
-    *   Verifica rate limit (via `RateLimitIntegration`).
-    *   Valida e sanitiza `params[\"ticket\"]` (via `Shared.ContentValidation`).
-    *   Cria um `SupportTicketSchema` changeset.
-    *   Se válido, `Core.Repo.insert(changeset)`.
-    *   Se sucesso:
-        *   Chama `NotificationIntegration.notify_ticket_created(ticket, user_id)` -> que usa `DeeperHub.Notifications`.
-        *   Publica evento `support.ticket.created` via `Core.EventBus`.
-        *   Audita.
-        *   Retorna `{:ok, ticket_struct}`.
-4.  **Equipe de Suporte (UI Painel):** Vê o novo ticket.
-5.  **Agente de Suporte:** Abre o ticket, escreve uma resposta.
-6.  **Controller API (Painel Admin):** Chama `DeeperHub.Support.add_message_to_ticket(current_agent.id, ticket_id, message_params)` e depois `DeeperHub.Support.update_ticket_status(ticket_id, :in_progress, current_agent.id)`.
-7.  **`SupportService`:**
-    *   Valida e sanitiza a mensagem.
-    *   Cria um `TicketMessageSchema` associado ao ticket.
-    *   Atualiza o status do `SupportTicketSchema`.
-    *   Chama `NotificationIntegration.notify_ticket_replied(ticket, new_message_data)` para notificar o usuário.
-    *   Publica eventos e audita.
+1.  Usuário submete dados do novo ticket via API/UI.
+2.  `DeeperHub.API` (Controller) chama `DeeperHub.Support.SupportFacade.create_ticket(params)`.
+3.  `SupportFacade` delega para `DeeperHub.Support.Services.TicketService.create_ticket(params)`.
+4.  `TicketService` valida os `params` usando `Core.InputValidator` e `ContentValidation`.
+5.  Se válido, um novo registro `SupportTicket` é criado e persistido via `Core.Repo`.
+6.  Uma primeira `TicketMessage` (com a descrição inicial) pode ser criada e associada ao ticket.
+7.  Um evento `TicketCreatedEvent` é publicado no `Core.EventBus`.
+8.  O `Support.NotificationIntegration` (ou um listener do evento) envia uma notificação de confirmação para o usuário e, possivelmente, para a equipe de suporte.
+9.  Retorna `{:ok, ticket_criado}`.
 
-## 📡 6. API (Funções Públicas da Fachada `DeeperHub.Support`)
+## 📡 6. API (Se Aplicável)
 
-### 6.1. `DeeperHub.Support.create_ticket(user_id :: String.t() | nil, attrs :: map()) :: {:ok, SupportTicket.t()} | {:error, Ecto.Changeset.t() | term()}`
+### 6.1. `DeeperHub.Support.create_ticket/1`
 
-*   **Descrição:** Cria um novo ticket de suporte. `user_id` pode ser `nil` se tickets anônimos forem permitidos.
-*   **`attrs`:** `%{subject: String.t(), description: String.t(), category_id: String.t() | nil, priority_id: String.t() | nil, attachments: list(map()) | nil}`.
+*   **Descrição:** Cria um novo ticket de suporte.
+*   **`@spec`:** `create_ticket(attrs :: map()) :: {:ok, SupportTicket.t()} | {:error, Ecto.Changeset.t() | reason}`
+*   **Parâmetros:**
+    *   `attrs` (map): Atributos do ticket.
+        *   `:user_id` (String, obrigatório): ID do usuário queAtribuição de Tickets:** Como os tickets são atribuídos à equipe de suporte (manual, round-robin, baseado em categoria/habilidade).
+*   **SLA (Service Level Agreements):** Se o sistema precisa rastrear e alertar sobre SLAs (ex: tempo de primeira resposta, tempo de resolução).
 
-### 6.2. `DeeperHub.Support.get_ticket(ticket_id :: String.t(), opts :: keyword()) :: {:ok, SupportTicketView.t() | nil}`
+## 🛠️ 4. Casos de Uso Principais
 
-*   **Descrição:** Obtém os detalhes de um ticket, incluindo suas mensagens.
-*   **`SupportTicketView.t()`:** Struct do ticket com `messages` pré-carregadas e informações de usuário/agente.
-*   **`opts`:** `:requesting_user_id` (para verificar permissão de visualização).
+*   **Usuário Cria um Novo Ticket:** Um usuário com um problema preenche um formulário e submete um novo ticket de suporte.
+*   **Agente de Suporte Responde a um Ticket:** Um agente da equipe de suporte visualiza um ticket atribuído a ele e adiciona uma resposta para o usuário.
+*   **Usuário Verifica o Status do seu Ticket:** O usuário acessa a seção de suporte para ver o status atual de seus tickets abertos.
+*   **Sistema Envia Lembrete:** Para um ticket que está aguardando resposta do usuário por X dias, o sistema envia um lembrete.
+*   **Administrador Gera Relatório de Suporte:** Um administrador gera um relatório sobre o número de tickets resolvidos no último mês, categorizados por tipo.
 
-### 6.3. `DeeperHub.Support.list_tickets(filters :: map(), opts :: keyword()) :: {:ok, list(SupportTicketListItem.t()), Pagination.t()}` (Admin/Suporte)
+## 🌊 5. Fluxos Importantes (Opcional)
 
-*   **Descrição:** Lista tickets para a equipe de suporte.
-*   **`filters`:** `:status`, `:priority_id`, `:category_id`, `:assigned_agent_id`, `:user_email_contains`.
-*   **`SupportTicketListItem.t()`:** Uma visão resumida do ticket.
+**Fluxo de Criação e Primeira Resposta de um Ticket:**
 
-### 6.4. `DeeperHub.Support.list_user_tickets(user_id :: String.t(), filters :: map(), opts :: keyword()) :: {:ok, list(SupportTicketListItem.t()), Pagination.t()}`
+1.  Usuário submete um formulário de criação de ticket via API/UI.
+2.  `DeeperHub.API` (Controller) chama `DeeperHub.Support.SupportFacade.create_ticket(params)`.
+3.  `SupportFacade` delega para `DefaultSupportService.create_ticket(params)`.
+4.  `DefaultSupportService`:
+    *   Valida os `params` usando `SupportTicket.changeset/2` e `Shared.ContentValidation`.
+    *   Se válido, cria o registro `SupportTicket` no banco de dados via `Core.Repo`.
+    *   Publica um evento `TicketCreatedEvent` no `Core.EventBus`.
+    *   Envia uma notificação para o usuário confirmando a criação do ticket (via `NotificationIntegration`).
+    *   Envia uma notificação para a equipe de suporte sobre o novo ticket.
+5.  O ticket aparece na fila da equipe de suporte.
+6.  Um agente de suporte seleciona o ticket e adiciona uma resposta via API/UI.
+7.  `DeeperHub.API` chama `DeeperHub.Support.SupportFacade.add_reply_to_ticket(ticket_id, agent_id, reply_params)`.
+8.  `DefaultSupportService`:
+    *   Valida a resposta.
+    *   Cria um registro `TicketMessage`.
+    *   Atualiza o status do `SupportTicket` (ex: para \"Aguardando Resposta do Usuário\").
+    *   Publica um evento `TicketRepliedEvent`.
+    *   Envia uma notificação para o usuário sobre a nova resposta.
 
-*   **Descrição:** Lista os tickets de um usuário específico.
-*   **`filters`:** `:status`.
+## 📡 6. API (Se Aplicável)
 
-### 6.5. `DeeperHub.Support.add_message_to_ticket(actor_id :: String.t(), ticket_id :: String.t(), message_attrs :: map()) :: {:ok, TicketMessage.t()} | {:error, Ecto.Changeset.t() | :unauthorized | :ticket_closed}`
+### 6.1. `DeeperHub.Support.create_ticket/1`
 
-*   **Descrição:** Adiciona uma nova mensagem a um ticket existente.
-*   **`actor_id`:** ID do usuário ou agente de suporte que está adicionando a mensagem.
-*   **`message_attrs`:** `%{content: String.t(), attachments: list(map()) | nil, is_internal_note: boolean() | false}`.
+*   **Descrição:** Cria um novo ticket de suporte.
+*   **`@spec`:** `create_ticket(attrs :: map()) :: {:ok, SupportTicket.t()} | {:error, Ecto.Changeset.t() | reason}`
+*   **Parâmetros:**
+    *   `attrs` (map): Atributos do ticket.
+        *   `user_id` (String): ID do usuário que está criando o ticket.
+        *   `subject` (String): Assunto do ticket.
+        *   `description` (String): Descrição detalhada do problema/pergunta.
+        *   `category` (String, opcional): Categoria do ticket.
+        *   `priority` (atom, opcional): Prioridade (ex: `:low`, `:medium`, `:high`). (Padrão: `:medium`)
+*   **Retorno:** O ticket criado ou um changeset/razão de erro.
+*   **Exemplo de Uso (Elixir):**
+    ```elixir
+    ticket_attrs = %{
+      user_id: current_user.id,
+      subject: \"Não consigo fazer login\",
+      description: \"Ao tentar logar, recebo a mensagem 'Usuário não encontrado', mas tenho certeza que meu email está correto.\",
+      category: \"Problema Técnico\"
+    }
+    case DeeperHub.Support.create_ticket(ticket_attrs) do
+      {:ok, ticket} -> Logger.info(\"Ticket #{ticket.id} criado.\")
+      {:error, reason} -> Logger.error(\"Falha ao criar ticket: #{inspect(reason)}\")
+    end
+    ```
 
-### 6.6. `DeeperHub.Support.update_ticket_status(ticket_id :: String.t(), new_status :: atom(), actor_id :: String.t(), opts :: keyword()) :: {:ok, SupportTicket.t()} | {:error, :invalid_transition | term()}`
+### 6.2. `DeeperHub.Support.get_ticket/1`
 
-*   **Descrição:** Atualiza o status de um ticket.
-*   **`new_status`:** Ex: `:open`, `:in_progress`, `:awaiting_user`, `:resolved`, `:closed`.
-*   **`opts`:** `:resolution_notes` (String.t) se o status for `:resolved`.
+*   **Descrição:** Obtém os detalhes de um ticket de suporte específico.
+*   **`@spec`:** `get_ticket(ticket_id :: String.t()) :: {:ok, SupportTicket.t()} | {:error, :not_found | reason}`
+*   **Parâmetros:**
+    *   `ticket_id` (String): O ID do ticket.
+*   **Retorno:** O ticket encontrado ou um erro.
+*   **Exemplo de Uso (Elixir):**
+    ```elixir
+    {:ok, ticket_details} = DeeperHub.Support.get_ticket(\"ticket_xyz\")
+    ```
 
-### 6.7. `DeeperHub.Support.assign_ticket(ticket_id :: String.t(), agent_id :: String.t(), assigning_admin_id :: String.t()) :: {:ok, SupportTicket.t()} | {:error, term()}` (Nova Sugestão)
+### 6.3. `Deeper está criando o ticket.
+        *   `:subject` (String, obrigatório): Assunto do ticket.
+        *   `:description` (String, obrigatório): Descrição detalhada do problema/pergunta.
+        *   `:category_id` (String, opcional): ID da categoria do ticket.
+        *   `:priority` (atom, opcional): Prioridade (ex: `:low`, `:normal`, `:high`, `:urgent`). (Padrão: `:normal`)
+        *   `:attachments` (list, opcional): Lista de informações de anexos.
+*   **Retorno:** O ticket criado ou um changeset com erros.
+*   **Exemplo de Uso (Elixir):**
+    ```elixir
+    ticket_data = %{
+      user_id: current_user.id,
+      subject: \"Problema com login\",
+      description: \"Não consigo acessar minha conta, aparece erro X.\",
+      priority: :high
+    }
+    case DeeperHub.Support.create_ticket(ticket_data) do
+      {:ok, ticket} -> Logger.info(\"Ticket #{ticket.id} criado.\")
+      {:error, changeset} -> Logger.error(\"Erro ao criar ticket: #{inspect(changeset.errors)}\")
+    end
+    ```
 
-*   **Descrição:** Atribui um ticket a um agente de suporte.
+### 6.2. `DeeperHub.Support.add_message_to_ticket/3`
 
-### 6.8. `DeeperHub.Support.get_ticket_categories() :: {:ok, list(TicketCategory.t())}` (Nova Sugestão)
-### 6.9. `DeeperHub.Support.get_ticket_priorities() :: {:ok, list(TicketPriority.t())}` (Nova Sugestão)
+*   **Descrição:** Adiciona uma nova mensagem (resposta) a um ticket existente.
+*   **`@spec`:** `add_message_to_ticket(ticket_id :: String.t(), author_id :: String.t(), message_attrs :: map()) :: {:ok, TicketMessage.t()} | {:error, reason}`
+*   **Parâmetros:**
+    *   `ticket_id` (String): O ID do ticket.
+    *   `author_id` (String): O ID do autor da mensagem (usuário ou agente).
+    *   `message_attrs` (map): Atributos da mensagem.
+        *   `:content` (String, obrigatório): Conteúdo da mensagem.
+        *   `:is_internal_note` (boolean, opcional): Se a mensagem é uma nota interna para a equipe. (Padrão: `false`)
+        *   `:attachments` (list, opcional).
+*   **Retorno:** A mensagem criada ou um erro.
+*   **Exemplo de Uso (Elixir):**
+    ```elixir
+    message_data = %{content: \"Por favor, poderia me fornecer mais detalhes sobre o erro?\"}
+    case DeeperHub.Support.add_message_to_ticket(\"ticket_abc\", agent_user.id, message_data) do
+      {:ok, msg} -> Logger.info(\"Mensagem adicionada ao ticket #{msg.ticket_id}\")
+      {:error, reason} -> Logger.error(\"Erro ao adicionar mensagem: #{reason}\")
+    end
+    ```
+
+*(Outras funções como `get_ticket/1`, `list_user_tickets/2`, `update_ticket_status/2` seriam documentadas aqui).*
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager`:
-
-*   **`[:support, :enabled]`** (Boolean): Habilita/desabilita o sistema de suporte.
-*   **`[:support, :allow_anonymous_tickets]`** (Boolean): Permite que visitantes não logados criem tickets. (Padrão: `false`)
-*   **`[:support, :default_priority_id]`** (String): ID da prioridade padrão para novos tickets.
-*   **`[:support, :default_category_id]`** (String): ID da categoria padrão.
-*   **`[:support, :max_description_length]`** (Integer): Comprimento máximo da descrição do ticket.
-*   **`[:support, :max_attachments_per_ticket]`** (Integer).
-*   **`[:support, :max_attachment_size_mb]`** (Integer).
-*   **`[:support, :auto_close_resolved_tickets_after_days]`** (Integer | nil): Dias para fechar automaticamente tickets resolvidos sem resposta do usuário.
-*   **`[:support, :sla, :first_response_hours, <priority_id>]`** (Integer): SLA de primeira resposta por prioridade.
-*   **`[:support, :sla, :resolution_hours, <priority_id>]`** (Integer): SLA de resolução por prioridade.
-*   **`[:support, :notification, :notify_user_on_creation]`** (Boolean).
-*   **`[:support, :notification, :notify_agent_on_assignment]`** (Boolean).
-*   **`[:support, :notification, :notify_user_on_reply]`** (Boolean).
-*   **`[:support, :notification, :support_team_email_group]`** (String): Email do grupo de suporte para notificações de novos tickets.
+*   **ConfigManager (`DeeperHub.Core.ConfigManager`):**
+    *   `[:support, :default_priority]`: Prioridade padrão para novos tickets. (Padrão: `:normal`)
+    *   `[:support, :categories]`: Lista de categorias de tickets disponíveis (ex: `[\"technical\", \"billing\", \"general\"]`).
+    *   `[:support, :sla, :response_time_hours, :high_priority]`: SLA de tempo de resposta para tickets de alta prioridade.
+    *   `[:support, :auto_close_inactive_days]`: Número de dias de inatividade para fechar automaticamente um ticket resolvido. (Padrão: `7`)
+    *   `[:support, :attachments, :max_size_mb]`: Tamanho máximo para anexos.
+    *   `[:support, :attachments, :allowed_types]`: Tipos de arquivos permitidos para anexos.
 
 ## 🔗 8. Dependências
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.*`: Todos os módulos Core.
-*   `DeeperHub.Accounts`: Para `user_id` e informações do usuário.
-*   `DeeperHub.Auth`/`RBAC`: Para permissões de agentes e admins.
-*   `DeeperHub.Notifications`: Para todas as notificações de ticket.
-*   `DeeperHub.Services.Shared.ContentValidation`: Para validar e sanitizar conteúdo.
-*   `DeeperHub.Support.RateLimitIntegration`.
-*   Um serviço de Armazenamento de Arquivos (se houver anexos).
-*   `DeeperHub.Audit`.
+*   `DeeperHub.Core.Repo`
+*   `DeeperHub.Core.ConfigManager`
+*   `DeeperHub.Core.EventBus`
+*   `DeeperHub.Core.BackgroundTaskManager`
+*   `DeeperHub.Notifications`
+*   `DeeperHub.Accounts`
+*   `DeeperHub.Core.InputValidator`, `DeeperHub.Services.Shared.ContentValidation`
+*   `DeeperHub.Core.Logger`, `DeeperHub.Core.Metrics`
 
 ### 8.2. Bibliotecas Externas
 
-*   `Ecto`.
+*   `Ecto`
+*   Opcionalmente, bibliotecas para parsear/renderizar markdown se usado nas mensagens.
 
 ## 🤝 9. Como Usar / Integração
 
-*   **Interface do Usuário (Seção de Ajuda/Suporte):**
-    *   Formulário para `create_ticket`.
-    *   Listagem para `list_user_tickets`.
-    *   Visualização e adição de mensagens para `get_ticket` e `add_message_to_ticket`.
-*   **Painel de Administração/Suporte:**
-    *   Dashboard com `list_tickets` e filtros avançados.
-    *   Funcionalidades para atribuir, atualizar status, responder e escalar tickets.
-*   **Alertas do Sistema:** Outros módulos podem, em caso de erro persistente ou problema complexo, programaticamente criar um ticket de suporte em nome do usuário ou para a equipe interna.
+*   **UI/Frontend:** Os usuários interagem com o sistema de suporte através de uma interface web ou mobile para criar e acompanhar tickets.
+*   **Equipe de Suporte:** Agentes usam uma interface de backoffice para gerenciar e responder aos tickets.
+*   O módulo `Notifications` é usado extensivamente para manter todos informados.
 
 ## ✅ 10. Testes e Observabilidade
 
 ### 10.1. Testes
 
-*   Testar o ciclo de vida completo de um ticket (criação, respostas, mudança de status, resolução, fechamento).
-*   Testar a lógica de permissão (usuário só pode ver seus tickets, agente pode ver tickets atribuídos, etc.).
-*   Testar a validação e sanitização de conteúdo.
-*   Testar o envio de notificações em cada etapa.
-*   Testar a funcionalidade de anexos.
-*   Testar os workers (escalação, auto-fechamento).
-*   Localização: `test/deeper_hub/support/`.
+*   Testar o fluxo completo de criação de ticket, adição de mensagens e mudança de status.
+*   Testar as validações de entrada para criação de tickets e mensagens.
+*   Testar a lógica de atribuição de tickets (se houver).
+*   Testar o envio de notificações em diferentes etapas.
+*   Localização: `test/deeper_hub/support/`
 
 ### 10.2. Métricas
 
-*   `deeper_hub.support.tickets.created.count` (tags: `category_id`, `priority_id`, `channel` (`web`, `api`, `email`))
-*   `deeper_hub.support.tickets.resolved.count` (tags: `category_id`)
-*   `deeper_hub.support.tickets.closed.count`
-*   `deeper_hub.support.tickets.status_changed.count` (tags: `from_status`, `to_status`)
-*   `deeper_hub.support.tickets.messages_added.count` (tags: `actor_type` (`user`, `agent`))
-*   `deeper_hub.support.tickets.avg_first_response_time_minutes.gauge` (Gauge, tags: `priority_id`)
-*   `deeper_hub.support.tickets.avg_resolution_time_hours.gauge` (Gauge, tags: `priority_id`)
-*   `deeper_hub.support.tickets.open_tickets.gauge` (Gauge, tags: `priority_id`, `category_id`)
+*   `deeper_hub.support.ticket.created.count` (Contador): Número de tickets criados. Tags: `category`, `priority`.
+*   `deeper_hub.support.ticket.resolved.count` (Contador): Número de tickets resolvidos.
+*   `deeper_hub.support.ticket.closed.count` (Contador): Número de tickets fechados.
+*   `deeper_hub.support.ticket.response_time_hours` (Histograma): Tempo para a primeira resposta a um ticket. Tags: `priority`.
+*   `deeper_hub.support.ticket.resolution_time_hours` (Histograma): Tempo total para resolver um ticket. Tags: `priority`.
+*   `deeper_hub.support.tickets_open.gauge` (Gauge): Número de tickets atualmente abertos. Tags: `category`.
 
 ### 10.3. Logs
 
-*   **Nível INFO:** Ticket criado, status alterado, mensagem adicionada.
-*   **Nível WARNING:** SLA de primeira resposta ou resolução próximo de estourar. Tentativa de ação não permitida (ex: usuário tentando fechar ticket de outro).
-*   **Nível ERROR:** Falha ao criar ticket, falha ao enviar notificação de ticket.
+*   `Logger.info(\"Ticket #{id} criado por user_id: #{uid}\", module: DeeperHub.Support.Services.TicketService)`
+*   `Logger.info(\"Mensagem adicionada ao ticket #{id} por author_id: #{aid}\", module: DeeperHub.Support.Services.TicketService)`
+*   `Logger.info(\"Status do ticket #{id} alterado para #{new_status} por actor_id: #{act_id}\", module: DeeperHub.Support.Services.TicketService)`
 
 ### 10.4. Telemetria
 
-*   `[:deeper_hub, :support, :ticket, :created | :updated | :status_changed | :message_added]`
-    *   Metadados: `%{ticket_id: id, user_id: id, agent_id: id, changes: map}`
-*   `[:deeper_hub, :support, :sla, :breached]`
-    *   Metadados: `%{ticket_id: id, sla_type: :first_response | :resolution, priority: prio}`
+*   `[:deeper_hub, :support, :ticket, :created]`: Payload: `%{ticket: ticket_struct}`.
+*   `[:deeper_hub, :support, :ticket, :message_added]`: Payload: `%{ticket_id: tid, message: message_struct}`.
+*   `[:deeper_hub, :support, :ticket, :status_changed]`: Payload: `%{ticket_id: tid, old_status: old, new_status: new, actor_id: aid}`.
 
 ## ❌ 11. Tratamento de Erros
 
-*   Falhas de validação ao criar/atualizar retornam `{:error, changeset}`.
-*   Operações não autorizadas retornam `{:error, :unauthorized}`.
-*   Tentativas de operar em tickets não existentes retornam `{:error, :not_found}`.
-*   Falhas no envio de notificações são logadas, mas não devem impedir a operação principal no ticket.
+*   Falhas de validação na criação de tickets/mensagens retornam `{:error, changeset}`.
+*   `{:error, :ticket_not_found}`.
+*   `{:error, :unauthorized_action}` (ex: usuário tentando modificar ticket de outro).
+*   Erros de comunicação com o serviço de notificações devem ser tratados de forma resiliente.
 
 ## 🛡️ 12. Considerações de Segurança
 
-*   **Sanitização de Conteúdo:** Todas as descrições e mensagens devem ser sanitizadas para prevenir XSS.
-*   **Proteção de Anexos:** Anexos devem ser escaneados por vírus e ter seu tipo de conteúdo validado. O acesso a anexos deve ser controlado.
-*   **Privacidade dos Dados do Ticket:** Apenas o autor do ticket, agentes atribuídos e administradores com permissão devem poder visualizar o conteúdo completo de um ticket.
-*   **Não Incluir Dados Sensíveis Desnecessários:** Instruir usuários a não incluir senhas ou outros dados altamente sensíveis nos tickets. Se necessário, fornecer um canal seguro separado.
+*   **Validação de Conteúdo:** O conteúdo de tickets e mensagens deve ser sanitizado para prevenir XSS, especialmente se for exibido em uma interface web.
+*   **Anexos:** Anexos devem ser verificados quanto a malware e tipos de arquivo perigosos.
+*   **Controle de Acesso:** Garantir que apenas o criador do ticket e os agentes de suporte autorizados possam visualizar e interagir com um ticket. Notas internas devem ser visíveis apenas para agentes.
+*   **Privacidade de Dados:** Tickets podem conter informações pessoais. Proteger o acesso e considerar políticas de retenção para dados de suporte.
 
 ## 🧑‍💻 13. Contribuição
 
-*   Mantenha a lógica de transição de status clara e bem definida.
-*   Garanta que as notificações sejam relevantes e enviadas para as partes corretas.
-*   Adicione testes para todos os novos fluxos e validações.
+*   Novas funcionalidades (ex: atribuição automática, integração com FAQ) devem ser adicionadas em módulos de serviço dedicados ou estendendo o `TicketService`.
+*   Manter os fluxos de status e as notificações consistentes.
 
 ## 🔮 14. Melhorias Futuras e TODOs
 
-*   [ ] Implementar uma Base de Conhecimento (FAQ) integrada e sugestão de artigos durante a criação do ticket.
-*   [ ] Permitir que usuários avaliem a qualidade do suporte recebido após a resolução do ticket.
-*   [ ] Funcionalidade de \"campos customizados\" para tickets, permitindo que administradores adicionem campos específicos para diferentes categorias de problemas.
-*   [ ] Integração com email para que usuários possam responder a notificações de ticket por email e suas respostas sejam adicionadas ao ticket.
-*   [ ] Atribuição automática de tickets a agentes com base em carga de trabalho, especialidade ou round-robin.
-*   [ ] Relatórios mais detalhados para a equipe de suporte (desempenho de agentes, gargalos, etc.).
-*   [ ] Suporte a \"tickets internos\" para comunicação entre equipes.
+*   [ ] Implementar uma base de conhecimento (FAQ) e sugerir artigos durante a criação do ticket.
+*   [ ] Adicionar atribuição automática de tickets para agentes com base em carga de trabalho ou especialidade.
+*   [ ] Suporte para campos customizados em tickets.
+*   [ ] Integração com ferramentas de chat de suporte ao vivo.
+*   [ ] Implementar SLAs mais detalhados e relatórios de conformidade.
+*   [ ] Pesquisa full-text no conteúdo dos tickets.
 
 ---
 
-*Última atualização: 2025-05-12*
+*Última atualização: YYYY-MM-DD*
 
 ---
 
-O sistema de suporte é outra peça importante para a satisfação do usuário.
-
-Agora, o que acha de explorarmos `DeeperHub.UserInteractions` para ver como os usuários interagem socialmente na plataforma, ou talvez o `DeeperHub.OAuth` para detalhar a autenticação com provedores externos?"""),
+Continuamos com `DeeperHub.UserInteractions`?"""),
             ],
         ),
         types.Content(
@@ -334,7 +409,7 @@ Agora, o que acha de explorarmos `DeeperHub.UserInteractions` para ver como os u
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Excelente! Vamos continuar com o `DeeperHub.UserInteractions`. Este módulo é focado nas funcionalidades sociais e de interação entre os usuários da plataforma DeeperHub.
+                types.Part.from_text(text="""Perfeito! Próximo README: `DeeperHub.UserInteractions`.
 
 ---
 

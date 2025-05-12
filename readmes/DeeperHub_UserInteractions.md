@@ -1,313 +1,330 @@
-# Módulo: `DeeperHub.UserInteractions` 🚀
+# Módulo: `DeeperHub.UserInteractions` 💬
 
 ## 📜 1. Visão Geral do Módulo `DeeperHub.UserInteractions`
 
-O módulo `DeeperHub.UserInteractions` gerencia as **interações sociais e engajamentos entre os usuários** da plataforma DeeperHub, bem como as interações dos usuários com entidades como servidores. Ele abrange funcionalidades como seguir servidores, adicionar servidores aos favoritos, enviar mensagens privadas, dar feedback, fazer recomendações e reportar conteúdo ou usuários.
-
-O objetivo deste módulo é enriquecer a experiência social na plataforma, permitir que os usuários se conectem, compartilhem opiniões e ajudem a manter a comunidade segura e relevante. 😊
-
-*(Nota: Na documentação original, este era `DeeperHub.Services.UserInteractions`. Estamos tratando-o como um contexto de domínio mais amplo.)*
+O módulo `DeeperHub.UserInteractions` é responsável por gerenciar as diversas formas de interação social e engajamento entre usuários e com entidades (como servidores) dentro da plataforma DeeperHub. Ele engloba funcionalidades como seguir entidades, favoritar, enviar mensagens diretas, dar feedback, fazer recomendações e reportar conteúdo ou usuários. O objetivo é fomentar uma comunidade ativa e fornecer mecanismos para interações positivas e gerenciamento de interações negativas. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
-*   **Favoritar Servidores (`add_favorite/2`, `remove_favorite/2`, `list_favorites/2`, `is_favorite?/2`):**
-    *   Permitir que usuários marquem servidores como favoritos.
-    *   Listar os servidores favoritos de um usuário.
-    *   Verificar se um usuário favoritou um servidor específico.
-*   **Seguir Servidores (Nova Sugestão, similar a favoritos mas com semântica de \"receber atualizações\"):**
-    *   Permitir que usuários sigam servidores para receber notificações sobre suas atualizações ou eventos.
-    *   Gerenciar a lista de seguidores de um servidor e servidores seguidos por um usuário.
-*   **Mensagens Diretas entre Usuários (Chat) (`send_chat_message/1`, `list_chat_messages/3`):**
-    *   Permitir que usuários enviem e recebam mensagens diretas uns dos outros.
-    *   Manter o histórico de conversas.
-    *   (Opcional) Indicação de status (online, offline, digitando).
-    *   (Opcional) Notificações de novas mensagens.
-*   **Recomendações de Servidores (`create_or_update_recommendation/1`, `list_recommendations_for_user/2`):**
-    *   Permitir que usuários recomendem servidores para outros usuários ou para a comunidade.
-    *   O sistema pode gerar recomendações automáticas com base no comportamento do usuário ou similaridade.
-*   **Feedback sobre a Plataforma (`submit_feedback/1`, `list_feedback/1`):**
-    *   Permitir que usuários enviem feedback geral sobre a plataforma DeeperHub (sugestões, bugs, usabilidade).
-*   **Denúncias (Reports) de Conteúdo ou Usuários (`create_report/1`, `list_reports/1`):**
-    *   Permitir que usuários denunciem servidores, reviews, mensagens de chat, ou outros usuários por comportamento inadequado ou violação das diretrizes.
-    *   Gerenciar o fluxo de moderação dessas denúncias.
-*   **Reações (Likes/Dislikes/Votos) em Conteúdo (Nova Sugestão, ou parte de cada módulo de conteúdo):**
-    *   Permitir que usuários reajam (ex: curtir, dar um upvote/downvote) a reviews, mensagens de atualização de servidor, etc.
-*   **Listas de Amigos/Conexões (Nova Sugestão):**
-    *   Permitir que usuários adicionem outros como amigos ou conexões.
-    *   Visualizar a atividade de amigos (com controle de privacidade).
-*   **Observabilidade e Auditoria:**
-    *   Logar e metrificar interações.
-    *   Publicar eventos de domínio (ex: `user.favorited_server`, `chat.message_sent`).
-    *   Auditar denúncias e ações de moderação.
+*   **Favoritos (Ex: Usuário favoritando um Servidor):**
+    *   Permitir que usuários marquem entidades (ex: Servidores) como favoritas.
+    *   Listar os favoritos de um usuário.
+    *   Remover um item dos favoritos.
+*   **Seguir (Ex: Usuário seguindo um Servidor, Usuário seguindo outro Usuário):**
+    *   Permitir que usuários sigam outras entidades para receber atualizações.
+    *   Listar quem um usuário segue e quem segue um usuário/entidade.
+    *   Deixar de seguir.
+*   **Mensagens Diretas/Chat (Usuário para Usuário):**
+    *   Permitir que usuários troquem mensagens privadas.
+    *   Listar conversas e mensagens.
+    *   MarInteractions.Schema.Favorite`: Para favoritos.
+    *   `DeeperHub.UserInteractions.Schema.Follow`: Para seguidores.
+    *   `DeeperHub.UserInteractions.Schema.ChatMessage`: Para mensagens de chat.
+    *   `DeeperHub.UserInteractions.Schema.Recommendation`: Para recomendações.
+    *   `DeeperHub.UserInteractions.Schema.Feedback`: Para feedback.
+    *   `DeeperHub.UserInteractions.Schema.Report`: Para denúncias.
+*   **Integrações:**
+    *   `DeeperHub.Core.Repo`: Para persistência.
+    *   `DeeperHub.Core.EventBus`: Para publicar eventos de interação.
+    *   `DeeperHub.Notifications`: Para notificar usuários sobre interações.
+    *   `DeeperHub.Accounts`: Para obter informações de usuários.
+    *   `DeeperHub.Servers` (ou outros módulos de conteúdo): Para associar interações a entidades específicas.
 
-## 🏗️ 3. Arquitetura e Design
+**Padrões de Design:**
+
+*   **Fachada (Facade).**
+*   **Serviço de Domínio para cada tipo de interação.**
 
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.UserInteractions` (Fachada Pública):**
-    *   Ponto de entrada para todas as operações de interação social.
-    *   Delega para o `UserInteractionsService`.
-2.  **`DeeperHub.UserInteractions.Services.UserInteractionsService` (ou `DefaultUserInteractionsService`):**
-    *   **Responsabilidade:** Orquestra a lógica de negócio para as diferentes interações.
-    *   **Interações:**
-        *   `DeeperHub.Core.Repo`: Para CRUD com os schemas de interação (`FavoriteSchema`, `ChatMessageSchema`, `FeedbackSchema`, `RecommendationSchema`, `ReportSchema`, etc.).
-        *   `DeeperHub.Accounts`: Para validar `user_id` e obter informações de usuário.
-        *   `DeeperHub.Servers`: Para validar `server_id` ao favoritar/recomendar.
-        *   `DeeperHub.Auth`/`RBAC`: Para verificar permissões (ex: se um usuário pode enviar mensagem para outro, se moderador pode ver denúncias).
-        *   `DeeperHub.Notifications`: Para notificar usuários sobre novas mensagens, feedback respondido, etc.
-        *   `DeeperHub.Core.EventBus`: Para publicar eventos de interação.
-        *   `DeeperHub.Core.Cache`: Para cachear dados como listas de favoritos ou contagens de reações.
-3.  **Schemas Ecto:**
-    *   **`DeeperHub.UserInteractions.Schemas.FavoriteSchema`:** (`user_id`, `server_id`, `added_at`).
-    *   **`DeeperHub.UserInteractions.Schemas.FollowSchema` (Nova):** (`follower_user_id`, `followed_entity_type` (ex: `:server`, `:user`), `followed_entity_id`, `followed_at`).
-    *   **`DeeperHub.UserInteractions.Schemas.ChatMessageSchema`:** (`sender_id`, `receiver_id`, `content`, `sent_at`, `read_at`).
-    *   **`DeeperHub.UserInteractions.Schemas.FeedbackSchema`:** (`user_id` (opcional), `type` (`:bug`, `:suggestion`, `:complaint`), `content`, `status` (`:new`, `:in_progress`, `:resolved`), `submitted_at`).
-    *   **`DeeperHub.UserInteractions.Schemas.RecommendationSchema`:** (`recommender_user_id`, `recommended_server_id`, `target_user_id` (opcional, se for para um usuário específico), `reason`, `score` (opcional), `created_at`).
-    *   **`DeeperHub.UserInteractions.Schemas.ReportSchema`:** (`reporter_user_id`, `reported_entity_type` (`:user`, `:server`, `:review`, `:chat_message`), `reported_entity_id`, `reason_category`, `details`, `status` (`:pending_review`, `:action_taken`, `:dismissed`), `submitted_at`).
-    *   **`DeeperHub.UserInteractions.Schemas.ReactionSchema` (Nova):** (`user_id`, `target_entity_type`, `target_entity_id`, `reaction_type` (`:like`, `:dislike`, `:helpful`, etc.), `created_at`).
-    *   **`DeeperHub.UserInteractions.Schemas.FriendshipSchema` (Nova):** (`user1_id`, `user2_id`, `status` (`:pending`, `:accepted`, `:blocked`), `requested_at`, `accepted_at`).
-4.  **`DeeperHub.UserInteractions.Storage` (ou lógica no `UserInteractionsService`):**
-    *   Encapsula as queries Ecto.
-5.  **Workers (Opcional):**
-    *   `NotificationDispatcherWorker`: Para enviar notificações de novas mensagens de chat ou outras interações de forma assíncrona.
-    *   `ReportModerationQueueWorker`: Para processar denúncias e atribuí-las a moderadores.
-    *   `RecommendationEngineWorker`: Para gerar recomendações automáticas em background.
-
-### 3.2. Estrutura de Diretórios (Proposta)
-
-```
-lib/deeper_hub/user_interactions/
-├── user_interactions.ex              # Fachada Pública
-│
-├── services/
-│   └── user_interactions_service.ex  # Serviço principal
-│   # Potencialmente, serviços mais específicos: ChatService, ReportService, etc.
-│
-├── schemas/
-│   ├── favorite_schema.ex
-│   ├── follow_schema.ex
-│   ├── chat_message_schema.ex
-│   ├── feedback_schema.ex
-│   ├── recommendation_schema.ex
-│   ├── report_schema.ex
-│   ├── reaction_schema.ex
-│   └── friendship_schema.ex
-│
-├── storage.ex                        # (Opcional)
-│
-├── workers/                          # Opcional
-│   ├── notification_dispatcher_worker.ex
-│   └── report_moderation_queue_worker.ex
-│
-├── supervisor.ex
-└── telemetry.ex
-```
+*   **`DeeperHub.UserInteractions.UserInteractionsFacade`:** Ponto de entrada.
+*   **Serviços dedicados para cada tipo de interação** (ex: `FavoriteService`, `ChatMessageService`).
+*   **Schemas Ecto correspondentes** (ex: `Favorite`, `ChatMessage`).
+*   **`DeeperHub.UserInteractions.Supervisor`:** Supervisiona processos.
 
 ### 3.3. Decisões de Design Importantes
 
-*   **Privacidade:** As interações, especialmente mensagens diretas e denúncias, devem ser tratadas com alta consideração pela privacidade.
-*   **Moderação:** Um sistema robusto de moderação é essencial para denúncias e, potencialmente, para outro conteúdo gerado pelo usuário que possa surgir de interações.
-*   **Escalabilidade do Chat:** Se o chat for uma feature principal, pode precisar de uma arquitetura mais especializada (ex: usando Phoenix Channels, um backend de mensagens dedicado) em vez de simples armazenamento no DB.
-*   **Notificações Granulares:** Os usuários devem poder controlar quais tipos de notificações de interação eles recebem.
+*   **Escalabilidade do Chat:** Se o chat tiver alto volume, pode precisar de uma arquitetura mais robusta, possivelmente com WebSockets e um backend de mensagens dedicado (ex: RabbitMQ, Kafka), e o `ChatMessageService` se tornaria mais complexo.
+*   **Moderação de Denúncias:** Definir o fluxo de trabalho para revisão e ação sobre denúncias.
+*   **Privacidade de Mensagens:** Garantir que mensagens diretas sejam acessíveis apenas pelos participantes da conversa.
 
 ## 🛠️ 4. Casos de Uso Principais
 
-*   **Usuário Favorita um Servidor:**
-    *   Na página do servidor, usuário clica em \"Favoritar\".
-    *   API chama `UserInteractions.add_favorite(user_id, server_id)`.
-*   **Usuário Envia uma Mensagem Direta para Outro Usuário:**
-    *   Na interface de chat, usuário_A envia \"Olá!\" para usuário_B.
-    *   API chama `UserInteractions.send_chat_message(%{sender_id: \"A\", receiver_id: \"B\", content: \"Olá!\"})`.
-    *   O sistema envia uma notificação (push/in-app) para usuário_B.
-*   **Usuário Denuncia uma Review de Servidor:**
-    *   Usuário clica em \"Denunciar\" em uma review.
-    *   Preenche motivo e detalhes.
-    *   API chama `UserInteractions.create_report(%{reporter_user_id: \"uid\", reported_entity_type: :review, reported_entity_id: \"review_id\", ...})`.
-    *   Uma notificação é enviada para a equipe de moderação.
-*   **Sistema Sugere um Servidor para um Usuário:**
-    *   `RecommendationEngineWorker` analisa o histórico do usuário.
-    *   Chama `UserInteractions.create_or_update_recommendation(%{recommender_user_id: \"system\", recommended_server_id: \"server_xyz\", target_user_id: \"uid\", reason: \"Baseado em seus favoritos\"})`.
+*   **Usuário Favorita um Servidor:** Um usuário encontra um servidor que gosta e o adiciona aos seus favoritos.
+*   **Usuário Envia Mensagem para Outro Usuário:** Um usuário inicia uma conversa privada com outro membro da plataforma.
+*   **Usuário Denuncia uma Review Inapropriada:** Um usuário lê uma review que viola as diretrizes e a denuncia para moderação.
+*   **Usuário Recomenda um Servidor a um Amigo:** Um usuário envia uma recomendação de servidor para outro usuário.
+*   **Usuário Envia Feedback sobre uma Feature:** Um usuário utiliza um formulário para enviar sugestões sobre uma nova funcionalidade.
 
-## 🌊 5. Fluxos Importantes
+## 🌊 5. Fluxos Importantes (Opcional)
 
-### Fluxo de Envio de Mensagem de Chat
+**Fluxo de Envio de uma Mensagem de Chat:**
 
-1.  **Usuário A (UI):** Envia a mensagem \"Olá!\" para Usuário B.
-2.  **Controller API:** Recebe a requisição. Chama `DeeperHub.UserInteractions.send_chat_message(%{sender_id: \"A\", receiver_id: \"B\", content: \"Olá!\"})`.
-3.  **`UserInteractionsService.send_chat_message/1`:**
-    *   Valida se o remetente pode enviar mensagem para o destinatário (ex: não bloqueado, ambos existem).
-    *   Sanitiza o `content` (via `Shared.ContentValidation`).
-    *   Cria um `ChatMessageSchema` changeset.
-    *   Persiste a mensagem via `Core.Repo.insert(changeset)`.
-    *   Se sucesso:
-        *   Enfileira uma notificação para o `receiver_id` (via `DeeperHub.Notifications`, possivelmente por um `NotificationDispatcherWorker` para não bloquear).
-        *   Publica evento `chat.message_sent` no `Core.EventBus`.
-        *   Retorna `{:ok, chat_message_struct}`.
-4.  **Usuário B:** Recebe a notificação (push ou in-app) e sua UI de chat é atualizada.
+1.  Usuário A (remetente) envia uma mensagem para o Usuário B (destinatário) através da UI/API.
+2.  `DeeperHub.API` (Controller) chama `DeeperHub.UserInteractions.send_chat_message(sender_id, receiver_id, content)`.
+3.  A fachada delega para `DeeperHub.UserInteractions.Services.ChatMessageService.send_message/3`.
+4.  `ChatMessageService`:car mensagens como lidas/não lidas.
+    *   (Opcional) Notificações de novas mensagens.
+*   **Feedback sobre Entidades/Sistema:**
+    *   Permitir que usuários submetam feedback (ex: sugestões, bugs) sobre o sistema ou entidades específicas.
+    *   Gerenciamento e categorização de feedback pela equipe.
+*   **Recomendações (Ex: Usuário recomendando um Servidor):**
+    *   Permitir que usuários recomendem entidades para outros ou para a comunidade.
+    *   Listar recomendações feitas por um usuário ou para uma entidade.
+*   **Denúncias (Reportar Conteúdo/Usuário):**
+    *   Permitir que usuários reportem conteúdo (ex: reviews, mensagens) ou outros usuários por comportamento inadequado, spam, etc.
+    *   Gerenciamento da fila de denúncias para moderação.
+*   **Reações (Ex: Likes/Dislikes em Reviews, Posts):**
+    *   Permitir que usuários reajam a diferentes tipos de conteúdo.
+    *   Contabilizar e exibir reações.
+*   **Notificações:**
+    *   Notificar usuários sobre novas mensagens, quando alguém começa a segui-los, quando um favorito é atualizado, etc. (via `DeeperHub.Notifications`).
+*   **Controle de Privacidade (Potencial):**
+    *   Permitir que usuários configurem quem pode enviar mensagens diretas, ver seus seguidores/seguindo, etc.
 
-## 📡 6. API (Funções Públicas da Fachada `DeeperHub.UserInteractions`)
+## 🏗️ 3. Arquitetura e Design
 
-### 6.1. Favoritos e Seguir
+`DeeperHub.UserInteractions` atuará como uma fachada para diversos serviços especializados, cada um lidando com um tipo específico de interação.
 
-*   `add_favorite(user_id, server_id)`
-*   `remove_favorite(user_id, server_id)`
-*   `list_user_favorites(user_id, opts)`
-*   `is_favorite?(user_id, server_id)`
-*   `follow_server(user_id, server_id)` (Nova)
-*   `unfollow_server(user_id, server_id)` (Nova)
-*   `list_user_followed_servers(user_id, opts)` (Nova)
+*   **Interface Pública (`DeeperHub.UserInteractions.UserInteractionsFacade` ou `DeeperHub.UserInteractions`):** Funções como `add_favorite/2`, `send_message/3`, `report_user/3`.
+*   **Serviços Especializados:**
+    *   `DeeperHub.UserInteractions.Services.FavoriteService`: Gerencia lógica de favoritos.
+    *   `DeeperHub.UserInteractions.Services.FollowService`: Gerencia lógica de seguir.
+    *   `DeeperHub.UserInteractions.Services.MessagingService`: Gerencia mensagens diretas.
+    *   `DeeperHub.UserInteractions.Services.FeedbackService`: Gerencia feedback.
+    *   `DeeperHub.UserInteractions.Services.RecommendationService`: Gerencia recomendações.
+    *   `DeeperHub.UserInteractions.Services.ReportService`: Gerencia denúncias.
+    *   `DeeperHub.UserInteractions.Services.ReactionService`: Gerencia reações.
+*   **Schemas Ecto:**
+    *   `DeeperHub.UserInteractions.Schema.Favorite`: Relação de favorito.
+    *   `DeeperHub.UserInteractions.Schema.Follow`: Relação de seguir.
+    *   `DeeperHub.UserInteractions.Schema.ChatMessage`: Mensagem de chat.
+    *   `DeeperHub.UserInteractions.Schema.Feedback`: Registro de feedback.
+    *   `DeeperHub.UserInteractions.Schema.Recommendation`: Registro de recomendação.
+    *   `DeeperHub.UserInteractions.Schema.Report`: Registro de denúncia.
+    *   `DeeperHub.UserInteractions.Schema.Reaction`: Registro de reação.
+*   **Integrações:**
+    *   `DeeperHub.Core.Repo`: Para persistência.
+    *   `DeeperHub.Core.EventBus`: Para publicar eventos de interação.
+    *   `DeeperHub.Notifications`: Para enviar notificações.
+    *   `DeeperHub.Accounts`: Para obter informações de usuários.
+    *   `DeeperHub.Servers` (ou outras entidades): Para associar interações a entidades específicas.
+    *   `DeeperHub.Services.Shared.ContentValidation`: Para validar conteúdo de mensagens, reports, etc.
 
-### 6.2. Mensagens de Chat
+**Padrões de Design:**
 
-*   `send_chat_message(attrs :: %{sender_id: String.t(), receiver_id: String.t(), content: String.t()})`
-*   `list_chat_messages(user_id_A :: String.t(), user_id_B :: String.t(), opts :: keyword())`
-*   `mark_chat_messages_as_read(user_id_viewer :: String.t(), other_user_id :: String.t(), up_to_message_id :: String.t() | nil)` (Nova)
+*   **Fachada (Facade).**
+*   **Serviços de Domínio Dedicados.**
 
-### 6.3. Recomendações
+### 3.1. Componentes Principais
 
-*   `create_or_update_recommendation(attrs :: %{recommender_user_id: String.t(), recommended_server_id: String.t(), target_user_id: String.t() | nil, reason: String.t(), score: float() | nil})`
-*   `list_recommendations_for_user(user_id, opts)`
-*   `list_recommendations_from_user(user_id, opts)` (Nova)
+*   **`DeeperHub.UserInteractions.UserInteractionsFacade`:** Ponto de entrada.
+*   **Serviços:** `FavoriteService`, `FollowService`, `MessagingService`, etc.
+*   **Schemas:** `Favorite`, `Follow`, `ChatMessage`, etc.
+*   **`DeeperHub.UserInteractions.Supervisor`:** Supervisiona os processos dos serviços.
+*   **`DeeperHub.UserInteractions.EventHandler` (Opcional):** Para processar eventos que possam desencadear interações ou notificações de forma assíncrona.
 
-### 6.4. Feedback da Plataforma
+### 3.3. Decisões de Design Importantes
 
-*   `submit_feedback(attrs :: %{user_id: String.t() | nil, type: atom(), content: String.t(), contact_email: String.t() | nil})`
-*   `list_feedback(filters, opts)` (Admin)
-*   `update_feedback_status(feedback_id, new_status, admin_id)` (Admin)
+*   **Escalabilidade do Chat:** Para mensagens diretas, considerar uma solução de backend que escale bem para tempo real (ex: Phoenix Channels, ou um backend de mensagens dedicado se o volume for muito alto).
+*   **Moderação de Conteúdo:** Definir fluxos para moderação de denúncias e conteúdo reportado.
+*   **Privacidade:** Implementar configurações de privacidade para interações (ex: quem pode me enviar mensagens).
 
-### 6.5. Denúncias (Reports)
+## 🛠️ 4. Casos de Uso Principais
 
-*   `create_report(attrs :: %{reporter_user_id: String.t(), reported_entity_type: atom(), reported_entity_id: String.t(), reason_category: String.t(), details: String.t()})`
-*   `list_reports(filters, opts)` (Admin/Moderador)
-*   `update_report_status(report_id, new_status, moderator_id, action_taken_notes :: String.t() | nil)` (Admin/Moderador)
+*   **Usuário Favorita um Servidor:** Um usuário encontra um servidor interessante e o adiciona à sua lista de favoritos.
+*   **Usuário Envia Mensagem para Outro Usuário:** Dois usuários iniciam uma conversa privada.
+*   **Usuário Reporta um Comentário Abusivo:** Um usuário denuncia um comentário em uma review de servidor.
+*   **Usuário Dá Feedback sobre uma Feature:** Um usuário envia uma sugestão de melhoria para a plataforma.
+*   **Sistema Recomenda um Servidor:** Baseado nas interações e perfil de um usuário, o sistema (ou outro usuário) recomenda um servidor.
 
-### 6.6. Reações (Nova API Sugerida)
+## 🌊 5. Fluxos Importantes (Opcional)
 
-*   `add_reaction(user_id, target_entity_type, target_entity_id, reaction_type)`
-*   `remove_reaction(user_id, target_entity_type, target_entity_id, reaction_type)`
-*   `get_reactions_for_entity(target_entity_type, target_entity_id)` (Retorna contagens por tipo de reação)
+**Fluxo de Envio de Mensagem Direta:**
+
+1.  Usuário A (remetente) envia uma mensagem para Usuário B (destinatário) através da UI/API.
+2.  `DeeperHub.API` (Controller) chama `DeeperHub.UserInteractions.send_message(remetente_id, destinatario_id, conteudo_mensagem)`.
+3.  A fachada delega para `DeeperHub.UserInteractions.Services.MessagingService.send_message/3`.
+4.  `MessagingService`:
+    *   Valida o conteúdo da mensagem (`Shared.ContentValidation`).
+    *   Verifica se o destinatário permite mensagens do remetente (políticas de privacidade).
+    *   Cria um registro `ChatMessage` e o persiste via `Core.Repo`.
+    *   Publica um evento `NewChatMessageEvent` no `Core.EventBus`.
+5.  `DeeperHub.Notifications` (ou um handler de evento específico) escuta o `NewChatMessageEvent` e envia uma notificação (push, in-app, email) para o Usu
+    *   Valida a mensagem (ex: comprimento, conteúdo permitido).
+    *   Cria um registro `ChatMessage` com `sender_id`, `receiver_id`, `content`, `timestamp`.
+    *   Persiste a mensagem via `Core.Repo`.
+    *   Publica um evento `ChatMessageSentEvent` no `Core.EventBus`.
+5.  Um listener de eventos (possivelmente no `DeeperHub.Notifications` ou um `NotificationService` específico para chat):
+    *   Detecta o `ChatMessageSentEvent`.
+    *   Envia uma notificação (push, in-app) para o Usuário B sobre a nova mensagem, se ele não estiver online/ativo na conversa.
+6.  Retorna `{:ok, message_struct}`.
+
+## 📡 6. API (Se Aplicável)
+
+### 6.1. `DeeperHub.UserInteractions.add_favorite/2`
+
+*   **Descrição:** Adiciona um item (ex: servidor) aos favoritos de um usuário.
+*   **`@spec`:** `add_favorite(user_id :: String.t(), target :: %{type: atom(), id: String.t()}) :: {:ok, Favorite.t()} | {:error, reason}`
+*   **Parâmetros:**
+    *   `user_id` (String): ID do usuário.
+    *   `target` (map): Mapa identificando o item a ser favoritado, ex: `%{type: :server, id: \"server_abc\"}`.
+*   **Retorno:** O registro de favorito criado ou um erro.
+*   **Exemplo de Uso (Elixir):**
+    ```elixir
+    DeeperHub.UserInteractions.add_favorite(current_user.id, %{type: :server, id: \"server_xyz\"})
+    ```
+
+### 6.2. `DeeperHub.UserInteractions.send_chat_message/3`
+
+*   **Descrição:** Envia uma mensagem de chat de um usuário para outro.
+*   **`@spec`:** `send_chat_message(sender_id :: String.t(), receiver_id :: String.t(), content :: String.t()) :: {:ok, ChatMessage.t()} | {:error, reason}`
+*   **Parâmetros:**
+    *   `sender_id` (String): ID do remetente.
+    *   `receiver_id` (String): ID do destinatário.
+    *   `content` (String): Conteúdo da mensagem.
+*   **Retorno:** A mensagem de chat criada ou um erro.
+*   **Exemplo de Uso (Elixir):**
+    ```elixir
+    DeeperHub.UserInteractions.send_chat_message(current_user.id, \"other_user_id\", \"Olá, tudo bem?\")
+    ```
+
+### 6.3. `DeeperHub.UserInteractions.create_report/1`
+
+*   **Descrição:** Permite que um usuário crie uma denúncia sobre um conteúdo ou outro usuário.
+*   **`@spec`:** `create_report(attrs :: map()) :: {:ok, Report.t()} | {:error, Ecto.Changeset.t() | reason}`
+*   **Parâmetros:**
+    *   `attrs` (map): Atributos da denúncia.
+        *   `:reporter_id` (String): ID do usuário que está denunciando.
+        *   `:target_type` (atom): Tipo do alvo da denúncia (ex: `:user`, `:server`, `:review`).
+        *   `:target_id` (String): ID do alvo da denúncia.
+        *   `:reason_category` (String): Categoria da razão da denúncia (ex: \"spam\", \"harassment\", \"inappropriate_content\").
+        *   `:description` (String): Descrição detalhada da denúncia.
+*   **Retorno:** O registro da denúncia criado ou um erro.
+*   **Exemplo de Uso (Elixir):**
+    ```elixir
+    report_attrs = %{
+      reporter_id: current_user.id,
+      target_type: :review,
+      target_id: \"review_abc\",
+      reason_category: \"spam\",
+      description: \"Esta review é claramente spam promocional.\"
+    }
+    DeeperHub.UserInteractions.create_report(report_attrs)
+    ```
+
+*(Outras funções como `list_user_favorites/1`, `list_chat_conversations/1`, `get_reports_for_moderation/1` seriam documentadas aqui).*
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager`:
-
-*   **`[:user_interactions, :chat, :enabled]`** (Boolean).
-*   **`[:user_interactions, :chat, :max_message_length]`** (Integer).
-*   **`[:user_interactions, :favorites, :max_per_user]`** (Integer).
-*   **`[:user_interactions, :reports, :categories]`** (List de Strings): Categorias de denúncia permitidas.
-*   **`[:user_interactions, :reports, :notify_moderators_on_new_report]`** (Boolean).
-*   **`[:user_interactions, :feedback, :allowed_types]`** (List de Atoms).
-*   **`[:user_interactions, :recommendations, :max_user_recommendations]`** (Integer).
-*   **`[:user_interactions, :rate_limit, <action>, :limit | :window_seconds]`**: Configs de rate limit para ações como `send_chat_message`, `create_report`.
+*   **ConfigManager (`DeeperHub.Core.ConfigManager`):**
+    *   `[:user_interactions, :chat, :max_message_length]`: Comprimento máximo para mensagens de chat. (Padrão: `1000`)
+    *   `[:user_interactions, :chat, :history_retention_days]`: Por quanto tempo o histórico de chat é mantido. (Padrão: `365`)
+    *   `[:user_interactions, :reports, :default_status]`: Status padrão para novas denúncias. (Padrão: `:pending_review`)
+    *   `[:user_interactions, :feedback, :categories]`: Lista de categorias de feedback disponíveis.
 
 ## 🔗 8. Dependências
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.*`: Todos os módulos Core.
-*   `DeeperHub.Accounts`: Para `user_id` e perfis de usuário.
-*   `DeeperHub.Servers`: Para `server_id` em favoritos, recomendações, denúncias.
-*   `DeeperHub.Auth`/`RBAC`: Para permissões (ex: quem pode ver/gerenciar denúncias).
-*   `DeeperHub.Notifications`: Para notificar sobre novas mensagens, status de denúncias, etc.
-*   `DeeperHub.Services.Shared.ContentValidation`: Para validar e sanitizar conteúdo de mensagens, feedback, denúncias.
-*   `DeeperHub.Audit`.
+*   `DeeperHub.Core.Repo`
+*   `DeeperHub.Core.ConfigManager`
+*   `DeeperHub.Core.EventBus`
+*   `DeeperHub.Notifications`
+*   `DeeperHub.Accounts`
+*   `DeeperHub.Servers` (e outros módulos de conteúdo, como alvos de favoritos/denúncias)
+*   `DeeperHub.Core.InputValidator`, `DeeperHub.Services.Shared.ContentValidation`
+*   `DeeperHub.Core.Logger`, `DeeperHub.Core.Metrics`
 
 ### 8.2. Bibliotecas Externas
 
-*   `Ecto`.
-*   Se o chat for em tempo real, `Phoenix.PubSub` ou `Phoenix.Presence` podem ser usados internamente.
+*   `Ecto`
 
 ## 🤝 9. Como Usar / Integração
 
-*   **UI do Usuário:** Várias seções da UI (perfil do servidor, perfil do usuário, chat, central de ajuda) chamarão endpoints da API que usam este módulo.
-*   **Painel de Moderação/Administração:** Para visualizar e gerenciar denúncias e feedback.
-*   **Sistema de Notificações:** O `UserInteractionsService` frequentemente chamará `DeeperHub.Notifications` para informar usuários sobre novas mensagens, respostas a feedback, status de denúncias, etc.
+*   **UI/Frontend:** A interface do usuário permitirá favoritar, enviar mensagens, denunciar, etc., chamando os endpoints da API que, por sua vez, utilizam esta fachada.
+*   **Moderação:** Uma interface de administração usará este módulo para visualizar e gerenciar denúncias e feedback.
 
 ## ✅ 10. Testes e Observabilidade
 
 ### 10.1. Testes
 
-*   Testar cada funcionalidade principal: favoritos, chat (envio, listagem), feedback, recomendações, denúncias.
-*   Testar a lógica de permissão (ex: usuário não pode ver chat de outros, apenas moderador vê todas as denúncias).
-*   Testar validação e sanitização de conteúdo.
-*   Testar a interação com notificações.
-*   Localização: `test/deeper_hub/user_interactions/`.
+*   Testar cada funcionalidade de interação (favoritos, chat, denúncias, etc.) individualmente.
+*   Testar as permissões (ex: um usuário não pode deletar o favorito de outro).
+*   Testar a lógica de notificação para interações.
+*   Localização: `test/deeper_hub/user_interactions/`
 
 ### 10.2. Métricas
 
-*   `deeper_hub.user_interactions.favorites.added.count`
-*   `deeper_hub.user_interactions.chat_messages.sent.count`
-*   `deeper_hub.user_interactions.feedback.submitted.count` (tags: `type`)
-*   `deeper_hub.user_interactions.reports.created.count` (tags: `entity_type`, `reason_category`)
-*   `deeper_hub.user_interactions.recommendations.created.count`
-*   `deeper_hub.user_interactions.reactions.added.count` (tags: `entity_type`, `reaction_type`)
+*   `deeper_hub.user_interactions.favorite.added.count` (Contador): Tags: `target_type`.
+*   `deeper_hub.user_interactions.chat_message.sent.count` (Contador).
+*   `deeper_hub.user_interactions.report.created.count` (Contador): Tags: `target_type`, `reason_category`.
+*   `deeper_hub.user_interactions.feedback.submitted.count` (Contador): Tags: `feedback_category`.
 
 ### 10.3. Logs
 
-*   **Nível INFO:** Nova interação criada (favorito, mensagem, feedback, denúncia).
-*   **Nível WARNING:** Tentativa de ação não permitida (ex: enviar mensagem para usuário bloqueado). Denúncia recebida para conteúdo/usuário.
-*   **Nível ERROR:** Falha ao persistir uma interação.
+*   `Logger.info(\"Usuário #{uid} favoritou #{target_type}:#{tid}\", module: DeeperHub.UserInteractions.Services.FavoriteService)`
+*   `Logger.info(\"Mensagem enviada de #{sid} para #{rid}\", module: DeeperHub.UserInteractions.Services.ChatMessageService)`
+*   `Logger.info(\"Denúncia #{rid} criada por #{reporter_id} contra #{target_type}:#{target_id}\", module: DeeperHub.UserInteractions.Services.ReportService)`
 
 ### 10.4. Telemetria
 
-*   `[:deeper_hub, :user_interactions, <interaction_type>, :created | :deleted]`
-    *   Ex: `[:deeper_hub, :user_interactions, :favorite, :created]`
-    *   Metadados: `%{user_id: id, target_id: id_if_applicable, details: ...}`
-*   `[:deeper_hub, :user_interactions, :report, :status_changed]`
-    *   Metadados: `%{report_id: id, new_status: status, moderator_id: id}`
+*   `[:deeper_hub, :user_interactions, :favorite, :added | :removed]`
+*   `[:deeper_hub, :user_interactions, :chat_message, :sent]`
+*   `[:deeper_hub, :user_interactions, :report, :created | :status_changed]`
+*   `[:deeper_hub, :user_interactions, :feedback, :submitted]`
 
 ## ❌ 11. Tratamento de Erros
 
-*   Falhas de validação retornam `{:error, changeset}`.
-*   Operações não autorizadas retornam `{:error, :unauthorized}`.
-*   Erros ao enviar notificações são logados, mas a interação principal (ex: envio de mensagem) deve ser bem-sucedida se possível.
+*   `{:error, :target_not_found}`
+*   `{:error, :already_favorited}`
+*   `{:error, :cannot_message_self}`
+*   `{:error, :report_target_invalid}`
+*   Falhas de validação de conteúdo para mensagens ou descrições de denúncias.
 
 ## 🛡️ 12. Considerações de Segurança
 
-*   **Privacidade das Mensagens de Chat:** Mensagens diretas devem ser confidenciais e acessíveis apenas pelos participantes e, em casos específicos, por administradores/moderadores com justificativa (ex: investigação de denúncia). Criptografia de ponta-a-ponta é uma consideração avançada se a privacidade for extrema.
-*   **Sanitização de TODO Conteúdo:** Todo conteúdo gerado pelo usuário (mensagens, feedback, detalhes de denúncia) deve ser rigorosamente sanitizado.
-*   **Abuso de Denúncias:** O sistema de denúncias pode ser abusado. Implementar rate limiting e, potencialmente, um sistema de reputação para quem denuncia.
-*   **Proteção contra Spam no Chat:** Limitar a frequência de mensagens ou o número de novas conversas que um usuário pode iniciar.
+*   **Privacidade do Chat:** Mensagens diretas devem ser estritamente privadas entre os participantes.
+*   **Moderação de Conteúdo:** É crucial ter um sistema eficaz para lidar com denúncias de conteúdo e comportamento inadequado.
+*   **Sanitização de Entrada:** Todo o texto fornecido pelo usuário (mensagens, descrições de denúncia, feedback) deve ser sanitizado para prevenir XSS.
+*   **Prevenção de Spam/Abuso:** Rate limiting na criação de mensagens, denúncias ou feedback.
 
 ## 🧑‍💻 13. Contribuição
 
-*   Mantenha a lógica de cada tipo de interação (favoritos, chat, etc.) o mais isolada possível dentro do `UserInteractionsService` ou em seus próprios submódulos de serviço se crescerem muito.
-*   Garanta que os eventos e notificações apropriados sejam disparados.
+*   Novos tipos de interação devem ser implementados em seus próprios módulos de serviço.
+*   Considere o impacto na privacidade e segurança ao adicionar novas funcionalidades sociais.
 
 ## 🔮 14. Melhorias Futuras e TODOs
 
-*   [ ] Implementar sistema de \"bloquear usuário\" para chat e outras interações.
-*   [ ] Adicionar indicadores de \"digitando...\" e \"mensagem lida\" no chat.
-*   [ ] Suporte para envio de mídias (imagens, vídeos curtos) em mensagens de chat.
-*   [ ] \"Grupos de Amigos\" ou \"Comunidades de Servidor\" com chat em grupo.
-*   [ ] Sistema de reputação para usuários baseado em suas interações e histórico de denúncias (feitas e recebidas).
-*   [ ] Recomendações de servidores mais inteligentes usando ML com base no histórico de interações e favoritos de usuários similares.
-*   [ ] Feed de atividades para o usuário (ex: \"Seu amigo X favoritou o servidor Y\", \"Nova review no seu servidor favorito Z\").
+*   [ ] Implementar sistema de \"seguir\" usuários ou servidores.
+*   [ ] Adicionar reações (likes/dislikes) a mais tipos de conteúdo.
+*   [ ] Bloqueio de usuários no chat.
+*   [ ] Grupos de chat.
+*   [ ] Indicação de \"digitando...\" e status de leitura no chat.
+*   [ ] Histórico de moderação para denúncias.
+*   [ ] Análise de sentimento para feedback.
 
 ---
 
-*Última atualização: 2025-05-12*
+*Última atualização: YYYY-MM-DD*
 
 ---
 
-Este módulo de interações é bem rico e pode crescer bastante com funcionalidades sociais!
+O próximo módulo da sua lista de \"Services\" seria `Elixir.DeeperHub.Services.Lists`. Como ele parece ser um módulo genérico para diferentes tipos de listas (`AchievementType`, `Category`, `ContentType`, etc.), o README dele seria um pouco diferente, focando na sua capacidade de gerenciar coleções de dados simples.
 
-Onde vamos agora? Que tal `DeeperHub.Webhooks` para ver como o DeeperHub se comunica com sistemas externos, ou talvez `DeeperHub.Shared.Utils.ValidationUtils` para finalizar os utilitários?"""),
+Podemos prosseguir com `DeeperHub.Lists`?"""),
             ],
         ),
         types.Content(
             role="user",
             parts=[
-                types.Part.from_text(text="""continue
-"""),
+                types.Part.from_text(text="""continue"""),
             ],
         ),
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ok, já detalhamos o `DeeperHub.Shared.Utils.ValidationUtils`.
-
-Vamos agora finalizar os módulos de utilitários com o `DeeperHub.Shared.Utils.SecurityUtils`, que, embora já tenhamos tocado em alguns aspectos de segurança, este é focado em primitivas de segurança de baixo nível.
+                types.Part.from_text(text="""Ok, vamos ao README do `DeeperHub.Lists`. Este é um módulo um pouco mais abstrato, então o foco será em sua funcionalidade genérica.
 
 ---
 

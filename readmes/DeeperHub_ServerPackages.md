@@ -1,311 +1,248 @@
-# Módulo: `DeeperHub.ServerPackages` 🚀
+# Módulo: `DeeperHub.ServerPackages` 📦
 
 ## 📜 1. Visão Geral do Módulo `DeeperHub.ServerPackages`
 
-O módulo `DeeperHub.ServerPackages` é responsável por gerenciar **pacotes, itens ou assinaturas (packages)** que os proprietários de servidores podem oferecer aos jogadores na plataforma DeeperHub. Estes pacotes podem representar uma variedade de ofertas, como acesso VIP, moedas virtuais específicas do servidor, itens no jogo, cosméticos, ou outros benefícios e produtos digitais.
-
-Este módulo lida com:
-*   A definição, criação e gerenciamento de pacotes pelos proprietários de servidores.
-*   A listagem de pacotes disponíveis para um servidor.
-*   A lógica de \"aquisição\" ou \"compra\" desses pacotes, que pode envolver integração com sistemas de pagamento ou moedas virtuais da plataforma.
-*   A concessão dos benefícios do pacote ao usuário após a aquisição.
-
-O objetivo é fornecer uma maneira estruturada e gerenciável para os servidores oferecerem valor adicional ou monetizarem suas comunidades dentro do ecossistema DeeperHub. 😊
-
-*(Nota: Na documentação original, este era `DeeperHub.Services.ServerPackages`. Será tratado como `DeeperHub.ServerPackages`.)*
+O módulo `DeeperHub.ServerPackages` é responsável por gerenciar os diferentes pacotes, planos ou itens que podem ser oferecidos por um servidor dentro da plataforma DeeperHub. Isso pode incluir pacotes de assinatura, itens virtuais, benefícios VIP, ou qualquer outro produto ou serviço que os proprietários de servidores queiram disponibilizar para seus usuários, seja de forma gratuita ou paga. O módulo lida com a definição, listagem e associação desses pacotes aos servidores. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
-*   **Gerenciamento CRUD de Definições de Pacotes (`create_server_package/1`, `get_server_package/1`, `update_server_package/2`, `delete_server_package/1`):**
-    *   Permitir que proprietários de servidores (ou administradores com permissão) criem, visualizem, atualizem e excluam definições de pacotes associados aos seus servidores.
-    *   Cada definição de pacote inclui: nome, descrição detalhada, preço (com moeda – real ou virtual), tipo de pacote (ex: compra única, assinatura mensal), duração (se assinatura), lista de benefícios/itens incluídos (pode ser um campo JSONB flexível para descrever os efeitos), imagem/ícone, status (ativo, inativo, rascunho), datas de disponibilidade (opcional).
-*   **Listagem de Pacotes:**
-    *   Listar todos os pacotes ativos e disponíveis para um servidor específico (`list_server_packages_by_server/2`).
-    *   Listar todos os pacotes disponíveis na plataforma com filtros (ex: por tipo de servidor, por tipo de pacote, por faixa de preço) (`list_all_server_packages/1`).
-    *   Suporte a paginação e ordenação.
-*   **Processo de Aquisição de Pacote (Coordenação):**
-    *   Fornecer uma API para iniciar o processo de aquisição de um pacote por um usuário (`acquire_package/3` - esta função pode residir em um `UserPackageService` ou `UserInventoryService` que coordena com `ServerPackages` e `Payments`).
-    *   Verificar elegibilidade do usuário para adquirir o pacote (ex: limites de compra, pré-requisitos).
-*   **Integração com Pagamentos (`DeeperHub.Payments`):**
-    *   Se o pacote tiver um preço em moeda real, integrar com o sistema de pagamentos para processar a transação antes de conceder o pacote.
-*   **Integração com Moeda Virtual/Pontos (`DeeperHub.PointsService` ou similar):**
-    *   Se o pacote for adquirido com moeda virtual da plataforma, integrar com o serviço correspondente para debitar o saldo do usuário.
-*   **Concessão de Benefícios/Itens (`grant_package_benefits/3`):**
-    *   Após a aquisição bem-sucedida, acionar a lógica para conceder os benefícios ou itens do pacote ao usuário. Isso pode envolver:
-        *   Chamar APIs do servidor de jogo (se o DeeperHub tiver essa capacidade de integração).
-        *   Atualizar o estado do usuário no `DeeperHub.Accounts` (ex: marcar como VIP).
-        *   Adicionar itens a um `DeeperHub.UserInventoryService` (Novo Sugerido).
-        *   Conceder papéis/permissões específicas (via `DeeperHub.RBAC`).
-*   **Gerenciamento de Assinaturas (se aplicável):**
-    *   Lidar com a lógica de renovação, cancelamento e status de pacotes do tipo assinatura. (Isso pode ser complexo e exigir um submódulo ou integração com um serviço de faturamento recorrente).
-*   **Observabilidade e Auditoria:**
-    *   Logar e metrificar a criação, aquisição e concessão de pacotes.
-    *   Publicar eventos de domínio (ex: `server_package.created`, `user.package_acquired`) no `Core.EventBus`.
-    *   Auditar todas as transações e modificações de pacotes.
-*   **Caching:**
-    *   Cachear definições de pacotes para acesso rápido.
+*   **Definição de Pacotes de Servidor:**
+    *   CRUD para Pacotes (`ServerPackage`): nome, descrição, preço (se aplicável), moeda, tipo de pacote (ex: assinatura, item único, benefício).
+    *   Detalhes do pacote: lista de features/benefícios incluídos, duração (para assinaturas), quantidade (para itens).
+    *   Associação do pacote a um servidor específico (`server_id`).
+*   **Gerenciamento de Preços e Moedas:**
+    *   Suporte para diferentes moedas.
+    *   (Opcional) Histórico de preços.
+*   **Listagem e Descoberta de Pacotes:**
+    *   Permitir que usuários visualizem os pacotes disponíveis para um servidor.
+    *   Filtrar pacotes por tipo, preço, popularidade.
+*   **Controle de Disponibilidade:**
+    *   Habilitar ou desabilitar pacotes.
+    *   (Opcional) Gerenciar estoque para pacotes com quantidade limitada.
+*   **Integração com Compras/Assinaturas (Delegação):**
+    *   Embora este módulo defina os pacotes, a lógica de processamento de compra ou gerenciamento de assinaturas ativas seria provavelmente delegada a um módulo `DeeperHub.Billing` ou `DeeperHub.Subscriptions`. Este módulo apenas informa o que está disponível para compra/assinatura.
+*   **Administração de Pacotes:**
+    *   Interface para proprietários de servidores criarem e gerenciarem os pacotes de seus servidores.
+    *   Interface para administradores da plataforma moderarem ou destacarem pacotes.
 
 ## 🏗️ 3. Arquitetura e Design
 
+`DeeperHub.ServerPackages` atuará como uma fachada para um serviço de lógica de negócio e componentes de persistência.
+
+*   **Interface Pública (`DeeperHub.ServerPackages.ServerPackagesFacade` ou `DeeperHub.ServerPackages`):** Funções como `create_server_package/1`, `list_packages_for_server/2`, `get_package_details/1`.
+*   **Serviço de Pacotes de Servidor (`DeeperHub.ServerPackages.Services.PackageService`):**
+    *   Contém a lógica de negócio principal para definir e gerenciar pacotes.
+*   **Schemas Ecto:**
+    *   `DeeperHub.ServerPackages.Schema.ServerPackage`: Define um pacote de servidor.
+    *   `DeeperHub.ServerPackages.Schema.PackageFeature` (Opcional): Para detalhar os benefícios de um pacote.
+*   **Cache (`DeeperHub.ServerPackages.Cache` ou via `Core.Cache`):**
+    *   Cache para definições de pacotes frequentemente acessadas, especialmente para listagens em páginas de servidores.
+*   **Integrações:**
+    *   `DeeperHub.Core.Repo`: Para persistência.
+    *   `DeeperHub.Servers`: Para associar pacotes a servidores.
+    *   `DeeperHub.Billing` / `DeeperHub.Subscriptions` (Potencial): Para a lógica de compra/assinatura.
+    *   `DeeperHub.Core.Internationalization (I18n)`: Para descrições de pacotes localizadas.
+
+**Padrões de Design:**
+
+*   **Fachada (Facade).**
+*   **Serviço de Domínio.**
+
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.ServerPackages` (Fachada Pública):**
-    *   Ponto de entrada para gerenciamento de definições de pacotes e consulta.
-    *   Delega para o `ServerPackagesService`.
-2.  **`DeeperHub.ServerPackages.Services.ServerPackagesService` (ou `DefaultServerPackagesService`):**
-    *   **Responsabilidade:** Lógica de negócio para CRUD de `ServerPackageSchema`.
-    *   **Interações:**
-        *   `DeeperHub.Core.Repo`: Para persistência.
-        *   `DeeperHub.Servers`: Para validar `server_id`.
-        *   `DeeperHub.Accounts`: Para `user_id` do criador.
-        *   `DeeperHub.Auth`/`RBAC`: Para permissões de gerenciamento.
-        *   `DeeperHub.Core.EventBus`, `Core.Cache`, `Core.ConfigManager`.
-3.  **`DeeperHub.ServerPackages.Schemas.ServerPackageSchema`:**
-    *   Define a estrutura de um pacote oferecido por um servidor.
-    *   Campos: `id`, `server_id`, `name`, `description`, `image_url`, `package_type` (`:one_time`, `:subscription`), `price_currency` (ex: \"BRL\", \"USD\", \"POINTS_PLATFORM\", \"CREDITS_SERVER_X\"), `price_amount` (Decimal), `duration_days` (para assinaturas), `benefits_payload` (JSONB, descrevendo o que é concedido, ex: `%{ \"role\": \"VIP_GOLD\", \"ingame_items\": [{\"id\": \"sword123\", \"qty\": 1}], \"virtual_currency\": {\"type\": \"gems\", \"amount\": 500} }`), `is_active`, `available_from`, `available_until`, `max_per_user`, `sort_order`.
-4.  **`DeeperHub.UserInventory` (ou `UserPackages` - Novo Módulo Sugerido):**
-    *   **Fachada (`DeeperHub.UserInventory`):** Para operações como `acquire_package`, `list_my_packages`.
-    *   **Serviço (`UserInventoryService`):** Orquestra a aquisição, incluindo interação com `Payments`/`PointsService` e `ServerPackages` para obter detalhes do pacote, e então `GrantingService` para aplicar os benefícios.
-    *   **Schema (`UserPackageInstanceSchema`):** Registra que um `user_id` adquiriu um `server_package_id`, com `acquired_at`, `expires_at` (para assinaturas), `status` (`:active`, `:expired`, `:cancelled`).
-5.  **`DeeperHub.GrantingService` (Novo Módulo Sugerido ou parte do `UserInventory`):**
-    *   **Responsabilidade:** Interpretar o `benefits_payload` de um `ServerPackage` e aplicar os benefícios ao usuário. Isso pode envolver chamar APIs de jogos, atualizar `UserSchema` ou `UserRoleSchema`, adicionar itens a um inventário virtual, etc. Pode usar um sistema de \"handlers de benefício\" similar aos `RewardHandler`s.
-6.  **`DeeperHub.Payments` (Módulo Separado):**
-    *   Se houver pagamento com moeda real.
-7.  **`DeeperHub.ServerPackages.Storage` / `UserInventory.Storage`:**
-    *   Encapsulam queries Ecto.
-
-### 3.2. Estrutura de Diretórios (Proposta)
-
-```
-lib/deeper_hub/server_packages/
-├── server_packages.ex                # Fachada para definições de pacotes
-│
-├── services/
-│   └── server_packages_service.ex    # CRUD para ServerPackageSchema
-│
-├── schemas/
-│   └── server_package_schema.ex
-│
-├── storage.ex                        # (Opcional)
-├── cached_adapter.ex                 # (Opcional, para definições)
-├── supervisor.ex
-└── telemetry.ex
-
-lib/deeper_hub/user_inventory/        # NOVO MÓDULO para gerenciar o que os usuários possuem
-├── user_inventory.ex                 # Fachada (ex: acquire_package)
-│
-├── services/
-│   ├── user_inventory_service.ex     # Orquestra aquisição
-│   └── granting_service.ex           # Aplica benefícios
-│
-├── schemas/
-│   └── user_package_instance_schema.ex
-│
-├── storage.ex
-├── supervisor.ex
-└── telemetry.ex
-```
+*   **`DeeperHub.ServerPackages.ServerPackagesFacade`:** Ponto de entrada.
+*   **`DeeperHub.ServerPackages.Services.PackageService`:** Lógica de negócio.
+*   **`DeeperHub.ServerPackages.Schema.ServerPackage`:** Schema principal.
+*   **`DeeperHub.ServerPackages.Supervisor`:** Supervisiona processos.
 
 ### 3.3. Decisões de Design Importantes
 
-*   **Separação de Definição e Instância:** Manter `ServerPackageSchema` (o que está à venda) separado de `UserPackageInstanceSchema` (o que o usuário comprou) é crucial.
-*   **Flexibilidade dos Benefícios:** O `benefits_payload` em JSONB é chave para suportar diversos tipos de benefícios sem alterar o schema do banco de dados constantemente.
-*   **Transacionalidade da Aquisição:** O processo de debitar fundos (reais ou virtuais) e conceder o pacote/benefícios deve ser atômico.
-*   **Lógica de Concessão:** A lógica de como os benefícios são aplicados (`GrantingService`) pode ser complexa e precisar de integrações com sistemas externos (APIs de jogos).
+*   **Flexibilidade dos Pacotes:** O schema `ServerPackage` deve ser flexível o suficiente para acomodar diferentes tipos de ofertas (assinaturas, itens únicos, bundles).
+*   **Integração com Pagamentos:** Definir claramente a fronteira de responsabilidade entre este módulo (definição do que é vendável) e um módulo de Billing/Pagamentos (processamento da transação).
 
 ## 🛠️ 4. Casos de Uso Principais
 
-*   **Proprietário de Servidor Adiciona um Pacote \"Kit Inicial\":**
-    *   Define nome, descrição, preço (ex: 500 \"Pontos da Plataforma\"), e `benefits_payload: %{\"ingame_items\": [{\"item_id\": \"basic_sword\", \"qty\": 1}, {\"item_id\": \"healing_potion\", \"qty\": 5}]}`.
-    *   API chama `ServerPackages.create_server_package(...)`.
-*   **Jogador Compra o \"Kit Inicial\":**
-    *   UI mostra o pacote. Jogador clica em \"Comprar com 500 Pontos\".
-    *   API chama `UserInventory.acquire_package(user_id, package_id, %{payment_method: :platform_points})`.
-    *   `UserInventoryService` verifica e debita os pontos do `PointsService`.
-    *   Cria `UserPackageInstanceSchema`.
-    *   `GrantingService` interpreta o `benefits_payload` e (por exemplo) chama uma API do servidor de jogo para dar os itens ao jogador.
-*   **Sistema Verifica Assinatura VIP de um Jogador:**
-    *   Quando o jogador loga no servidor de jogo, o jogo pode consultar uma API do DeeperHub: `UserInventory.get_active_package_instance_by_type(user_id, server_id, :vip_subscription)`.
+*   **Proprietário de Servidor Cria um Pacote VIP:** O dono de um servidor define um pacote \"VIP Mensal\" que oferece acesso a áreas exclusivas e um item no jogo por R$19,90/mês.
+*   **Usuário Visualiza Pacotes de um Servidor:** Um jogador visita a página de um servidor e vê os diferentes pacotes de assinatura ou itens que pode adquirir.
+*   **Sistema Lista Pacotes em Destaque:** A plataforma pode destacar pacotes populares ou promocionais.
+*   **Administrador Desabilita um Pacote:** Um pacote que viola as políticas da plataforma é desabilitado por um administrador.
 
-## 🌊 5. Fluxos Importantes
+## 🌊 5. Fluxos Importantes (Opcional)
 
-### Fluxo de Compra de um Pacote de \"Uso Único\" com Moeda Virtual
+**Fluxo de Criação de um Novo Pacote de Servidor:**
 
-1.  **Usuário (UI):** Clica para comprar Pacote P (ID: `pkg_123`) que custa 100 Pontos.
-2.  **Controller API:** Chama `DeeperHub.UserInventory.acquire_package(user_id, \"pkg_123\", %{payment_method: :platform_points, expected_points_cost: 100})`.
-3.  **`UserInventoryService.acquire_package/3`:**
-    *   Busca `ServerPackageSchema` para \"pkg_123\" (via `ServerPackages.get_server_package`). Verifica se está ativo e o preço.
-    *   Verifica se o usuário já atingiu `max_per_user` para este pacote, se aplicável.
-    *   Chama `DeeperHub.PointsService.debit_points(user_id, 100, %{reason: \"Purchase of pkg_123\"})`.
-    *   **Se débito falhar (saldo insuficiente):** Retorna `{:error, :insufficient_points}`.
-    *   **Se débito OK:**
-        *   Inicia uma transação `Core.Repo.transaction/2`.
-        *   Dentro da transação:
-            *   Cria um `UserPackageInstanceSchema` (`user_id`, `server_package_id`, `acquired_at`, `status: :active` (ou `:consumed` se o efeito é imediato e único)).
-            *   Incrementa `total_purchased_count` no `ServerPackageSchema`.
-        *   **Fim da transação.**
-        *   Se a transação do Repo falhar, tenta reverter o débito de pontos (lógica de compensação ou saga pode ser necessária aqui, ou a transação de pontos deve fazer parte da transação do Repo se o PointsService usar o mesmo DB).
-        *   Se tudo OK:
-            *   Chama `GrantingService.apply_benefits(user_id, server_package.benefits_payload, %{source_package_instance_id: ...})`.
-            *   Publica evento `user_package.acquired` no `Core.EventBus`.
-            *   Notifica o usuário.
-            *   Retorna `{:ok, user_package_instance}`.
+1.  Proprietário do servidor (via UI/API) submete os dados para um novo pacote.
+2.  `DeeperHub.API` (Controller) chama `DeeperHub.ServerPackages.create_server_package(params)`.
+3.  `ServerPackagesFacade` delega para `DeeperHub.ServerPackages.Services.PackageService.create_package(params)`.
+4.  `PackageService`:
+    *   Valida os `params` usando `ServerPackage.changeset/2`.
+    *   Verifica se o `user_id` (dos `params` ou do contexto da sessão) é o proprietário do `server_id` associado.
+    *   Se válido, cria o registro `ServerPackage` no banco de dados via `Core.Repo`.
+    *   (Opcional) Cria registros `PackageFeature` associados.
+    *   Invalida caches relevantes (ex: cache de pacotes para aquele servidor).
+    *   Publica um evento `ServerPackageCreatedEvent` no `Core.EventBus`.
+5.  Retorna `{:ok, package_criado}`.
 
-## 📡 6. API (Funções Públicas das Fachadas)
+## 📡 6. API (Se Aplicável)
 
-### `DeeperHub.ServerPackages` (Gerenciamento de Definições)
+### 6.1. `DeeperHub.ServerPackages.create_server_package/1`
 
-*   `create_server_package(creator_user_id, server_id, attrs)`
-*   `update_server_package(package_id, attrs, current_user_id)`
-*   `delete_server_package(package_id, current_user_id)`
-*   `get_server_package(package_id)`
-*   `list_server_packages_by_server(server_id, opts)`
-*   `list_all_server_packages(filters, opts)`
+*   **Descrição:** Cria um novo pacote de itens ou serviços para um servidor.
+*   **`@spec`:** `create_server_package(attrs :: map()) :: {:ok, ServerPackage.t()} | {:error, Ecto.Changeset.t() | reason}`
+*   **Parâmetros:**
+    *   `attrs` (map): Atributos do pacote.
+        *   `:server_id` (String, obrigatório): ID do servidor ao qual o pacote pertence.
+        *   `:created_by_user_id` (String, obrigatório): ID do usuário que está criando o pacote (geralmente o dono do servidor).
+        *   `:name` (String, obrigatório): Nome do pacote (ex: \"Pacote VIP Ouro\").
+        *   `:description` (String, obrigatório): Descrição detalhada do que o pacote inclui.
+        *   `:price` (Decimal, opcional): Preço do pacote. Nulo se for gratuito.
+        *   `:currency` (String, opcional): Código da moeda (ex: \"BRL\", \"USD\"). Obrigatório se `price` for definido.
+        *   `:package_type` (atom, obrigatório): Tipo de pacote (ex: `:subscription`, `:one_time_purchase`, `:benefit`).
+        *   `:duration_days` (integer, opcional): Duração do benefício/assinatura em dias (se aplicável).
+        *   `:features` (list(String), opcional): Lista de features ou itens incluídos.
+        *   `:is_active` (boolean, opcional): Se o pacote está ativo e disponível para compra/visualização. (Padrão: `true`)
+        *   `:stock_quantity` (integer, opcional): Quantidade em estoque, se limitada.
+*   **Retorno:** O pacote criado ou um changeset com erros.
+*   **Exemplo de Uso (Elixir):**
+    ```elixir
+    package_attrs = %{
+      server_id: \"server_123\",
+      created_by_user_id: \"user_abc\",
+      name: \"Kit Inicial de Aventureiro\",
+      description: \"Contém uma espada básica, 10 poções de cura e 100 moedas de ouro.\",
+      price: Decimal.new(\"9.99\"),
+      currency: \"USD\",
+      package_type: :one_time_purchase,
+      features: [\"Espada Básica\", \"10x Poção de Cura\", \"100x Moedas de Ouro\"],
+      is_active: true
+    }
+    case DeeperHub.ServerPackages.create_server_package(package_attrs) do
+      {:ok, package} -> Logger.info(\"Pacote #{package.id} - '#{package.name}' criado.\")
+      {:error, reason} -> Logger.error(\"Falha ao criar pacote: #{inspect(reason)}\")
+    end
+    ```
 
-### `DeeperHub.UserInventory` (Aquisição e Gerenciamento de Instâncias de Usuário)
+### 6.2. `DeeperHub.ServerPackages.list_packages_for_server/2`
 
-*   **`DeeperHub.UserInventory.acquire_package(user_id :: String.t(), server_package_id :: String.t(), acquisition_context :: map()) :: {:ok, UserPackageInstance.t()} | {:error, term()}`**
-    *   `acquisition_context`: `%{payment_method: :platform_points | :real_money_transaction_id, expected_cost: Decimal.t() | nil}`.
-*   **`DeeperHub.UserInventory.list_my_active_packages(user_id :: String.t(), opts :: keyword()) :: {:ok, list(UserPackageInstanceView.t())}`**
-    *   `UserPackageInstanceView.t()`: Combina dados da instância com a definição do pacote.
-*   **`DeeperHub.UserInventory.get_package_instance_details(user_package_instance_id :: String.t(), user_id :: String.t()) :: {:ok, UserPackageInstanceView.t() | nil}`**
-*   **`DeeperHub.UserInventory.cancel_subscription(user_package_instance_id :: String.t(), user_id :: String.t()) :: :ok | {:error, term()}`** (Se houver assinaturas)
+*   **Descrição:** Lista todos os pacotes disponíveis para um servidor específico.
+*   **`@spec`:** `list_packages_for_server(server_id :: String.t(), opts :: Keyword.t()) :: {:ok, list(ServerPackage.t())} | {:error, reason}`
+*   **Parâmetros:**
+    *   `server_id` (String): O ID do servidor.
+    *   `opts` (Keyword.t()): Opções de filtragem.
+        *   `:is_active` (boolean): Filtrar apenas pacotes ativos. (Padrão: `true`)
+        *   `:package_type` (atom): Filtrar por tipo de pacote.
+        *   `:order_by` (Keyword.t()): Ordenação (ex: `[price: :asc]`).
+*   **Retorno:** Lista de pacotes do servidor.
+*   **Exemplo de Uso (Elixir):**
+    ```elixir
+    {:ok, active_packages} = DeeperHub.ServerPackages.list_packages_for_server(\"server_123\", is_active: true)
+    ```
+
+*(Outras funções como `get_package_details/1`, `update_server_package/2`, `delete_server_package/1` seriam documentadas aqui).*
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager`:
-
-*   **`[:server_packages, :enabled]`** (Boolean).
-*   **`[:server_packages, :max_name_length]`** (Integer).
-*   **`[:server_packages, :max_description_length]`** (Integer).
-*   **`[:server_packages, :allowed_currencies]`** (List de Strings): Ex: `[\"POINTS_PLATFORM\", \"USD\"]`.
-*   **`[:server_packages, :default_package_types]`** (List de Atoms): Ex: `[:one_time, :subscription]`.
-*   **`[:server_packages, :cache, :package_definition_ttl_seconds]`** (Integer).
-*   **`[:user_inventory, :default_subscription_renewal_notification_days_before]`** (Integer): Para enviar lembretes de renovação.
+*   **ConfigManager (`DeeperHub.Core.ConfigManager`):**
+    *   `[:server_packages, :default_currency]`: Moeda padrão para preços se não especificada. (Padrão: `\"USD\"`)
+    *   `[:server_packages, :max_features_per_package]`: Número máximo de features listadas por pacote.
+    *   `[:server_packages, :allow_free_packages]`: (Boolean) Se permite a criação de pacotes com preço zero. (Padrão: `true`)
+    *   `[:server_packages, :cache_ttl_seconds]`: TTL para o cache de definições de pacotes.
 
 ## 🔗 8. Dependências
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.*`.
-*   `DeeperHub.Servers`: Para `server_id`.
-*   `DeeperHub.Accounts`: Para `user_id`.
-*   `DeeperHub.Auth`/`RBAC`: Para permissões.
-*   `DeeperHub.Notifications`: Para notificar sobre aquisições.
-*   `DeeperHub.Payments` (Opcional).
-*   `DeeperHub.PointsService` (ou similar, Opcional).
-*   `DeeperHub.Audit`.
+*   `DeeperHub.Core.Repo`
+*   `DeeperHub.Core.ConfigManager`
+*   `DeeperHub.Core.Cache`
+*   `DeeperHub.Servers` (para associação `server_id`)
+*   `DeeperHub.Accounts` (para `created_by_user_id`)
+*   `DeeperHub.Core.Internationalization (I18n)` (para descrições localizadas)
+*   `DeeperHub.Billing` ou `DeeperHub.Subscriptions` (Potencial, para processar a compra)
+*   `DeeperHub.Core.Logger`, `DeeperHub.Core.Metrics`
 
 ### 8.2. Bibliotecas Externas
 
-*   `Ecto`.
-*   `Decimal`.
+*   `Ecto`
+*   `Decimal` (para manipulação de preços)
 
 ## 🤝 9. Como Usar / Integração
 
-*   **UI do Proprietário do Servidor:** Para definir e gerenciar os pacotes que seu servidor oferece.
-*   **Loja na Página do Servidor (UI do Jogador):** Para listar pacotes e iniciar o fluxo de aquisição.
-*   **Servidor de Jogo (Externo):** Pode precisar de uma API para:
-    *   Verificar os pacotes/benefícios ativos de um jogador (via `UserInventory`).
-    *   (Potencialmente) Conceder itens/benefícios no jogo após o `GrantingService` ser notificado (ex: via webhook ou API do jogo).
+*   **UI/Frontend:** Exibe os pacotes disponíveis na página de um servidor para os usuários.
+*   **API de Gerenciamento:** Proprietários de servidor e administradores interagem com a API para criar e gerenciar pacotes.
+*   **Módulo de Billing/Pagamento:** Quando um usuário decide adquirir um pacote, o módulo de Billing seria acionado, usando as informações (preço, etc.) deste módulo.
 
 ## ✅ 10. Testes e Observabilidade
 
 ### 10.1. Testes
 
-*   Testar CRUD para `ServerPackageSchema`.
-*   Testar o fluxo completo de aquisição de pacotes com diferentes métodos de pagamento (mockados).
-*   Testar a correta concessão de benefícios pelo `GrantingService` (com mocks para sistemas externos).
-*   Testar a lógica de assinaturas (criação, renovação, cancelamento, expiração).
-*   Testar limites (ex: `max_per_user`).
-*   Localização: `test/deeper_hub/server_packages/` e `test/deeper_hub/user_inventory/`.
+*   Testar CRUD de pacotes.
+*   Testar validações de preço, moeda, tipo de pacote.
+*   Testar a listagem de pacotes com diferentes filtros.
+*   Testar o controle de ativação/desativação.
+*   Localização: `test/deeper_hub/server_packages/`
 
 ### 10.2. Métricas
 
-*   `deeper_hub.server_packages.definitions.count` (Gauge, tags: `server_id`)
-*   `deeper_hub.user_inventory.package_acquired.count` (tags: `package_id`, `server_id`, `payment_method`)
-*   `deeper_hub.user_inventory.revenue_generated.sum` (Contador, tags: `currency`, `package_id`) (Para moeda real)
-*   `deeper_hub.user_inventory.points_spent.sum` (Contador, tags: `package_id`) (Para moeda virtual)
-*   `deeper_hub.user_inventory.active_subscriptions.gauge` (tags: `package_id`)
+*   `deeper_hub.server_packages.created.count` (Contador): Tags: `server_id`, `package_type`.
+*   `deeper_hub.server_packages.updated.count` (Contador): Tags: `package_id`.
+*   `deeper_hub.server_packages.viewed.count` (Contador): (Se houver uma página de detalhes do pacote) Tags: `package_id`.
+*   `deeper_hub.server_packages.active.gauge` (Gauge): Número total de pacotes ativos. Tags: `server_id`.
 
 ### 10.3. Logs
 
-*   **Nível INFO:** Definição de pacote criada/atualizada. Pacote adquirido por usuário. Benefícios concedidos.
-*   **Nível WARNING:** Tentativa de adquirir pacote sem saldo/meio de pagamento válido. Falha na concessão de um benefício específico (com retry se aplicável).
-*   **Nível ERROR:** Falha crítica no processamento de pagamento. Falha ao persistir `UserPackageInstance` após pagamento confirmado.
+*   `Logger.info(\"Pacote '#{name}' (ID: #{id}) criado para o servidor #{server_id}\", module: DeeperHub.ServerPackages.Services.PackageService)`
+*   `Logger.info(\"Pacote #{id} atualizado.\", module: DeeperHub.ServerPackages.Services.PackageService)`
 
 ### 10.4. Telemetria
 
-*   `[:deeper_hub, :server_packages, :definition, :created | :updated | :deleted]`
-*   `[:deeper_hub, :user_inventory, :acquisition_attempt, :start | :stop | :exception]`
-    *   Metadados: `%{user_id: id, package_id: id, payment_method: method}`
-    *   No `:stop`: `%{status: :success | :failure_payment | :failure_granting, instance_id: id}`
-*   `[:deeper_hub, :user_inventory, :benefit_granting, :start | :stop | :exception]`
-    *   Metadados: `%{user_id: id, package_instance_id: id, benefit_type: type}`
+*   `[:deeper_hub, :server_packages, :created | :updated | :deleted]`
 
 ## ❌ 11. Tratamento de Erros
 
-*   **Falha no Pagamento:** O fluxo de aquisição deve parar, nenhum benefício concedido.
-*   **Falha na Concessão de Benefícios Pós-Pagamento:** Este é um cenário crítico. Idealmente, a concessão é parte da mesma transação. Se não for possível, o pagamento deve ser reembolsado/estornado, ou a concessão deve ser reenfileirada com alta prioridade e monitoramento.
-*   Erros de validação na criação de pacotes retornam `{:error, changeset}`.
+*   `{:error, :server_not_found}`
+*   `{:error, :package_not_found}`
+*   `{:error, :unauthorized_action}` (ex: usuário tentando criar pacote para servidor que não é dele).
+*   Falhas na validação dos dados do pacote (changeset errors).
 
 ## 🛡️ 12. Considerações de Segurança
 
-*   **Validação de Preços:** Impedir preços negativos ou absurdamente baixos/altos.
-*   **Segurança do Fluxo de Pagamento:** Se envolver dinheiro real, a integração com o `Payments` deve ser PCI DSS compliant (se aplicável) e seguir todas as melhores práticas de segurança para transações financeiras.
-*   **Concessão de Benefícios:** A lógica no `GrantingService` deve ser segura para evitar que usuários ganhem benefícios indevidamente.
-*   **Autorização:** Apenas proprietários de servidores podem criar pacotes para *seus* servidores. Administradores da plataforma podem ter permissões mais amplas.
+*   **Validação de Preços:** Garantir que os preços sejam validados corretamente e não possam ser manipulados.
+*   **Permissões:** Apenas proprietários de servidor ou administradores devem poder criar/editar pacotes.
+*   **Descrição do Pacote:** Sanitizar a descrição e nome do pacote para prevenir XSS se exibidos diretamente.
 
 ## 🧑‍💻 13. Contribuição
 
-*   O `benefits_payload` é um ponto chave de extensão. Novos tipos de benefícios exigirão novos \"handlers\" no `GrantingService`.
-*   A lógica de assinatura pode se tornar um submódulo próprio se muito complexa.
+*   Novos tipos de pacotes ou modelos de precificação podem ser adicionados com cuidado, considerando a integração com o sistema de Billing.
+*   A lógica de concessão de benefícios/itens do pacote após a compra residiria no módulo de Billing ou em um sistema de inventário, que seria acionado após o pagamento.
 
 ## 🔮 14. Melhorias Futuras e TODOs
 
-*   [ ] Implementar um sistema de cupons de desconto para pacotes.
-*   [ ] Permitir \"pacotes de presente\" que um usuário pode comprar para outro.
-*   [ ] Suporte para pacotes com quantidade limitada de estoque.
-*   [ ] Histórico de compras detalhado para o usuário.
-*   [ ] Ferramentas para proprietários de servidores analisarem as vendas e popularidade de seus pacotes.
-*   [ ] Reembolsos e gerenciamento de disputas para pacotes pagos.
-*   [ ] Integração com APIs de jogos para concessão automática de itens/benefícios diretamente no jogo.
+*   [ ] Suporte para pacotes com preços variáveis ou descontos.
+*   [ ] Integração com um sistema de inventário para itens virtuais concedidos por pacotes.
+*   [ ] Suporte para \"gifting\" de pacotes para outros usuários.
+*   [ ] Limitar o número de pacotes que um servidor pode oferecer.
+*   [ ] Análise de popularidade e conversão de pacotes.
 
 ---
 
-*Última atualização: 2025-05-13*
+*Última atualização: YYYY-MM-DD*
 
 ---
 
-Este módulo de pacotes adiciona uma camada significativa de funcionalidade e potencial de monetização.
-
-Próximo? Podemos cobrir o `DeeperHub.ServerUpdateMessages` para completar as funcionalidades de \"comunicação\" do servidor, ou o módulo genérico `DeeperHub.Lists`?"""),
+O próximo seria `DeeperHub.ServerAlerts`. Prontos?"""),
             ],
         ),
         types.Content(
             role="user",
             parts=[
-                types.Part.from_text(text="""continue"""),
+                types.Part.from_text(text="""Sim, pode vir..."""),
             ],
         ),
-    ]
-    generate_content_config = types.GenerateContentConfig(
-        response_mime_type="text/plain",
-        system_instruction=[
-            types.Part.from_text(text="""Você é um especialista em documentação e arquitetura de sistemas. 
-Você é excelente em categorizar, especificar e criar arquivos README dos Módulos do Sistema.
-Você organiza, especifica e categoria o máximo ***todas*** as características e itens de todos os módulos de sistemas. Sempre especifica TUDO!
-
-# Template: README para Módulos do DeeperHub
-
-Este é um template para a criação de arquivos `README.md` para os módulos do projeto DeeperHub. O objetivo é padronizar a documentação, tornando-a mais clara, completa e consistente.
-
-**Instruções:**
-- Substitua `[Nome do Módulo]` pelo nome real do módulo.
-- Adapte e preencha cada seção conforme a especificidade do módulo.
-- Remova seções que não se aplicam.
-- Adicione seções específicas se necessário.
-- Mantenha a linguagem em Português (BR) e o uso de emojis 😊.
+        types.Content(
+            role="model",
+            parts=[
+                types.Part.from_text(text="""Perfeito! Vamos ao README do `DeeperHub.ServerAlerts`.
 
 ---
 

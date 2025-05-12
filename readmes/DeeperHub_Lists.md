@@ -1,277 +1,239 @@
-# Módulo: `DeeperHub.Lists` 🚀
+# Módulo: `DeeperHub.Lists` 🗂️
 
 ## 📜 1. Visão Geral do Módulo `DeeperHub.Lists`
 
-O módulo `DeeperHub.Lists` (originalmente `DeeperHub.Services.Lists`) serve como um **repositório centralizado para listas de dados de referência e enumerações** usadas em todo o sistema DeeperHub. Em vez de hardcodar essas listas em vários módulos ou ter múltiplas tabelas pequenas e isoladas, este módulo fornece uma maneira genérica de armazenar, gerenciar e consultar esses \"tipos\" ou \"categorias\".
-
-Exemplos de listas que podem ser gerenciadas aqui:
-*   Tipos de Conquistas (ex: 'Milestone', 'Event')
-*   Categorias Gerais (ex: 'Gaming', 'Programming')
-*   Tipos de Conteúdo (ex: 'Article', 'Video')
-*   Engines de Jogos (ex: 'Unity', 'Unreal Engine')
-*   Tipos de Feedback (ex: 'Bug Report', 'Feature Request')
-*   Idiomas Suportados
-*   Tipos de Rede de Servidor
-*   Plataformas Suportadas
-*   Status Comuns (ex: para tickets, servidores, etc., se não forem específicos demais para seus próprios módulos)
-*   Tags Globais (se houver um sistema de tags que não seja específico apenas para servidores)
-
-O objetivo é fornecer consistência, facilitar a adição de novas opções e permitir que a UI popule seletores e filtros de forma dinâmica. 😊
+O módulo `DeeperHub.Lists` (anteriormente `Elixir.DeeperHub.Services.Lists`) serve como um utilitário genérico ou um serviço de gerenciamento para diversas listas de \"tipos\" ou \"categorias\" usadas em todo o sistema DeeperHub. Ele fornece uma maneira padronizada de criar, consultar, atualizar e deletar itens que representam coleções de dados relativamente estáticos ou controlados administrativamente, como tipos de conquistas, categorias de conteúdo, tipos de feedback, plataformas, engines de jogos, idiomas, etc. O objetivo é centralizar o gerenciamento dessas listas simples, evitando duplicação de lógica CRUD básica em múltiplos módulos. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
-*   **Gerenciamento CRUD de Itens de Lista Genéricos (`create_list_item/2`, `get_list_item/2`, `update_list_item/2`, `delete_list_item/1`):**
-    *   Permitir que administradores criem novos itens para uma lista específica (ex: adicionar um novo \"Tipo de Conquista\").
-    *   Cada item de lista teria um `list_type` (identificador da lista, ex: `:achievement_type`), um `value` (o valor real, ex: \"milestone\"), uma `label` (para exibição, ex: \"Marco Histórico\"), e opcionalmente `description`, `is_active`, `metadata` (JSONB para dados extras).
-    *   Atualizar ou desativar/excluir itens de lista.
-*   **Consulta de Itens de Lista:**
-    *   Listar todos os itens para um `list_type` específico (`list_items_by_type/1`).
-    *   Obter um item específico pelo seu valor ou ID dentro de um `list_type`.
-    *   Filtrar itens por `is_active`.
-*   **Validação de Dados:**
-    *   Garantir que os valores e labels sejam únicos dentro de um `list_type`.
-    *   Validar os campos ao criar/atualizar itens.
-*   **Caching:**
-    *   Cachear listas frequentemente acessadas para performance, já que esses dados de referência raramente mudam.
-*   **Internacionalização de Labels (Opcional):**
-    *   Se as `labels` precisarem ser traduzidas, este módulo pode integrar com `Core.Internationalization` ou armazenar traduções no campo `metadata`.
-*   **Observabilidade e Auditoria:**
-    *   Logar e auditar a criação/modificação de itens de lista, especialmente aqueles que afetam a lógica do sistema.
+*   **Gerenciamento Genérico de Itens de Lista:**
+    *   CRUD (Create, Read, Update, Delete) para itens de diferentes \"tipos de lista\".
+    *   Cada \"tipo de lista\" pode ter seu próprio schema Ecto (ex: `AchievementType`, `Category`, `Platform`).
+*   **Identificação do Tipo de Lista:**
+    *   As funções da API devem aceitar um identificador do tipo de lista que está sendo manipulada (ex: um átomo como `:achievement_type`, `:platform`).
+*   **Listagem e Filtragem:**
+    *   Listar todos os itens de um determinado tipo de lista.
+    *   Filtrar itens por atributos comuns (ex: `name`, `is_active`).
+*   **Validação Básica:**
+    *   Validação de campos comuns como nome (para garantir unicidade dentro do tipo de lista, se necessário) e status de ativação.
+*   **Cache (Opcional):**
+    *   Cachear listas frequentemente acessadas para melhorar o desempenho (via `Core.Cache`).
+*   **Administração:**
+    *   Fornecer uma interface (provavelmente via `DeeperHub.Console` ou UI de admin) para gerenciar esses tipos de lista.
+
+**Exemplos de \"Tipos de Lista\" Gerenciados:**
+
+*   `AchievementType` (Tipos de Conquistas, ex: 'Milestone', 'Event')
+*   `Category` (Categorias Gerais, ex: 'Gaming', 'Programming')
+*   `ContentType` (Tipos de Conteúdo, ex: 'Article', 'Video')
+*   `Engine` (Engines de Jogo/Frameworks, ex: 'Unity', 'Unreal Engine')
+*   `FeedbackType` (Tipos de Feedback, ex: 'Bug Report', 'Feature Request')
+*   `Language` (Idiomas, ex: 'English', 'Portuguese')
+*   `Network` (Redes/Plataformas Sociais, ex: 'Discord', 'Steam')
+*   `Platform` (Plataformas de Jogo/SO, ex: 'PC', 'PlayStation', 'iOS')
+*   `Status` (Status genéricos usados em diferentes partes do sistema, ex: 'active', 'pending', 'archived')
+*   `Tag` (Embora `ServerTags` seja específico, pode haver um gerenciamento de tags globais aqui, se necessário, ou este módulo poderia fornecer a base para `ServerTags`).
 
 ## 🏗️ 3. Arquitetura e Design
 
+`DeeperHub.Lists` atuará como uma fachada que delega para um serviço de armazenamento genérico ou para manipuladores específicos por tipo de lista se a lógica for mais complexa.
+
+*   **Interface Pública (`DeeperHub.Lists.ListsFacade` ou `DeeperHub.Lists`):** Funções como `list_items/2`, `create_item/2`, `get_item/2`.
+*   **Serviço de Armazenamento/Lógica (`DeeperHub.Lists.Storage` ou `DeeperHub.Lists.Services.ListManagementService`):**
+    *   Contém a lógica genérica para interagir com o `Core.Repo` usando o schema Ecto apropriado para o tipo de lista especificado.
+*   **Schemas Ecto (em `DeeperHub.Lists.Schema.*`):**
+    *   Cada tipo de lista terá seu próprio schema (ex: `DeeperHub.Lists.Schema.Category`, `DeeperHub.Lists.Schema.Platform`). Estes schemas são tipicamente simples, contendo campos como `id`, `name`, `description`, `slug`, `is_active`.
+*   **Cache:**
+    *   Pode usar o `DeeperHub.Core.Cache` para armazenar listas completas de cada tipo, especialmente se elas não mudam com frequência.
+*   **Integrações:**
+    *   `DeeperHub.Core.Repo`: Para persistência.
+    *   `DeeperHub.Core.Cache`: Para cache.
+    *   `DeeperHub.Core.ConfigManager`: Para configurações relacionadas (ex: TTL do cache de listas).
+
+**Padrões de Design:**
+
+*   **Fachada (Facade).**
+*   **Strategy (Opcional):** Se diferentes tipos de lista precisarem de lógica de validação ou manipulação muito distinta, cada uma poderia ter uma \"estratégia\" ou manipulador. No entanto, para listas simples, um serviço genérico costuma ser suficiente.
+
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.Lists` (Fachada Pública):**
-    *   Ponto de entrada para todas as operações relacionadas a listas genéricas.
-    *   Delega para o `ListsService`.
-2.  **`DeeperHub.Lists.Services.ListsService` (ou `DefaultListsService`):**
-    *   **Responsabilidade:** Orquestra a lógica de negócio para o gerenciamento de itens de lista.
-    *   **Interações:**
-        *   `DeeperHub.Core.Repo`: Para CRUD com `ListItemSchema`.
-        *   `DeeperHub.Core.Cache`: Para cachear listas.
-        *   `DeeperHub.Core.ConfigManager`: Para obter a lista de `list_type`s conhecidos ou configurações padrão.
-        *   `DeeperHub.Audit`: Para auditar modificações.
-3.  **`DeeperHub.Lists.Schemas.ListItemSchema` (Nova Sugestão, em vez de múltiplos schemas pequenos):**
-    *   Um schema Ecto genérico para armazenar todos os itens de lista.
-    *   Campos: `id`, `list_type` (string ou atom, indexado), `value` (string, indexado dentro do `list_type`), `label` (string), `description` (text, opcional), `metadata` (jsonb, opcional), `is_active` (boolean, default: true), `sort_order` (integer, opcional), `inserted_at`, `updated_at`.
-    *   Índice único em `(list_type, value)`.
-4.  **`DeeperHub.Lists.Storage` (ou lógica no `ListsService`):**
-    *   Encapsula as queries Ecto para `ListItemSchema`.
-5.  **`DeeperHub.Lists.CachedAdapter` (Opcional, da documentação original para outros serviços, mas aplicável aqui):**
-    *   Camada de cache explícita se o `Core.Cache` genérico não for suficiente.
-
-*(Os múltiplos schemas pequenos listados na documentação original como `AchievementType`, `Category`, `ContentType`, etc., seriam consolidados no `ListItemSchema` usando o campo `list_type` para diferenciá-los. Isso simplifica muito a manutenção e a adição de novas listas sem alterações de schema no DB.)*
-
-### 3.2. Estrutura de Diretórios (Proposta)
-
-```
-lib/deeper_hub/lists/
-├── lists.ex                          # Fachada Pública
-│
-├── services/
-│   └── lists_service.ex              # Serviço principal
-│
-├── schemas/
-│   └── list_item_schema.ex
-│
-├── storage.ex                        # (Opcional) Módulo de queries Ecto
-├── cached_adapter.ex                 # (Opcional)
-├── supervisor.ex                     # (Se houver GenServers, ex: para cache warming)
-└── telemetry.ex
-```
+*   **`DeeperHub.Lists.ListsFacade`:** Ponto de entrada.
+*   **`DeeperHub.Lists.Storage` (ou `Services.ListManagementService`):** Lógica de negócio e persistência.
+*   **`DeeperHub.Lists.Schema.*`:** Módulos de schema Ecto para cada tipo de lista.
+*   **`DeeperHub.Lists.Supervisor`:** Supervisiona processos (se houver, ex: um worker para pré-carregar cache).
 
 ### 3.3. Decisões de Design Importantes
 
-*   **Schema Genérico Único:** Usar um `ListItemSchema` com um campo `list_type` é mais escalável e flexível do que criar uma nova tabela para cada pequena lista de enumeração.
-*   **`value` vs. `label`:** O `value` é o identificador programático (ex: `:bug_report`, `\"milestone_ach\") e a `label` é para exibição na UI (ex: \"Relatório de Bug\", \"Conquista de Marco\").
-*   **Dados Estáticos vs. Gerenciados por Admin:** Decidir se essas listas são populadas via seeds no deploy (mais estático) ou gerenciadas dinamicamente por administradores através de uma UI. A abordagem com `ListItemSchema` facilita o gerenciamento dinâmico.
-*   **Caching Agressivo:** Como esses dados de referência mudam raramente, eles são candidatos ideais para caching agressivo.
+*   **Genericidade vs. Especificidade:** Encontrar o equilíbrio certo. Se um \"tipo de lista\" se torna muito complexo e com lógica de negócio própria, ele pode precisar evoluir para seu próprio módulo de domínio dedicado (como `ServerTags` provavelmente já é).
+*   **Nomenclatura de Schemas:** Decidir se os schemas ficam sob `DeeperHub.Lists.Schema.*` ou se cada um é um módulo de schema mais independente (ex: `DeeperHub.Schema.Category`). Manter sob `Lists.Schema` reforça que são gerenciados por este módulo.
 
 ## 🛠️ 4. Casos de Uso Principais
 
-*   **Popular um Dropdown na UI para Seleção de Categoria de Suporte:**
-    *   Frontend/API chama `DeeperHub.Lists.list_items_by_type(:support_ticket_category, %{is_active: true, sort_by: :label_asc})`.
-    *   A lista de `%{value: \"technical_issue\", label: \"Problema Técnico\"}, ...` é usada para renderizar o dropdown.
-*   **Administrador Adiciona um Novo \"Tipo de Recompensa\":**
-    *   Admin usa uma interface de gerenciamento.
-    *   API chama `DeeperHub.Lists.create_list_item(%{list_type: :reward_type, value: \"exclusive_skin\", label: \"Skin Exclusiva\", description: \"Desbloqueia uma skin rara para o avatar.\"}, admin_user_id)`.
-*   **Sistema Valida um `event_type` Fornecido pelo Usuário:**
-    *   Ao criar um `ServerEvent`, o `ServerEventsService` verifica se o `event_type` fornecido é um valor válido.
-    *   Chama `DeeperHub.Lists.get_list_item_by_value(:server_event_type, user_provided_event_type)`. Se retornar `nil` ou inativo, o tipo é inválido.
+*   **Administrador Adiciona Nova Categoria de Jogo:** Um admin usa a interface de administração para adicionar \"Estratégia em Tempo Real\" à lista de categorias de jogos.
+*   **Sistema Exibe Dropdown de Plataformas:** Ao registrar um novo servidor, o formulário busca as plataformas disponíveis (`DeeperHub.Lists.list_items(:platform)`) para popular um dropdown.
+*   **Módulo de Achievements Valida Tipo de Conquista:** Ao criar uma nova conquista, o módulo `Achievements` valida se o `achievement_type` fornecido existe na lista de `AchievementType` gerenciada por `DeeperHub.Lists`.
+*   **Filtragem de Conteúdo por Idioma:** Um sistema de busca pode usar `DeeperHub.Lists.list_items(:language)` para permitir que usuários filtrem conteúdo pelo idioma.
 
-## 🌊 5. Fluxos Importantes
+## 🌊 5. Fluxos Importantes (Opcional)
 
-### Fluxo de Adição de um Novo Item de Lista por um Administrador
+**Fluxo de Listagem de Itens com Cache:**
 
-1.  **Administrador (UI):** Seleciona a lista (ex: \"Tipos de Feedback\"), preenche `value` (\"interface_bug\") e `label` (\"Bug de Interface\").
-2.  **Controller API (Admin):** Valida permissões. Chama `DeeperHub.Lists.create_list_item(admin_user_id, %{list_type: :feedback_type, value: \"interface_bug\", label: \"Bug de Interface\"})`.
-3.  **`ListsService.create_list_item/2`:**
-    *   Valida os atributos (ex: `list_type` é conhecido, `value` é único para esse `list_type`).
-    *   Cria um `ListItemSchema` changeset.
-    *   Se válido, `Core.Repo.insert(changeset)`.
-    *   Se sucesso:
-        *   Publica evento `list_item.created` no `Core.EventBus`.
-        *   Invalida o cache para `:feedback_type`.
-        *   Audita a ação.
-        *   Retorna `{:ok, list_item_struct}`.
-    *   Se falha, retorna erro.
+1.  Um módulo (ex: UI Helper) chama `DeeperHub.Lists.list_items(:category, [is_active: true])`.
+2.  `ListsFacade` delega para `DeeperHub.Lists.Storage.list_items/2` (ou serviço similar).
+3.  O `Storage` primeiro verifica o `Core.Cache` por uma chave como `\"lists:category:active\"`.
+4.  **Cache Hit:** Se encontrado e válido, retorna a lista cacheada.
+5.  **Cache Miss:**
+    *   O `Storage` constrói uma query Ecto para `DeeperHub.Lists.Schema.Category` com o filtro `is_active: true`.
+    *   Executa a query via `Core.Repo.all(query)`.
+    *   Armazena o resultado no `Core.Cache` com um TTL apropriado.
+    *   Retorna a lista de categorias.
+6.  O resultado é retornado ao chamador.
 
-## 📡 6. API (Funções Públicas da Fachada `DeeperHub.Lists`)
+## 📡 6. API (Se Aplicável)
 
-### 6.1. Gerenciamento de Itens (Principalmente Admin)
+### 6.1. `DeeperHub.Lists.list_items/2`
 
-*   **`DeeperHub.Lists.create_list_item(admin_user_id :: String.t(), attrs :: map()) :: {:ok, ListItem.t()} | {:error, Ecto.Changeset.t()}`**
-    *   `attrs`: `%{list_type: atom() | String.t(), value: String.t(), label: String.t(), description: String.t() | nil, metadata: map() | nil, is_active: boolean() | true, sort_order: integer() | nil}`.
-*   **`DeeperHub.Lists.update_list_item(admin_user_id :: String.t(), list_item_id :: String.t(), attrs :: map()) :: {:ok, ListItem.t()} | {:error, Ecto.Changeset.t() | :unauthorized}`**
-*   **`DeeperHub.Lists.delete_list_item(admin_user_id :: String.t(), list_item_id :: String.t()) :: :ok | {:error, :unauthorized | :not_found | :in_use}`**
-    *   Pode impedir a exclusão se o item estiver em uso por outras entidades, preferindo desativar (`is_active: false`).
+*   **Descrição:** Lista todos os itens de um determinado tipo de lista, com opções de filtro.
+*   **`@spec`:** `list_items(list_type :: atom(), opts :: Keyword.t()) :: {:ok, list(map() | struct())} | {:error, reason}`
+*   **Parâmetros:**
+    *   `list_type` (atom): O tipo da lista a ser consultada (ex: `:category`, `:platform`, `:language`).
+    *   `opts` (Keyword.t()): Opções de filtragem.
+        *   `:filter_by` (map): Filtros por campos específicos (ex: `%{name_contains: \"Gam\", is_active: true}`).
+        *   `:order_by` (Keyword.t()): Campo e direção para ordenação (ex: `[name: :asc]`).
+        *   `:limit` (integer), `:offset` (integer): Para paginação.
+*   **Retorno:** Lista de itens (mapas ou structs Ecto) ou um erro.
+*   **Exemplo de Uso (Elixir):**
+    ```elixir
+    {:ok, gaming_categories} = DeeperHub.Lists.list_items(:category, filter_by: %{name_starts_with: \"Gaming\"}, order_by: [name: :asc])
+    ```
 
-### 6.2. Consulta de Itens (Público/Sistema)
+### 6.2. `DeeperHub.Lists.create_item/2`
 
-*   **`DeeperHub.Lists.list_items_by_type(list_type :: atom() | String.t(), opts :: keyword()) :: {:ok, list(ListItem.t())}`**
-    *   `opts`: `:is_active` (boolean, Padrão: `true`), `:sort_by` (`:label`, `:value`, `:sort_order`), `:sort_order_direction` (`:asc`, `:desc`).
-*   **`DeeperHub.Lists.get_list_item_by_value(list_type :: atom() | String.t(), item_value :: String.t(), opts :: keyword()) :: {:ok, ListItem.t() | nil}`**
-    *   `opts`: `:is_active` (boolean, Padrão: `true`).
-*   **`DeeperHub.Lists.get_list_item_label(list_type :: atom() | String.t(), item_value :: String.t(), default_label :: String.t() | nil) :: String.t() | nil` (Nova Sugestão)**
-    *   Função de conveniência para obter rapidamente a `label` de um `value`.
-*   **`DeeperHub.Lists.get_all_list_types() :: {:ok, list(atom() | String.t())}` (Nova Sugestão)**
-    *   Retorna todos os `list_type`s distintos definidos no sistema.
+*   **Descrição:** Cria um novo item em um tipo de lista especificado.
+*   **`@spec`:** `create_item(list_type :: atom(), attrs :: map()) :: {:ok, struct()} | {:error, Ecto.Changeset.t() | reason}`
+*   **Parâmetros:**
+    *   `list_type` (atom): O tipo da lista onde o item será criado.
+    *   `attrs` (map): Atributos para o novo item (ex: `%{name: \"PC\", description: \"Personal Computer\"}`).
+*   **Retorno:** O item criado ou um changeset com erros.
+*   **Exemplo de Uso (Elixir):**
+    ```elixir
+    case DeeperHub.Lists.create_item(:platform, %{name: \"PlayStation 6\", slug: \"ps6\"}) do
+      {:ok, platform} -> Logger.info(\"Plataforma criada: #{platform.name}\")
+      {:error, changeset} -> Logger.error(\"Erro ao criar plataforma: #{inspect(changeset.errors)}\")
+    end
+    ```
+
+*(Funções como `get_item/3`, `update_item/3`, `delete_item/2` seriam documentadas similarmente, sempre recebendo `list_type` como parâmetro).*
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager`:
-
-*   **`[:lists, :predefined_list_types]`** (List de Atoms/Strings): Uma lista de todos os `list_type`s que são conhecidos pelo sistema. Pode ser usado para validação ou para popular UIs de administração.
-    *   Ex: `[:achievement_type, :category, :content_type, :engine, :feedback_type, :language, :network_type, :platform, :server_status, :tag_category, :support_ticket_priority]`
-*   **`[:lists, :cache, :list_items_ttl_seconds]`** (Integer): TTL para cache de listas de itens. (Padrão: `3600` ou mais, pois mudam raramente).
-*   **`[:lists, :allow_dynamic_list_types]`** (Boolean): Se `false`, apenas `list_type`s definidos em `predefined_list_types` podem ser criados. (Padrão: `false` para maior controle).
+*   **ConfigManager (`DeeperHub.Core.ConfigManager`):**
+    *   `[:lists, :cache_ttl_seconds]`: TTL padrão para o cache de listas. (Padrão: `3600` - 1 hora)
+    *   `[:lists, :supported_list_types]`: (Opcional) Uma lista dos tipos de lista que o sistema reconhece, para validação.
+    *   Para cada tipo de lista, pode haver configurações específicas se necessário, mas geralmente as listas são definidas pelos seus schemas e dados no DB.
 
 ## 🔗 8. Dependências
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.Repo`, `Core.ConfigManager`, `Core.EventBus`, `Core.Logger`, `Core.Metrics`, `Core.Cache`.
-*   `DeeperHub.Auth`/`RBAC`: Para permissões de administração das listas.
-*   `DeeperHub.Audit`: Para auditar modificações.
-*   `DeeperHub.Core.Internationalization` (Opcional): Se as `labels` forem traduzidas.
+*   `DeeperHub.Core.Repo`: Para persistência.
+*   `DeeperHub.Core.Cache`: Para cache.
+*   `DeeperHub.Core.ConfigManager`: Para configurações.
+*   `DeeperHub.Core.Logger`, `DeeperHub.Core.Metrics`.
+*   Todos os schemas Ecto definidos em `DeeperHub.Lists.Schema.*`.
 
 ### 8.2. Bibliotecas Externas
 
-*   `Ecto`.
+*   `Ecto`
 
 ## 🤝 9. Como Usar / Integração
 
-*   **Validação de Entrada:** Módulos de serviço usam `get_list_item_by_value/3` para validar se um valor fornecido pelo usuário para um campo de \"tipo\" é uma opção válida e ativa.
-    ```elixir
-    # Em DeeperHub.Support.Services.SupportService
-    def create_ticket(attrs) do
-      case DeeperHub.Lists.get_list_item_by_value(:support_ticket_priority, attrs[:priority_value]) do
-        {:ok, nil} -> {:error, %{priority: \"Prioridade inválida\"}}
-        {:ok, _priority_item} -> # Prossiga com a criação
-        # ...
-      end
+Este módulo é usado por várias partes do sistema que precisam de acesso a listas de categorias, tipos, status, etc., para popular formulários, validar entradas ou filtrar dados.
+
+```elixir
+# Exemplo em um módulo de gerenciamento de Servidores
+defmodule DeeperHub.Servers.ServerService do
+  alias DeeperHub.Lists
+
+  def get_available_platforms_for_form() do
+    case Lists.list_items(:platform, filter_by: %{is_active: true}) do
+      {:ok, platforms} -> Enum.map(platforms, &{&1.name, &1.id})
+      _ -> [] # Lidar com erro ou retornar vazio
     end
-    ```
-*   **Popular Dropdowns em UIs:** A UI busca os itens de uma lista via API para preencher campos `<select>`.
-*   **Seed de Dados:** O arquivo `priv/repo/seeds.exs` pode usar `DeeperHub.Lists.create_list_item/2` para popular as listas iniciais durante o setup do banco de dados.
+  end
+end
+```
 
 ## ✅ 10. Testes e Observabilidade
 
 ### 10.1. Testes
 
-*   Testar CRUD para `ListItemSchema`.
-*   Testar a unicidade de `value` dentro de um `list_type`.
-*   Testar as funções de listagem com filtros (`:is_active`).
-*   Testar a lógica de cache.
-*   Localização: `test/deeper_hub/lists/`.
+*   Testar o CRUD para diferentes tipos de lista.
+*   Testar a listagem com filtros e ordenação.
+*   Testar o funcionamento do cache.
+*   Localização: `test/deeper_hub/lists/`
 
 ### 10.2. Métricas
 
-*   `deeper_hub.lists.items.created.count` (tags: `list_type`)
-*   `deeper_hub.lists.items.updated.count` (tags: `list_type`)
-*   `deeper_hub.lists.cache.hit.count` (tags: `list_type`)
-*   `deeper_hub.lists.cache.miss.count` (tags: `list_type`)
+*   `deeper_hub.lists.item.created.count` (Contador): Tags: `list_type`.
+*   `deeper_hub.lists.item.updated.count` (Contador): Tags: `list_type`.
+*   `deeper_hub.lists.item.deleted.count` (Contador): Tags: `list_type`.
+*   `deeper_hub.lists.query.duration_ms` (Histograma): Duração das consultas de listagem. Tags: `list_type`, `cache_status` (hit/miss).
 
 ### 10.3. Logs
 
-*   **Nível INFO:** Novo item de lista criado/atualizado/desativado. Cache de lista invalidado.
-*   **Nível WARNING:** Tentativa de criar item para um `list_type` não permitido (se `allow_dynamic_list_types` for `false`).
-*   **Nível ERROR:** Falha ao persistir item de lista.
+*   `Logger.info(\"Item '#{attrs.name}' criado para a lista '#{list_type}'\", module: DeeperHub.Lists.Storage)`
+*   `Logger.warning(\"Tentativa de acessar tipo de lista não suportado: #{list_type}\", module: DeeperHub.Lists.ListsFacade)`
 
 ### 10.4. Telemetria
 
-*   `[:deeper_hub, :lists, :item, :created | :updated | :deleted]`
-    *   Metadados: `%{list_item_id: id, list_type: type, value: val, admin_id: id}`
-*   `[:deeper_hub, :lists, :query, :by_type]`
-    *   Metadados: `%{list_type: type, from_cache: boolean, result_count: count}`
+*   `[:deeper_hub, :lists, :operation, :start | :stop | :exception]`: Para operações CRUD. Payload: `%{list_type: type, operation: op, item_id: id_or_nil}`.
 
 ## ❌ 11. Tratamento de Erros
 
-*   Falhas de validação ao criar/atualizar retornam `{:error, changeset}`.
-*   Tentativa de obter um item inexistente retorna `nil` ou `{:ok, nil}`.
-*   Operações de escrita por usuários não autorizados são bloqueadas por `RBAC` antes de atingir o serviço.
+*   `{:error, :unsupported_list_type}`: Se um tipo de lista desconhecido for solicitado.
+*   `{:error, :item_not_found}`: Para `get_item` ou `update_item`.
+*   Retorno de `Ecto.Changeset` para erros de validação em `create_item` e `update_item`.
 
 ## 🛡️ 12. Considerações de Segurança
 
-*   **Autorização:** A modificação de itens de lista deve ser restrita a administradores.
-*   **Validação de `list_type`:** Se `allow_dynamic_list_types` for `true`, deve haver alguma validação no formato do `list_type` para evitar a criação de um número excessivo ou malformado de tipos de lista.
-*   **Impacto das Mudanças:** Alterar ou desativar um `value` de um `list_type` que é usado como enum em código ou no banco de dados pode ter consequências. Planejar essas mudanças com cuidado (ex: migrações de dados, preferir desativar a excluir).
+*   **Controle de Acesso à Administração:** A criação e modificação de itens nessas listas deve ser restrita a administradores.
+*   **Validação de Nomes/Slugs:** Garantir que nomes e slugs sejam únicos (dentro de seu tipo) e não contenham caracteres maliciosos se forem usados em URLs ou caminhos.
 
 ## 🧑‍💻 13. Contribuição
 
-*   Ao adicionar uma nova lista de dados de referência, defina um novo `list_type` (e adicione-o a `[:lists, :predefined_list_types]` se necessário) e popule-o via seeds ou UI de admin.
-*   Considere se a `label` precisa de internacionalização.
+*   Para adicionar um novo \"tipo de lista\":
+    1.  Crie um novo schema Ecto em `lib/deeper_hub/lists/schema/your_list_type.ex`.
+    2.  Crie a migração correspondente.
+    3.  (Opcional) Adicione o novo tipo a `[:lists, :supported_list_types]` no `ConfigManager` se for feita validação contra essa lista.
+    4.  O `ListsFacade` e o `Storage` devem ser genéricos o suficiente para lidar com o novo tipo sem modificações, contanto que o schema siga um padrão comum (ex: ter um campo `name`).
 
 ## 🔮 14. Melhorias Futuras e TODOs
 
-*   [ ] Implementar uma UI administrativa para gerenciar todos os `list_type`s e seus itens.
-*   [ ] Adicionar suporte explícito para internacionalização das `labels` dos `ListItemSchema` (ex: um campo `translations` JSONB ou uma tabela separada).
-*   [ ] Permitir a definição de hierarquias simples entre itens de uma lista (ex: categorias e subcategorias) usando um campo `parent_list_item_id`.
-*   [ ] Adicionar a capacidade de \"fixar\" certos valores para que sempre apareçam no topo das listas, independentemente da ordenação.
-*   [ ] Worker para verificar a consistência: garantir que todos os `list_type`s referenciados em outras partes do sistema (ex: em `enum` fields de outros schemas) existam como `ListItemSchema`s.
+*   [ ] Suporte para ordenação customizada de itens dentro de uma lista (além de alfabética).
+*   [ ] Adicionar tradução para os nomes e descrições dos itens das listas usando `Core.I18n`.
+*   [ ] Interface de administração mais robusta para gerenciar todas as listas.
+*   [ ] Implementar versionamento ou histórico de alterações para itens de lista.
 
 ---
 
-*Última atualização: 2025-05-12*
+*Última atualização: YYYY-MM-DD*
 
 ---
 
-Este módulo `Lists` pode simplificar bastante o gerenciamento de dados de enumeração!
-
-Agora, temos alguns módulos de \"Serviços\" da documentação original que ainda não foram convertidos em contextos de domínio mais amplos:
-*   `DeeperHub.Services.ServerAdvertisements` (já fizemos)
-*   `DeeperHub.Services.ServerAlerts` (já fizemos)
-*   `DeeperHub.Services.ServerEvents` (já fizemos)
-*   `DeeperHub.Services.ServerPackages` (já fizemos)
-*   `DeeperHub.Services.ServerReviews` (já fizemos)
-*   `DeeperHub.Services.ServerTags` (já fizemos)
-*   `DeeperHub.Services.ServerUpdateMessages` (já fizemos)
-*   `DeeperHub.Services.UserInteractions` (já fizemos)
-*   `DeeperHub.Services.Achievements` (já fizemos)
-*   `DeeperHub.Services.Challenges` (já fizemos)
-*   `DeeperHub.Services.Rewards` (já fizemos)
-*   `DeeperHub.Services.Support` (já fizemos)
-
-E alguns módulos de segurança que poderíamos aprofundar, se necessário, além do que já foi coberto em seus contextos principais:
-*   `DeeperHub.Security.AtRestEncryptionService` (coberto em `Core.EncryptionService`)
-*   `DeeperHub.Security.ResponseSanitizer` (já fizemos)
-
-E também temos os módulos de `Console` e `ModuleInspector`.
-
-Qual seria o próximo? Que tal `DeeperHub.WebAuthn` para completar as opções de autenticação, ou o `DeeperHub.Console` para ferramentas de administração?"""),
+O próximo é `DeeperHub.WebAuthn`. Continuamos?"""),
             ],
         ),
         types.Content(
             role="user",
             parts=[
-                types.Part.from_text(text="""continue"""),
+                types.Part.from_text(text="""SIM!"""),
             ],
         ),
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Perfeito! Vamos detalhar o `DeeperHub.WebAuthn`. Este módulo é fundamental para oferecer uma forma moderna e segura de autenticação sem senha.
+                types.Part.from_text(text="""Combinado! Vamos para o README do `DeeperHub.WebAuthn`. Este é um módulo focado em um método de autenticação moderno e seguro.
 
 ---
 

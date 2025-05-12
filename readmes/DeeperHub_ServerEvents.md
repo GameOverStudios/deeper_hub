@@ -1,271 +1,254 @@
-# Módulo: `DeeperHub.ServerEvents` 🚀
+# Módulo: `DeeperHub.ServerEvents` 📅
 
 ## 📜 1. Visão Geral do Módulo `DeeperHub.ServerEvents`
 
-O módulo `DeeperHub.ServerEvents` gerencia **eventos agendados e em andamento associados a servidores específicos** na plataforma DeeperHub. Ele permite que proprietários de servidores criem e anunciem eventos para suas comunidades, como torneios, manutenções programadas, eventos de XP em dobro, lançamentos de conteúdo, etc.
-
-Este módulo lida com:
-*   A definição, criação e gerenciamento de eventos de servidor.
-*   O agendamento (data/hora de início e fim) dos eventos.
-*   A listagem de eventos ativos, futuros e passados para um servidor ou globalmente.
-*   Notificação aos jogadores interessados sobre eventos futuros ou em andamento.
-
-O objetivo é fornecer uma ferramenta para que os servidores engajem suas comunidades e informem os jogadores sobre atividades importantes. 😊
-
-*(Nota: Na documentação original, este era `DeeperHub.Services.ServerEvents`. Será tratado como `DeeperHub.ServerEvents`.)*
+O módulo `DeeperHub.ServerEvents` é responsável por gerenciar eventos que ocorrem dentro dos servidores listados na plataforma DeeperHub. Ele permite que proprietários de servidores criem, agendem e anunciem eventos para suas comunidades, como torneios, manutenções programadas, eventos temáticos, transmissões ao vivo, etc. Os usuários podem visualizar os eventos futuros e ativos dos servidores que lhes interessam. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
-*   **Gerenciamento CRUD de Eventos (`create_event/1`, `get_event/1`, `update_event/2`, `delete_event/1`):**
-    *   Permitir que proprietários de servidores (ou administradores) criem novos eventos associados a seus servidores.
-    *   Cada evento inclui: título, descrição, tipo de evento (ex: `:maintenance`, `:tournament`, `:special_offer`, `:content_update`), data/hora de início, data/hora de fim, imagem/banner opcional, URL para mais informações (opcional).
-    *   Atualizar ou excluir eventos agendados.
-*   **Listagem de Eventos:**
-    *   Listar todos os eventos para um servidor específico (`list_events_by_server/2`).
-    *   Listar eventos ativos no momento (`list_current_events/2`).
-    *   Listar eventos futuros/próximos (`list_upcoming_events/1`).
-    *   Listar eventos passados.
-    *   Suportar filtros (por tipo, por servidor) e paginação.
-*   **Status do Evento:**
-    *   Determinar automaticamente o status de um evento (ex: `:scheduled`, `:active`, `:completed`, `:cancelled`) com base nas datas/horas.
-*   **Notificações (Integração com `DeeperHub.Notifications` e `DeeperHub.UserInteractions` se houver \"seguir servidor\"):**
-    *   Notificar usuários que seguem um servidor (ou que optaram por receber notificações de eventos) sobre:
-        *   Novos eventos agendados.
-        *   Eventos que estão prestes a começar.
-        *   Início de eventos.
-        *   Alterações ou cancelamentos de eventos.
-*   **Calendário de Eventos (Visualização):**
-    *   Fornecer dados para a construção de uma visualização de calendário de eventos (global ou por servidor).
-*   **Observabilidade e Auditoria:**
-    *   Logar e metrificar a criação e o ciclo de vida dos eventos.
-    *   Publicar eventos de domínio (ex: `server_event.created`, `server_event.started`) no `Core.EventBus`.
-    *   Auditar a criação/modificação de eventos.
-*   **Caching:**
-    *   Cachear listas de eventos ativos ou futuros para performance.
+*   **Criação e Gerenciamento de Eventos de Servidor:**
+    *   CRUD para Eventos (`Event`): título, descrição, tipo de evento, data e hora de início, data e hora de término (ou duração).
+    *   Associação do evento a um servidor específico (`server_id`).
+    *   Informações adicionais como link para o evento (ex: link do Discord, Twitch), prêmios (se houver), requisitos de participação.
+*   **Agendamento de Eventos:**
+    *   Permitir que eventos sejam agendados para datas futuras.
+    *   Gerenciar o ciclo de vida de um evento (ex: Agendado, Em Andamento, Concluído, Cancelado).
+*   **Listagem e Descoberta de Eventos:**
+    *   Permitir que usuários vejam eventos futuros e em andamento para servidores específicos.
+    *   Fornecer uma listagem global de eventos em destaque ou filtrados por categoria/tipo.
+    *   Busca de eventos por nome, servidor, tipo, etc.
+*   **Calendário de Eventos (Opcional):**
+    *   Fornecer uma visualização de calendário para eventos de servidores que o usuário segue ou favoritou.
+*   **RSVP / Manifestação de Interesse (Opcional):**
+    *   Permitir que usuários marquem interesse ou confirmem presença em eventos.
+*   **Notificações:**
+    *   Notificar usuários (que seguem o servidor ou marcaram interesse) sobre o início de eventos, alterações ou cancelamentos (via `DeeperHub.Notifications`).
+*   **Recorrência de Eventos (Opcional):**
+    *   Suporte para criar eventos que se repetem (diariamente, semanalmente, mensalmente).
+*   **Administração e Moderação:**
+    *   Interface para proprietários de servidores gerenciarem os eventos de seus servidores.
+    *   Interface para administradores da plataforma moderarem eventos, se necessário.
 
 ## 🏗️ 3. Arquitetura e Design
 
+`DeeperHub.ServerEvents` atuará como uma fachada para um serviço de lógica de negócio e componentes de persistência.
+
+*   **Interface Pública (`DeeperHub.ServerEvents.ServerEventsFacade` ou `DeeperHub.ServerEvents`):** Funções como `create_event/1`, `list_active_events_for_server/2`, `get_upcoming_events/1`.
+*   **Serviço de Eventos de Servidor (`DeeperHub.ServerEvents.Services.EventService`):**
+    *   Contém a lógica de negócio principal para gerenciar definições, agendamento, e ciclo de vida dos eventos.
+*   **Schemas Ecto:**
+    *   `DeeperHub.ServerEvents.Schema.Event`: Define um evento de servidor.
+    *   `DeeperHub.ServerEvents.Schema.UserEventInterest` (Opcional): Para rastrear interesse/RSVP dos usuários.
+*   **Cache (`DeeperHub.ServerEvents.Cache` ou via `Core.Cache`):**
+    *   Cache para eventos ativos ou futuros frequentemente requisitados.
+*   **Workers (via `Core.BackgroundTaskManager`):**
+    *   Worker para atualizar o status de eventos (ex: de agendado para em andamento, de em andamento para concluído).
+    *   Worker para enviar lembretes de eventos.
+*   **Integrações:**
+    *   `DeeperHub.Core.Repo`: Para persistência.
+    *   `DeeperHub.Servers`: Para associar eventos a servidores.
+    *   `DeeperHub.Accounts`: Para associar eventos a usuários criadores.
+    *   `DeeperHub.Notifications`: Para enviar notificações e lembretes.
+
+**Padrões de Design:**
+
+*   **Fachada (Facade).**
+*   **Serviço de Domínio.**
+
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.ServerEvents` (Fachada Pública):**
-    *   Ponto de entrada para operações de eventos de servidor.
-    *   Delega para o `ServerEventsService`.
-2.  **`DeeperHub.ServerEvents.Services.ServerEventsService` (ou `DefaultServerEventsService`):**
-    *   **Responsabilidade:** Orquestra a lógica de negócio para eventos de servidor.
-    *   **Interações:**
-        *   `DeeperHub.Core.Repo`: Para CRUD com `EventSchema`.
-        *   `DeeperHub.Servers`: Para validar `server_id` e associar eventos.
-        *   `DeeperHub.Accounts`: Para `user_id` do criador do evento (proprietário do servidor).
-        *   `DeeperHub.Auth`/`RBAC`: Para permissões de gerenciamento de eventos.
-        *   `DeeperHub.Core.EventBus`: Para publicar eventos de ciclo de vida de `ServerEvent`.
-        *   `DeeperHub.Core.Cache`: Para cachear listas de eventos.
-        *   `DeeperHub.Notifications`: Para enviar notificações sobre eventos.
-        *   `DeeperHub.Core.ConfigManager`.
-3.  **`DeeperHub.ServerEvents.Schemas.EventSchema` (ex-`Event`):**
-    *   Campos: `id`, `server_id`, `created_by_user_id`, `title`, `description`, `event_type` (atom), `start_time` (NaiveDateTime ou DateTime UTC), `end_time` (NaiveDateTime ou DateTime UTC), `image_url` (opcional), `details_url` (opcional), `status` (calculado ou armazenado, ex: `:scheduled`, `:active`, `:completed`), `is_public`, `inserted_at`, `updated_at`.
-4.  **`DeeperHub.ServerEvents.Storage` (ou lógica no `ServerEventsService`):**
-    *   Encapsula as queries Ecto.
-5.  **Workers (Opcional):**
-    *   `EventStatusUpdateWorker`: Para atualizar periodicamente o status de eventos (ex: de `:scheduled` para `:active`, de `:active` para `:completed`).
-    *   `EventNotificationWorker`: Para enviar notificações agendadas sobre eventos (ex: lembretes).
-
-### 3.2. Estrutura de Diretórios (Proposta)
-
-```
-lib/deeper_hub/server_events/
-├── server_events.ex                  # Fachada Pública
-│
-├── services/
-│   └── server_events_service.ex      # Serviço principal
-│
-├── schemas/
-│   └── event_schema.ex
-│
-├── storage.ex                        # (Opcional)
-│
-├── workers/                          # Opcional
-│   ├── event_status_update_worker.ex
-│   └── event_notification_worker.ex
-│
-├── cached_adapter.ex                 # (Opcional, da documentação original)
-├── supervisor.ex
-└── telemetry.ex
-```
+*   **`DeeperHub.ServerEvents.ServerEventsFacade`:** Ponto de entrada.
+*   **`DeeperHub.ServerEvents.Services.EventService`:** Lógica de negócio.
+*   **`DeeperHub.ServerEvents.Schema.Event`:** Schema do evento.
+*   **`DeeperHub.ServerEvents.Supervisor`:** Supervisiona processos.
+*   **Workers (ex: `EventStatusUpdaterWorker`, `EventReminderWorker`).**
 
 ### 3.3. Decisões de Design Importantes
 
-*   **Datas e Fusos Horários:** Usar `DateTime` com UTC para `start_time` e `end_time` é crucial se os eventos são globais ou se os usuários estão em diferentes fusos horários. Se os eventos são sempre no \"horário do servidor\" e o fuso do servidor é conhecido, `NaiveDateTime` pode ser usado, mas a conversão para exibição ao usuário ainda é necessária.
-*   **Status do Evento:** Pode ser um campo persistido atualizado por um worker ou calculado dinamicamente nas queries e na lógica de serviço com base nas datas/horas atuais. Cálculo dinâmico é mais simples, mas menos eficiente para queries de status.
-*   **Notificações:** A lógica de quem é notificado (ex: seguidores do servidor, todos os jogadores, etc.) e quando (X horas antes, no início) precisa ser bem definida.
+*   **Gerenciamento de Fuso Horário:** Datas e horas de eventos devem ser armazenadas em UTC e convertidas para o fuso horário do usuário ou do servidor para exibição.
+*   **Recorrência:** Se a recorrência for implementada, escolher uma biblioteca ou lógica robusta para gerenciar as instâncias de eventos recorrentes.
+*   **Escopo de Visibilidade:** Definir quem pode ver quais eventos (públicos, apenas para membros do servidor, etc.).
 
 ## 🛠️ 4. Casos de Uso Principais
 
-*   **Proprietário de Servidor Agenda uma Manutenção:**
-    *   Na UI, define título \"Manutenção Semanal\", descrição, tipo `:maintenance`, `start_time` e `end_time`.
-    *   API chama `ServerEvents.create_event(user_id, server_id, event_attrs)`.
-    *   O evento é salvo com status `:scheduled`.
-    *   Usuários que seguem o servidor são notificados (ex: \"Manutenção agendada para [data]\").
-*   **Jogador Verifica Eventos Ativos em um Servidor:**
-    *   Na página do servidor, UI chama API que leva a `ServerEvents.list_current_events(server_id)`.
-*   **Sistema Inicia um Evento Agendado:**
-    *   `EventStatusUpdateWorker` roda.
-    *   Encontra eventos cujo `start_time` passou e o status ainda é `:scheduled`.
-    *   Atualiza o status para `:active`.
-    *   Publica evento `server_event.started` no `Core.EventBus`.
-    *   (Opcional) Envia notificações \"Evento X começou!\".
+*   **Proprietário de Servidor Agenda um Torneio:** O dono de um servidor de jogos cria um evento \"Torneio Semanal de PvP\" para o próximo sábado.
+*   **Usuário Procura Eventos de Fim de Semana:** Um usuário navega na plataforma buscando por eventos de servidores que acontecerão no próximo fim de semana.
+*   **Sistema Envia Lembrete de Evento:** Usuários que marcaram interesse em um evento recebem uma notificação 1 hora antes de seu início.
+*   **Evento Começa e Termina:** Um worker atualiza o status do evento de \"Agendado\" para \"Em Andamento\" quando a hora de início chega, e para \"Concluído\" após a hora de término.
 
-## 🌊 5. Fluxos Importantes
+## 🌊 5. Fluxos Importantes (Opcional)
 
-### Fluxo de Criação e Notificação de Novo Evento
+**Fluxo de Atualização de Status de Evento por Worker:**
 
-1.  **Proprietário (UI):** Submete formulário de novo evento.
-2.  **Controller API:** Valida autenticação e autorização (se o usuário é proprietário do servidor). Chama `DeeperHub.ServerEvents.create_event(current_user.id, server_id, params[\"event\"])`.
-3.  **`ServerEventsService.create_event/3`:**
-    *   Valida os `attrs` (datas, tipo, etc.).
-    *   Cria um `EventSchema` changeset.
-    *   Se válido, `Core.Repo.insert(changeset)`.
-    *   Se sucesso:
-        *   Publica evento `server_event.created` no `Core.EventBus` (`%{event_id: new_event.id, server_id: ..., details: ...}`).
-        *   (Assíncrono) Enfileira uma tarefa para `EventNotificationWorker` ou chama diretamente `DeeperHub.Notifications` para notificar usuários relevantes (ex: seguidores do `server_id`) sobre o novo evento agendado.
-        *   Retorna `{:ok, event_struct}`.
-    *   Se falha, retorna erro.
+1.  `EventStatusUpdaterWorker` é executado periodicamente (ex: a cada minuto).
+2.  O worker consulta o `EventService` (ou `Core.Repo` diretamente) por eventos:
+    *   Agendados cuja `start_time` já passou.
+    *   Em andamento cuja `end_time` já passou.
+3.  Para cada evento agendado que deve iniciar:
+    *   `EventService.update_event_status(event_id, :in_progress)` é chamado.
+    *   Um evento `ServerEventStartedEvent` é publicado no `Core.EventBus`.
+    *   Notificações de \"evento começando agora\" podem ser disparadas.
+4.  Para cada evento em andamento que deve terminar:
+    *   `EventService.update_event_status(event_id, :completed)` é chamado.
+    *   Um evento `ServerEventEndedEvent` é publicado.
+5.  O worker registra suas ações e agenda a próxima execução.
 
-## 📡 6. API (Funções Públicas da Fachada `DeeperHub.ServerEvents`)
+## 📡 6. API (Se Aplicável)
 
-### 6.1. Gerenciamento de Eventos (Proprietário/Admin)
+### 6.1. `DeeperHub.ServerEvents.create_event/1`
 
-*   **`DeeperHub.ServerEvents.create_event(creator_user_id :: String.t(), server_id :: String.t(), attrs :: map()) :: {:ok, Event.t()} | {:error, Ecto.Changeset.t()}`**
-    *   `attrs`: `%{title: String.t(), description: String.t(), event_type: atom(), start_time: DateTime.t(), end_time: DateTime.t(), image_url: String.t() | nil}`.
-*   **`DeeperHub.ServerEvents.update_event(event_id :: String.t(), attrs :: map(), current_user_id :: String.t()) :: {:ok, Event.t()} | {:error, Ecto.Changeset.t() | :unauthorized}`**
-*   **`DeeperHub.ServerEvents.delete_event(event_id :: String.t(), current_user_id :: String.t()) :: :ok | {:error, :unauthorized | :not_found}`**
-*   **`DeeperHub.ServerEvents.cancel_event(event_id :: String.t(), reason :: String.t() | nil, current_user_id :: String.t()) :: {:ok, Event.t()} | {:error, term()}` (Nova Sugestão)**
-    *   Muda o status para `:cancelled` e notifica.
+*   **Descrição:** Cria um novo evento para um servidor.
+*   **`@spec`:** `create_event(attrs :: map()) :: {:ok, Event.t()} | {:error, Ecto.Changeset.t() | reason}`
+*   **Parâmetros:**
+    *   `attrs` (map): Atributos do evento.
+        *   `:server_id` (String, obrigatório): ID do servidor que hospeda o evento.
+        *   `:created_by_user_id` (String, obrigatório): ID do usuário que está criando o evento.
+        *   `:title` (String, obrigatório): Título do evento.
+        *   `:description` (String, opcional): Descrição detalhada do evento.
+        *   `:start_time` (DateTime.t(), obrigatório): Data e hora de início do evento (UTC).
+        *   `:end_time` (DateTime.t(), opcional): Data e hora de término. Se não fornecido, pode ser um evento de duração indefinida ou curta.
+        *   `:event_type` (String, opcional): Categoria do evento (ex: \"torneio\", \"manutencao\", \"live_stream\").
+        *   `:metadata` (map, opcional): Dados adicionais (ex: link, prêmios).
+*   **Retorno:** O evento criado ou um changeset com erros.
+*   **Exemplo de Uso (Elixir):**
+    ```elixir
+    event_attrs = %{
+      server_id: \"server_123\",
+      created_by_user_id: \"user_abc\",
+      title: \"Grande Torneio de Verão\",
+      start_time: ~U[2025-07-15 18:00:00Z],
+      end_time: ~U[2025-07-15 22:00:00Z],
+      event_type: \"torneio\"
+    }
+    case DeeperHub.ServerEvents.create_event(event_attrs) do
+      {:ok, event} -> Logger.info(\"Evento #{event.id} criado para o servidor #{event.server_id}\")
+      {:error, reason} -> Logger.error(\"Falha ao criar evento: #{inspect(reason)}\")
+    end
+    ```
 
-### 6.2. Consulta de Eventos
+### 6.2. `DeeperHub.ServerEvents.list_events_by_server/2`
 
-*   **`DeeperHub.ServerEvents.get_event(event_id :: String.t()) :: {:ok, Event.t() | nil}`**
-*   **`DeeperHub.ServerEvents.list_events_by_server(server_id :: String.t(), opts :: keyword()) :: {:ok, list(Event.t()), Pagination.t()}`**
-    *   `opts`: `:status` (`:scheduled`, `:active`, `:completed`, `:cancelled`), `:type`, `:date_range` (`%{start_after: DateTime.t(), end_before: DateTime.t()}`), `:page`, `:per_page`, `:sort_by`.
-*   **`DeeperHub.ServerEvents.list_active_events(filters :: map() | nil, opts :: keyword()) :: {:ok, list(Event.t()), Pagination.t()}`**
-    *   `filters`: `:server_id`, `:type`. Lista eventos que estão atualmente acontecendo.
-*   **`DeeperHub.ServerEvents.list_upcoming_events(filters :: map() | nil, opts :: keyword()) :: {:ok, list(Event.t()), Pagination.t()}`**
-    *   `filters`: `:server_id`, `:type`. Lista eventos agendados para o futuro.
-*   **`DeeperHub.ServerEvents.get_global_event_calendar(date_range :: map(), filters :: map() | nil) :: {:ok, list(CalendarEvent.t())}` (Nova Sugestão)**
-    *   `CalendarEvent.t()`: `%{id: ..., title: ..., start: DateTime.t(), end: DateTime.t(), server_name: ..., color_by_type: ...}`. Para alimentar uma UI de calendário.
+*   **Descrição:** Lista eventos para um servidor específico, com opções de filtro.
+*   **`@spec`:** `list_events_by_server(server_id :: String.t(), opts :: Keyword.t()) :: {:ok, list(Event.t())} | {:error, reason}`
+*   **Parâmetros:**
+    *   `server_id` (String): O ID do servidor.
+    *   `opts` (Keyword.t()): Opções de filtragem.
+        *   `:status` (atom): Filtrar por status (ex: `:scheduled`, `:in_progress`, `:completed`).
+        *   `:upcoming_only` (boolean): Retornar apenas eventos futuros.
+        *   `:date_range` ({DateTime.t(), DateTime.t()}): Filtrar por eventos dentro de um intervalo de datas.
+        *   `:limit` (integer), `:offset` (integer): Para paginação.
+*   **Retorno:** Lista de eventos do servidor.
+*   **Exemplo de Uso (Elixir):**
+    ```elixir
+    {:ok, upcoming_events} = DeeperHub.ServerEvents.list_events_by_server(\"server_123\", upcoming_only: true, limit: 5)
+    ```
+
+*(Outras funções como `get_event/1`, `update_event/2`, `cancel_event/1`, `mark_interest_in_event/2` seriam documentadas aqui).*
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager`:
-
-*   **`[:server_events, :enabled]`** (Boolean).
-*   **`[:server_events, :max_event_duration_hours]`** (Integer). (Padrão: `7 * 24` - 1 semana)
-*   **`[:server_events, :default_event_types]`** (List de Atoms ou Maps com descrições): Tipos de evento pré-definidos.
-*   **`[:server_events, :notification, :notify_before_start_minutes]`** (List de Integers): Quando enviar lembretes (ex: `[60, 15]` - 1 hora e 15 mins antes).
-*   **`[:server_events, :cache, :active_events_ttl_seconds]`** (Integer).
-*   **`[:server_events, :worker, :status_update_interval_minutes]`** (Integer).
+*   **ConfigManager (`DeeperHub.Core.ConfigManager`):**
+    *   `[:server_events, :default_event_duration_hours]`: Duração padrão para eventos sem `end_time` explícito. (Padrão: `2`)
+    *   `[:server_events, :reminder_before_minutes]`: Com quantos minutos de antecedência enviar lembretes. (Padrão: `60`)
+    *   `[:server_events, :worker, :status_update_interval_minutes]`: Intervalo para o worker atualizar status de eventos. (Padrão: `1`)
+    *   `[:server_events, :max_upcoming_events_per_server_display]`: Limite padrão para exibir eventos futuros de um servidor.
 
 ## 🔗 8. Dependências
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.*`.
-*   `DeeperHub.Servers`: Para `server_id`.
-*   `DeeperHub.Accounts`: Para `user_id`.
-*   `DeeperHub.Auth`/`RBAC`: Para permissões.
-*   `DeeperHub.Notifications`: Para enviar notificações/lembretes.
-*   `DeeperHub.UserInteractions` (opcional): Se houver um sistema de \"seguir servidor\" para determinar quem notificar.
+*   `DeeperHub.Core.Repo`
+*   `DeeperHub.Core.ConfigManager`
+*   `DeeperHub.Core.EventBus`
+*   `DeeperHub.Core.BackgroundTaskManager`
+*   `DeeperHub.Notifications`
+*   `DeeperHub.Servers`
+*   `DeeperHub.Accounts`
+*   `DeeperHub.Core.Logger`, `DeeperHub.Core.Metrics`
 
 ### 8.2. Bibliotecas Externas
 
-*   `Ecto`.
-*   Biblioteca CRON para workers (ex: `Quantum`).
+*   `Ecto`
+*   Opcionalmente, uma biblioteca para lidar com recorrência de eventos (ex: `RecurlyEx` - embora esta seja mais para pagamentos, ou uma lib de iCalendar).
 
 ## 🤝 9. Como Usar / Integração
 
-*   **UI do Proprietário do Servidor:** Formulários para criar/editar eventos.
-*   **UI do Jogador (Página do Servidor/Calendário Global):** Exibir listas de eventos (`list_events_by_server`, `list_active_events`, `list_upcoming_events`, `get_global_event_calendar`).
-*   **`EventStatusUpdateWorker` e `EventNotificationWorker`:** Operam em background para gerenciar o ciclo de vida e notificações.
+*   **UI/Frontend:** Exibe listas de eventos, calendários, permite criação (para donos de servidor) e RSVP.
+*   **Módulo `Servers`:** Pode exibir os próximos eventos na página de detalhes de um servidor.
 
 ## ✅ 10. Testes e Observabilidade
 
 ### 10.1. Testes
 
-*   Testar CRUD de `EventSchema`.
-*   Testar a lógica de determinação de status do evento (scheduled, active, completed) com base nas datas.
-*   Testar as funções de listagem com diferentes filtros e ordenações.
-*   Testar a lógica de notificação (com mocks para `DeeperHub.Notifications`).
-*   Testar os workers.
-*   Localização: `test/deeper_hub/server_events/`.
+*   Testar criação, atualização, cancelamento de eventos.
+*   Testar a lógica de transição de status (agendado -> em andamento -> concluído).
+*   Testar a listagem com diferentes filtros e ordenações.
+*   Testar o envio de notificações de lembrete.
+*   Localização: `test/deeper_hub/server_events/`
 
 ### 10.2. Métricas
 
-*   `deeper_hub.server_events.created.count` (tags: `server_id`, `event_type`)
-*   `deeper_hub.server_events.status_changed.count` (tags: `event_id`, `new_status`)
-*   `deeper_hub.server_events.active_now.gauge` (Gauge, tags: `server_id` (opcional), `event_type`)
-*   `deeper_hub.server_events.notifications_sent.count` (tags: `event_id`, `notification_trigger` (`new`, `reminder`, `started`))
+*   `deeper_hub.server_events.created.count` (Contador): Tags: `server_id`, `event_type`.
+*   `deeper_hub.server_events.status_changed.count` (Contador): Tags: `event_id`, `new_status`.
+*   `deeper_hub.server_events.reminders_sent.count` (Contador): Tags: `event_id`.
+*   `deeper_hub.server_events.active.gauge` (Gauge): Número de eventos atualmente em andamento.
 
 ### 10.3. Logs
 
-*   **Nível INFO:** Evento criado, iniciado, concluído, cancelado. Notificação de evento enviada.
-*   **Nível WARNING:** Tentativa não autorizada de gerenciar um evento.
-*   **Nível ERROR:** Falha ao persistir evento. Erro no worker de atualização de status.
+*   `Logger.info(\"Evento '#{title}' (ID: #{id}) criado para o servidor #{server_id}\", module: DeeperHub.ServerEvents.Services.EventService)`
+*   `Logger.info(\"Status do evento #{id} alterado para #{status}\", module: DeeperHub.ServerEvents.Workers.EventStatusUpdaterWorker)`
 
 ### 10.4. Telemetria
 
-*   `[:deeper_hub, :server_events, :event, :created | :updated | :deleted | :cancelled]`
-    *   Metadados: `%{event_id: id, server_id: id, user_id: id, type: type}`
-*   `[:deeper_hub, :server_events, :event, :status_transition]`
-    *   Metadados: `%{event_id: id, old_status: atom, new_status: atom}`
-*   `[:deeper_hub, :server_events, :notification, :dispatch_attempt]`
-    *   Metadados: `%{event_id: id, notification_type: type, recipient_count: count}`
+*   `[:deeper_hub, :server_events, :created | :updated | :deleted | :status_changed]`
+*   `[:deeper_hub, :server_events, :reminder_sent]`
 
 ## ❌ 11. Tratamento de Erros
 
-*   Falhas na criação/atualização de eventos devido a dados inválidos retornam `{:error, changeset}`.
-*   Operações não autorizadas retornam `{:error, :unauthorized}`.
-*   Se um worker de notificação falhar, a notificação pode ser perdida ou reenfileirada, mas o evento em si deve permanecer consistente.
+*   `{:error, :server_not_found}`
+*   `{:error, :event_not_found}`
+*   `{:error, :invalid_date_range}` (ex: `end_time` antes de `start_time`)
+*   Falhas na validação dos dados do evento.
 
 ## 🛡️ 12. Considerações de Segurança
 
-*   **Autorização:** Apenas proprietários de servidores ou administradores com permissão devem poder criar/gerenciar eventos para um servidor.
-*   **Validação de Conteúdo:** Títulos e descrições de eventos devem ser validados/sanitizados para prevenir XSS se forem exibidos diretamente.
-*   **Abuso:** Limitar a frequência com que um proprietário pode criar eventos ou o número de eventos ativos por servidor para evitar spam.
+*   **Validação de Conteúdo:** Títulos e descrições de eventos devem ser sanitizados para prevenir XSS.
+*   **Permissões de Criação/Edição:** Apenas proprietários de servidor ou usuários com permissão específica devem poder criar/editar eventos para um servidor.
+*   **Abuso:** Monitorar a criação excessiva de eventos ou eventos com conteúdo inadequado.
 
 ## 🧑‍💻 13. Contribuição
 
-*   Ao adicionar novos tipos de eventos, certifique-se de que a lógica de notificação e, possivelmente, os templates sejam atualizados.
-*   Considere a performance das queries de listagem de eventos, especialmente para calendários globais.
+*   Novos tipos de eventos ou funcionalidades de calendário podem ser adicionados.
+*   A lógica de recorrência, se implementada, deve ser robusta.
 
 ## 🔮 14. Melhorias Futuras e TODOs
 
-*   [ ] Permitir que usuários se inscrevam (\"RSVP\") para eventos específicos e recebam lembretes mais personalizados.
+*   [ ] Implementar sistema de RSVP/manifestação de interesse.
+*   [ ] Adicionar suporte completo para eventos recorrentes.
 *   [ ] Integração com calendários externos (Google Calendar, iCal).
-*   [ ] Suporte para eventos recorrentes (ex: \"Toda sexta-feira às 20h\").
-*   [ ] Permitir que proprietários de servidores \"destaquem\" certos eventos.
-*   [ ] Adicionar um feed de \"Próximos Eventos\" na dashboard do usuário para os servidores que ele segue/favorita.
-*   [ ] Lógica para sugerir horários para eventos baseados na atividade dos jogadores do servidor.
+*   [ ] Permitir que usuários exportem eventos para seus calendários.
+*   [ ] Interface de administração para gerenciar todos os eventos da plataforma.
+*   [ ] Sugestões de eventos baseadas nos interesses do usuário.
 
 ---
 
-*Última atualização: 2025-05-12*
+*Última atualização: YYYY-MM-DD*
 
 ---
 
-Eventos de servidor são uma ótima forma de manter a comunidade engajada!
-
-Próximo? Que tal `DeeperHub.ServerUpdateMessages` para mensagens de patch notes e atualizações, ou `DeeperHub.ServerPackages` para itens/VIPs? Ou algo do Core que ainda não detalhamos, como `DeeperHub.Core.EncryptionService` de forma mais aprofundada?"""),
+Próximo na lista é `DeeperHub.ServerPackages`. Continuamos?"""),
             ],
         ),
         types.Content(
             role="user",
             parts=[
-                types.Part.from_text(text="""continue"""),
+                types.Part.from_text(text="""SIM!"""),
             ],
         ),
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ok, vamos continuar com os módulos relacionados a `Servers` e detalhar o `DeeperHub.ServerUpdateMessages`. Este módulo permite que proprietários de servidores comuniquem atualizações e novidades para sua comunidade.
+                types.Part.from_text(text="""Beleza! Vamos para o README do `DeeperHub.ServerPackages`.
 
 ---
 

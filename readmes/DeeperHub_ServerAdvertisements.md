@@ -1,267 +1,250 @@
-# Módulo: `DeeperHub.ServerAdvertisements` 🚀
+# Módulo: `DeeperHub.ServerAdvertisements` 📢
 
 ## 📜 1. Visão Geral do Módulo `DeeperHub.ServerAdvertisements`
 
-O módulo `DeeperHub.ServerAdvertisements` é responsável por gerenciar **anúncios de servidores** dentro da plataforma DeeperHub. Ele permite que proprietários de servidores criem e paguem (se aplicável) por anúncios para destacar seus servidores, aumentando sua visibilidade para os jogadores.
-
-Este módulo lida com:
-*   A criação e configuração de campanhas de anúncios.
-*   A exibição de anúncios em locais designados da plataforma.
-*   O rastreamento de desempenho dos anúncios (visualizações, cliques).
-*   A gestão do ciclo de vida dos anúncios (agendamento, expiração).
-
-O objetivo é fornecer uma ferramenta para proprietários de servidores promoverem suas comunidades e, potencialmente, gerar receita para a plataforma. 😊
-
-*(Nota: Na documentação original, este era `DeeperHub.Services.ServerAdvertisements`. Será tratado como `DeeperHub.ServerAdvertisements`.)*
+O módulo `DeeperHub.ServerAdvertisements` é responsável pelo sistema de anúncios de servidores dentro da plataforma DeeperHub. Ele permite que proprietários de servidores ou administradores criem e gerenciem campanhas de anúncios para promover seus servidores, aumentando sua visibilidade para os usuários. O sistema lida com a definição, agendamento, exibição e métricas básicas de anúncios. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
-*   **Gerenciamento de Definições de Anúncios (`create_advertisement_campaign/1`, `update_advertisement_campaign/2`):**
-    *   Permitir que proprietários de servidores (ou administradores) criem campanhas de anúncios.
-    *   Definição inclui: servidor a ser anunciado, título/texto do anúncio, imagem/banner, URL de destino (página do servidor), segmentação (opcional: tipo de jogo, região), orçamento/duração da campanha.
-*   **Agendamento e Exibição de Anúncios:**
-    *   Agendar o início e o fim da exibição de um anúncio.
-    *   Lógica para selecionar quais anúncios exibir em um determinado momento/local (ex: rotação, leilão de lances se for um sistema mais complexo).
-    *   Garantir que apenas anúncios ativos e aprovados (se houver moderação) sejam exibidos.
-*   **Rastreamento de Performance (`track_advertisement_impression/1`, `track_advertisement_click/1`):**
-    *   Registrar o número de vezes que um anúncio foi visualizado (impressões).
-    *   Registrar o número de vezes que um anúncio foi clicado.
-*   **Relatórios de Performance:**
-    *   Fornecer aos anunciantes estatísticas sobre o desempenho de suas campanhas (impressões, cliques, CTR).
-*   **Moderação de Anúncios (Opcional):**
-    *   Fluxo para aprovação de novos anúncios por administradores para garantir conformidade com as diretrizes da plataforma.
-*   **Integração com Pagamentos (Se anúncios forem pagos):**
-    *   Integrar com um sistema de pagamento para cobrar pelas campanhas de anúncio.
-*   **Listagem de Anúncios:**
-    *   `list_active_advertisements/1`: Para a plataforma buscar anúncios a serem exibidos.
-    *   `list_advertisements_by_server/2`: Para proprietários verem seus anúncios.
-*   **Observabilidade e Auditoria:**
-    *   Logar e metrificar a criação e o desempenho dos anúncios.
-    *   Auditar a criação e modificação de campanhas.
+*   **Criação e Gerenciamento de Anúncios:**
+    *   CRUD para Anúncios (`Advertisement`): título, descrição, imagem/banner, link de destino (servidor), período de veiculação (data de início e fim).
+    *   Definição de tipo de anúncio (ex: banner destaque, listagem patrocinada).
+    *   Associação do anúncio a um servidor (`server_id`).
+*   **Agendamento de Anúncios:**
+    *   Permitir que anúncios sejam agendados para exibição em datas futuras.
+    *   Gerenciar o ciclo de vida de um anúncio (ex: pendente, ativo, expirado, cancelado).
+*   **Exibição de Anúncios:**
+    *   Fornecer uma API para que outras partes do sistema (ex: UI, sistema de busca) possam requisitar anúncios ativos para exibição.
+    *   Lógica para selecionar quais anúncios exibir com base em critérios (ex: aleatório, rotativo, baseado em lances - se for um sistema mais complexo).
+*   **Rastreamento de Métricas Básicas:**
+    *   Contagem de impressões (quantas vezes um anúncio foi exibido).
+    *   Contagem de cliques (quantas vezes um anúncio foi clicado).
+*   **Controle de Ativação:**
+    *   Habilitar ou desabilitar anúncios.
+*   **Pagamentos/Orçamentos (Opcional, se for um sistema pago):**
+    *   Integração com um sistema de pagamento para anúncios pagos.
+    *   Gerenciamento de orçamento de campanha.
+*   **Administração de Anúncios:**
+    *   Interface para administradores da plataforma aprovarem/rejeitarem anúncios.
+    *   Interface para proprietários de servidores gerenciarem seus próprios anúncios.
 
 ## 🏗️ 3. Arquitetura e Design
 
+`DeeperHub.ServerAdvertisements` atuará como uma fachada para um serviço de lógica de negócio e componentes de persistência.
+
+*   **Interface Pública (`DeeperHub.ServerAdvertisements.ServerAdvertisementsFacade` ou `DeeperHub.ServerAdvertisements`):** Funções como `create_advertisement/1`, `list_active_advertisements/1`, `record_impression/1`.
+*   **Serviço de Anúncios (`DeeperHub.ServerAdvertisements.Services.AdvertisementService`):**
+    *   Contém a lógica de negócio principal para gerenciar definições, agendamento, e métricas de anúncios.
+*   **Schemas Ecto:**
+    *   `DeeperHub.ServerAdvertisements.Schema.Advertisement`: Define um anúncio.
+    *   (Opcional) `DeeperHub.ServerAdvertisements.Schema.AdvertisementImpressionLog`: Para logar impressões.
+    *   (Opcional) `DeeperHub.ServerAdvertisements.Schema.AdvertisementClickLog`: Para logar cliques.
+*   **Cache (`DeeperHub.ServerAdvertisements.Cache` ou via `Core.Cache`):**
+    *   Cache para anúncios ativos frequentemente requisitados para exibição.
+*   **Workers (via `Core.BackgroundTaskManager`):**
+    *   Worker para atualizar o status de anúncios (ex: de pendente para ativo, de ativo para expirado).
+    *   Worker para agregar métricas de impressões/cliques.
+*   **Integrações:**
+    *   `DeeperHub.Core.Repo`: Para persistência.
+    *   `DeeperHub.Servers`: Para associar anúncios a servidores.
+    *   `DeeperHub.Accounts`: Para associar anúncios a usuários proprietários.
+    *   `DeeperHub.Notifications`: Para notificar sobre status de anúncios (ex: aprovado, expirando).
+    *   `DeeperHub.Core.Payment` (Se aplicável): Para processar pagamentos de anúncios.
+
+**Padrões de Design:**
+
+*   **Fachada (Facade).**
+*   **Serviço de Domínio.**
+
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.ServerAdvertisements` (Fachada Pública):**
-    *   Ponto de entrada para gerenciamento e consulta de anúncios.
-    *   Delega para o `ServerAdvertisementsService`.
-2.  **`DeeperHub.ServerAdvertisements.Services.ServerAdvertisementsService` (ou `DefaultServerAdvertisementsService`):**
-    *   **Responsabilidade:** Orquestra a lógica de negócio.
-    *   **Interações:**
-        *   `DeeperHub.Core.Repo`: Para CRUD com `AdvertisementSchema`.
-        *   `DeeperHub.Servers`: Para validar `server_id`.
-        *   `DeeperHub.Accounts`: Para `user_id` do criador.
-        *   `DeeperHub.Auth`/`RBAC`: Para permissões de gerenciamento.
-        *   `DeeperHub.Core.EventBus`: Para eventos.
-        *   `DeeperHub.Core.Cache`: Para cachear anúncios ativos.
-        *   (Opcional) `DeeperHub.Payments`: Se as campanhas forem pagas.
-3.  **`DeeperHub.ServerAdvertisements.Schemas.AdvertisementSchema` (ex-`Advertisement`):**
-    *   Campos: `id`, `server_id`, `user_id` (criador), `title`, `description`, `image_url`, `target_url`, `start_date`, `end_date`, `status` (`:pending_approval`, `:active`, `:inactive`, `:expired`, `:rejected`), `budget` (opcional), `impressions_count`, `clicks_count`.
-4.  **`DeeperHub.ServerAdvertisements.AdSelectionLogic` (Módulo Funcional, Nova Sugestão):**
-    *   **Responsabilidade:** Se a lógica de qual anúncio exibir for complexa (ex: baseada em lances, segmentação, rotação), este módulo conteria essa lógica. Para casos simples, pode estar no `ServerAdvertisementsService`.
-5.  **Workers (Opcional):**
-    *   `AdvertisementStatusUpdateWorker`: Para atualizar o status de anúncios (ex: de `:active` para `:expired`) periodicamente.
-    *   `AdvertisementStatsAggregationWorker`: Para agregar estatísticas de performance.
-
-### 3.2. Estrutura de Diretórios (Proposta)
-
-```
-lib/deeper_hub/server_advertisements/
-├── server_advertisements.ex          # Fachada Pública
-│
-├── services/
-│   └── server_advertisements_service.ex # Serviço principal
-│
-├── schemas/
-│   └── advertisement_schema.ex
-│
-├── storage.ex                        # (Opcional)
-├── ad_selection_logic.ex             # (Opcional, Nova Sugestão)
-│
-├── workers/                          # Opcional
-│   ├── advertisement_status_update_worker.ex
-│   └── advertisement_stats_aggregation_worker.ex
-│
-├── cached_adapter.ex                 # (Opcional, da documentação original)
-├── supervisor.ex
-└── telemetry.ex
-```
+*   **`DeeperHub.ServerAdvertisements.ServerAdvertisementsFacade`:** Ponto de entrada.
+*   **`DeeperHub.ServerAdvertisements.Services.AdvertisementService`:** Lógica de negócio.
+*   **`DeeperHub.ServerAdvertisements.Schema.Advertisement`:** Schema do anúncio.
+*   **`DeeperHub.ServerAdvertisements.Supervisor`:** Supervisiona processos.
+*   **Workers (ex: `AdvertisementStatusWorker`, `AdMetricsAggregatorWorker`).**
 
 ### 3.3. Decisões de Design Importantes
 
-*   **Simplicidade vs. Complexidade do Sistema de Anúncios:** Decidir se será um sistema simples de \"destaque\" ou um sistema mais complexo com lances, segmentação e otimização de performance.
-*   **Moderação:** Se os anúncios podem conter conteúdo customizado, um fluxo de moderação é essencial.
-*   **Rastreamento de Performance:** O rastreamento de impressões e cliques precisa ser eficiente e não intrusivo.
+*   **Modelo de Monetização:** Se os anúncios são pagos, gratuitos, ou um misto. Isso impacta a complexidade.
+*   **Algoritmo de Exibição:** Como os anúncios ativos são selecionados para exibição (simples rotação, baseado em performance, lances, etc.).
+*   **Rastreamento de Métricas:** Nível de detalhe para rastreamento de impressões e cliques.
 
 ## 🛠️ 4. Casos de Uso Principais
 
-*   **Proprietário de Servidor Cria uma Campanha de Anúncio:**
-    *   Na UI, seleciona o servidor, define título, descrição, imagem, orçamento e duração.
-    *   API chama `ServerAdvertisements.create_advertisement_campaign(user_id, attrs)`.
-    *   Anúncio é salvo com status `:pending_approval` ou `:active` (se não houver moderação).
-*   **Plataforma Exibe um Anúncio:**
-    *   Uma seção da UI (ex: sidebar, topo da lista de servidores) precisa exibir um anúncio.
-    *   Chama `ServerAdvertisements.get_advertisement_to_display(%{placement_id: \"sidebar\", user_context: ...})`.
-    *   `AdSelectionLogic` escolhe um anúncio ativo.
-    *   `ServerAdvertisements.track_advertisement_impression(selected_ad.id)` é chamado.
-*   **Usuário Clica em um Anúncio:**
-    *   O link do anúncio redireciona através de um endpoint de rastreamento do DeeperHub.
-    *   Esse endpoint chama `ServerAdvertisements.track_advertisement_click(ad_id)` e então redireciona para a `target_url` do anúncio.
+*   **Proprietário de Servidor Cria um Anúncio:** Um usuário dono de um servidor cria uma campanha para promover seu servidor por uma semana.
+*   **Sistema Exibe Anúncios na Home Page:** A página inicial do DeeperHub busca e exibe alguns anúncios de servidores ativos.
+*   **Usuário Clica em um Anúncio:** Um usuário clica em um anúncio e é redirecionado para a página do servidor; o clique é registrado.
+*   **Administrador Aprova um Novo Anúncio:** Um administrador da plataforma revisa e aprova um anúncio submetido por um proprietário de servidor.
+*   **Anúncio Expira Automaticamente:** Um worker verifica e muda o status de anúncios cujo período de veiculação terminou.
 
-## 🌊 5. Fluxos Importantes
+## 🌊 5. Fluxos Importantes (Opcional)
 
-### Fluxo de Seleção e Exibição de Anúncio
+**Fluxo de Criação e Ativação de um Anúncio:**
 
-1.  **Solicitação de UI:** A interface do DeeperHub precisa de um anúncio para um slot específico.
-2.  Chama `DeeperHub.ServerAdvertisements.get_advertisement_to_display(criteria)`.
-3.  **`ServerAdvertisementsService` (ou `AdSelectionLogic`):**
-    *   Busca anúncios ativos que correspondam aos critérios (ex: segmentação, não exibido recentemente para este usuário).
-    *   Aplica lógica de rotação ou priorização.
-    *   Seleciona um anúncio.
-    *   Se nenhum anúncio for selecionado, retorna `nil`.
-4.  **`ServerAdvertisementsService`:**
-    *   Se um anúncio foi selecionado, chama `track_advertisement_impression(selected_ad.id)` (pode ser assíncrono).
-    *   Retorna os dados do anúncio para a UI.
-5.  **UI:** Renderiza o anúncio.
+1.  Proprietário do servidor submete dados do anúncio via API/UI.
+2.  `DeeperHub.API` (Controller) chama `DeeperHub.ServerAdvertisements.create_advertisement(params)`.
+3.  `AdvertisementService` valida os dados e cria um registro `Advertisement` com status `pending_approval` (ou `active` se não houver aprovação).
+4.  (Se aprovação necessária) Notificação é enviada para administradores.
+5.  Administrador aprova o anúncio. `AdvertisementService.approve_advertisement(ad_id)` é chamado.
+6.  O status do anúncio muda para `scheduled` (se `start_date` for no futuro) ou `active` (se `start_date` for agora/passado e `end_date` no futuro).
+7.  Um evento `AdvertisementActivatedEvent` é publicado.
+8.  O `AdvertisementStatusWorker` periodicamente verifica anúncios `scheduled` e os ativa quando `start_date` é alcançada. Também desativa anúncios quando `end_date` é alcançada.
 
-## 📡 6. API (Funções Públicas da Fachada `DeeperHub.ServerAdvertisements`)
+## 📡 6. API (Se Aplicável)
 
-*(Baseado nas responsabilidades e na documentação original para `Advertisement`)*
+### 6.1. `DeeperHub.ServerAdvertisements.create_advertisement/1`
 
-### 6.1. Gerenciamento de Campanhas (Proprietário/Admin)
+*   **Descrição:** Cria um novo anúncio de servidor.
+*   **`@spec`:** `create_advertisement(attrs :: map()) :: {:ok, Advertisement.t()} | {:error, Ecto.Changeset.t() | reason}`
+*   **Parâmetros:**
+    *   `attrs` (map): Atributos do anúncio.
+        *   `:user_id` (String, obrigatório): ID do usuário criando o anúncio.
+        *   `:server_id` (String, obrigatório): ID do servidor sendo anunciado.
+        *   `:ad_title` (String, obrigatório): Título do anúncio.
+        *   `:ad_description` (String, opcional): Descrição do anúncio.
+        *   `:image_url` (String, opcional): URL da imagem/banner.
+        *   `:start_date` (Date.t() | DateTime.t(), obrigatório): Data de início da veiculação.
+        *   `:end_date` (Date.t() | DateTime.t(), obrigatório): Data de término da veiculação.
+        *   `:type` (atom, opcional): Tipo de anúncio (ex: `:banner`, `:sponsored_listing`).
+*   **Retorno:** O anúncio criado ou um changeset com erros.
+*   **Exemplo de Uso (Elixir):**
+    ```elixir
+    ad_attrs = %{
+      user_id: \"user_abc\",
+      server_id: \"server_xyz\",
+      ad_title: \"Super Servidor de RPG!\",
+      start_date: ~D[2025-07-01],
+      end_date: ~D[2025-07-07]
+    }
+    case DeeperHub.ServerAdvertisements.create_advertisement(ad_attrs) do
+      {:ok, ad} -> Logger.info(\"Anúncio #{ad.id} criado.\")
+      {:error, reason} -> Logger.error(\"Falha ao criar anúncio: #{inspect(reason)}\")
+    end
+    ```
 
-*   **`DeeperHub.ServerAdvertisements.create_advertisement_campaign(creator_user_id :: String.t(), attrs :: map()) :: {:ok, Advertisement.t()} | {:error, Ecto.Changeset.t()}`**
-    *   `attrs`: `%{server_id: String.t(), title: String.t(), description: String.t(), image_url: String.t(), target_url: String.t(), start_date: Date.t(), end_date: Date.t(), budget: Decimal.t() | nil, bid_amount: Decimal.t() | nil}`.
-*   **`DeeperHub.ServerAdvertisements.update_advertisement_campaign(advertisement_id :: String.t(), attrs :: map(), current_user_id :: String.t()) :: {:ok, Advertisement.t()} | {:error, Ecto.Changeset.t() | :unauthorized}`**
-*   **`DeeperHub.ServerAdvertisements.delete_advertisement_campaign(advertisement_id :: String.t(), current_user_id :: String.t()) :: :ok | {:error, :unauthorized | :not_found}`**
-*   **`DeeperHub.ServerAdvertisements.list_my_advertisements(user_id :: String.t(), filters :: map(), opts :: keyword()) :: {:ok, list(Advertisement.t()), Pagination.t()}`**
-    *   `filters`: `:status`.
+### 6.2. `DeeperHub.ServerAdvertisements.list_active_advertisements/1`
 
-### 6.2. Exibição e Rastreamento
+*   **Descrição:** Lista anúncios que estão atualmente ativos e dentro de seu período de veiculação.
+*   **`@spec`:** `list_active_advertisements(opts :: Keyword.t()) :: {:ok, list(Advertisement.t())} | {:error, reason}`
+*   **Parâmetros:**
+    *   `opts` (Keyword.t()): Opções de filtragem.
+        *   `:limit` (integer): Número máximo de anúncios a retornar.
+        *   `:type` (atom): Filtrar por tipo de anúncio.
+        *   `:placement_location` (atom): Filtrar por local de exibição (ex: `:homepage`, `:search_results`).
+*   **Retorno:** Lista de anúncios ativos.
+*   **Exemplo de Uso (Elixir):**
+    ```elixir
+    {:ok, banner_ads} = DeeperHub.ServerAdvertisements.list_active_advertisements(type: :banner, limit: 3)
+    ```
 
-*   **`DeeperHub.ServerAdvertisements.get_advertisement_to_display(criteria :: map()) :: {:ok, Advertisement.t() | nil}`**
-    *   `criteria`: `%{placement_id: String.t(), user_targeting_info: map() | nil}`.
-*   **`DeeperHub.ServerAdvertisements.track_advertisement_impression(advertisement_id :: String.t(), viewer_context :: map()) :: :ok`**
-    *   `viewer_context`: `%{user_id: String.t() | nil, ip_address: String.t()}`.
-*   **`DeeperHub.ServerAdvertisements.track_advertisement_click(advertisement_id :: String.t(), clicker_context :: map()) :: {:ok, %{target_url: String.t()}}`**
-
-### 6.3. Moderação (Admin)
-
-*   **`DeeperHub.ServerAdvertisements.list_pending_approval_advertisements(opts :: keyword()) :: {:ok, list(Advertisement.t()), Pagination.t()}`**
-*   **`DeeperHub.ServerAdvertisements.approve_advertisement(advertisement_id :: String.t(), admin_user_id :: String.t()) :: {:ok, Advertisement.t()}`**
-*   **`DeeperHub.ServerAdvertisements.reject_advertisement(advertisement_id :: String.t(), reason :: String.t(), admin_user_id :: String.t()) :: {:ok, Advertisement.t()}`**
+*(Outras funções como `get_advertisement/1`, `update_advertisement/2`, `record_impression/1`, `record_click/1` seriam documentadas aqui).*
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager`:
-
-*   **`[:server_advertisements, :enabled]`** (Boolean).
-*   **`[:server_advertisements, :requires_moderation]`** (Boolean): Se novos anúncios precisam de aprovação.
-*   **`[:server_advertisements, :max_active_ads_per_placement]`** (Integer).
-*   **`[:server_advertisements, :default_ad_duration_days]`** (Integer).
-*   **`[:server_advertisements, :impression_counting_method]`** (Atom): `:simple_counter` ou `:unique_user_per_day`.
-*   **`[:server_advertisements, :min_bid_amount]`** (Decimal, se houver sistema de lances).
-*   **`[:server_advertisements, :cache, :active_ads_ttl_seconds]`** (Integer).
+*   **ConfigManager (`DeeperHub.Core.ConfigManager`):**
+    *   `[:server_advertisements, :max_active_ads_per_server]`: Número máximo de anúncios ativos simultaneamente para um único servidor.
+    *   `[:server_advertisements, :default_duration_days]`: Duração padrão de um anúncio se não especificado.
+    *   `[:server_advertisements, :approval_required]`: (Boolean) Se novos anúncios requerem aprovação de um administrador. (Padrão: `true`)
+    *   `[:server_advertisements, :worker, :status_check_interval_hours]`: Intervalo para o worker verificar e atualizar status de anúncios. (Padrão: `1`)
+    *   `[:server_advertisements, :cache_ttl_active_ads_seconds]`: TTL para o cache de anúncios ativos.
 
 ## 🔗 8. Dependências
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.*`.
-*   `DeeperHub.Servers`: Para `server_id`.
-*   `DeeperHub.Accounts`: Para `user_id`.
-*   `DeeperHub.Auth`/`RBAC`: Para permissões.
-*   `DeeperHub.Notifications`: Para notificar sobre status de anúncios.
-*   `DeeperHub.Payments` (Opcional): Se os anúncios forem pagos.
-*   `DeeperHub.Audit`.
+*   `DeeperHub.Core.Repo`
+*   `DeeperHub.Core.ConfigManager`
+*   `DeeperHub.Core.EventBus`
+*   `DeeperHub.Core.BackgroundTaskManager`
+*   `DeeperHub.Notifications`
+*   `DeeperHub.Servers`
+*   `DeeperHub.Accounts`
+*   `DeeperHub.Core.Logger`, `DeeperHub.Core.Metrics`
 
 ### 8.2. Bibliotecas Externas
 
-*   `Ecto`.
+*   `Ecto`
 
 ## 🤝 9. Como Usar / Integração
 
-*   **Frontend/UI da Plataforma:** Em locais designados (sidebar, header, entre listagens), chama `get_advertisement_to_display` para buscar e renderizar um anúncio.
-*   **Painel do Proprietário do Servidor:** Interface para criar e gerenciar campanhas de anúncios.
-*   **Painel de Administração:** Interface para moderar anúncios e ver estatísticas globais.
+*   **Frontend/UI:** Exibe anúncios retornados por `list_active_advertisements/1` em locais designados.
+*   **API de Gerenciamento:** Proprietários de servidor e administradores interagem com a API para criar e gerenciar anúncios.
 
 ## ✅ 10. Testes e Observabilidade
 
 ### 10.1. Testes
 
-*   Testar CRUD de campanhas de anúncio.
-*   Testar a lógica de seleção de anúncios (`AdSelectionLogic`).
-*   Testar o rastreamento de impressões e cliques.
-*   Testar o fluxo de moderação.
-*   Testar o agendamento e expiração de anúncios.
-*   Localização: `test/deeper_hub/server_advertisements/`.
+*   Testar criação, atualização e exclusão de anúncios.
+*   Testar a lógica de ativação e expiração de anúncios pelo worker.
+*   Testar a listagem de anúncios ativos e a lógica de seleção (se complexa).
+*   Testar o registro de impressões e cliques.
+*   Localização: `test/deeper_hub/server_advertisements/`
 
 ### 10.2. Métricas
 
-*   `deeper_hub.server_advertisements.campaigns.created.count`
-*   `deeper_hub.server_advertisements.impressions.count` (tags: `advertisement_id`, `placement_id`)
-*   `deeper_hub.server_advertisements.clicks.count` (tags: `advertisement_id`, `placement_id`)
-*   `deeper_hub.server_advertisements.active_ads.gauge` (tags: `placement_id`)
-*   `deeper_hub.server_advertisements.moderation.status_changed.count` (tags: `new_status`)
+*   `deeper_hub.server_advertisements.created.count` (Contador): Tags: `type`.
+*   `deeper_hub.server_advertisements.impression.count` (Contador): Tags: `advertisement_id`, `placement_location`.
+*   `deeper_hub.server_advertisements.click.count` (Contador): Tags: `advertisement_id`, `placement_location`.
+*   `deeper_hub.server_advertisements.active.gauge` (Gauge): Número de anúncios ativos.
+*   `deeper_hub.server_advertisements.budget_spent.total` (Contador, se aplicável): Tags: `advertisement_id`.
 
 ### 10.3. Logs
 
-*   **Nível INFO:** Nova campanha criada, anúncio exibido, clique registrado. Status de anúncio alterado.
-*   **Nível WARNING:** Orçamento da campanha esgotado. Anúncio rejeitado na moderação.
-*   **Nível ERROR:** Falha ao processar pagamento da campanha.
+*   `Logger.info(\"Anúncio #{id} criado para o servidor #{server_id}\", module: DeeperHub.ServerAdvertisements.Services.AdvertisementService)`
+*   `Logger.info(\"Anúncio #{id} ativado/expirado.\", module: DeeperHub.ServerAdvertisements.Workers.AdvertisementStatusWorker)`
 
 ### 10.4. Telemetria
 
-*   `[:deeper_hub, :server_advertisements, :campaign, :created | :updated | :status_changed]`
-*   `[:deeper_hub, :server_advertisements, :ad, :impression]`
-*   `[:deeper_hub, :server_advertisements, :ad, :click]`
+*   `[:deeper_hub, :server_advertisements, :created | :updated | :deleted]`
+*   `[:deeper_hub, :server_advertisements, :impression]`
+*   `[:deeper_hub, :server_advertisements, :click]`
 
 ## ❌ 11. Tratamento de Erros
 
-*   Falhas no rastreamento de impressões/cliques não devem quebrar a exibição da página principal.
-*   Erros na seleção de anúncios devem resultar em um slot de anúncio vazio ou um anúncio padrão, não um erro na página.
+*   `{:error, :max_ads_limit_reached}`
+*   `{:error, :invalid_date_range}`
+*   `{:error, :insufficient_budget}` (se aplicável)
+*   Falhas na validação dos dados do anúncio.
 
 ## 🛡️ 12. Considerações de Segurança
 
-*   **Conteúdo do Anúncio:** Se os anúncios permitem HTML customizado ou scripts, eles são um vetor de XSS significativo. Idealmente, os anúncios são baseados em templates predefinidos com campos de texto/imagem limitados, e todo o conteúdo é rigorosamente sanitizado.
-*   **URLs de Destino:** Validar e, possivelmente, verificar `target_url`s para evitar redirecionamentos para sites maliciosos.
-*   **Fraude de Cliques/Impressões:** Se o sistema de anúncios envolver pagamento por clique/impressão, mecanismos para detectar e prevenir fraude são necessários (integrando com `FraudDetection`).
+*   **Conteúdo dos Anúncios:** Validar e, se necessário, moderar o conteúdo dos anúncios para prevenir links maliciosos, texto inadequado ou imagens impróprias.
+*   **Redirecionamentos:** Garantir que os links de destino dos anúncios sejam seguros.
+*   **Cliques Fraudulentos:** Se o sistema de anúncios for pago por clique, implementar mecanismos para detectar e mitigar cliques fraudulentos.
 
 ## 🧑‍💻 13. Contribuição
 
-*   Novos placements de anúncios devem ser coordenados com a equipe de UI/UX.
-*   A lógica de `AdSelectionLogic` pode se tornar complexa e deve ser bem testada.
+*   Novos tipos de anúncios ou estratégias de exibição podem ser adicionados estendendo o `AdvertisementService`.
+*   A integração com sistemas de pagamento deve ser feita de forma segura e robusta.
 
 ## 🔮 14. Melhorias Futuras e TODOs
 
-*   [ ] Implementar um sistema de lances (bidding) para a exibição de anúncios.
-*   [ ] Adicionar segmentação de audiência mais avançada (geográfica, por interesse, por comportamento do usuário).
+*   [ ] Implementar um sistema de lances (bidding) para posições de destaque de anúncios.
+*   [ ] Adicionar segmentação de público para anúncios (ex: exibir para usuários interessados em \"RPG\").
+*   [ ] Relatórios de performance detalhados para anunciantes.
 *   [ ] Testes A/B para diferentes criativos de anúncio.
-*   [ ] Limitar a frequência com que um mesmo usuário vê o mesmo anúncio (frequency capping).
-*   [ ] Integração com redes de anúncios externas para preencher inventário não vendido (ad network mediation).
+*   [ ] Limitar a frequência de exibição de um mesmo anúncio para um usuário.
 
 ---
 
-*Última atualização: 2025-05-12*
+*Última atualização: YYYY-MM-DD*
 
 ---
 
-Este módulo de anúncios pode variar muito em complexidade dependendo dos requisitos!
-
-Próximo? Que tal `DeeperHub.ServerEvents` ou `DeeperHub.ServerUpdateMessages` para continuar com os módulos relacionados a `Servers`?"""),
+Próximo da lista é `DeeperHub.ServerEvents`. Vamos nessa?"""),
             ],
         ),
         types.Content(
             role="user",
             parts=[
-                types.Part.from_text(text="""continue"""),
+                types.Part.from_text(text="""vamos!!!! pode enviar/mostrar!!!!"""),
             ],
         ),
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ok! Vamos prosseguir com `DeeperHub.ServerEvents`. Este módulo é focado em permitir que os proprietários de servidores criem e gerenciem eventos para suas comunidades.
+                types.Part.from_text(text="""Com certeza! Vamos ao README do `DeeperHub.ServerEvents`.
 
 ---
 

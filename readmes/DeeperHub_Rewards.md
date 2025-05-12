@@ -1,256 +1,231 @@
-# Módulo: `DeeperHub.Rewards` 🚀
+# Módulo: `DeeperHub.Rewards` 🎁
 
 ## 📜 1. Visão Geral do Módulo `DeeperHub.Rewards`
 
-O módulo `DeeperHub.Rewards` é responsável por **definir, gerenciar e conceder recompensas** aos usuários do sistema DeeperHub. As recompensas são incentivos dados aos usuários por completarem desafios, desbloquearem conquistas, participarem de eventos, ou por outras ações valorizadas pela plataforma.
-
-Este módulo lida com:
-*   A criação e configuração dos diferentes tipos de recompensas disponíveis (ex: pontos, badges, itens virtuais, acesso a features, descontos).
-*   A lógica de concessão de recompensas a um usuário.
-*   O rastreamento de quais recompensas um usuário já recebeu ou possui.
-*   (Opcional) A lógica para \"resgatar\" ou \"usar\" certas recompensas, se elas tiverem um efeito ativo.
-
-O objetivo é fornecer um sistema flexível para incentivar e reconhecer o engajamento e as realizações dos usuários na plataforma DeeperHub. 😊
+O módulo `DeeperHub.Rewards` é responsável por gerenciar o sistema de recompensas da plataforma DeeperHub. Ele permite a definição de diferentes tipos de recompensas, sua associação a ações específicas do usuário (como completar desafios, alcançar conquistas, ou participação em eventos), e o processo de concessão e resgate dessas recompensas pelos usuários. O objetivo é incentivar o engajamento, fidelizar usuários e reconhecer suas contribuições e marcos. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
-*   **Gerenciamento de Definições de Recompensas (`create_reward_definition/1`, etc.):**
-    *   Permitir que administradores criem, visualizem, atualizem e excluam as definições das recompensas disponíveis.
-    *   Cada definição inclui: nome, descrição, tipo de recompensa (ex: `:points`, `:badge`, `:virtual_item`, `:feature_unlock`, `:discount_coupon`), valor (ex: quantidade de pontos, ID do item virtual), ícone, metadados adicionais (ex: se é de uso único, se tem expiração).
-*   **Concessão de Recompensas a Usuários (`grant_reward_to_user/3`):**
-    *   Conceder uma recompensa específica (baseada em uma `RewardDefinition`) a um usuário.
-    *   Registrar que o usuário recebeu a recompensa, incluindo a data e a origem (ex: qual desafio ou conquista a concedeu).
-    *   Lidar com a lógica de recompensas de uso único ou de quantidade limitada.
-*   **Consulta de Recompensas do Usuário:**
-    *   Listar todas as recompensas que um usuário possui ou já recebeu (`list_user_rewards/1`).
-    *   Verificar se um usuário possui uma recompensa específica (`user_has_reward?/2`).
-*   **Resgate/Uso de Recompensas (Opcional, se aplicável):**
-    *   Se algumas recompensas forem \"utilizáveis\" (ex: um cupom de desconto, um item que concede um bônus temporário), fornecer uma maneira de marcar a recompensa como usada.
+*   **Definição de Recompensas:**
+    *   CRUD para Recompensas (`Reward`): nome, descrição, tipo de recompensa (ex: pontos de experiência, itens virtuais, badges, descontos, acesso a features premium temporárias), valor ou detalhes específicos da recompensa.
+    *   Configuração de disponibilidade (ex: recompensa única, recompensa diária/semanal, limitada por estoque).
+    *   Associação de recompensas a gatilhos (ex: ID de uma conquista, ID de um desafio, evento específico).
+*   **Concessão de Recompensas:**
+    *   Mecanismo para conceder recompensas automaticamente quando um gatilho é ativado (ex: usuário completa um desafio `DeeperHub.Challenges`).
+    *   Capacidade para administradores concederem recompensas manualmente a usuários (com auditoria).
+*   **Resgate/Uso de Recompensas (se aplicável):**
+    *   Para certos tipos de recompensas (ex: itens que podem ser \"usados\" ou descontos), gerenciar o processo de resgate.
+    *   Manter um histórico de recompensas concedidas e resgatadas por usuário (`UserReward`).
+*   **Inventário de Recompensas do Usuário:**
+    *   Permitir que usuários visualizem as recompensas que receberam e seu status (ex: disponível, resgatada, expirada).
 *   **Integração com Outros Módulos:**
-    *   Ser chamado por `DeeperHub.Achievements` e `DeeperHub.Challenges` para conceder recompensas automaticamente.
-    *   Potencialmente, interagir com um sistema de inventário de itens virtuais ou um sistema de pontos/moeda.
-*   **Observabilidade e Auditoria:**
-    *   Logar e metrificar a concessão de recompensas.
-    *   Publicar eventos de domínio (ex: `reward.granted`) no `Core.EventBus`.
-    *   Auditar a criação/modificação de definições de recompensas.
-*   **Caching:**
-    *   Cachear definições de recompensas e, possivelmente, recompensas de usuários ativos.
+    *   Receber solicitações de concessão de recompensas de `DeeperHub.Achievements`, `DeeperHub.Challenges`, etc.
+    *   Potencialmente, interagir com um sistema de \"loja\" ou \"inventário virtual\" se as recompensas forem itens.
+*   **Notificações:**
+    *   Notificar usuários quando recebem uma nova recompensa (via `DeeperHub.Notifications`).
+*   **Administração de Recompensas:**
+    *   Interface para administradores criarem, editarem e gerenciarem o catálogo de recompensas.
+    *   Monitorar a distribuição e o resgate de recompensas.
 
 ## 🏗️ 3. Arquitetura e Design
 
+`DeeperHub.Rewards` funcionará como uma fachada para um serviço de lógica de negócio e componentes de persistência.
+
+*   **Interface Pública (`DeeperHub.Rewards.RewardsFacade` ou `DeeperHub.Rewards`):** Funções como `list_available_rewards/1`, `grant_reward_to_user/3`, `get_user_rewards/1`.
+*   **Serviço de Recompensas (`DeeperHub.Rewards.Services.RewardsService`):**
+    *   Contém a lógica de negócio principal para definir, conceder e gerenciar recompensas.
+*   **Schemas Ecto:**
+    *   `DeeperHub.Rewards.Schema.Reward`: Define uma recompensa.
+    *   `DeeperHub.Rewards.Schema.UserReward`: Rastreia as recompensas concedidas a um usuário, seu status e data de resgate/expiração.
+*   **Cache (`DeeperHub.Rewards.Cache` ou via `Core.Cache`):**
+    *   Cache para definições de recompensas frequentemente acessadas.
+*   **Integrações:**
+    *   `DeeperHub.Core.Repo`: Para persistência.
+    *   `DeeperHub.Core.EventBus`: Para escutar eventos que podem conceder recompensas ou publicar eventos de recompensa concedida.
+    *   `DeeperHub.Notifications`: Para notificar usuários.
+    *   `DeeperHub.Achievements`, `DeeperHub.Challenges`: Para acionar a concessão de recompensas.
+
+**Padrões de Design:**
+
+*   **Fachada (Facade).**
+*   **Serviço de Domínio.**
+*   **Observer (via EventBus):** Para conceder recompensas em resposta a eventos de outros módulos.
+
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.Rewards` (Fachada Pública):**
-    *   Ponto de entrada para todas as operações relacionadas a recompensas.
-    *   Delega para o `RewardsService`.
-2.  **`DeeperHub.Rewards.Services.RewardsService` (ou `DefaultRewardsService`):**
-    *   **Responsabilidade:** Orquestra a lógica de negócio principal para o sistema de recompensas.
-    *   **Interações:**
-        *   `DeeperHub.Core.Repo`: Para CRUD com `RewardDefinitionSchema` e `UserRewardSchema`.
-        *   `DeeperHub.Core.EventBus`: Para publicar eventos de concessão de recompensas.
-        *   `DeeperHub.Core.Cache`: Para caching.
-        *   `DeeperHub.Core.ConfigManager`: Para configurações.
-        *   `DeeperHub.Notifications`: Para notificar usuários sobre recompensas recebidas.
-        *   `DeeperHub.Audit`: Para auditar gerenciamento de definições.
-        *   Potencialmente, interage com um `PointsService` ou `VirtualItemInventoryService` se esses forem sistemas separados.
-3.  **Schemas Ecto:**
-    *   **`DeeperHub.Rewards.Schemas.RewardDefinitionSchema` (ex-`Reward` na doc original):** Armazena os detalhes de cada tipo de recompensa disponível (nome, descrição, tipo, valor, ícone, metadados como `data_payload` para configurar o efeito da recompensa).
-    *   **`DeeperHub.Rewards.Schemas.UserRewardSchema`:** Tabela de junção/log que registra qual usuário (`user_id`) recebeu qual recompensa (`reward_definition_id`), quando (`granted_at`), de qual fonte (`source_type`, `source_id`), e seu status atual (ex: `:granted`, `:claimed`, `:used`, `:expired`).
-4.  **`DeeperHub.Rewards.Storage` (ou lógica dentro do `RewardsService`):**
-    *   Encapsula as queries Ecto.
-5.  **`DeeperHub.Rewards.RewardHandler` (Behaviour e Implementações, Nova Sugestão):**
-    *   **Responsabilidade:** Se diferentes tipos de recompensa tiverem lógicas de \"aplicação\" complexas (ex: desbloquear uma feature, adicionar item ao inventário, aplicar desconto), um sistema de handlers por tipo de recompensa pode ser útil.
-    *   Quando uma recompensa é concedida, o `RewardsService` poderia chamar o handler apropriado para aplicar o efeito da recompensa.
-        *   Ex: `PointsRewardHandler`, `FeatureUnlockRewardHandler`.
-
-### 3.2. Estrutura de Diretórios (Proposta)
-
-```
-lib/deeper_hub/rewards/
-├── rewards.ex                        # Fachada Pública
-│
-├── services/
-│   └── rewards_service.ex            # Serviço principal
-│
-├── schemas/                          # (Ou schema/)
-│   ├── reward_definition_schema.ex
-│   └── user_reward_schema.ex
-│
-├── storage.ex                        # (Opcional) Módulo de queries Ecto
-│
-├── handlers/                         # (Opcional, Nova Sugestão)
-│   ├── reward_handler_behaviour.ex
-│   ├── points_reward_handler.ex
-│   └── feature_unlock_reward_handler.ex
-│
-├── cached_adapter.ex                 # (Opcional, da documentação original)
-├── supervisor.ex
-└── telemetry.ex
-```
+*   **`DeeperHub.Rewards.RewardsFacade`:** Ponto de entrada.
+*   **`DeeperHub.Rewards.Services.RewardsService`:** Lógica de negócio.
+*   **`DeeperHub.Rewards.Schema.Reward`:** Schema da recompensa.
+*   **`DeeperHub.Rewards.Schema.UserReward`:** Schema da recompensa do usuário.
+*   **`DeeperHub.Rewards.EventHandler` (Novo Sugerido):** Para processar eventos que concedem recompensas.
+*   **`DeeperHub.Rewards.Supervisor`:** Supervisiona processos.
 
 ### 3.3. Decisões de Design Importantes
 
-*   **Flexibilidade dos Tipos de Recompensa:** O campo `type` e `data_payload` (JSONB) na `RewardDefinitionSchema` permite grande flexibilidade para definir diferentes tipos de recompensas e seus parâmetros específicos.
-*   **Idempotência na Concessão:** O sistema deve ser robusto a múltiplas tentativas de conceder a mesma recompensa a um usuário (ex: se um evento for processado duas vezes). A combinação de `user_id`, `reward_definition_id` e talvez `source_id` no `UserRewardSchema` pode ter um unique index.
-*   **Separação da Lógica de Aplicação:** Se a \"aplicação\" de uma recompensa for complexa, usar `RewardHandler`s ajuda a manter o `RewardsService` focado na concessão e rastreamento.
+*   **Tipos de Recompensa:** Definir uma forma flexível de representar diferentes tipos de recompensas e como elas são aplicadas/resgatadas.
+*   **Lógica de Concessão:** Como as recompensas são acionadas – via chamadas diretas de outros serviços ou de forma reativa a eventos.
+*   **Exclusividade e Limites:** Como lidar com recompensas que só podem ser obtidas uma vez, ou que têm um estoque limitado.
 
 ## 🛠️ 4. Casos de Uso Principais
 
-*   **Administrador Cria uma Recompensa \"100 Pontos de Bônus\":**
-    *   Admin define: nome \"Bônus de 100 Pontos\", tipo `:points`, valor/payload `%{points: 100}`.
-    *   API chama `Rewards.create_reward_definition(attrs)`.
-*   **Usuário Completa um Desafio e Ganha \"100 Pontos de Bônus\":**
-    *   `DeeperHub.Challenges` detecta a conclusão.
-    *   Chama `Rewards.grant_reward_to_user(user_id, \"bonus_100_points_def_id\", %{source_type: :challenge, source_id: challenge_id})`.
-*   **`RewardsService.grant_reward_to_user/3`:**
-    *   Cria um registro `UserRewardSchema`.
-    *   Publica evento `reward.granted`.
-    *   Chama o `PointsRewardHandler` (se existir), que por sua vez chama um `DeeperHub.PointsService.add_points(user_id, 100)`.
-    *   Notifica o usuário.
-*   **Usuário Visualiza suas Recompensas Recebidas:**
-    *   UI chama API que leva a `Rewards.list_user_rewards(user_id)`.
+*   **Usuário Completa Desafio:** O módulo `DeeperHub.Challenges` notifica o `DeeperHub.Rewards` (ou emite um evento) para conceder a recompensa associada ao desafio.
+*   **Administrador Cria Nova Recompensa:** Um admin define uma nova recompensa \"100 Pontos de Bônus\" que pode ser concedida por várias atividades.
+*   **Usuário Resgata Cupom de Desconto:** Um usuário que recebeu um cupom de desconto (recompensa) o utiliza em um sistema de e-commerce integrado.
+*   **Usuário Visualiza suas Recompensas:** Um usuário acessa seu inventário para ver quais recompensas ele possui.
 
-## 🌊 5. Fluxos Importantes
+## 🌊 5. Fluxos Importantes (Opcional)
 
-### Fluxo de Concessão de Recompensa
+**Fluxo de Concessão de Recompensa ao Completar uma Conquista:**
 
-1.  **Fonte da Recompensa (ex: `ChallengesService`):** Determina que `user_id` deve receber `reward_definition_id` devido à `source_details` (ex: `%{type: :challenge, id: \"chall123\"}`).
-2.  Chama `DeeperHub.Rewards.grant_reward_to_user(user_id, reward_definition_id, source_details)`.
-3.  **`RewardsService.grant_reward_to_user/3`:**
-    *   Verifica se o usuário já recebeu esta recompensa específica da mesma fonte (se a política for de concessão única por fonte).
-    *   Busca a `RewardDefinitionSchema` para obter detalhes (tipo, valor/payload).
-    *   Cria um registro `UserRewardSchema` com status `:granted`.
-        *   `user_id: user_id`
-        *   `reward_definition_id: reward_definition_id`
-        *   `granted_at: DateTime.utc_now()`
-        *   `source_type: source_details.type`
-        *   `source_id: source_details.id`
-        *   `data_payload_at_grant: reward_definition.data_payload` (para registrar o valor da recompensa no momento da concessão)
-    *   Se a persistência do `UserReward` for bem-sucedida:
-        *   **(Opcional) Chama o `RewardHandler` apropriado:**
-            *   Ex: `MyApp.Rewards.Handlers.PointsHandler.apply(%{user_id: user_id, points: 100})`.
-        *   Publica evento `reward.granted` no `Core.EventBus` (`%{user_id: ..., user_reward_id: ..., definition: ...}`).
-        *   Enfileira notificação para o usuário via `DeeperHub.Notifications`.
-        *   Retorna `{:ok, user_reward_struct}`.
-    *   Se falhar, retorna erro.
+1.  O módulo `DeeperHub.Achievements` detecta que um usuário desbloqueou uma conquista.
+2.  `Achievements` emite um evento `AchievementUnlockedEvent(%{user_id: \"123\", achievement_id: \"ach_abc\"})` no `Core.EventBus`.
+3.  `DeeperHub.Rewards.EventHandler` (inscrito neste evento) recebe o evento.
+4.  O `EventHandler` consulta o `RewardsService` para verificar se a `achievement_id: \"ach_abc\"` tem uma recompensa associada.
+5.  Se houver uma recompensa definida (ex: `Reward` com `trigger_type: :achievement`, `trigger_id: \"ach_abc\"`):
+    *   `RewardsService` verifica se o usuário já recebeu esta recompensa (se for única).
+    *   Se elegível, cria um registro `UserReward` para `user_id: \"123\"` e o ID da recompensa.
+    *   Persiste o `UserReward`.
+    *   Emite um evento `RewardGrantedEvent`.
+    *   Enfileira uma notificação para o usuário via `DeeperHub.Notifications`.
+6.  O `EventHandler` confirma o processamento do evento.
 
-## 📡 6. API (Funções Públicas da Fachada `DeeperHub.Rewards`)
+## 📡 6. API (Se Aplicável)
 
-### 6.1. Definições de Recompensa (Admin)
+### 6.1. `DeeperHub.Rewards.grant_reward_to_user/3`
 
-*   **`DeeperHub.Rewards.create_reward_definition(attrs :: map(), admin_user_id :: String.t()) :: {:ok, RewardDefinition.t()} | {:error, Ecto.Changeset.t()}`**
-    *   `attrs`: `%{name: ..., description: ..., type: :points | :badge | :item | :feature_unlock, data_payload: map(), icon_url: ..., ...}`.
-*   **`DeeperHub.Rewards.update_reward_definition(def_id :: String.t(), attrs :: map(), admin_user_id :: String.t()) :: {:ok, RewardDefinition.t()} | {:error, Ecto.Changeset.t()}`**
-*   **`DeeperHub.Rewards.list_reward_definitions(filters :: map(), opts :: keyword()) :: {:ok, list(RewardDefinition.t()), Pagination.t()}`**
+*   **Descrição:** Concede uma recompensa específica a um usuário.
+*   **`@spec`:** `grant_reward_to_user(user_id :: String.t(), reward_id :: String.t(), opts :: Keyword.t()) :: {:ok, UserReward.t()} | {:error, reason}`
+*   **Parâmetros:**
+    *   `user_id` (String): O ID do usuário que receberá a recompensa.
+    *   `reward_id` (String): O ID da recompensa a ser concedida.
+    *   `opts` (Keyword.t()): Opções adicionais.
+        *   `:granted_by` (String): ID do sistema/usuário que está concedendo a recompensa (para auditoria).
+        *   `:reason` (String): Motivo da concessão (ex: \"completed_challenge_xyz\").
+*   **Retorno:**
+    *   `{:ok, user_reward_struct}`: Se a recompensa for concedida com sucesso.
+    *   `{:error, :reward_not_found | :user_not_found | :already_granted | :not_eligible | reason}`.
+*   **Exemplo de Uso (Elixir):**
+    ```elixir
+    case DeeperHub.Rewards.grant_reward_to_user(current_user.id, \"reward_points_100\", reason: \"daily_login_bonus\") do
+      {:ok, granted_reward} -> Logger.info(\"Recompensa concedida: #{granted_reward.id}\")
+      {:error, reason} -> Logger.error(\"Falha ao conceder recompensa: #{reason}\")
+    end
+    ```
 
-### 6.2. Concessão e Consulta de Usuário
+### 6.2. `DeeperHub.Rewards.get_user_rewards/2`
 
-*   **`DeeperHub.Rewards.grant_reward_to_user(user_id :: String.t(), reward_definition_id :: String.t(), source_context :: %{source_type: atom(), source_id: String.t() | integer()}, opts :: keyword()) :: {:ok, UserReward.t()} | {:error, :already_granted_for_source | term()}`**
-    *   `opts`: `:granted_by_admin_id` (se for concessão manual).
-*   **`DeeperHub.Rewards.list_user_rewards(user_id :: String.t(), opts :: keyword()) :: {:ok, list(UserRewardView.t()), Pagination.t()}`**
-    *   `UserRewardView.t()`: Combina dados de `UserRewardSchema` e `RewardDefinitionSchema`.
-    *   `opts`: `:status` (`:granted`, `:claimed`), `:page`, `:per_page`, `:sort_by`.
-*   **`DeeperHub.Rewards.user_has_reward?(user_id :: String.t(), reward_definition_id :: String.t()) :: boolean()`**
-*   **`DeeperHub.Rewards.claim_user_reward(user_reward_id :: String.t(), user_id :: String.t()) :: {:ok, UserReward.t()} | {:error, :not_claimable | :already_claimed | :not_found | :unauthorized}`** (Se houver recompensas que precisam ser ativamente \"reivindicadas\" antes de serem usadas/contabilizadas).
+*   **Descrição:** Lista todas as recompensas concedidas a um usuário.
+*   **`@spec`:** `get_user_rewards(user_id :: String.t(), opts :: Keyword.t()) :: {:ok, list(UserReward.t())} | {:error, reason}`
+*   **Parâmetros:**
+    *   `user_id` (String): O ID do usuário.
+    *   `opts` (Keyword.t()): Opções de filtragem (ex: `[status: :available, type: :item]`).
+*   **Retorno:** Lista de structs `UserReward.t()`.
+*   **Exemplo de Uso (Elixir):**
+    ```elixir
+    {:ok, my_rewards} = DeeperHub.Rewards.get_user_rewards(current_user.id, status: :available)
+    ```
+
+### 6.3. `DeeperHub.Rewards.list_definitions/1`
+
+*   **Descrição:** Lista todas as definições de recompensas disponíveis no sistema.
+*   **`@spec`:** `list_definitions(opts :: Keyword.t()) :: {:ok, list(Reward.t())} | {:error, reason}`
+*   **Parâmetros:**
+    *   `opts` (Keyword.t()): Opções de filtragem (ex: `[type: :badge, is_active: true]`).
+*   **Retorno:** Lista de structs `Reward.t()`.
+*   **Exemplo de Uso (Elixir):**
+    ```elixir
+    {:ok, all_reward_definitions} = DeeperHub.Rewards.list_definitions()
+    ```
+
+*(Funções como `claim_reward/2` (se aplicável), `create_reward_definition/1` (admin) seriam documentadas aqui).*
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager`:
-
-*   **`[:rewards, :enabled]`** (Boolean): Habilita/desabilita o sistema de recompensas. (Padrão: `true`)
-*   **`[:rewards, :default_point_reward_type_name]`** (String): Nome padrão para recompensas de pontos. (Padrão: `\"Points\"`)
-*   **`[:rewards, :notify_on_grant]`** (Boolean): Se deve notificar usuários ao receberem recompensas. (Padrão: `true`)
-*   **`[:rewards, :cache, :definition_ttl_seconds]`** (Integer).
-*   **`[:rewards, :retention_days, :user_rewards_log]`** (Integer): Por quantos dias manter registros de `UserReward`.
+*   **ConfigManager (`DeeperHub.Core.ConfigManager`):**
+    *   `[:rewards, :default_notification_on_grant]`: (Boolean) Se notifica por padrão ao conceder uma recompensa. (Padrão: `true`)
+    *   `[:rewards, :point_system_name]`: Nome do sistema de pontos (ex: \"XP\", \"HubCoins\"). (Padrão: `\"Points\"`)
+    *   `[:rewards, :cache, :definitions_ttl_seconds]`: TTL para cache de definições de recompensas.
 
 ## 🔗 8. Dependências
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.*`: Todos os módulos Core.
-*   `DeeperHub.Accounts`: Para `user_id`.
-*   `DeeperHub.Notifications`: Para notificar sobre recompensas.
-*   `DeeperHub.Audit`: Para auditar gerenciamento de definições e concessões manuais.
-*   `DeeperHub.Achievements`, `DeeperHub.Challenges`: Como fontes comuns para acionar a concessão de recompensas.
-*   Potencialmente, um `DeeperHub.PointsService` ou `DeeperHub.InventoryService` para aplicar certos tipos de recompensa.
+*   `DeeperHub.Core.Repo`
+*   `DeeperHub.Core.ConfigManager`
+*   `DeeperHub.Core.EventBus`
+*   `DeeperHub.Notifications`
+*   `DeeperHub.Achievements` (Consumidor de recompensas)
+*   `DeeperHub.Challenges` (Consumidor de recompensas)
+*   `DeeperHub.Core.Logger`, `DeeperHub.Core.Metrics`
 
 ### 8.2. Bibliotecas Externas
 
-*   `Ecto`.
+*   `Ecto`
 
 ## 🤝 9. Como Usar / Integração
 
-*   **Módulos `Achievements` e `Challenges`:** Ao detectar que um usuário completou uma conquista ou desafio, eles chamam `DeeperHub.Rewards.grant_reward_to_user/3` para cada recompensa associada na definição da conquista/desafio.
-*   **Interface de Administração:** Para gerenciar `RewardDefinitions`.
-*   **Perfil do Usuário (UI):** Para exibir as recompensas que o usuário ganhou (`list_user_rewards/1`).
+*   Módulos como `Achievements` e `Challenges` chamam `Rewards.grant_reward_to_user/3` ao detectar que um usuário se qualificou para uma recompensa.
+*   A UI do usuário chama `Rewards.get_user_rewards/2` para exibir o inventário de recompensas.
 
 ## ✅ 10. Testes e Observabilidade
 
 ### 10.1. Testes
 
-*   Testar CRUD para `RewardDefinitionSchema`.
-*   Testar a lógica de `grant_reward_to_user`, incluindo a criação de `UserRewardSchema` e a não duplicação (se aplicável).
-*   Testar a integração com `RewardHandler`s (se implementados) para diferentes tipos de recompensa.
-*   Testar as funções de listagem.
-*   Localização: `test/deeper_hub/rewards/`.
+*   Testar a lógica de concessão de recompensas para diferentes gatilhos.
+*   Testar o resgate de recompensas (se aplicável).
+*   Testar a listagem e visualização de recompensas.
+*   Testar a interação com o sistema de notificações.
+*   Localização: `test/deeper_hub/rewards/`
 
 ### 10.2. Métricas
 
-*   `deeper_hub.rewards.definition.created.count`
-*   `deeper_hub.rewards.granted_to_user.count` (tags: `reward_definition_id`, `reward_type`, `source_type`)
-*   `deeper_hub.rewards.claimed.count` (tags: `reward_definition_id`) (se houver resgate)
-*   `deeper_hub.rewards.points_awarded.sum` (Contador)
-*   `deeper_hub.rewards.items_granted.count` (tags: `item_type`)
+*   `deeper_hub.rewards.granted.count` (Contador): Número de recompensas concedidas. Tags: `reward_id`, `reward_type`, `trigger_source` (achievement, challenge, manual).
+*   `deeper_hub.rewards.claimed.count` (Contador): Número de recompensas resgatadas (se aplicável). Tags: `reward_id`.
+*   `deeper_hub.rewards.points_distributed.total` (Contador): Total de pontos distribuídos (se houver recompensas em pontos).
 
 ### 10.3. Logs
 
-*   **Nível INFO:** Recompensa concedida a um usuário. Definição de recompensa criada/atualizada.
-*   **Nível WARNING:** Tentativa de conceder uma recompensa já concedida (e não repetível). Falha ao aplicar o efeito de uma recompensa (ex: erro ao adicionar pontos).
-*   **Nível ERROR:** Falha ao persistir `UserReward`.
+*   `Logger.info(\"Recompensa '#{reward_name}' concedida ao user_id: #{id} (Motivo: #{reason})\", module: DeeperHub.Rewards.Services.RewardsService)`
+*   `Logger.info(\"Usuário #{user_id} resgatou a recompensa '#{reward_name}'\", module: DeeperHub.Rewards.Services.RewardsService)`
 
 ### 10.4. Telemetria
 
-*   `[:deeper_hub, :rewards, :definition, :created | :updated | :deleted]`
-    *   Metadados: `%{definition_id: id, type: type, admin_id: id}`
-*   `[:deeper_hub, :rewards, :user_reward, :granted]`
-    *   Metadados: `%{user_id: id, user_reward_id: id, reward_definition_id: id, source_type: type, source_id: id}`
-*   `[:deeper_hub, :rewards, :reward_effect, :applied | :failed]` (Se usando Handlers)
-    *   Metadados: `%{user_reward_id: id, handler_type: type, details: ...}`
+*   `[:deeper_hub, :rewards, :granted]`: Payload: `%{user_id: id, reward_id: rid, user_reward_id: urid, source: src}`.
+*   `[:deeper_hub, :rewards, :claimed]`: Payload: `%{user_id: id, user_reward_id: urid}`.
 
 ## ❌ 11. Tratamento de Erros
 
-*   Falhas na concessão de uma recompensa (ex: erro no DB) devem ser logadas e, idealmente, permitir uma retentativa ou correção manual.
-*   Se a aplicação de um efeito de recompensa (ex: adicionar pontos) falhar, a concessão da recompensa em si (registro `UserReward`) ainda pode ser considerada bem-sucedida, mas o erro na aplicação do efeito deve ser tratado separadamente (ex: log, alerta, fila de retry para o efeito).
+*   `{:error, :reward_not_found}`
+*   `{:error, :insufficient_stock}` (se recompensas tiverem estoque limitado)
+*   `{:error, :already_claimed}` (para recompensas de uso único)
+*   Falhas na concessão devem ser robustas, possivelmente com retentativas se a causa for transitória.
 
 ## 🛡️ 12. Considerações de Segurança
 
-*   **Autorização:** A criação e modificação de `RewardDefinitions` deve ser restrita a administradores.
-*   **Prevenção de Abuso:** Evitar que usuários possam acionar a concessão de recompensas indevidamente (ex: explorando os critérios de desafios/conquistas). A validação dos critérios deve ser robusta.
-*   **Valor das Recompensas:** Se as recompensas tiverem valor monetário ou impacto significativo na economia do jogo/plataforma, a lógica de concessão e o rastreamento devem ser extremamente seguros e auditáveis.
+*   **Prevenção de Abuso:** Garantir que os mecanismos de concessão de recompensas não possam ser explorados para obter recompensas indevidamente.
+*   **Auditoria:** Todas as concessões de recompensas, especialmente manuais, devem ser auditadas.
+*   **Valor das Recompensas:** Se as recompensas tiverem valor real ou puderem ser trocadas, considerações adicionais de segurança e prevenção de fraude são necessárias.
 
 ## 🧑‍💻 13. Contribuição
 
-*   Ao definir novas recompensas, pense no `type` e no `data_payload` de forma flexível.
-*   Se um novo tipo de recompensa exigir lógica de aplicação customizada, considere criar um novo `RewardHandler`.
-*   Garanta que a origem (`source_type`, `source_id`) da recompensa seja sempre registrada.
+*   Ao adicionar novos tipos de recompensas, defina claramente como elas são concedidas, armazenadas e (se aplicável) resgatadas.
+*   Garanta que a integração com os módulos que disparam recompensas seja clara e robusta.
 
 ## 🔮 14. Melhorias Futuras e TODOs
 
-*   [ ] Implementar um sistema de \"inventário de recompensas\" visual para o usuário, onde ele possa ver e, se aplicável, \"usar\" suas recompensas.
-*   [ ] Adicionar datas de expiração para recompensas concedidas (ex: \"Cupom de 10% válido por 7 dias\").
-*   [ ] Permitir que recompensas sejam \"presenteáveis\" entre usuários (com devidas restrições).
-*   [ ] Sistema de \"reivindicação de recompensas\" onde o usuário precisa ativamente clicar para receber/ativar certas recompensas após serem concedidas.
-*   [ ] Gamificar a própria obtenção de recompensas (ex: \"Colete 5 tipos diferentes de badges para uma recompensa bônus\").
+*   [ ] Implementar um sistema de \"loja\" onde usuários podem gastar pontos/moedas para obter recompensas.
+*   [ ] Suporte para recompensas com tempo de expiração.
+*   [ ] Adicionar \"caixas de loot\" ou recompensas aleatórias.
+*   [ ] Interface de admin para gerenciar o catálogo de recompensas e conceder/revogar recompensas.
+*   [ ] Histórico visual de recompensas para o usuário.
 
 ---
 
-*Última atualização: 2025-05-12*
+*Última atualização: YYYY-MM-DD*
 
 ---
 
-Com `Rewards` detalhado, temos uma boa visão dos componentes de gamificação (`Achievements`, `Challenges`, `Rewards`).
-
-Onde gostaria de ir agora? Podemos continuar com os \"ex-Serviços\" como `DeeperHub.Support` ou `DeeperHub.UserInteractions`, ou talvez um módulo Core como `DeeperHub.Core.CircuitBreaker` que já havíamos mencionado?"""),
+Próximo: `DeeperHub.Support`?"""),
             ],
         ),
         types.Content(
@@ -262,9 +237,7 @@ Onde gostaria de ir agora? Podemos continuar com os \"ex-Serviços\" como `Deepe
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ok, já detalhamos o `DeeperHub.Core.CircuitBreaker`.
-
-Vamos agora para o `DeeperHub.Support`, que lida com um aspecto crucial da experiência do usuário: o sistema de tickets de suporte.
+                types.Part.from_text(text="""Beleza! Vamos ao README do `DeeperHub.Support`.
 
 ---
 
