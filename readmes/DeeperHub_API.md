@@ -83,7 +83,7 @@ lib/deeper_hub_web/ # (Se usando Phoenix)
 │
 └── router.ex # Define os pipelines e escopos da API
 
-lib/deeper_hub/api/ # Lógica de negócio da API, independente do Phoenix
+api/ # Lógica de negócio da API, independente do Phoenix
 ├── rate_limit/
 │   ├── rate_limiter_facade.ex
 │   ├── registry.ex
@@ -299,7 +299,198 @@ Phoenix já emite muitos eventos de telemetria para o ciclo de vida da requisiç
 *   Configure regras de rate limiting apropriadas.
 *   Escreva testes de integração abrangentes.
 
-## 🔮 14. Melhorias Futuras e TODOs
+## 📝 14. Respostas Padronizadas da API
+
+O módulo `DeeperHub.Core.APIResponder` é responsável por padronizar todas as respostas da API, garantindo consistência e facilitando o consumo pelos clientes.
+
+### 14.1 Formatos de Resposta
+
+1. **Resposta de Sucesso**:
+   ```elixir
+   # Formato
+   %{
+     "status" => "success",
+     "data" => %{...},       # Dados da resposta
+     "meta" => %{...},       # Metadados opcionais (paginacao, etc)
+     "message" => "Mensagem opcional"
+   }
+   ```
+
+2. **Resposta de Erro**:
+   ```elixir
+   %{
+     "status" => "error",
+     "error" => %{
+       "code" => "codigo_do_erro",
+       "message" => "Mensagem de erro amigável",
+       "details" => %{}  # Detalhes adicionais do erro
+     }
+   }
+   ```
+
+3. **Erros de Validação**:
+   ```elixir
+   %{
+     "status" => "error",
+     "error" => %{
+       "code" => "validation_error",
+       "message" => "Erro de validação",
+       "details" => %{
+         "email" => ["não pode ficar em branco"],
+         "password" => ["deve ter no mínimo 8 caracteres"]
+       }
+     }
+   }
+   ```
+
+### 14.2 Mapeamento de Códigos de Erro
+
+| Código do Erro        | Status HTTP | Descrição                          |
+|----------------------|-------------|----------------------------------|
+| `:bad_request`       | 400         | Requisição inválida               |
+| `:unauthorized`      | 401         | Não autenticado                   |
+| `:forbidden`         | 403         | Acesso negado                     |
+| `:not_found`         | 404         | Recurso não encontrado            |
+| `:conflict`          | 409         | Conflito (ex: recurso já existe)  |
+| `:unprocessable_entity` | 422     | Erro de validação                |
+| `:too_many_requests` | 429         | Muitas requisições                |
+| `:internal_server_error` | 500    | Erro interno do servidor         |
+
+## 📚 15. Documentação da API
+
+A documentação da API é gerada automaticamente usando OpenAPI (Swagger) e está disponível em `/api/documentation` quando o ambiente for `:dev` ou `:test`.
+
+### 15.1 Como documentar um endpoint
+
+```elixir
+defmodule DeeperHubWeb.API.V1.UserController do
+  use DeeperHubWeb, :controller
+  use PhoenixSwagger   # Adicione esta linha
+
+  @doc """
+  Lista usuários
+
+  ## Parâmetros
+    * page - Número da página (opcional, padrão: 1)
+    * per_page - Itens por página (opcional, padrão: 20, máximo: 100)
+
+  """
+  swagger_path :index do
+    get "/api/v1/users"
+    description "Lista usuários com paginação"
+    produces "application/json"
+    parameter :query, :page, :integer, "Número da página", required: false
+    parameter :query, :per_page, :integer, "Itens por página", required: false
+    response 200, "Success", :Users
+    response 400, "Bad Request"
+    response 401, "Unauthorized"
+  end
+
+  def index(conn, params) do
+    # Implementação do controller
+  end
+end
+```
+
+## 🔄 16. Configuração de CORS
+
+O DeeperHub usa o plug `CORSPlug` para gerenciar políticas de CORS. A configuração é feita no arquivo `config/config.exs`:
+
+```elixir
+config :cors_plug,
+  origin: [
+    "https://app.deeperhub.com",
+    ~r{^https://[a-z0-9-]+\\.deeperhub\\.com$}
+  ],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  headers: ["Authorization", "Content-Type", "Accept", "X-Requested-With"],
+  max_age: 86400,
+  credentials: true
+```
+
+### 16.1 Configurações por Ambiente
+
+1. **Desenvolvimento (`:dev`)**
+   - Origens amplas para facilitar o desenvolvimento local
+   - Headers de depuração habilitados
+
+2. **Produção (`:prod`)**
+   - Origens restritas apenas aos domínios oficiais
+   - Headers mínimos necessários
+   - Tempo de cache maior
+
+## 💾 17. Caching de Respostas
+
+O módulo `DeeperHub.API.Cache` fornece funções para cache de respostas de API usando o `DeeperHub.Core.Cache`.
+
+### 17.1 Estratégias de Cache
+
+1. **Cache por Tempo de Vida (TTL)**:
+   ```elixir
+   def get_users(conn, params) do
+     cache_key = "users:#{params["page"]}:#{params["per_page"]}"
+     
+     case API.Cache.get(cache_key) do
+       {:ok, cached} -> 
+         json(conn, cached)
+       _ ->
+         users = Accounts.list_users(params)
+         response = APIResponder.format_success(users)
+         :ok = API.Cache.put(cache_key, response, ttl: 300) # 5 minutos
+         json(conn, response)
+     end
+   end
+   ```
+
+2. **Cache por ETag**:
+   ```elixir
+   def show_user(conn, %{"id" => id}) do
+     user = Accounts.get_user!(id)
+     etag = :crypto.hash(:md5, "#{user.id}-#{user.updated_at}") |> Base.encode16(case: :lower)
+     
+     conn
+     |> put_resp_header("etag", etag)
+     |> API.Cache.conditional_get(etag)
+     |> case do
+       :not_modified -> 
+         send_resp(conn, 304, "")
+       _ ->
+         json(conn, APIResponder.format_success(user))
+     end
+   end
+   ```
+
+## 📊 18. Métricas e Monitoramento
+
+O módulo `DeeperHub.API.Metrics` coleta e expõe métricas sobre o uso da API.
+
+### 18.1 Métricas Coletadas
+
+1. **Contadores**:
+   - `api.requests.total` - Total de requisições
+   - `api.requests.method.[GET|POST|PUT|...]` - Requisições por método
+   - `api.requests.status.[2xx|3xx|4xx|5xx]` - Respostas por status
+   - `api.requests.endpoint.[endpoint]` - Requisições por endpoint
+
+2. **Tempos de Resposta**:
+   - `api.response_time.[endpoint]` - Tempo de resposta por endpoint
+   - `api.db_query_time` - Tempo gasto em consultas ao banco
+
+3. **Tamanho das Respostas**:
+   - `api.response_size.[endpoint]` - Tamanho das respostas
+
+### 18.2 Configuração do Prometheus
+
+```elixir
+# config/prod.exs
+config :deeper_hub, DeeperHub.API.Metrics,
+  enable_metrics: true,
+  metrics_port: 9568,
+  path: "/metrics",
+  auth: {:basic, "prometheus", "s3cr3t"}
+```
+
+## 🔮 19. Melhorias Futuras e TODOs
 
 *   [ ] Implementar um sistema de quotas de API mais granular (além do rate limiting básico).
 *   [ ] Adicionar suporte para WebSockets ou Server-Sent Events (SSE) para comunicação em tempo real, se necessário.

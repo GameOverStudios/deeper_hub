@@ -32,7 +32,7 @@ Este é um módulo puramente funcional, não gerenciando estado.
 ### 3.2. Estrutura de Diretórios
 
 ```
-lib/deeper_hub/shared/utils/string_utils.ex
+shared/utils/string_utils.ex
 ```
 
 ### 3.3. Decisões de Design Importantes

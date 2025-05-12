@@ -42,7 +42,7 @@ O objetivo é fornecer blocos de construção seguros e bem testados para funcio
 ### 3.2. Estrutura de Diretórios
 
 ```
-lib/deeper_hub/shared/utils/security_utils.ex
+shared/utils/security_utils.ex
 ```
 
 ### 3.3. Decisões de Design Importantes

@@ -34,7 +34,7 @@ Este módulo foca em validações genéricas e reutilizáveis. Validações mais
 ### 3.2. Estrutura de Diretórios
 
 ```
-lib/deeper_hub/shared/utils/validation_utils.ex
+shared/utils/validation_utils.ex
 ```
 
 ### 3.3. Decisões de Design Importantes

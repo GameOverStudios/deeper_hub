@@ -47,7 +47,7 @@ Este módulo visa simplificar as interações com o sistema de arquivos, fornece
 ### 3.2. Estrutura de Diretórios
 
 ```
-lib/deeper_hub/shared/utils/file_utils.ex
+shared/utils/file_utils.ex
 ```
 
 ### 3.3. Decisões de Design Importantes

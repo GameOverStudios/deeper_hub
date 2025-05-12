@@ -37,7 +37,7 @@ Estas funções são projetadas para serem genéricas, puras e eficientes, auxil
 ### 3.2. Estrutura de Diretórios
 
 ```
-lib/deeper_hub/shared/utils/list_utils.ex
+shared/utils/list_utils.ex
 ```
 
 ### 3.3. Decisões de Design Importantes

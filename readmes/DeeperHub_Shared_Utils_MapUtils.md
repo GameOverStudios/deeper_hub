@@ -37,7 +37,7 @@ Sendo um módulo puramente funcional, ele não gerencia estado e suas funções 
 ### 3.2. Estrutura de Diretórios
 
 ```
-lib/deeper_hub/shared/utils/map_utils.ex
+shared/utils/map_utils.ex
 ```
 
 ### 3.3. Decisões de Design Importantes

@@ -57,10 +57,10 @@ Este serviço utiliza as \"fingerprints\" geradas pelo `DeeperHub.Security.Devic
 
 ### 3.2. Estrutura de Diretórios (Proposta)
 
-Poderia estar dentro de `lib/deeper_hub/security/` ou, se mais complexo, em um submódulo `device_management`. Para este exemplo, vamos assumir que está em `security`.
+Poderia estar dentro de `security/` ou, se mais complexo, em um submódulo `device_management`. Para este exemplo, vamos assumir que está em `security`.
 
 ```
-lib/deeper_hub/security/
+security/
 ├── device_service.ex               # Lógica de negócio e fachada
 ├── device_fingerprint.ex           # (Já documentado)
 │
@@ -69,7 +69,7 @@ lib/deeper_hub/security/
 ```
 Se houver um supervisor específico para `DeviceService` (por exemplo, se ele usar um GenServer para alguma tarefa):
 ```
-lib/deeper_hub/security/device_management/
+security/device_management/
 ├── device_service.ex
 ├── device_fingerprint.ex
 ├── schemas/

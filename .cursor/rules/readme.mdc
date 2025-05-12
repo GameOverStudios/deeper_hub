@@ -3,359 +3,153 @@ description:
 globs: .ex,.exs
 alwaysApply: false
 ---
-Você é um especialista em documentação e arquitetura de sistemas. 
-Você é excelente em categorizar, especificar e criar arquivos README dos Módulos do Sistema.
-Você organiza, especifica e categoria o máximo ***todas*** as características e itens de todos os módulos de sistemas. Sempre especifica TUDO!
-
-# Template: README para Módulos do DeeperHub
-
-Este é um template para a criação de arquivos `README.md` para os módulos do projeto DeeperHub. O objetivo é padronizar a documentação, tornando-a mais clara, completa e consistente.
-
-**Instruções:**
-- Substitua `[Nome do Módulo]` pelo nome real do módulo.
-- Adapte e preencha cada seção conforme a especificidade do módulo.
-- Remova seções que não se aplicam.
-- Adicione seções específicas se necessário.
-- Mantenha a linguagem em Português (BR) e o uso de emojis 😊.
-
----
-
-# Módulo: `[Nome do Módulo]` 🚀
-
-## 📜 1. Visão Geral do Módulo `[Nome do Módulo]`
-
-<!-- 
-Descreva de forma concisa o que este módulo faz, qual seu propósito principal e seu papel dentro do sistema DeeperHub. 
-Ex: "O módulo de Autenticação é responsável por verificar a identidade dos usuários e gerenciar suas sessões." 
-Exemplo para um módulo de `UserProfile`:
-"O módulo UserProfile gerencia todos os dados relacionados ao perfil do usuário, como nome, avatar, preferências de contato e biografia. Ele fornece uma API para outros módulos consultarem e atualizarem essas informações."
--->
-
-## 🎯 2. Responsabilidades e Funcionalidades Chave
-
-<!-- 
-Liste as principais responsabilidades e funcionalidades que este módulo oferece.
-Use bullet points para clareza.
-Ex:
-- Gerenciar o ciclo de vida das contas de usuário.
-- Processar pagamentos e assinaturas.
-- Integrar com o sistema de notificações para alertas de segurança.
-
-Exemplo para `UserProfile`:
-- CRUD (Create, Read, Update, Delete) de informações de perfil.
-- Validação de dados do perfil (ex: formato de email, tamanho da biografia).
-- Gerenciamento de upload e armazenamento de avatares.
-- Emissão de eventos de alteração de perfil para outros módulos interessados (ex: `UserProfileUpdatedEvent`).
--->
-
-*   [Funcionalidade/Responsabilidade 1]
-*   [Funcionalidade/Responsabilidade 2]
-*   [Funcionalidade/Responsabilidade ...]
-
-## 🏗️ 3. Arquitetura e Design
-
-<!-- 
-Descreva a arquitetura interna do módulo. 
-- Quais são os principais componentes (ex: GenServers, Supervisores, Contexts, Schemas, Serviços, Adaptadores)?
-- Como eles interagem entre si?
-- Há algum padrão de design específico utilizado (ex: Fachada, Adaptador, Strategy)?
-- Se relevante, inclua um diagrama simples ou descreva a estrutura de diretórios do módulo.
--->
-
-### 3.1. Componentes Principais
-
-<!-- 
-Liste e descreva brevemente os componentes mais importantes do módulo.
-Ex:
-- `NomeDoModulo.ServicoPrincipal`: Orquestra as operações X, Y, Z.
-- `NomeDoModulo.Worker`: Processa tarefas assíncronas do tipo A.
--->
-
-### 3.2. Estrutura de Diretórios (Opcional)
-
-<!-- 
-Se a estrutura de diretórios for complexa ou específica, descreva-a aqui.
--->
-
-### 3.3. Decisões de Design Importantes
-
-<!-- 
-Justifique escolhas de design significativas que foram feitas.
-Exemplo:
-- "Optou-se por usar um GenServer (`UserProfile.AvatarProcessor`) para o processamento de avatares de forma assíncrona, liberando o processo chamador e melhorando a responsividade da API de upload."
-- "A comunicação com o serviço de armazenamento de arquivos (S3) é feita através de um Adaptador (`StorageAdapter`) para facilitar a substituição do provedor no futuro, seguindo o Princípio da Inversão de Dependência."
--->
-
-## 🛠️ 4. Casos de Uso Principais
-
-<!-- 
-Descreva os cenários mais comuns ou importantes em que este módulo é utilizado.
-Ex:
-- **Registro de Novo Usuário:** Um novo usuário se cadastra na plataforma, e este módulo valida os dados e cria a conta.
-- **Recuperação de Senha:** Um usuário esquece a senha e solicita a redefinição.
-
-Exemplo para `UserProfile`:
-- **Atualização de Perfil pelo Usuário:** O usuário acessa a página de configurações e altera seu nome e biografia.
-- **Consulta de Perfil por Outro Módulo:** O módulo de `Posts` precisa exibir o nome e avatar do autor de uma postagem.
-- **Upload de Novo Avatar:** O usuário seleciona uma nova imagem para seu perfil.
--->
-
-*   **Caso de Uso 1:** [Descrição]
-*   **Caso de Uso 2:** [Descrição]
-
-## 🌊 5. Fluxos Importantes (Opcional)
-
-<!-- 
-Detalhe fluxos de trabalho ou processos críticos que o módulo executa. 
-Pode ser uma sequência de passos, interações entre componentes, ou como os dados fluem.
-Ex: Fluxo de Autenticação com MFA, Fluxo de Processamento de Pedido.
-
-Exemplo para "Upload de Novo Avatar" no módulo `UserProfile`:
-1. Usuário envia uma requisição `POST /api/v1/profile/avatar` com a imagem.
-2. `UserProfile.AvatarController` recebe a requisição e valida o token de autenticação e o tipo/tamanho do arquivo.
-3. `UserProfile.AvatarService.upload_avatar/2` é chamado com o `user_id` e o arquivo.
-4. O serviço redimensiona a imagem para tamanhos padronizados (thumbnail, medium).
-5. O serviço envia as imagens processadas para o `StorageAdapter`.
-6. `StorageAdapter` armazena as imagens (ex: no S3) e retorna as URLs.
-7. `UserProfile.AvatarService` atualiza o `UserProfileSchema` do usuário com as novas URLs do avatar.
-8. `UserProfile.AvatarService` emite um evento `UserProfileUpdatedEvent` com os dados do perfil atualizado.
-9. `UserProfile.AvatarController` retorna uma resposta `200 OK` com as novas URLs do avatar.
--->
-
-1.  Passo 1
-2.  Passo 2
-3.  ...
-
-## 📡 6. API (Se Aplicável)
-
-<!-- 
-Se o módulo expõe uma API (interna ou externa), documente-a aqui.
-Para APIs REST:
-- Endpoints (método HTTP e caminho)
-- Parâmetros de entrada (query, path, body)
-- Formato das requisições e respostas (JSON)
-- Exemplos de requisição e resposta
-- Autenticação necessária
-
-Para APIs de Módulo Elixir (funções públicas):
-- Assinatura da função (`@spec`)
-- Breve descrição do que a função faz
-- Parâmetros e seus tipos
-- Valor de retorno (`{:ok, resultado}` ou `{:error, razao}`)
-- Efeitos colaterais
-
-Exemplo para uma função Elixir do módulo `UserProfile`:
-
-### `UserProfile.Facade.get_profile/1`
-
-*   **Descrição:** Busca o perfil de um usuário pelo seu ID.
-*   **`@spec`:** `get_profile(user_id :: String.t()) :: {:ok, UserProfile.Schema.t()} | {:error, :not_found | term()}`
-*   **Parâmetros:**
-    *   `user_id` (String): O ID do usuário.
-*   **Retorno:**
-    *   `{:ok, UserProfile.Schema.t()}`: Em caso de sucesso, retorna o schema do perfil do usuário.
-    *   `{:error, :not_found}`: Se o perfil não for encontrado.
-    *   `{:error, term()}`: Para outros erros internos.
-*   **Exemplo de Uso (Elixir):**
-    ```elixir
-    case UserProfile.Facade.get_profile("user123") do
-      {:ok, profile} -> IO.inspect(profile)
-      {:error, reason} -> Logger.error("Falha ao buscar perfil: #{inspect(reason)}")
-    end
-    ```
-
-Exemplo para um endpoint REST do módulo `UserProfile`:
-
-### `GET /api/v1/users/{user_id}/profile`
-
-*   **Descrição:** Retorna os dados do perfil público de um usuário.
-*   **Autenticação:** Requer token de acesso válido.
-*   **Parâmetros de Caminho (Path Parameters):**
-    *   `user_id` (string): ID do usuário.
-*   **Resposta de Sucesso (200 OK):**
-    ```json
-    {
-      "data": {
-        "user_id": "user123",
-        "username": "john_doe",
-        "bio": "Entusiasta de Elixir",
-        "avatar_urls": {
-          "thumbnail": "https://cdn.example.com/avatars/user123_thumb.jpg",
-          "medium": "https://cdn.example.com/avatars/user123_medium.jpg"
-        }
-      }
-    }
-    ```
-*   **Resposta de Erro (404 Not Found):**
-    ```json
-    {
-      "errors": [
-        {
-          "status": "404",
-          "title": "Not Found",
-          "detail": "Perfil do usuário não encontrado."
-        }
-      ]
-    }
-    ```
--->
-
-### 6.1. [Nome da Função Pública / Endpoint]
-
-*   **Descrição:**
-*   **Parâmetros:**
-*   **Retorno:**
-*   **Exemplo de Uso (Elixir) / Requisição (HTTP):**
-
-## ⚙️ 7. Configuração
-
-<!-- 
-Descreva como o módulo pode ser configurado.
-- Quais variáveis de ambiente ele utiliza?
-- Quais chaves de configuração são lidas do `DeeperHub.Core.ConfigManager`?
-- Quais são os valores padrão e como podem ser alterados?
-
-Exemplo:
-- **Variáveis de Ambiente:**
-    *   `USER_PROFILE_MAX_BIO_LENGTH`: "Controla o número máximo de caracteres permitidos na biografia do usuário. Padrão: 500"
-- **ConfigManager:**
-    *   `:user_profile, :avatar_default_url`: "URL para uma imagem de avatar padrão caso o usuário não tenha uma. Padrão: '/images/default_avatar.png'"
--->
-
-*   **Variáveis de Ambiente:**
-    *   `VAR_EXEMPLO`: [Descrição e valor padrão]
-*   **ConfigManager:**
-    *   `:nome_do_modulo, :parametro_exemplo`: [Descrição e valor padrão]
-
-## 🔗 8. Dependências
-
-<!-- 
-Liste as dependências do módulo.
-- **Módulos Internos do DeeperHub:** (ex: `DeeperHub.Core.LoggerFacade`, `DeeperHub.Shared.Utils`)
-- **Bibliotecas Externas:** (ex: `Ecto`, `Jason`, `Finch`)
-- Justifique brevemente dependências menos óbvias.
--->
-
-### 8.1. Módulos Internos
-
-*   `[NomeDoModuloInterno]`
-
-### 8.2. Bibliotecas Externas
-
-*   `[NomeDaBibliotecaExterna]`
-
-## 🤝 9. Como Usar / Integração
-
-<!-- 
-Forneça instruções sobre como outros módulos ou partes do sistema devem interagir com este módulo.
-- Quais são os pontos de entrada principais (fachadas, funções públicas)?
-- Há algum pré-requisito ou setup necessário antes de usar o módulo?
-- Exemplos de código de como chamar as funcionalidades principais.
--->
-
-```elixir
-# Exemplo de como usar o módulo
-NomeDoModulo.Facade.funcao_principal(argumento1, argumento2)
-```
-
-## ✅ 10. Testes e Observabilidade
-
-<!-- 
-Descreva a estratégia de testes e observabilidade para este módulo.
-- Como executar os testes unitários e de integração?
-- Quais métricas importantes são coletadas (`MetricsFacade`)?
-- Quais eventos de telemetria são emitidos?
-- Como os logs são estruturados (`LoggerFacade`)?
--->
-
-### 10.1. Testes
-
-<!-- 
-Comandos para rodar os testes, localização dos arquivos de teste.
-Exemplo:
-- Testes unitários: `mix test test/deeper_hub/user_profile/`
-- Teste específico: `mix test test/deeper_hub/user_profile/user_profile_service_test.exs:12` (linha 12)
-- Cobertura de testes: `mix test --cover`
-- Arquivos de teste localizados em `test/deeper_hub/[nome_do_modulo]/`
--->
-
-### 10.2. Métricas
-
-<!-- 
-Principais métricas expostas.
-Ex: `deeper_hub.[nome_do_modulo].funcao_x.count`
-Exemplo para `UserProfile`:
-- `deeper_hub.user_profile.get_profile.duration_ms` (Histograma): Tempo de resposta da função `get_profile/1`.
-- `deeper_hub.user_profile.avatar_upload.success.count` (Contador): Número de uploads de avatar bem-sucedidos.
-- `deeper_hub.user_profile.avatar_upload.failure.count` (Contador): Número de uploads de avatar falhos.
--->
-
-### 10.3. Logs
-
-<!-- 
-Contexto ou tags importantes adicionadas aos logs.
-Exemplo para `UserProfile`:
-- Todos os logs do módulo incluem `{module: UserProfile, function: "nome_da_funcao/aridade"}`.
-- Operações críticas incluem `user_id` e `trace_id` para facilitar a depuração e rastreamento.
-- Ex: `Logger.info("Perfil atualizado", user_id: user.id, changes: changes)`
--->
-
-### 10.4. Telemetria
-
-<!-- 
-Eventos de telemetria importantes emitidos pelo módulo.
-Ex: `[:deeper_hub, :nome_do_modulo, :evento_x, :start]`
-Exemplo para `UserProfile`:
-- `[:deeper_hub, :user_profile, :avatar_uploaded, :success]`: Emitido após um upload de avatar bem-sucedido.
-- `[:deeper_hub, :user_profile, :avatar_uploaded, :failure]`: Emitido após um upload de avatar falho.
--->
-
-## ❌ 11. Tratamento de Erros
-
-<!-- 
-Explique como o módulo lida com erros.
-- Quais tipos de erros são retornados (ex: `{:error, :not_found}`, `{:error, {:validation, changeset}}`, exceções)?
-- Como os chamadores devem tratar esses erros?
--->
-
-## 🛡️ 12. Considerações de Segurança
-
-<!-- 
-Descreva quaisquer aspectos de segurança relevantes para este módulo.
-- O módulo lida com dados sensíveis?
-- Quais medidas de segurança foram implementadas (validação de entrada, sanitização, controle de acesso)?
-- Há alguma vulnerabilidade conhecida ou potencial?
-
-Exemplo para `UserProfile`:
-- **Dados Sensíveis:** O módulo armazena informações pessoais como nome e email (se incluído no perfil).
-- **Validação de Entrada:** Todas as entradas do usuário para atualização de perfil são validadas usando `Ecto.Changeset` para prevenir dados malformados e ataques básicos de injeção.
-- **Sanitização:** A biografia do usuário é sanitizada para remover HTML/scripts potencialmente maliciosos antes de ser exibida.
-- **Controle de Acesso:** Apenas o próprio usuário (ou administradores) pode modificar seu perfil. Consultas a perfis podem ter diferentes níveis de visibilidade (público, amigos, etc. - se aplicável).
-- **Upload de Avatar:** Tipos de arquivo e tamanho são rigorosamente validados para prevenir upload de arquivos maliciosos ou excessivamente grandes.
--->
-
-## 🧑‍💻 13. Contribuição
-
-<!-- 
-Instruções para desenvolvedores que desejam contribuir com este módulo.
-- Padrões de código específicos do módulo.
-- Processo para submeter alterações (PRs).
-- Contato para dúvidas.
--->
-
-Consulte as diretrizes gerais de contribuição do projeto DeeperHub.
-
-## 🔮 14. Melhorias Futuras e TODOs
-
-<!-- 
-Liste ideias para melhorias futuras, funcionalidades planejadas ou `TODO:`s importantes que ainda precisam ser abordados.
--->
-
-*   [ ] Implementar [Funcionalidade X]
-*   [ ] Refatorar [Parte Y] para melhor performance/clareza.
-*   Consultar `TODO:`s no código para tarefas pendentes.
-
----
-
-
-*Última atualização: YYYY-MM-DD*
+# Diretrizes de Codificação para o Projeto DeeperHub 🚀
+
+## Introdução
+
+Este documento estabelece as diretrizes e práticas recomendadas para o desenvolvimento do projeto DeeperHub. Seu objetivo é minimizar erros de desenvolvimento, garantir consistência no código e assegurar que todas as implementações sigam fielmente as especificações descritas nos arquivos README de cada módulo.
+
+## 🔍 Conformidade com Especificações
+
+### Antes de Iniciar o Desenvolvimento
+
+1. **Leia completamente o README do módulo**: Antes de iniciar qualquer implementação, leia integralmente o README do módulo para compreender:
+   - Responsabilidades e funcionalidades esperadas
+   - Estrutura de diretórios recomendada
+   - Dependências e integrações com outros módulos
+   - Padrões de design a serem seguidos
+
+2. **Não crie módulos não especificados**: 
+   - ⚠️ **IMPORTANTE**: Não crie novos módulos que não estejam previamente especificados nos documentos de requisitos ou READMEs.
+   - Se identificar a necessidade de um novo módulo, documente a proposta e discuta com a equipe antes da implementação.
+
+3. **Respeite a arquitetura definida**:
+   - Mantenha a separação de responsabilidades conforme definido na arquitetura
+   - Não adicione dependências desnecessárias entre módulos
+   - Siga os padrões de design especificados (ex: Facade, Repository, Service)
+
+### Durante o Desenvolvimento
+
+1. **Implemente todas as funcionalidades especificadas**:
+   - Verifique cada item listado nas seções "Responsabilidades" e "Funcionalidades Chave"
+   - Garanta que todos os casos de uso descritos sejam implementados
+
+2. **Mantenha a consistência com a documentação**:
+   - Use os mesmos nomes de funções, parâmetros e tipos mencionados na documentação
+   - Implemente as interfaces públicas conforme especificado
+   - Documente quaisquer desvios necessários das especificações originais
+
+3. **Siga as convenções de nomenclatura**:
+   - Use nomes descritivos e significativos
+   - Siga o padrão de nomenclatura do Elixir (snake_case para variáveis e funções)
+   - Mantenha consistência com os nomes já utilizados no projeto
+
+## 🧹 Revisão de Código e Limpeza
+
+### ⚠️ EXTREMAMENTE IMPORTANTE: Revisão Pós-Implementação
+
+**Após concluir a implementação de cada arquivo, realize uma revisão rigorosa para:**
+
+1. **Remover código não utilizado**:
+   - Variáveis declaradas mas não utilizadas
+   - Funções definidas mas nunca chamadas
+   - Importações e aliases não utilizados
+   - Parâmetros de funções que não são utilizados no corpo da função
+
+2. **Verificar implementações incompletas**:
+   - Funções declaradas mas não implementadas
+   - Chamadas a funções que não existem
+   - TODOs ou FIXMEs deixados no código
+   - Implementações parciais de interfaces ou comportamentos
+
+3. **Corrigir problemas de tipagem**:
+   - Especificações de tipo (@spec) incorretas ou incompletas
+   - Retornos de função incompatíveis com a especificação
+   - Parâmetros com tipos incorretos
+
+4. **Eliminar avisos de compilação**:
+   - Resolver todos os warnings do compilador
+   - Corrigir problemas de depreciação
+   - Eliminar avisos de dialyzer
+
+### Checklist de Revisão
+
+Utilize esta checklist após cada implementação ou correção:
+
+- [ ] Todas as variáveis declaradas são utilizadas
+- [ ] Todos os imports e aliases são necessários
+- [ ] Todos os parâmetros de funções são utilizados
+- [ ] Todas as funções declaradas estão implementadas
+- [ ] Não existem chamadas a funções inexistentes
+- [ ] Todas as especificações de tipo estão corretas
+- [ ] Não há avisos de compilação
+- [ ] O código está formatado de acordo com o estilo do projeto
+- [ ] Os testes cobrem todas as funcionalidades implementadas
+- [ ] A documentação está atualizada e reflete a implementação atual
+
+## 🧪 Testes
+
+1. **Teste todas as funcionalidades implementadas**:
+   - Crie testes unitários para cada função pública
+   - Implemente testes de integração para fluxos completos
+   - Verifique casos de borda e condições de erro
+
+2. **Mantenha a cobertura de testes alta**:
+   - Busque uma cobertura de código de pelo menos 80%
+   - Priorize testar lógica complexa e tratamento de erros
+   - Não deixe funções públicas sem testes
+
+3. **Testes devem ser independentes e determinísticos**:
+   - Cada teste deve poder ser executado isoladamente
+   - Evite dependências entre testes
+   - Use mocks e stubs para isolar o código sendo testado
+
+## 📝 Documentação
+
+1. **Mantenha a documentação atualizada**:
+   - Atualize a documentação quando alterar interfaces públicas
+   - Adicione exemplos de uso para novas funcionalidades
+   - Documente comportamentos não óbvios ou complexos
+
+2. **Documente todas as funções públicas**:
+   - Use @moduledoc para documentar módulos
+   - Use @doc para documentar funções públicas
+   - Inclua exemplos de uso quando apropriado
+   - Documente parâmetros e valores de retorno
+
+## 🔄 Processo de Desenvolvimento
+
+1. **Desenvolvimento Iterativo**:
+   - Implemente uma funcionalidade por vez
+   - Teste cada funcionalidade antes de passar para a próxima
+   - Refatore conforme necessário para manter a qualidade do código
+
+2. **Revisão Regular**:
+   - Revise o código após cada implementação significativa
+   - Use ferramentas automáticas de análise de código
+   - Solicite revisões de código de outros desenvolvedores quando possível
+
+3. **Integração Contínua**:
+   - Execute os testes automatizados frequentemente
+   - Verifique a cobertura de código regularmente
+   - Corrija falhas de teste imediatamente
+
+## 🛠️ Ferramentas Recomendadas
+
+1. **Análise Estática**:
+   - Credo: Para verificar estilo e boas práticas de código Elixir
+   - Dialyxir: Para análise de tipos
+   - ExDoc: Para geração de documentação
+
+2. **Formatação de Código**:
+   - mix format: Para manter o código formatado consistentemente
+
+3. **Testes**:
+   - ExUnit: Framework de testes padrão do Elixir
+   - ExCoveralls: Para análise de cobertura de código
+
+## Conclusão
+
+Seguir estas diretrizes rigorosamente ajudará a manter a qualidade do código, minimizar erros e garantir que o projeto DeeperHub seja desenvolvido de acordo com as especificações. A revisão pós-implementação é **EXTREMAMENTE IMPORTANTE** e deve ser realizada após cada desenvolvimento ou correção para evitar a acumulação de problemas técnicos e garantir um código limpo e funcional.
+
+Lembre-se: Um código limpo e bem estruturado é mais fácil de manter, estender e depurar. Invista tempo na qualidade agora para economizar tempo no futuro.

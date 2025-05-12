@@ -38,7 +38,7 @@ Este módulo utiliza as estruturas de data e hora nativas do Elixir (`Date`, `Ti
 ### 3.2. Estrutura de Diretórios
 
 ```
-lib/deeper_hub/shared/utils/date_utils.ex
+shared/utils/date_utils.ex
 ```
 
 ### 3.3. Decisões de Design Importantes
