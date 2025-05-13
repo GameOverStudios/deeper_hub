@@ -29,3 +29,19 @@
 [21:26:45] [35m[Deeper_Hub.Core.Data.Repository][0m [33mRegistro não encontrado na tabela users com chave 999[0m
 [21:55:42] [35m[Deeper_Hub.Core.Data.Repository][0m [33mRegistro não encontrado na tabela users com chave 999[0m
 [21:56:40] [35m[Deeper_Hub.Core.Data.Repository][0m [33mRegistro não encontrado na tabela users com chave 3[0m
+[22:01:57] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'users' for pagination. Treating as empty.[0m error={:table_does_not_exist, :users}
+[22:01:58] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'tabela_inexistente' for pagination. Treating as empty.[0m error={:table_does_not_exist, :tabela_inexistente}
+[22:01:58] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'users' for pagination. Treating as empty.[0m error={:table_does_not_exist, :users}
+[22:01:59] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'users' for pagination. Treating as empty.[0m error={:table_does_not_exist, :users}
+[22:01:59] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'users' for pagination. Treating as empty.[0m error={:table_does_not_exist, :users}
+[22:02:33] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'users' for pagination. Treating as empty.[0m error={:table_does_not_exist, :users}
+[22:02:33] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'users' for pagination. Treating as empty.[0m error={:table_does_not_exist, :users}
+[22:02:34] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'users' for pagination. Treating as empty.[0m error={:table_does_not_exist, :users}
+[22:02:34] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'users' for pagination. Treating as empty.[0m error={:table_does_not_exist, :users}
+[22:02:34] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'tabela_inexistente' for pagination. Treating as empty.[0m error={:table_does_not_exist, :tabela_inexistente}
+[22:08:26] [35m[Deeper_Hub.Core.Data.Repository][0m [33mRegistro não encontrado na tabela users com chave 1[0m
+[22:08:26] [35m[Deeper_Hub.Core.Data.Repository][0m [33mRegistro não encontrado na tabela users com chave 999[0m
+[22:08:27] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'tabela_inexistente' for pagination. Treating as empty.[0m error={:table_does_not_exist, :tabela_inexistente}
+[22:10:03] [35m[Deeper_Hub.Core.Data.Repository][0m [33mRegistro não encontrado na tabela users com chave 1[0m
+[22:10:03] [35m[Deeper_Hub.Core.Data.Repository][0m [33mRegistro não encontrado na tabela users com chave 999[0m
+[22:10:06] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'tabela_inexistente' for pagination. Treating as empty.[0m error={:table_does_not_exist, :tabela_inexistente}

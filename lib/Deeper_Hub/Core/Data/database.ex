@@ -63,21 +63,30 @@ defmodule Deeper_Hub.Core.Data.Database do
   Cria as tabelas necessárias no banco de dados Mnesia.
   Trata tabelas já existentes sem gerar erro.
   """
-  @spec create_tables() :: :ok | {:error, atom() | any()}
-  def create_tables do
+  @spec create_tables(Keyword.t()) :: :ok | {:error, atom() | any()}
+  def create_tables(opts \\ []) do
+    # Verificar se estamos em modo de teste
+    is_test = Keyword.get(opts, :test_mode, false)
+    
+    # Escolher o tipo de armazenamento com base no modo
+    storage_type = if is_test, do: :ram_copies, else: :disc_copies
+    storage_nodes = [node()]
+    
     # Definição das tabelas
     table_definitions = [
       {:users,
        [
          {:attributes, [:id, :username, :email, :password_hash, :created_at]},
          {:type, :set},
-         {:disc_copies, [node()]}
+         {storage_type, storage_nodes},
+         {:record_name, :users} # Adicionado record_name para garantir compatibilidade
        ]},
       {:sessions,
        [
          {:attributes, [:id, :user_id, :token, :expires_at]},
          {:type, :set},
-         {:disc_copies, [node()]}
+         {storage_type, storage_nodes},
+         {:record_name, :sessions} # Adicionado record_name para garantir compatibilidade
        ]}
     ]
 
