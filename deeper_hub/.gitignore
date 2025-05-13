@@ -21,23 +21,3 @@ deeper_hub-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
-
-# Ignore Dialyxir PLT files
-/priv/plts/*.plt
-/priv/plts/*.plt.hash
-
-# Ignore ExCoveralls output
-/cover/
-/coveralls.json
-/coveralls.html
-/excoveralls.html
-
-# Ignore editor files
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Ignore environment variables file
-.env
-.env.*

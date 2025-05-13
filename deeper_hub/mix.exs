@@ -55,9 +55,7 @@ defmodule DeeperHub.MixProject do
       {:absinthe, "~> 1.7.0"}, # GraphQL framework para Elixir
       {:absinthe_plug, "~> 1.5"}, # Integração de Absinthe com Plug
       {:credo, "~> 1.7"},
-      {:dialyxir, "~> 1.4", runtime: false},
       {:ex_doc, "~> 0.38.1"},
-      {:excoveralls, "~> 0.18.5"}
     ]
   end
 end
