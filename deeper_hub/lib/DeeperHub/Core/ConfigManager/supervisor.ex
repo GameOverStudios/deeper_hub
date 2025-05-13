@@ -1,34 +1,25 @@
 defmodule DeeperHub.Core.ConfigManager.Supervisor do
   @moduledoc """
-  Supervisor para os processos do DeeperHub.Core.ConfigManager.
+  Supervisor para os processos relacionados ao ConfigManager.
 
-  Este supervisor é responsável por iniciar e monitorar todos os processos
-  relacionados ao ConfigManager.
+  Este supervisor é responsável por iniciar e gerenciar o ciclo de vida
+  dos processos do módulo ConfigManager.
   """
 
   use Supervisor
 
-  @doc """
-  Inicia o supervisor do ConfigManager.
-  """
-  def start_link(opts \\ []) do
-    Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
+  def start_link(init_arg) do
+    IO.puts(" ⚙️  Iniciando ConfigManager")
+    Supervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
   end
 
   @impl true
-  def init(_opts) do
+  def init(_init_arg) do
     children = [
-      # O servidor principal do ConfigManager
-      DeeperHub.Core.ConfigManager.Server
-
-      # Aqui poderíamos adicionar outros processos relacionados, como:
-      # - Um worker para fazer cache das configurações
-      # - Um processo para persistir configurações em um banco de dados
-      # - Um scheduler para recarregar configurações periodicamente
+      # Inicia o servidor GenServer do ConfigManager
+      {DeeperHub.Core.ConfigManager.Server, []}
     ]
 
-    # :one_for_one - Se um processo morrer, apenas ele é reiniciado
-    # Isso é mais apropriado já que o EventBus é gerenciado separadamente
     Supervisor.init(children, strategy: :one_for_one)
   end
 end

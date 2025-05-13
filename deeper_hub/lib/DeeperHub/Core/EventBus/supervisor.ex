@@ -1,33 +1,25 @@
 defmodule DeeperHub.Core.EventBus.Supervisor do
   @moduledoc """
-  Supervisor para os processos do DeeperHub.Core.EventBus.
+  Supervisor para os processos relacionados ao EventBus.
 
-  Este supervisor é responsável por iniciar e monitorar todos os processos
-  relacionados ao EventBus.
+  Este supervisor é responsável por iniciar e gerenciar o ciclo de vida
+  dos processos do módulo EventBus.
   """
 
   use Supervisor
 
-  @doc """
-  Inicia o supervisor do EventBus.
-  """
-  def start_link(opts \\ []) do
-    Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
+  def start_link(init_arg) do
+    IO.puts(" ⚙️  Iniciando EventBus")
+    Supervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
   end
 
   @impl true
-  def init(_opts) do
+  def init(_init_arg) do
     children = [
-      # O servidor principal do EventBus
-      DeeperHub.Core.EventBus.Server
-
-      # Aqui poderíamos adicionar outros processos relacionados, como:
-      # - Um worker para processar eventos pendentes
-      # - Um processo para limpar eventos antigos
-      # - Um scheduler para tentar reenviar eventos que falharam
+      # Inicia o servidor GenServer do EventBus
+      {DeeperHub.Core.EventBus.Server, []}
     ]
 
-    # :one_for_one - Se um processo morrer, apenas ele é reiniciado
     Supervisor.init(children, strategy: :one_for_one)
   end
 end
