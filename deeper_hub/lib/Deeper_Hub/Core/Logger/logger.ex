@@ -71,10 +71,13 @@ defmodule Deeper_Hub.Core.Logger do
 
   @spec get_caller_module() :: module()
   defp get_caller_module do
-    case Process.info(self(), :current_stacktrace) do
-      {:current_stacktrace, [_ | [{module, _, _, _} | _]]} -> module
-      _ -> :unknown
-    end
+    {:current_stacktrace, stacktrace} = Process.info(self(), :current_stacktrace)
+    
+    # Procura o primeiro módulo que não seja o Logger, Process, ou Enum
+    Enum.find_value(stacktrace, :unknown, fn 
+      {module, _function, _, _} when module not in [__MODULE__, Process, Enum] -> module
+      _ -> nil
+    end)
   end
 
   @spec format_message(atom(), String.t(), map(), atom()) :: String.t()
@@ -96,7 +99,7 @@ defmodule Deeper_Hub.Core.Logger do
 
     module_color = IO.ANSI.magenta()
     message_color = apply(IO.ANSI, color, [])
-    "[#{timestamp}] #{module_color}[#{module_name}]#{IO.ANSI.reset()} #{message_color}#{message}#{IO.ANSI.reset()} #{metadata_str}"
+    "[#{timestamp}] #{module_color}[#{module_name}]#{IO.ANSI.reset()} #{message_color}#{message}#{IO.ANSI.reset()}#{if metadata_str != "", do: " #{metadata_str}", else: ""}"
   end
 
   @spec log_to_file(atom(), String.t()) :: :ok

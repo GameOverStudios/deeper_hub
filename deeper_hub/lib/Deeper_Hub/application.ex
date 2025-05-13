@@ -7,6 +7,9 @@ defmodule DeeperHub.Application do
 
   @impl true
   def start(_type, _args) do
+    # Inicializa o banco de dados Mnesia
+    :ok = Deeper_Hub.Core.Data.Database.init()
+
     children = [
       # Adicione aqui os supervisores e processos iniciais da aplicação
       # Exemplo:
