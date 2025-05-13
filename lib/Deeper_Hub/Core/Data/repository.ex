@@ -5,9 +5,39 @@ defmodule Deeper_Hub.Core.Data.Repository do
   
   Fornece funções para inserção, busca, atualização, exclusão e consulta de registros em tabelas Mnesia.
   Todas as funções são projetadas para serem genéricas e funcionarem com qualquer tabela Mnesia.
+  
+  ## Características
+  
+  - Tratamento robusto de erros para todas as operações
+  - Verificação de existência de registros antes de operações críticas
+  - Suporte para consultas complexas através de match specs
+  - Logging detalhado para facilitar depuração
+  
+  ## Uso Básico
+  
+  ```elixir
+  # Inserir um registro
+  {:ok, user} = Repository.insert(:users, {:users, 1, "Alice", "alice@example.com"})
+  
+  # Buscar um registro
+  {:ok, user} = Repository.find(:users, 1)
+  
+  # Atualizar um registro
+  {:ok, updated_user} = Repository.update(:users, {:users, 1, "Alice Smith", "alice.smith@example.com"})
+  
+  # Deletar um registro
+  {:ok, _} = Repository.delete(:users, 1)
+  
+  # Buscar todos os registros
+  {:ok, all_users} = Repository.all(:users)
+  
+  # Buscar registros com critérios específicos
+  {:ok, matching_users} = Repository.match(:users, [username: "Alice"])
+  ```
   """
 
   alias Deeper_Hub.Core.Logger
+  alias Deeper_Hub.Core.Metrics.DatabaseMetrics
 
   @type table_name :: atom()
   @type record_key :: any()
@@ -39,48 +69,75 @@ defmodule Deeper_Hub.Core.Data.Repository do
   """
   @spec insert(table_name(), record()) :: {:ok, record()} | {:error, error_reason()}
   def insert(table_name, record) when is_atom(table_name) and is_tuple(record) do
+    # Inicia a métrica de operação
+    start_time = DatabaseMetrics.start_operation(table_name, :insert)
+    
     Logger.info("Tentando inserir registro na tabela #{table_name}", %{record: record})
 
     # Extrair a chave do registro (assumindo que é o segundo elemento da tupla)
     key = elem(record, 1)
 
     # Verificar se já existe um registro com essa chave
-    case find(table_name, key) do
+    result = case find(table_name, key) do
       {:ok, _existing_record} ->
         # Registro já existe, retornar erro
-        Logger.warning("Falha ao inserir registro na tabela #{table_name}: chave duplicada", %{
-          key: key,
-          record: record
-        })
+        log_duplicate_key_error(table_name, key, record)
         {:error, :duplicate_key}
 
       {:error, :not_found} ->
         # Registro não existe, podemos inserir
-        case :mnesia.transaction(fn ->
-               :mnesia.write(record)
-             end) do
-          {:atomic, :ok} ->
-            Logger.info("Registro inserido com sucesso na tabela #{table_name}", %{record: record})
-            {:ok, record}
-
-          {:aborted, reason} ->
-            Logger.error("Falha ao inserir registro na tabela #{table_name}", %{
-              reason: reason,
-              record: record
-            })
-
-            {:error, reason}
-        end
+        do_insert_record(table_name, record)
 
       {:error, reason} ->
         # Outro erro ao buscar o registro
-        Logger.error("Falha ao verificar existência do registro na tabela #{table_name}", %{
+        log_find_error(table_name, key, reason)
+        {:error, reason}
+    end
+    
+    # Registra a conclusão da operação
+    case result do
+      {:ok, _} -> DatabaseMetrics.complete_operation(table_name, :insert, :success, start_time)
+      {:error, _} -> DatabaseMetrics.complete_operation(table_name, :insert, :error, start_time)
+    end
+    
+    result
+  end
+  
+  # Funções auxiliares privadas
+  
+  @doc false
+  defp do_insert_record(table_name, record) do
+    case :mnesia.transaction(fn ->
+           :mnesia.write(record)
+         end) do
+      {:atomic, :ok} ->
+        Logger.info("Registro inserido com sucesso na tabela #{table_name}", %{record: record})
+        {:ok, record}
+
+      {:aborted, reason} ->
+        Logger.error("Falha ao inserir registro na tabela #{table_name}", %{
           reason: reason,
-          key: key
+          record: record
         })
 
         {:error, reason}
     end
+  end
+  
+  @doc false
+  defp log_duplicate_key_error(table_name, key, record) do
+    Logger.warning("Falha ao inserir registro na tabela #{table_name}: chave duplicada", %{
+      key: key,
+      record: record
+    })
+  end
+  
+  @doc false
+  defp log_find_error(table_name, key, reason) do
+    Logger.error("Falha ao verificar existência do registro na tabela #{table_name}", %{
+      reason: reason,
+      key: key
+    })
   end
 
   @doc """
@@ -109,9 +166,12 @@ defmodule Deeper_Hub.Core.Data.Repository do
   @spec find(table_name(), record_key()) ::
           {:ok, record()} | {:error, :not_found | error_reason()}
   def find(table_name, key) when is_atom(table_name) do
+    # Inicia a métrica de operação
+    start_time = DatabaseMetrics.start_operation(table_name, :find)
+    
     Logger.info("Tentando buscar registro na tabela #{table_name} com chave #{inspect(key)}")
 
-    case :mnesia.transaction(fn ->
+    result = case :mnesia.transaction(fn ->
            :mnesia.read(table_name, key)
          end) do
       {:atomic, [record]} ->
@@ -130,9 +190,18 @@ defmodule Deeper_Hub.Core.Data.Repository do
           reason: reason,
           key: key
         })
-
+        
         {:error, reason}
     end
+    
+    # Registra a conclusão da operação
+    case result do
+      {:ok, _} -> DatabaseMetrics.complete_operation(table_name, :find, :success, start_time)
+      {:error, :not_found} -> DatabaseMetrics.complete_operation(table_name, :find, :not_found, start_time)
+      {:error, _} -> DatabaseMetrics.complete_operation(table_name, :find, :error, start_time)
+    end
+    
+    result
   end
 
   @doc """
@@ -157,38 +226,19 @@ defmodule Deeper_Hub.Core.Data.Repository do
   """
   @spec update(table_name(), record()) :: {:ok, record()} | {:error, error_reason()}
   def update(table_name, record) when is_atom(table_name) and is_tuple(record) do
+    # Inicia a métrica de operação
+    start_time = DatabaseMetrics.start_operation(table_name, :update)
+    
     Logger.info("Tentando atualizar registro na tabela #{table_name}", %{record: record})
     
     # Extrai a chave do registro (assumindo que é o segundo elemento da tupla)
     key = elem(record, 1)
     
     # Verifica se o registro existe
-    case find(table_name, key) do
+    result = case find(table_name, key) do
       {:ok, _existing_record} ->
         # Executa a transação para atualizar o registro
-        transaction_result =
-          :mnesia.transaction(fn ->
-            # Deleta o registro existente
-            :mnesia.delete({table_name, key})
-            # Insere o novo registro
-            :mnesia.write(record)
-          end)
-        
-        case transaction_result do
-          {:atomic, :ok} ->
-            Logger.info("Registro atualizado com sucesso na tabela #{table_name}", %{
-              record: record,
-              key: key
-            })
-            {:ok, record}
-          {:aborted, reason} ->
-            Logger.error("Falha ao atualizar registro na tabela #{table_name}", %{
-              reason: reason,
-              record: record,
-              key: key
-            })
-            {:error, reason}
-        end
+        do_update_record(table_name, record, key)
         
       {:error, :not_found} ->
         # Se o registro não existe, simplesmente insere
@@ -196,8 +246,54 @@ defmodule Deeper_Hub.Core.Data.Repository do
         
       {:error, reason} ->
         # Se ocorreu outro erro ao buscar o registro, propaga o erro
+        log_find_error(table_name, key, reason)
         {:error, reason}
     end
+    
+    # Registra a conclusão da operação
+    case result do
+      {:ok, _} -> DatabaseMetrics.complete_operation(table_name, :update, :success, start_time)
+      {:error, _} -> DatabaseMetrics.complete_operation(table_name, :update, :error, start_time)
+    end
+    
+    result
+  end
+  
+  @doc false
+  defp do_update_record(table_name, record, key) do
+    transaction_result =
+      :mnesia.transaction(fn ->
+        # Deleta o registro existente
+        :mnesia.delete({table_name, key})
+        # Insere o novo registro
+        :mnesia.write(record)
+      end)
+    
+    case transaction_result do
+      {:atomic, :ok} ->
+        log_update_success(table_name, record, key)
+        {:ok, record}
+      {:aborted, reason} ->
+        log_update_error(table_name, record, key, reason)
+        {:error, reason}
+    end
+  end
+  
+  @doc false
+  defp log_update_success(table_name, record, key) do
+    Logger.info("Registro atualizado com sucesso na tabela #{table_name}", %{
+      record: record,
+      key: key
+    })
+  end
+  
+  @doc false
+  defp log_update_error(table_name, record, key, reason) do
+    Logger.error("Falha ao atualizar registro na tabela #{table_name}", %{
+      reason: reason,
+      record: record,
+      key: key
+    })
   end
 
   @doc """
@@ -222,24 +318,25 @@ defmodule Deeper_Hub.Core.Data.Repository do
       iex> Deeper_Hub.Core.Data.Repository.delete(:users, 998)
       {:error, {:badarg, [...]}} # Mnesia pode retornar :badarg para chaves inexistentes em delete
   """
-  @spec delete(table_name(), record_key()) ::
-          {:ok, :deleted} | {:error, :not_found | error_reason()}
+  @spec delete(table_name(), record_key()) :: {:ok, record_key()} | {:error, error_reason()}
   def delete(table_name, key) when is_atom(table_name) do
+    # Inicia a métrica de operação
+    start_time = DatabaseMetrics.start_operation(table_name, :delete)
+    
     Logger.info("Tentando deletar registro na tabela #{table_name} com chave #{inspect(key)}")
 
-    # Primeiro verificar se o registro existe
-    case find(table_name, key) do
+    # Verifica se o registro existe antes de tentar deletar
+    result = case find(table_name, key) do
       {:ok, _record} ->
-        # Registro existe, podemos deletar
         case :mnesia.transaction(fn ->
                :mnesia.delete({table_name, key})
              end) do
           {:atomic, :ok} ->
             Logger.info("Registro deletado com sucesso da tabela #{table_name}", %{key: key})
-            {:ok, :deleted}
+            {:ok, key}
 
           {:aborted, reason} ->
-            Logger.error("Falha ao deletar registro na tabela #{table_name}", %{
+            Logger.error("Falha ao deletar registro da tabela #{table_name}", %{
               reason: reason,
               key: key
             })
@@ -248,12 +345,13 @@ defmodule Deeper_Hub.Core.Data.Repository do
         end
 
       {:error, :not_found} ->
-        # Registro não existe
-        Logger.warning("Tentativa de deletar registro inexistente na tabela #{table_name}", %{key: key})
+        Logger.warning("Tentativa de deletar registro inexistente na tabela #{table_name}", %{
+          key: key
+        })
+
         {:error, :not_found}
 
       {:error, reason} ->
-        # Outro erro ao buscar o registro
         Logger.error("Falha ao verificar existência do registro na tabela #{table_name}", %{
           reason: reason,
           key: key
@@ -261,6 +359,15 @@ defmodule Deeper_Hub.Core.Data.Repository do
 
         {:error, reason}
     end
+    
+    # Registra a conclusão da operação
+    case result do
+      {:ok, _} -> DatabaseMetrics.complete_operation(table_name, :delete, :success, start_time)
+      {:error, :not_found} -> DatabaseMetrics.complete_operation(table_name, :delete, :not_found, start_time)
+      {:error, _} -> DatabaseMetrics.complete_operation(table_name, :delete, :error, start_time)
+    end
+    
+    result
   end
 
   @doc """
@@ -357,9 +464,12 @@ defmodule Deeper_Hub.Core.Data.Repository do
   """
   @spec all(table_name()) :: {:ok, list(record())} | {:error, error_reason()}
   def all(table) when is_atom(table) do
+    # Inicia a métrica de operação
+    start_time = DatabaseMetrics.start_operation(table, :all)
+    
     Logger.debug("Iniciando Repository.all/1 para tabela: #{inspect(table)}")
 
-    case build_match_spec(table, []) do
+    result = case build_match_spec(table, []) do
       {:ok, match_spec} ->
         Logger.debug("Match spec construída: #{inspect(match_spec)}")
 
@@ -385,6 +495,8 @@ defmodule Deeper_Hub.Core.Data.Repository do
             Logger.info("Registros recuperados com sucesso da tabela #{table}", %{
               count: length(records)
             })
+            # Registra o tamanho do resultado
+            DatabaseMetrics.record_result_size(table, :all, length(records))
             {:ok, records}
           {:aborted, {:no_exists, ^table, _type}} ->
             Logger.error("Tabela '#{table}' não encontrada")
@@ -405,12 +517,19 @@ defmodule Deeper_Hub.Core.Data.Repository do
         end
 
       {:error, reason} ->
-        Logger.error("Falha ao construir match_spec para tabela #{table}", %{
-          reason: reason
-        })
-
-        {:error, reason}
+        Logger.error("Falha ao construir match_spec para a tabela #{table}: #{inspect(reason)}")
+        {:error, {:match_spec_error, reason}}
     end
+    
+    # Registra a conclusão da operação
+    case result do
+      {:ok, records} -> 
+        DatabaseMetrics.complete_operation(table, :all, :success, start_time)
+      {:error, _} -> 
+        DatabaseMetrics.complete_operation(table, :all, :error, start_time)
+    end
+    
+    result
   end
 
   @spec build_match_spec(table_name(), any()) :: 
