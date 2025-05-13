@@ -14,6 +14,7 @@ defmodule Deeper_Hub.Core.Data.Database do
   Inicializa o banco de dados Mnesia.
   Cria o banco de dados se não existir e realiza as migrações necessárias.
   """
+  @spec init() :: :ok | {:error, any()}
   def init do
     # Certifica-se de que o Mnesia está parado antes de iniciar
     :mnesia.stop()
@@ -62,6 +63,7 @@ defmodule Deeper_Hub.Core.Data.Database do
   Cria as tabelas necessárias no banco de dados Mnesia.
   Trata tabelas já existentes sem gerar erro.
   """
+  @spec create_tables() :: :ok | {:error, atom() | any()}
   def create_tables do
     # Definição das tabelas
     table_definitions = [
@@ -127,6 +129,7 @@ defmodule Deeper_Hub.Core.Data.Database do
     - migration_name: Nome da migração a ser executada
     - migration_fun: Função que realiza a migração
   """
+  @spec migrate(String.t(), (-> :ok | {:error, any()})) :: :ok | {:error, any()}
   def migrate(migration_name, migration_fun) do
     Logger.info("Executando migração: #{migration_name}")
 
@@ -144,6 +147,7 @@ defmodule Deeper_Hub.Core.Data.Database do
   @doc """
   Fecha a conexão com o banco de dados Mnesia.
   """
+  @spec shutdown() :: :ok
   def shutdown do
     :mnesia.stop()
     Deeper_Hub.Core.Logger.info("Banco de dados Mnesia encerrado", %{module: __MODULE__})

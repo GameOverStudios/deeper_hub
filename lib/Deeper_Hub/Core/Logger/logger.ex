@@ -34,17 +34,14 @@ defmodule Deeper_Hub.Core.Logger do
     color = Map.get(@colors, level, :white)
     formatted_message = format_message(level, message, metadata, color)
 
-    colored_message =
-      apply(IO, :puts, [
-        apply(IO.ANSI, color, []) <>
-          formatted_message <>
-          apply(IO.ANSI, :reset, [])
-      ])
+    # Correção: Usar apply/3 para chamada dinâmica da função de cor
+    colored_output = apply(IO.ANSI, color, []) <> formatted_message <> IO.ANSI.reset()
+    IO.puts(colored_output)
 
     # Opcional: Adicionar logging em arquivo
     log_to_file(level, formatted_message)
 
-    colored_message
+    :ok
   end
 
   @doc """
@@ -99,6 +96,7 @@ defmodule Deeper_Hub.Core.Logger do
       |> Enum.join(" ")
 
     module_color = IO.ANSI.magenta()
+    # Correção: Usar apply/3 para chamada dinâmica da função de cor
     message_color = apply(IO.ANSI, color, [])
 
     "[#{timestamp}] #{module_color}[#{module_name}]#{IO.ANSI.reset()} #{message_color}#{message}#{IO.ANSI.reset()}#{if metadata_str != "", do: " #{metadata_str}", else: ""}"

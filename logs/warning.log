@@ -3,3 +3,29 @@
 [19:47:16] [35m[Deeper_Hub.Core.Logger][0m [33mFalha na conexão com o banco de dados[0m 
 [20:41:22] [35m[Deeper_Hub.Core.Data.Repository][0m [33mRegistro não encontrado na tabela users com chave 999[0m
 [20:41:22] [35m[Deeper_Hub.Core.Data.Repository][0m [33mRegistro não encontrado na tabela users com chave 2[0m
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [33mRegistro não encontrado na tabela users com chave 999[0m
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [33mRegistro não encontrado na tabela users com chave 2[0m
+[21:03:01] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'tabela_nao_existe' for pagination. Treating as empty.[0m error={:table_does_not_exist, :tabela_nao_existe}
+[21:19:58] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'users' for pagination. Treating as empty.[0m error={:mnesia_error, {:badarg, [:users, [{{{:users, :_, :_, :_, :_, :_}, [], [:"$_"]}}]]}}
+[21:20:19] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'tabela_que_nao_existe' for pagination. Treating as empty.[0m error={:table_does_not_exist, :tabela_que_nao_existe}
+[21:23:28] [35m[Deeper_Hub.Core.Data.Repository][0m [33mRegistro não encontrado na tabela users com chave 999[0m
+[21:23:28] [35m[Deeper_Hub.Core.Data.Repository][0m [33mRegistro não encontrado na tabela users com chave 2[0m
+[21:23:28] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'users' for pagination. Treating as empty.[0m error={:mnesia_error, {:badarg, [:users, [{{{:users, :_, :_, :_, :_, :_}, [], [:"$_"]}}]]}}
+[21:23:28] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'users' for pagination. Treating as empty.[0m error={:mnesia_error, {:badarg, [:users, [{{{:users, :_, :_, :_, :_, :_}, [], [:"$_"]}}]]}}
+[21:23:28] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'users' for pagination. Treating as empty.[0m error={:mnesia_error, {:badarg, [:users, [{{{:users, :_, :_, :_, :_, :_}, [], [:"$_"]}}]]}}
+[21:23:28] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'users' for pagination. Treating as empty.[0m error={:mnesia_error, {:badarg, [:users, [{{{:users, :_, :_, :_, :_, :_}, [], [:"$_"]}}]]}}
+[21:23:28] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'users' for pagination. Treating as empty.[0m error={:mnesia_error, {:badarg, [:users, [{{{:users, :_, :_, :_, :_, :_}, [], [:"$_"]}}]]}}
+[21:23:28] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'tabela_nao_existe' for pagination. Treating as empty.[0m error={:table_does_not_exist, :tabela_nao_existe}
+[21:24:14] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'users' for pagination. Treating as empty.[0m error={:mnesia_error, {:badarg, [:users, [{{{:users, :_, :_, :_, :_, :_}, [], [:"$_"]}}]]}}
+[21:25:32] [35m[Deeper_Hub.Core.Data.Repository][0m [33mRegistro não encontrado na tabela users com chave 999[0m
+[21:25:33] [35m[Deeper_Hub.Core.Data.Repository][0m [33mRegistro não encontrado na tabela users com chave 2[0m
+[21:25:33] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'users' for pagination. Treating as empty.[0m error={:mnesia_error, {:badarg, [:users, [{{{:users, :_, :_, :_, :_, :_}, [], [:"$_"]}}]]}}
+[21:25:33] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'users' for pagination. Treating as empty.[0m error={:mnesia_error, {:badarg, [:users, [{{{:users, :_, :_, :_, :_, :_}, [], [:"$_"]}}]]}}
+[21:25:33] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'users' for pagination. Treating as empty.[0m error={:mnesia_error, {:badarg, [:users, [{{{:users, :_, :_, :_, :_, :_}, [], [:"$_"]}}]]}}
+[21:25:33] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'users' for pagination. Treating as empty.[0m error={:mnesia_error, {:badarg, [:users, [{{{:users, :_, :_, :_, :_, :_}, [], [:"$_"]}}]]}}
+[21:25:33] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'users' for pagination. Treating as empty.[0m error={:mnesia_error, {:badarg, [:users, [{{{:users, :_, :_, :_, :_, :_}, [], [:"$_"]}}]]}}
+[21:25:34] [35m[Deeper_Hub.Core.Data.Pagination][0m [33mFailed to fetch records from table 'tabela_nao_existe' for pagination. Treating as empty.[0m error={:table_does_not_exist, :tabela_nao_existe}
+[21:26:05] [35m[Deeper_Hub.Core.Data.Repository][0m [33mRegistro não encontrado na tabela users com chave 999[0m
+[21:26:45] [35m[Deeper_Hub.Core.Data.Repository][0m [33mRegistro não encontrado na tabela users com chave 999[0m
+[21:55:42] [35m[Deeper_Hub.Core.Data.Repository][0m [33mRegistro não encontrado na tabela users com chave 999[0m
+[21:56:40] [35m[Deeper_Hub.Core.Data.Repository][0m [33mRegistro não encontrado na tabela users com chave 3[0m

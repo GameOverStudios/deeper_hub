@@ -137,3 +137,239 @@
 [20:41:22] [35m[Deeper_Hub.Core.Data.Repository][0m [32mBuscando todos os registros da tabela users[0m
 [20:41:22] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registros na tabela users com match_spec[0m match_spec=[{{:users, :_}, [], [:"$_"]}]
 [20:41:22] [35m[Deeper_Hub.Core.Data.Repository][0m [32m0 registros encontrados na tabela users com match_spec[0m count=0
+[20:42:34] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users já existe, pulando criação[0m
+[20:42:34] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions já existe, pulando criação[0m
+[20:42:34] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[20:58:45] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users já existe, pulando criação[0m
+[20:58:45] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions já existe, pulando criação[0m
+[20:58:45] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_p_alice", ~U[2025-05-13 20:58:52.205000Z]}
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_p_alice", ~U[2025-05-13 20:58:52.205000Z]}
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 2, "bob", "bob@example.com", "hash_p_bob", ~U[2025-05-13 20:59:52.205000Z]}
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 2, "bob", "bob@example.com", "hash_p_bob", ~U[2025-05-13 20:59:52.205000Z]}
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 3, "charlie", "charlie@example.com", "hash_p_charlie", ~U[2025-05-13 21:00:52.205000Z]}
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 3, "charlie", "charlie@example.com", "hash_p_charlie", ~U[2025-05-13 21:00:52.205000Z]}
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 1[0m
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_p_alice", ~U[2025-05-13 20:58:52.205000Z]} key=1
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 999[0m
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando atualizar registro na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 20:58:52.685000Z]}
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 20:58:52.685000Z]}
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 20:58:52.685000Z]}
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 1[0m
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 20:58:52.685000Z]} key=1
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [32mBuscando todos os registros da tabela users[0m
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registros na tabela users com match_spec[0m match_spec=[{{:users, :_, :_, :_, :_, :_}, [], [:"$_"]}]
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [32m3 registros encontrados na tabela users com match_spec[0m count=3
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registros na tabela users com match_spec[0m match_spec=[{{:users, :_, "bob", :_, :_, :_}, [], [:"$_"]}]
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [32m1 registros encontrados na tabela users com match_spec[0m count=1
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando deletar registro na tabela users com chave 2[0m
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro deletado com sucesso da tabela users[0m key=2
+[20:58:52] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 2[0m
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32mBuscando todos os registros da tabela users[0m
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registros na tabela users com match_spec[0m match_spec=[{{:users, :_, :_, :_, :_, :_}, [], [:"$_"]}]
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32m2 registros encontrados na tabela users com match_spec[0m count=2
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32mBuscando todos os registros da tabela users[0m
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registros na tabela users com match_spec[0m match_spec=[{{:users, :_, :_, :_, :_, :_}, [], [:"$_"]}]
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32m2 registros encontrados na tabela users com match_spec[0m count=2
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32mBuscando todos os registros da tabela users[0m
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registros na tabela users com match_spec[0m match_spec=[{{:users, :_, :_, :_, :_, :_}, [], [:"$_"]}]
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32m2 registros encontrados na tabela users com match_spec[0m count=2
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32mBuscando todos os registros da tabela users[0m
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registros na tabela users com match_spec[0m match_spec=[{{:users, :_, :_, :_, :_, :_}, [], [:"$_"]}]
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32m2 registros encontrados na tabela users com match_spec[0m count=2
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 4, "diana", "diana@example.com", "hash_p_diana", ~U[2025-05-13 21:01:52.205000Z]}
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 4, "diana", "diana@example.com", "hash_p_diana", ~U[2025-05-13 21:01:52.205000Z]}
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 5, "edward", "edward@example.com", "hash_p_edward", ~U[2025-05-13 21:02:52.205000Z]}
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 5, "edward", "edward@example.com", "hash_p_edward", ~U[2025-05-13 21:02:52.205000Z]}
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32mBuscando todos os registros da tabela users[0m
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registros na tabela users com match_spec[0m match_spec=[{{:users, :_, :_, :_, :_, :_}, [], [:"$_"]}]
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32m4 registros encontrados na tabela users com match_spec[0m count=4
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32mBuscando todos os registros da tabela users[0m
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registros na tabela users com match_spec[0m match_spec=[{{:users, :_, :_, :_, :_, :_}, [], [:"$_"]}]
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32m4 registros encontrados na tabela users com match_spec[0m count=4
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32mBuscando todos os registros da tabela users[0m
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registros na tabela users com match_spec[0m match_spec=[{{:users, :_, :_, :_, :_, :_}, [], [:"$_"]}]
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32m4 registros encontrados na tabela users com match_spec[0m count=4
+[20:58:53] [35m[Deeper_Hub.Core.Data.Repository][0m [32mBuscando todos os registros da tabela tabela_nao_existe[0m
+[21:02:59] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users já existe, pulando criação[0m
+[21:02:59] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions já existe, pulando criação[0m
+[21:02:59] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[21:18:17] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users criada com sucesso[0m
+[21:18:17] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions criada com sucesso[0m
+[21:18:17] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[21:18:36] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_p_alice", ~U[2025-05-13 21:18:25.684000Z]}
+[21:18:36] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_p_alice", ~U[2025-05-13 21:18:25.684000Z]}
+[21:18:42] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 1[0m
+[21:18:42] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_p_alice", ~U[2025-05-13 21:18:25.684000Z]} key=1
+[21:18:51] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando atualizar registro na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 21:18:50.596000Z]}
+[21:18:51] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 21:18:50.596000Z]}
+[21:18:51] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 21:18:50.596000Z]}
+[21:19:46] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registros na tabela users com match_spec[0m match_spec=[{{:users, :_, "alice_updated", :_, :_, :_}, [], [:"$_"]}]
+[21:19:46] [35m[Deeper_Hub.Core.Data.Repository][0m [32m1 registros encontrados na tabela users com match_spec[0m count=1
+[21:22:07] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users já existe, pulando criação[0m
+[21:22:07] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions já existe, pulando criação[0m
+[21:23:27] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_p_alice", ~U[2025-05-13 21:23:27.880000Z]}
+[21:23:27] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_p_alice", ~U[2025-05-13 21:23:27.880000Z]}
+[21:23:27] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 2, "bob", "bob@example.com", "hash_p_bob", ~U[2025-05-13 21:24:27.880000Z]}
+[21:23:27] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 2, "bob", "bob@example.com", "hash_p_bob", ~U[2025-05-13 21:24:27.880000Z]}
+[21:23:27] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 3, "charlie", "charlie@example.com", "hash_p_charlie", ~U[2025-05-13 21:25:27.880000Z]}
+[21:23:27] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 3, "charlie", "charlie@example.com", "hash_p_charlie", ~U[2025-05-13 21:25:27.880000Z]}
+[21:23:28] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 1[0m
+[21:23:28] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_p_alice", ~U[2025-05-13 21:23:27.880000Z]} key=1
+[21:23:28] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 999[0m
+[21:23:28] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando atualizar registro na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 21:23:28.062000Z]}
+[21:23:28] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 21:23:28.062000Z]}
+[21:23:28] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 21:23:28.062000Z]}
+[21:23:28] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 1[0m
+[21:23:28] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 21:23:28.062000Z]} key=1
+[21:23:28] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registros na tabela users com match_spec[0m match_spec=[{{:users, :_, "bob", :_, :_, :_}, [], [:"$_"]}]
+[21:23:28] [35m[Deeper_Hub.Core.Data.Repository][0m [32m1 registros encontrados na tabela users com match_spec[0m count=1
+[21:23:28] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando deletar registro na tabela users com chave 2[0m
+[21:23:28] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro deletado com sucesso da tabela users[0m key=2
+[21:23:28] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 2[0m
+[21:23:28] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 4, "diana", "diana@example.com", "hash_p_diana", ~U[2025-05-13 21:26:27.880000Z]}
+[21:23:28] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 4, "diana", "diana@example.com", "hash_p_diana", ~U[2025-05-13 21:26:27.880000Z]}
+[21:23:28] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 5, "edward", "edward@example.com", "hash_p_edward", ~U[2025-05-13 21:27:27.880000Z]}
+[21:23:28] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 5, "edward", "edward@example.com", "hash_p_edward", ~U[2025-05-13 21:27:27.880000Z]}
+[21:25:27] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users criada com sucesso[0m
+[21:25:27] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions criada com sucesso[0m
+[21:25:27] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[21:25:32] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_p_alice", ~U[2025-05-13 21:25:32.809000Z]}
+[21:25:32] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_p_alice", ~U[2025-05-13 21:25:32.809000Z]}
+[21:25:32] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 2, "bob", "bob@example.com", "hash_p_bob", ~U[2025-05-13 21:26:32.809000Z]}
+[21:25:32] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 2, "bob", "bob@example.com", "hash_p_bob", ~U[2025-05-13 21:26:32.809000Z]}
+[21:25:32] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 3, "charlie", "charlie@example.com", "hash_p_charlie", ~U[2025-05-13 21:27:32.809000Z]}
+[21:25:32] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 3, "charlie", "charlie@example.com", "hash_p_charlie", ~U[2025-05-13 21:27:32.809000Z]}
+[21:25:32] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 1[0m
+[21:25:32] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_p_alice", ~U[2025-05-13 21:25:32.809000Z]} key=1
+[21:25:32] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 999[0m
+[21:25:33] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando atualizar registro na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 21:25:32.996000Z]}
+[21:25:33] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 21:25:32.996000Z]}
+[21:25:33] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 21:25:32.996000Z]}
+[21:25:33] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 1[0m
+[21:25:33] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 21:25:32.996000Z]} key=1
+[21:25:33] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registros na tabela users com match_spec[0m match_spec=[{{:users, :_, "bob", :_, :_, :_}, [], [:"$_"]}]
+[21:25:33] [35m[Deeper_Hub.Core.Data.Repository][0m [32m1 registros encontrados na tabela users com match_spec[0m count=1
+[21:25:33] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando deletar registro na tabela users com chave 2[0m
+[21:25:33] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro deletado com sucesso da tabela users[0m key=2
+[21:25:33] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 2[0m
+[21:25:33] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 4, "diana", "diana@example.com", "hash_p_diana", ~U[2025-05-13 21:28:32.809000Z]}
+[21:25:33] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 4, "diana", "diana@example.com", "hash_p_diana", ~U[2025-05-13 21:28:32.809000Z]}
+[21:25:33] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 5, "edward", "edward@example.com", "hash_p_edward", ~U[2025-05-13 21:29:32.809000Z]}
+[21:25:33] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 5, "edward", "edward@example.com", "hash_p_edward", ~U[2025-05-13 21:29:32.809000Z]}
+[21:26:04] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users já existe, pulando criação[0m
+[21:26:04] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions já existe, pulando criação[0m
+[21:26:04] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[21:26:05] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_p_alice", ~U[2025-05-13 21:26:05.219000Z]}
+[21:26:05] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_p_alice", ~U[2025-05-13 21:26:05.219000Z]}
+[21:26:05] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 2, "bob", "bob@example.com", "hash_p_bob", ~U[2025-05-13 21:27:05.219000Z]}
+[21:26:05] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 2, "bob", "bob@example.com", "hash_p_bob", ~U[2025-05-13 21:27:05.219000Z]}
+[21:26:05] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 3, "charlie", "charlie@example.com", "hash_p_charlie", ~U[2025-05-13 21:28:05.219000Z]}
+[21:26:05] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 3, "charlie", "charlie@example.com", "hash_p_charlie", ~U[2025-05-13 21:28:05.219000Z]}
+[21:26:05] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 1[0m
+[21:26:05] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_p_alice", ~U[2025-05-13 21:26:05.219000Z]} key=1
+[21:26:05] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 999[0m
+[21:26:05] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando atualizar registro na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 21:26:05.376000Z]}
+[21:26:05] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 21:26:05.376000Z]}
+[21:26:05] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 21:26:05.376000Z]}
+[21:26:05] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 1[0m
+[21:26:05] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 21:26:05.376000Z]} key=1
+[21:26:05] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registros na tabela users com match_spec[0m match_spec=[{{:users, :_, "bob", :_, :_, :_}, [], [:"$_"]}]
+[21:26:05] [35m[Deeper_Hub.Core.Data.Repository][0m [32m1 registros encontrados na tabela users com match_spec[0m count=1
+[21:26:39] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users criada com sucesso[0m
+[21:26:39] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions criada com sucesso[0m
+[21:26:39] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[21:26:45] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_p_alice", ~U[2025-05-13 21:26:45.778000Z]}
+[21:26:45] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_p_alice", ~U[2025-05-13 21:26:45.778000Z]}
+[21:26:45] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 2, "bob", "bob@example.com", "hash_p_bob", ~U[2025-05-13 21:27:45.778000Z]}
+[21:26:45] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 2, "bob", "bob@example.com", "hash_p_bob", ~U[2025-05-13 21:27:45.778000Z]}
+[21:26:45] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 3, "charlie", "charlie@example.com", "hash_p_charlie", ~U[2025-05-13 21:28:45.778000Z]}
+[21:26:45] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 3, "charlie", "charlie@example.com", "hash_p_charlie", ~U[2025-05-13 21:28:45.778000Z]}
+[21:26:45] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 1[0m
+[21:26:45] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_p_alice", ~U[2025-05-13 21:26:45.778000Z]} key=1
+[21:26:45] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 999[0m
+[21:26:45] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando atualizar registro na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 21:26:45.928000Z]}
+[21:26:45] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 21:26:45.928000Z]}
+[21:26:45] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 21:26:45.928000Z]}
+[21:26:45] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 1[0m
+[21:26:45] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 21:26:45.928000Z]} key=1
+[21:30:54] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users criada com sucesso[0m
+[21:30:54] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions criada com sucesso[0m
+[21:30:54] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[21:30:57] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_p_alice", ~U[2025-05-13 21:30:56.039000Z]}
+[21:30:57] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_p_alice", ~U[2025-05-13 21:30:56.039000Z]}
+[21:31:04] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 1[0m
+[21:31:04] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_p_alice", ~U[2025-05-13 21:30:56.039000Z]} key=1
+[21:31:14] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando atualizar registro na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 21:31:13.833000Z]}
+[21:31:14] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 21:31:13.833000Z]}
+[21:31:14] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 1, "alice_updated", "alice_new_email@example.com", "new_hash_alice", ~U[2025-05-13 21:31:13.833000Z]}
+[21:35:17] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 1, "test_trace", "trace@ex.com", "hash_tr", ~U[2025-05-13 21:35:17.033000Z]}
+[21:35:17] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 1, "test_trace", "trace@ex.com", "hash_tr", ~U[2025-05-13 21:35:17.033000Z]}
+[21:39:55] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users criada com sucesso[0m
+[21:39:55] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions criada com sucesso[0m
+[21:39:55] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[21:46:39] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users já existe, pulando criação[0m
+[21:46:39] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions já existe, pulando criação[0m
+[21:46:39] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[21:47:15] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 1, "test_trace", "trace@ex.com", "hash_tr", ~U[2025-05-13 21:47:15.003000Z]}
+[21:47:15] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 1, "test_trace", "trace@ex.com", "hash_tr", ~U[2025-05-13 21:47:15.003000Z]}
+[21:48:18] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users já existe, pulando criação[0m
+[21:48:18] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions já existe, pulando criação[0m
+[21:48:18] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[21:48:20] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 1, "test_trace", "trace@ex.com", "hash_tr", ~U[2025-05-13 21:48:20.531000Z]}
+[21:48:20] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 1, "test_trace", "trace@ex.com", "hash_tr", ~U[2025-05-13 21:48:20.531000Z]}
+[21:49:25] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registros na tabela users com match_spec[0m match_spec=[{:users, :_, :_, :_, :_, :_}, [], [:"$_"]]
+[21:50:46] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registros na tabela users com match_spec[0m match_spec=[{:_, :_, :_, :_, :_, :_}, [], [:"$_"]]
+[21:51:23] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registros na tabela users com match_spec[0m match_spec=[{:_, :_, :_, :_, :_, :_}, [], [:"$_"]]
+[21:51:36] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registros na tabela users com match_spec[0m match_spec=[]
+[21:51:36] [35m[Deeper_Hub.Core.Data.Repository][0m [32mMatch spec corrigida para tabela users: [{{:_, :_, :_, :_, :_, :_}, [], [:"$_"]}][0m
+[21:51:36] [35m[Deeper_Hub.Core.Data.Repository][0m [32m1 registros encontrados na tabela users[0m count=1
+[21:53:31] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users criada com sucesso[0m
+[21:53:31] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions criada com sucesso[0m
+[21:53:31] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[21:54:08] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_alice", ~U[2025-05-13 21:54:07.497000Z]}
+[21:54:08] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_alice", ~U[2025-05-13 21:54:07.497000Z]}
+[21:54:17] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 2, "bob", "bob@example.com", "hash_bob", ~U[2025-05-13 21:54:17.121000Z]}
+[21:54:17] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 2, "bob", "bob@example.com", "hash_bob", ~U[2025-05-13 21:54:17.121000Z]}
+[21:54:29] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 3, "charlie", "charlie@example.com", "hash_charlie", ~U[2025-05-13 21:54:28.195000Z]}
+[21:54:29] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 3, "charlie", "charlie@example.com", "hash_charlie", ~U[2025-05-13 21:54:28.195000Z]}
+[21:55:28] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 3, "charlie", "charlie@example.com", "hash_charlie", ~U[2025-05-13 21:55:27.949000Z]}
+[21:55:28] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 3, "charlie", "charlie@example.com", "hash_charlie", ~U[2025-05-13 21:55:27.949000Z]}
+[21:55:36] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 1[0m
+[21:55:36] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela users[0m record={:users, 1, "alice", "alice@example.com", "hash_alice", ~U[2025-05-13 21:54:07.497000Z]} key=1
+[21:55:42] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 999[0m
+[21:56:05] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registros na tabela users com match_spec[0m match_spec=[]
+[21:56:05] [35m[Deeper_Hub.Core.Data.Repository][0m [32mMatch spec corrigida para tabela users: [{{:_, :_, :_, :_, :_, :_}, [], [:"$_"]}][0m
+[21:56:05] [35m[Deeper_Hub.Core.Data.Repository][0m [32m3 registros encontrados na tabela users[0m count=3
+[21:56:20] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando atualizar registro na tabela users[0m record={:users, 1, "alice_updated", "alice.new@example.com", "new_hash_alice", ~U[2025-05-13 21:56:19.349000Z]}
+[21:56:20] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 1, "alice_updated", "alice.new@example.com", "new_hash_alice", ~U[2025-05-13 21:56:19.349000Z]}
+[21:56:20] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 1, "alice_updated", "alice.new@example.com", "new_hash_alice", ~U[2025-05-13 21:56:19.349000Z]}
+[21:56:25] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 1[0m
+[21:56:25] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela users[0m record={:users, 1, "alice_updated", "alice.new@example.com", "new_hash_alice", ~U[2025-05-13 21:56:19.349000Z]} key=1
+[21:56:33] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando deletar registro na tabela users com chave 3[0m
+[21:56:33] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro deletado com sucesso da tabela users[0m key=3
+[21:56:40] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela users com chave 3[0m
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 4, "user4", "user4@example.com", "hash_user4", ~U[2025-05-13 21:56:56.018000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 4, "user4", "user4@example.com", "hash_user4", ~U[2025-05-13 21:56:56.018000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 5, "user5", "user5@example.com", "hash_user5", ~U[2025-05-13 21:56:56.026000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 5, "user5", "user5@example.com", "hash_user5", ~U[2025-05-13 21:56:56.026000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 6, "user6", "user6@example.com", "hash_user6", ~U[2025-05-13 21:56:56.032000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 6, "user6", "user6@example.com", "hash_user6", ~U[2025-05-13 21:56:56.032000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 7, "user7", "user7@example.com", "hash_user7", ~U[2025-05-13 21:56:56.041000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 7, "user7", "user7@example.com", "hash_user7", ~U[2025-05-13 21:56:56.041000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 8, "user8", "user8@example.com", "hash_user8", ~U[2025-05-13 21:56:56.051000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 8, "user8", "user8@example.com", "hash_user8", ~U[2025-05-13 21:56:56.051000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 9, "user9", "user9@example.com", "hash_user9", ~U[2025-05-13 21:56:56.064000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 9, "user9", "user9@example.com", "hash_user9", ~U[2025-05-13 21:56:56.064000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 10, "user10", "user10@example.com", "hash_user10", ~U[2025-05-13 21:56:56.071000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 10, "user10", "user10@example.com", "hash_user10", ~U[2025-05-13 21:56:56.071000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 11, "user11", "user11@example.com", "hash_user11", ~U[2025-05-13 21:56:56.076000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 11, "user11", "user11@example.com", "hash_user11", ~U[2025-05-13 21:56:56.076000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 12, "user12", "user12@example.com", "hash_user12", ~U[2025-05-13 21:56:56.084000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 12, "user12", "user12@example.com", "hash_user12", ~U[2025-05-13 21:56:56.084000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 13, "user13", "user13@example.com", "hash_user13", ~U[2025-05-13 21:56:56.095000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 13, "user13", "user13@example.com", "hash_user13", ~U[2025-05-13 21:56:56.095000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 14, "user14", "user14@example.com", "hash_user14", ~U[2025-05-13 21:56:56.100000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 14, "user14", "user14@example.com", "hash_user14", ~U[2025-05-13 21:56:56.100000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela users[0m record={:users, 15, "user15", "user15@example.com", "hash_user15", ~U[2025-05-13 21:56:56.108000Z]}
+[21:56:56] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela users[0m record={:users, 15, "user15", "user15@example.com", "hash_user15", ~U[2025-05-13 21:56:56.108000Z]}
