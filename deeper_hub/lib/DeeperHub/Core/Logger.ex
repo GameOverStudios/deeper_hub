@@ -8,8 +8,6 @@ defmodule DeeperHub.Core.Logger do
 
   # Evita redefinição do módulo durante hot reloads
   unless Module.defines?(DeeperHub.Core.Logger, {:__info__, 1}) do
-    alias DeeperHub.Core.Logger.Config.Colors
-
     @doc """
     Registra uma mensagem de log no nível DEBUG.
 
