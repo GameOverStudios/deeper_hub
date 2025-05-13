@@ -7,6 +7,8 @@ defmodule Deeper_Hub.Core.Metrics.MetricsIntegrationTest do
   alias Deeper_Hub.Core.Data.Repository
   
   setup do
+    # Inicializa o sistema de métricas antes de cada teste
+    Metrics.initialize()
     # Limpa as métricas antes de cada teste
     Metrics.clear_metrics()
     DatabaseMetrics.clear_metrics()

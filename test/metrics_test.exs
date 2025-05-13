@@ -3,6 +3,8 @@ defmodule Deeper_Hub.Core.MetricsTest do
   alias Deeper_Hub.Core.Metrics
 
   setup do
+    # Inicializa o sistema de métricas antes de cada teste
+    Metrics.initialize()
     # Limpa as métricas antes de cada teste
     Metrics.clear_metrics()
     :ok
@@ -27,7 +29,7 @@ defmodule Deeper_Hub.Core.MetricsTest do
       Metrics.increment_counter(:http, :request_count)
       
       metrics = Metrics.get_metrics(:http)
-      assert metrics[:request_count] == 2
+      assert metrics[:request_count][:count] == 2
     end
 
     test "record_value/3 registra um valor" do
@@ -46,7 +48,7 @@ defmodule Deeper_Hub.Core.MetricsTest do
       
       metrics = Metrics.get_metrics(:api)
       assert is_map(metrics)
-      assert metrics[:calls] == 1
+      assert metrics[:calls][:count] == 1
       assert metrics[:response_time][:count] == 1
     end
 

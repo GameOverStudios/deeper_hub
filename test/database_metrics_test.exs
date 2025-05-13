@@ -3,6 +3,9 @@ defmodule Deeper_Hub.Core.Metrics.DatabaseMetricsTest do
   alias Deeper_Hub.Core.Metrics.DatabaseMetrics
 
   setup do
+    # Inicializa o sistema de métricas antes de cada teste
+    alias Deeper_Hub.Core.Metrics
+    Metrics.initialize()
     # Limpa as métricas antes de cada teste
     DatabaseMetrics.clear_metrics()
     :ok

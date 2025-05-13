@@ -45,9 +45,11 @@ defmodule Deeper_Hub.Core.Metrics do
   """
   @spec initialize() :: :ok
   def initialize do
-    # Inicializa a tabela ETS para armazenar métricas em memória
-    :ets.new(@metrics_table, [:set, :public, :named_table])
-    Logger.info("Sistema de métricas inicializado", %{module: __MODULE__})
+    # Inicializa a tabela ETS para armazenar métricas em memória, se ainda não existir
+    if not table_exists?(@metrics_table) do
+      :ets.new(@metrics_table, [:set, :public, :named_table])
+      Logger.info("Sistema de métricas inicializado", %{module: __MODULE__})
+    end
     :ok
   end
   
@@ -90,10 +92,12 @@ defmodule Deeper_Hub.Core.Metrics do
   """
   @spec increment_counter(metric_category(), metric_name(), integer()) :: :ok
   def increment_counter(category, name, increment \\ 1) when is_atom(category) and is_atom(name) and is_integer(increment) do
-    # Obtém o valor atual ou 0 se não existir
-    current_value = get_metric_value(category, name) || 0
-    # Atualiza com o novo valor
-    update_metric(category, name, current_value + increment, :counter)
+    # Obtém a métrica atual ou um mapa vazio se não existir
+    current_metric = get_metric_value(category, name)
+    # Calcula o novo valor do contador
+    new_count = (current_metric[:count] || 0) + increment
+    # Atualiza a métrica
+    update_metric(category, name, new_count, :counter)
     :ok
   end
   
@@ -138,6 +142,9 @@ defmodule Deeper_Hub.Core.Metrics do
   """
   @spec get_metrics(metric_category()) :: metric_data()
   def get_metrics(category) when is_atom(category) do
+    # Certifica-se de que a tabela existe antes de tentar acessar
+    ensure_metrics_table_exists()
+    
     case :ets.lookup(@metrics_table, category) do
       [{^category, metrics}] -> metrics
       [] -> %{}
@@ -163,11 +170,13 @@ defmodule Deeper_Hub.Core.Metrics do
   # => 10
   ```
   """
-  @spec get_metric_value(metric_category(), metric_name()) :: metric_value() | nil
+  @spec get_metric_value(metric_category(), metric_name()) :: map() | nil
   def get_metric_value(category, name) when is_atom(category) and is_atom(name) do
     case get_metrics(category) do
-      metrics when is_map(metrics) -> Map.get(metrics, name)
-      _ -> nil
+      metrics when is_map(metrics) -> 
+        # Retorna o mapa completo da métrica ou cria um novo se não existir
+        Map.get(metrics, name, %{count: 0, total: 0})
+      _ -> %{count: 0, total: 0}
     end
   end
   
@@ -186,7 +195,13 @@ defmodule Deeper_Hub.Core.Metrics do
   """
   @spec clear_metrics(metric_category()) :: :ok
   def clear_metrics(category) when is_atom(category) do
-    :ets.delete(@metrics_table, category)
+    # Certifica-se de que a tabela existe antes de tentar limpar
+    ensure_metrics_table_exists()
+    try do
+      :ets.delete(@metrics_table, category)
+    rescue
+      _ -> :ok  # Ignora erros ao tentar limpar a categoria
+    end
     :ok
   end
   
@@ -201,7 +216,32 @@ defmodule Deeper_Hub.Core.Metrics do
   """
   @spec clear_all_metrics() :: :ok
   def clear_all_metrics do
-    :ets.delete_all_objects(@metrics_table)
+    # Certifica-se de que a tabela existe antes de tentar limpar
+    ensure_metrics_table_exists()
+    try do
+      :ets.delete_all_objects(@metrics_table)
+    rescue
+      _ -> :ok  # Ignora erros ao tentar limpar a tabela
+    end
+    :ok
+  end
+  
+  @doc """
+  Limpa todas as métricas do sistema.
+  
+  Aliás para clear_all_metrics/0, fornecido para compatibilidade com os testes.
+  
+  ## Exemplos
+  
+  ```elixir
+  Metrics.clear_metrics()
+  ```
+  """
+  @spec clear_metrics() :: :ok
+  def clear_metrics do
+    # Certifica-se de que a tabela existe antes de tentar limpar
+    ensure_metrics_table_exists()
+    clear_all_metrics()
     :ok
   end
   
@@ -238,34 +278,105 @@ defmodule Deeper_Hub.Core.Metrics do
   
   # Funções privadas
   
-  defp update_metric(category, name, value, _type) do
+  defp update_metric(category, name, value, type) do
     # Obtém as métricas atuais da categoria ou cria um mapa vazio
     current_metrics = get_metrics(category)
     
+    # Obtém a métrica atual ou cria uma nova
+    current_metric = Map.get(current_metrics, name, %{count: 0, total: 0, min: nil, max: nil})
+    
+    # Atualiza a métrica com base no tipo
+    updated_metric = case type do
+      :execution_time ->
+        %{
+          count: current_metric[:count] + 1,
+          total: current_metric[:total] + value,
+          min: min(current_metric[:min] || value, value),
+          max: max(current_metric[:max] || value, value),
+          avg: (current_metric[:total] + value) / (current_metric[:count] + 1)
+        }
+      
+      :counter ->
+        %{
+          count: value,
+          total: value
+        }
+      
+      :value ->
+        %{
+          count: current_metric[:count] + 1,
+          total: current_metric[:total] + value,
+          last_value: value,
+          avg: (current_metric[:total] + value) / (current_metric[:count] + 1)
+        }
+      
+      _ ->
+        %{
+          count: current_metric[:count] + 1,
+          total: value
+        }
+    end
+    
     # Atualiza o mapa de métricas com o novo valor
-    updated_metrics = Map.put(current_metrics, name, value)
+    updated_metrics = Map.put(current_metrics, name, updated_metric)
     
     # Armazena o mapa atualizado
     :ets.insert(@metrics_table, {category, updated_metrics})
   end
   
   defp collect_all_metrics do
+    # Certifica-se de que a tabela existe antes de tentar coletar
+    ensure_metrics_table_exists()
     # Coleta todas as categorias de métricas
     :ets.tab2list(@metrics_table)
     |> Enum.into(%{}, fn {category, metrics} -> {category, metrics} end)
   end
   
+  # Verifica se uma tabela ETS existe
+  defp table_exists?(table_name) do
+    case :ets.info(table_name) do
+      :undefined -> false
+      _ -> true
+    end
+  end
+
+  # Garante que a tabela de métricas existe
+  defp ensure_metrics_table_exists do
+    try do
+      if :ets.info(@metrics_table) == :undefined do
+        # Se a tabela não existir, cria uma nova
+        :ets.new(@metrics_table, [:set, :public, :named_table])
+        Logger.info("Tabela de métricas inicializada", %{module: __MODULE__})
+      end
+      :ok
+    rescue
+      _ ->
+        # Se houver qualquer erro, tenta criar a tabela novamente
+        try do
+          :ets.new(@metrics_table, [:set, :public, :named_table])
+          Logger.info("Tabela de métricas inicializada após erro", %{module: __MODULE__})
+        rescue
+          _ -> :ok  # Ignora se a tabela já existir ou outro erro ocorrer
+        end
+    end
+  end
+  
   defp export_to_csv(metrics) do
     # Implementação básica de exportação para CSV
-    metrics
+    header = "categoria,metrica,contagem,total,media"
+    rows = metrics
     |> Enum.map(fn {category, values} ->
       values
-      |> Enum.map(fn {name, value} ->
-        "#{category},#{name},#{value}"
+      |> Enum.map(fn {name, metric_data} ->
+        count = metric_data[:count] || 0
+        total = metric_data[:total] || 0
+        avg = metric_data[:avg] || (if count > 0, do: total / count, else: 0)
+        "#{category},#{name},#{count},#{total},#{avg}"
       end)
     end)
     |> List.flatten()
-    |> Enum.join("\n")
+    
+    [header | rows] |> Enum.join("\n")
   end
   
   defp export_to_prometheus(metrics) do
@@ -273,8 +384,18 @@ defmodule Deeper_Hub.Core.Metrics do
     metrics
     |> Enum.map(fn {category, values} ->
       values
-      |> Enum.map(fn {name, value} ->
-        "#{category}_#{name} #{value}"
+      |> Enum.map(fn {name, metric_data} ->
+        count = metric_data[:count] || 0
+        total = metric_data[:total] || 0
+        avg = metric_data[:avg] || (if count > 0, do: total / count, else: 0)
+        [
+          "# TYPE #{category}_#{name}_count counter",
+          "#{category}_#{name}_count #{count}",
+          "# TYPE #{category}_#{name}_total counter",
+          "#{category}_#{name}_total #{total}",
+          "# TYPE #{category}_#{name}_avg gauge",
+          "#{category}_#{name}_avg #{avg}"
+        ]
       end)
     end)
     |> List.flatten()

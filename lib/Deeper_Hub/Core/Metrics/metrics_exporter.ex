@@ -173,34 +173,37 @@ defmodule Deeper_Hub.Core.Metrics.MetricsExporter do
   # Exporta métricas para formato CSV
   defp export_to_csv(metrics) do
     # Função para extrair métricas em formato plano
-    extract_metrics = fn map, prefix ->
-      Enum.flat_map(map, fn {key, value} ->
-        new_prefix = if prefix == "", do: to_string(key), else: "#{prefix}.#{key}"
-        
-        cond do
-          is_map(value) and not Map.has_key?(value, :count) ->
-            extract_metrics.(value, new_prefix)
+    extract_metrics = fn ->
+      f = fn f, map, prefix ->
+        Enum.flat_map(map, fn {key, value} ->
+          new_prefix = if prefix == "", do: to_string(key), else: "#{prefix}.#{key}"
           
-          is_map(value) ->
-            # Métricas com estatísticas (count, total, avg)
-            Enum.map(value, fn {stat_key, stat_value} ->
-              {
-                "#{new_prefix}.#{stat_key}",
-                if is_float(stat_value), do: Float.round(stat_value, 4), else: stat_value
-              }
-            end)
-          
-          true ->
-            # Valores simples
-            [{new_prefix, value}]
-        end
-      end)
-    end
+          cond do
+            is_map(value) and not Map.has_key?(value, :count) ->
+              f.(f, value, new_prefix)
+            
+            is_map(value) ->
+              # Métricas com estatísticas (count, total, avg)
+              Enum.map(value, fn {stat_key, stat_value} ->
+                {
+                  "#{new_prefix}.#{stat_key}",
+                  (if is_float(stat_value), do: Float.round(stat_value, 4), else: stat_value)
+                }
+              end)
+            
+            true ->
+              # Valores simples
+              [{new_prefix, value}]
+          end
+        end)
+      end
+      f
+    end.()
     
     # Extrai métricas gerais
     general_metrics = 
       if Map.has_key?(metrics, :general) do
-        extract_metrics.(metrics.general, "general")
+        extract_metrics.(extract_metrics, metrics.general, "general")
       else
         []
       end
@@ -208,7 +211,7 @@ defmodule Deeper_Hub.Core.Metrics.MetricsExporter do
     # Extrai métricas de banco de dados
     db_metrics = 
       if Map.has_key?(metrics, :database) do
-        extract_metrics.(metrics.database, "database")
+        extract_metrics.(extract_metrics, metrics.database, "database")
       else
         []
       end
@@ -232,40 +235,43 @@ defmodule Deeper_Hub.Core.Metrics.MetricsExporter do
   # Exporta métricas para formato Prometheus
   defp export_to_prometheus(metrics) do
     # Função para extrair métricas em formato Prometheus
-    extract_prometheus_metrics = fn map, prefix ->
-      Enum.flat_map(map, fn {key, value} ->
-        metric_name = if prefix == "", do: "deeper_hub_#{key}", else: "#{prefix}_#{key}"
-        
-        cond do
-          is_map(value) and not Map.has_key?(value, :count) ->
-            extract_prometheus_metrics.(value, metric_name)
+    extract_prometheus_metrics = fn ->
+      f = fn f, map, prefix ->
+        Enum.flat_map(map, fn {key, value} ->
+          metric_name = if prefix == "", do: "deeper_hub_#{key}", else: "#{prefix}_#{key}"
           
-          is_map(value) ->
-            # Métricas com estatísticas (count, total, avg)
-            Enum.map(value, fn {stat_key, stat_value} ->
-              full_metric_name = "#{metric_name}_#{stat_key}"
-              value_str = if is_float(stat_value), do: Float.round(stat_value, 4), else: stat_value
-              
-              "# HELP #{full_metric_name} Metric for #{metric_name}.#{stat_key}\n" <>
-              "# TYPE #{full_metric_name} gauge\n" <>
-              "#{full_metric_name} #{value_str}"
-            end)
-          
-          true ->
-            # Valores simples
-            [
-              "# HELP #{metric_name} Metric for #{metric_name}\n" <>
-              "# TYPE #{metric_name} gauge\n" <>
-              "#{metric_name} #{value}"
-            ]
-        end
-      end)
-    end
+          cond do
+            is_map(value) and not Map.has_key?(value, :count) ->
+              f.(f, value, metric_name)
+            
+            is_map(value) ->
+              # Métricas com estatísticas (count, total, avg)
+              Enum.map(value, fn {stat_key, stat_value} ->
+                full_metric_name = "#{metric_name}_#{stat_key}"
+                value_str = (if is_float(stat_value), do: Float.round(stat_value, 4), else: stat_value)
+                
+                "# HELP #{full_metric_name} Metric for #{metric_name}.#{stat_key}\n" <>
+                "# TYPE #{full_metric_name} gauge\n" <>
+                "#{full_metric_name} #{value_str}"
+              end)
+            
+            true ->
+              # Valores simples
+              [
+                "# HELP #{metric_name} Metric for #{metric_name}\n" <>
+                "# TYPE #{metric_name} gauge\n" <>
+                "#{metric_name} #{value}"
+              ]
+          end
+        end)
+      end
+      f
+    end.()
     
     # Extrai métricas gerais
     general_metrics = 
       if Map.has_key?(metrics, :general) do
-        extract_prometheus_metrics.(metrics.general, "deeper_hub")
+        extract_prometheus_metrics.(extract_prometheus_metrics, metrics.general, "deeper_hub")
       else
         []
       end
@@ -273,7 +279,7 @@ defmodule Deeper_Hub.Core.Metrics.MetricsExporter do
     # Extrai métricas de banco de dados
     db_metrics = 
       if Map.has_key?(metrics, :database) do
-        extract_prometheus_metrics.(metrics.database, "deeper_hub_db")
+        extract_prometheus_metrics.(extract_prometheus_metrics, metrics.database, "deeper_hub_db")
       else
         []
       end

@@ -168,6 +168,42 @@ defmodule Deeper_Hub.Core.Metrics.DatabaseMetrics do
     Metrics.get_metrics(:database)
   end
   
+  @doc """
+  Obtém métricas de todas as operações de banco de dados.
+  
+  ## Retorno
+  
+  Um mapa contendo métricas para todas as operações de banco de dados.
+  
+  ## Exemplos
+  
+  ```elixir
+  metrics = DatabaseMetrics.get_operation_metrics()
+  ```
+  """
+  @spec get_operation_metrics() :: map()
+  def get_operation_metrics do
+    Metrics.get_metrics(:database)
+  end
+  
+  @doc """
+  Limpa todas as métricas de banco de dados.
+  
+  Esta função remove todas as métricas relacionadas a operações de banco de dados.
+  Útil para testes e reinicialização do sistema de métricas.
+  
+  ## Exemplos
+  
+  ```elixir
+  DatabaseMetrics.clear_metrics()
+  ```
+  """
+  @spec clear_metrics() :: :ok
+  def clear_metrics do
+    Metrics.clear_metrics(:database)
+    :ok
+  end
+  
   # Funções privadas
   
   defp update_average_time(table, operation, execution_time) do

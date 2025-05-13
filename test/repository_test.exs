@@ -8,9 +8,19 @@ defmodule Deeper_Hub.Core.Data.RepositoryTest do
   setup_all do
     # Inicializar o banco de dados para os testes
     :mnesia.stop()
-    File.rm_rf!("Mnesia.#{node()}")
+    # Configura um diretório específico para testes
+    test_mnesia_dir = Path.join(System.tmp_dir!(), "mnesia_test_#{:rand.uniform(1000000)}")
+    File.mkdir_p!(test_mnesia_dir)
+    :application.set_env(:mnesia, :dir, String.to_charlist(test_mnesia_dir))
+    # Limpa o schema anterior
     :mnesia.delete_schema([node()])
     :mnesia.start()
+    # Registra o diretório para limpeza após o teste
+    on_exit(fn -> File.rm_rf!(test_mnesia_dir) end)
+    
+    # Inicializa o sistema de métricas
+    alias Deeper_Hub.Core.Metrics
+    Metrics.initialize()
     
     # Criar as tabelas necessárias em modo de teste (apenas em memória)
     result = Database.create_tables(test_mode: true)

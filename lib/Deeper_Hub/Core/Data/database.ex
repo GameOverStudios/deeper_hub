@@ -18,6 +18,12 @@ defmodule Deeper_Hub.Core.Data.Database do
   def init do
     # Certifica-se de que o Mnesia está parado antes de iniciar
     :mnesia.stop()
+    
+    # Configura o diretório do Mnesia
+    mnesia_dir = Path.join(File.cwd!(), "mnesia_data")
+    File.mkdir_p!(mnesia_dir)
+    :application.set_env(:mnesia, :dir, String.to_charlist(mnesia_dir))
+    Logger.info("Diretório Mnesia configurado: #{mnesia_dir}", %{module: __MODULE__})
 
     # Cria o schema do Mnesia no nó atual
     case :mnesia.create_schema([node()]) do

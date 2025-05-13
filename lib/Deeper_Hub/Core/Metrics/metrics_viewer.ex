@@ -36,7 +36,7 @@ defmodule Deeper_Hub.Core.Metrics.MetricsViewer do
         else
           # Transforma as métricas de operação em um formato mais amigável
           DatabaseMetrics.get_operation_metrics()
-          |> Enum.map(fn {table, operations} -> 
+          |> Enum.map(fn {table, _operations} -> 
             {table, DatabaseMetrics.get_table_metrics(table)}
           end)
           |> Map.new()
@@ -209,7 +209,7 @@ defmodule Deeper_Hub.Core.Metrics.MetricsViewer do
   end
   
   # Gera recomendações de otimização com base nas métricas
-  defp generate_recommendations(table, metrics) do
+  defp generate_recommendations(_table, metrics) do
     operations = metrics[:operations] || %{}
     result_sizes = metrics[:result_sizes] || %{}
     
