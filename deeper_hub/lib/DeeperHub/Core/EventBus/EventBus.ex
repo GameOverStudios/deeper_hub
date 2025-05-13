@@ -23,6 +23,7 @@ defmodule DeeperHub.Core.EventBus do
   """
 
   alias DeeperHub.Core.EventBus.Server
+  alias DeeperHub.Core.Logger
 
   @doc """
   Publica um evento no barramento para todos os assinantes interessados.
@@ -49,6 +50,10 @@ defmodule DeeperHub.Core.EventBus do
   """
   @spec publish(String.t(), term(), keyword()) :: {:ok, String.t()} | {:error, term()}
   def publish(topic, payload, opts \\ []) do
+    Logger.debug("Fachada: Publicando evento", %{
+      topic: topic,
+      module: __MODULE__
+    })
     Server.publish(topic, payload, opts)
   end
 
@@ -72,6 +77,11 @@ defmodule DeeperHub.Core.EventBus do
   """
   @spec subscribe(String.t(), pid()) :: :ok | {:error, term()}
   def subscribe(topic_pattern, subscriber) do
+    Logger.debug("Fachada: Registrando assinante", %{
+      topic_pattern: topic_pattern,
+      subscriber: inspect(subscriber),
+      module: __MODULE__
+    })
     Server.subscribe(topic_pattern, subscriber)
   end
 
@@ -94,6 +104,11 @@ defmodule DeeperHub.Core.EventBus do
   """
   @spec unsubscribe(String.t(), pid()) :: :ok
   def unsubscribe(topic_pattern, subscriber) do
+    Logger.debug("Fachada: Cancelando assinatura", %{
+      topic_pattern: topic_pattern,
+      subscriber: inspect(subscriber),
+      module: __MODULE__
+    })
     Server.unsubscribe(topic_pattern, subscriber)
   end
 
@@ -115,6 +130,10 @@ defmodule DeeperHub.Core.EventBus do
   """
   @spec unsubscribe_all(pid()) :: :ok
   def unsubscribe_all(subscriber) do
+    Logger.debug("Fachada: Cancelando todas as assinaturas", %{
+      subscriber: inspect(subscriber),
+      module: __MODULE__
+    })
     Server.unsubscribe_all(subscriber)
   end
 end

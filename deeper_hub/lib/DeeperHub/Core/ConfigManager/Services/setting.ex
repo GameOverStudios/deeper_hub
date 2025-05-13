@@ -8,11 +8,13 @@ defmodule DeeperHub.Core.ConfigManager.Services.Setting do
 
   alias DeeperHub.Core.ConfigManager.Schema.Setting
   alias DeeperHub.Core.ConfigManager.Schema.SettingTable
+  alias DeeperHub.Core.Logger
 
   @doc """
   Inicializa as tabelas necessárias para o serviço de configurações.
   """
   def setup do
+    Logger.debug("Criando tabela Mnesia para configurações", %{module: __MODULE__})
     Memento.Table.create(SettingTable)
   end
 
@@ -29,12 +31,25 @@ defmodule DeeperHub.Core.ConfigManager.Services.Setting do
     * `{:error, reason}` - Se houver erros de validação.
   """
   def create(attrs) do
+    Logger.debug("Criando nova configuração", %{key: attrs[:key], scope: attrs[:scope]})
+
     with {:ok, setting} <- Setting.new(attrs) do
+      Logger.debug("Configuração validada, persistindo", %{key: setting.key, scope: setting.scope})
+
       Memento.transaction! fn ->
         Memento.Query.write(setting)
       end
 
+      Logger.info("Configuração criada com sucesso", %{key: setting.key, scope: setting.scope})
       {:ok, setting}
+    else
+      {:error, reason} ->
+        Logger.error("Falha ao criar configuração", %{
+          key: attrs[:key],
+          scope: attrs[:scope],
+          error: inspect(reason)
+        })
+        {:error, reason}
     end
   end
 
@@ -52,7 +67,11 @@ defmodule DeeperHub.Core.ConfigManager.Services.Setting do
     * `{:error, :not_found}` - Se a configuração não for encontrada.
   """
   def get_by_key_and_scope(key, scope \\ "global") do
+    Logger.debug("Buscando configuração", %{key: key, scope: scope})
+
     result = Memento.transaction! fn ->
+      Logger.debug("Executando consulta Mnesia", %{key: key, scope: scope})
+
       Memento.Query.select(SettingTable, {:==, :key, key})
       |> Enum.filter(fn setting ->
         setting.scope == scope && is_nil(setting.deleted_at)
@@ -61,8 +80,11 @@ defmodule DeeperHub.Core.ConfigManager.Services.Setting do
     end
 
     case result do
-      nil -> {:error, :not_found}
+      nil ->
+        Logger.debug("Configuração não encontrada", %{key: key, scope: scope})
+        {:error, :not_found}
       setting ->
+        Logger.debug("Configuração encontrada, deserializando valor", %{key: key, scope: scope})
         value = Setting.deserialize_value(setting.value, setting.data_type)
         setting = Map.put(setting, :value, value)
         {:ok, setting}
@@ -83,16 +105,29 @@ defmodule DeeperHub.Core.ConfigManager.Services.Setting do
     * `{:error, reason}` - Se houver erros de validação.
   """
   def update(setting, attrs) do
+    Logger.debug("Atualizando configuração", %{key: setting.key, scope: setting.scope})
+
     # Mescla os atributos existentes com os novos
     attrs = Map.merge(Map.from_struct(setting), attrs)
     attrs = Map.put(attrs, :updated_at, DateTime.utc_now() |> DateTime.to_iso8601())
 
     with {:ok, updated_setting} <- Setting.validate(attrs) do
+      Logger.debug("Configuração validada, persistindo alterações", %{key: updated_setting.key, scope: updated_setting.scope})
+
       Memento.transaction! fn ->
         Memento.Query.write(updated_setting)
       end
 
+      Logger.info("Configuração atualizada com sucesso", %{key: updated_setting.key, scope: updated_setting.scope})
       {:ok, updated_setting}
+    else
+      {:error, reason} ->
+        Logger.error("Falha ao atualizar configuração", %{
+          key: setting.key,
+          scope: setting.scope,
+          error: inspect(reason)
+        })
+        {:error, reason}
     end
   end
 
@@ -110,6 +145,12 @@ defmodule DeeperHub.Core.ConfigManager.Services.Setting do
     * `{:error, reason}` - Se houver erros.
   """
   def delete(setting, deleted_by \\ "system") do
+    Logger.debug("Excluindo configuração (soft-delete)", %{
+      key: setting.key,
+      scope: setting.scope,
+      deleted_by: deleted_by
+    })
+
     attrs = %{
       deleted_at: DateTime.utc_now() |> DateTime.to_iso8601(),
       deleted_by: deleted_by,
@@ -131,7 +172,11 @@ defmodule DeeperHub.Core.ConfigManager.Services.Setting do
     * Lista de configurações.
   """
   def list_by_scope(scope \\ "global") do
-    Memento.transaction! fn ->
+    Logger.debug("Listando configurações por escopo", %{scope: scope})
+
+    result = Memento.transaction! fn ->
+      Logger.debug("Executando consulta Mnesia para listar configurações", %{scope: scope})
+
       Memento.Query.select(SettingTable, {:==, :scope, scope})
       |> Enum.filter(fn setting -> is_nil(setting.deleted_at) end)
       |> Enum.map(fn setting ->
@@ -139,6 +184,9 @@ defmodule DeeperHub.Core.ConfigManager.Services.Setting do
         Map.put(setting, :value, value)
       end)
     end
+
+    Logger.debug("Configurações encontradas", %{scope: scope, count: length(result)})
+    result
   end
 
   @doc """
@@ -154,10 +202,20 @@ defmodule DeeperHub.Core.ConfigManager.Services.Setting do
     * Lista de configurações.
   """
   def list_by_key_pattern(key_pattern, scope \\ "global") do
+    Logger.debug("Listando configurações por padrão de chave", %{
+      key_pattern: key_pattern,
+      scope: scope
+    })
+
     # Compile the regex pattern
     regex = Regex.compile!(key_pattern)
 
-    Memento.transaction! fn ->
+    result = Memento.transaction! fn ->
+      Logger.debug("Executando consulta Mnesia com filtro regex", %{
+        key_pattern: key_pattern,
+        scope: scope
+      })
+
       Memento.Query.select(SettingTable, {:==, :scope, scope})
       |> Enum.filter(fn setting ->
         is_nil(setting.deleted_at) && Regex.match?(regex, setting.key)
@@ -167,6 +225,13 @@ defmodule DeeperHub.Core.ConfigManager.Services.Setting do
         Map.put(setting, :value, value)
       end)
     end
+
+    Logger.debug("Configurações encontradas com o padrão", %{
+      key_pattern: key_pattern,
+      scope: scope,
+      count: length(result)
+    })
+    result
   end
 
   @doc """
@@ -185,19 +250,29 @@ defmodule DeeperHub.Core.ConfigManager.Services.Setting do
     * `{:error, reason}` - Se houver erros.
   """
   def upsert(key, value, scope \\ "global", opts \\ []) do
+    Logger.debug("Criando ou atualizando configuração", %{key: key, scope: scope})
+
+    data_type = Keyword.get(opts, :data_type) || infer_data_type(value)
+
     attrs = %{
       key: key,
       value: value,
       scope: scope,
-      data_type: Keyword.get(opts, :data_type) || infer_data_type(value),
+      data_type: data_type,
       is_sensitive: Keyword.get(opts, :is_sensitive, false),
       description: Keyword.get(opts, :description, ""),
       created_by: Keyword.get(opts, :created_by, "system")
     }
 
+    Logger.debug("Tipo de dado inferido ou fornecido", %{key: key, data_type: data_type})
+
     case get_by_key_and_scope(key, scope) do
-      {:ok, setting} -> update(setting, attrs)
-      {:error, :not_found} -> create(attrs)
+      {:ok, setting} ->
+        Logger.debug("Configuração existente, atualizando", %{key: key, scope: scope})
+        update(setting, attrs)
+      {:error, :not_found} ->
+        Logger.debug("Configuração não existente, criando nova", %{key: key, scope: scope})
+        create(attrs)
     end
   end
 

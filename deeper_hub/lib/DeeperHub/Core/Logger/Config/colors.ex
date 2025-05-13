@@ -6,6 +6,19 @@ defmodule DeeperHub.Core.Logger.Config.Colors do
   níveis de log e componentes da mensagem de log.
   """
 
+  # Valores padrão definidos como constantes do módulo
+  @default_level_colors %{
+    debug: :cyan,
+    info: :green,
+    warn: :yellow,
+    error: :red,
+    critical: [:red, :bright]
+  }
+
+  @default_module_color [:blue, :bright]
+  @default_timestamp_color :white
+  @default_color :white
+
   @doc """
   Obtém a configuração de cores para o Logger.
 
@@ -38,20 +51,8 @@ defmodule DeeperHub.Core.Logger.Config.Colors do
   As cores podem ser um átomo ou uma lista de átomos para combinações.
   """
   def get_level_colors do
-    # Obter configuração do ConfigManager, se existir
-    # Caso contrário, usar valores padrão
-    default_colors = %{
-      debug: :cyan,
-      info: :green,
-      warn: :yellow,
-      error: :red,
-      critical: [:red, :bright]
-    }
-
-    case get_config_value([:core, :logger, :colors, :levels]) do
-      nil -> default_colors
-      colors -> Map.merge(default_colors, colors)
-    end
+    # Usar apenas valores padrão para evitar referência circular durante a inicialização
+    @default_level_colors
   end
 
   @doc """
@@ -62,7 +63,7 @@ defmodule DeeperHub.Core.Logger.Config.Colors do
   Um átomo ou lista de átomos representando a cor.
   """
   def get_module_color do
-    get_config_value([:core, :logger, :colors, :module]) || [:blue, :bright]
+    @default_module_color
   end
 
   @doc """
@@ -73,7 +74,7 @@ defmodule DeeperHub.Core.Logger.Config.Colors do
   Um átomo ou lista de átomos representando a cor.
   """
   def get_timestamp_color do
-    get_config_value([:core, :logger, :colors, :timestamp]) || :white
+    @default_timestamp_color
   end
 
   @doc """
@@ -84,16 +85,6 @@ defmodule DeeperHub.Core.Logger.Config.Colors do
   Um átomo ou lista de átomos representando a cor.
   """
   def get_default_color do
-    get_config_value([:core, :logger, :colors, :default]) || :white
-  end
-
-  # Tenta obter um valor do ConfigManager, se existir
-  # Se o módulo não estiver disponível ou a chave não existir, retorna nil
-  defp get_config_value(key) do
-    if Code.ensure_loaded?(DeeperHub.Core.ConfigManager.Facade) do
-      DeeperHub.Core.ConfigManager.Facade.get(key, "global", nil)
-    else
-      nil
-    end
+    @default_color
   end
 end

@@ -7,20 +7,32 @@ defmodule DeeperHub.Application do
   """
 
   use Application
+  require Logger # Usamos o Logger padrão do Elixir aqui já que nosso Logger ainda não foi inicializado
 
   @impl true
   def start(_type, _args) do
-    IO.puts("📝 Inicializando Sistema")
+    Logger.info("Inicializando Sistema DeeperHub")
+
+    # Definimos a lista de supervisores em ordem de inicialização
     children = [
-      # Supervisores dos módulos Core
-      {DeeperHub.Core.Logger.Supervisor, []},
-      {DeeperHub.Core.ConfigManager.Supervisor, []},
-      {DeeperHub.Core.EventBus.Supervisor, []},
-      # Outros supervisores serão adicionados conforme necessário
+      # Inicia o supervisor do Logger primeiro para garantir que os logs estejam disponíveis
+      DeeperHub.Core.Logger.Supervisor,
+
+      # Inicia outros supervisores
+      DeeperHub.Core.ConfigManager.Supervisor,
+      DeeperHub.Core.EventBus.Supervisor
+
+      # Outros módulos do sistema...
     ]
 
-    # Estratégia :one_for_one - se um processo filho falhar, apenas ele será reiniciado
+    # Ver https://hexdocs.pm/elixir/Supervisor.html
+    # para outras estratégias e opções de supervisão
     opts = [strategy: :one_for_one, name: DeeperHub.Supervisor]
-    Supervisor.start_link(children, opts)
+
+    # Iniciar supervisor
+    result = Supervisor.start_link(children, opts)
+
+    Logger.info("Todos os supervisores iniciados")
+    result
   end
 end

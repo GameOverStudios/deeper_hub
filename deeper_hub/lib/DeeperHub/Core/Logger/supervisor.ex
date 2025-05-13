@@ -6,6 +6,8 @@ defmodule DeeperHub.Core.Logger.Supervisor do
   use Supervisor
 
   def start_link(init_arg) do
+    # Mantemos apenas um IO.puts aqui porque o Logger ainda não está inicializado
+    # Uma referência circular seria criada se usássemos o próprio Logger aqui
     IO.puts(" ⚙️  Iniciando Logger")
     Supervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
   end
@@ -40,5 +42,10 @@ defmodule DeeperHub.Core.Logger.Supervisor do
 
     # Define o nível mínimo de log
     Logger.configure(level: :debug)
+
+    # Após a configuração do Logger, podemos emitir uma mensagem indicando que ele está ativo
+    # mas usamos o Logger do Elixir já que nosso DeeperHub.Core.Logger ainda não está ativo
+    require Logger
+    Logger.info("Logger do DeeperHub configurado e ativo")
   end
 end

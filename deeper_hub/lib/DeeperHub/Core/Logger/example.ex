@@ -12,7 +12,7 @@ defmodule DeeperHub.Core.Logger.Example do
   Executa uma demonstração de todos os níveis de log.
   """
   def run_demo do
-    IO.puts("\n=== Demonstração do Logger com Cores ===\n")
+    Logger.info("===== Demonstração do Logger com Cores =====")
 
     # Exemplo de cada nível de log
     Logger.debug("Esta é uma mensagem de DEBUG")
@@ -37,7 +37,7 @@ defmodule DeeperHub.Core.Logger.Example do
       }
     })
 
-    IO.puts("\n=== Fim da Demonstração ===\n")
+    Logger.info("===== Fim da Demonstração =====")
   end
 
   @doc """
