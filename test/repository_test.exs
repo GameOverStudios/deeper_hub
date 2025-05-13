@@ -175,8 +175,8 @@ defmodule Deeper_Hub.Core.Data.RepositoryTest do
       Repository.insert(:users, {:users, 6, "match_user", "match@example.com", "hash_match", DateTime.utc_now()})
       Repository.insert(:users, {:users, 7, "match_user", "match2@example.com", "hash_match2", DateTime.utc_now()})
       
-      # Buscar todos os usuários com username "match_user"
-      {:ok, records} = Repository.match(:users, [])
+      # Buscar todos os usuários
+      {:ok, records} = Repository.all(:users)
       
       # Verificar se retornou os registros corretos
       assert length(records) >= 2
@@ -196,12 +196,27 @@ defmodule Deeper_Hub.Core.Data.RepositoryTest do
       end)
       
       # Verificar se retorna uma lista vazia
-      assert {:ok, []} = Repository.match(:users, [])
+      {:ok, empty_records} = Repository.all(:users)
+      assert empty_records == []
     end
     
     test "retorna erro para tabela inexistente" do
-      result = Repository.match(:tabela_inexistente, [])
-      assert match?({:error, _}, result)
+      result = Repository.all(:tabela_inexistente)
+      assert match?({:error, {:table_does_not_exist, :tabela_inexistente}}, result)
+    end
+    
+    test "busca registros específicos" do
+      # Inserir registros com usernames específicos para testar
+      user8 = {:users, 8, "special_user", "special@example.com", "hash_special", DateTime.utc_now()}
+      Repository.insert(:users, user8)
+      Repository.insert(:users, {:users, 9, "special_user", "special2@example.com", "hash_special2", DateTime.utc_now()})
+      
+      # Buscar um registro específico pelo id
+      {:ok, found_user} = Repository.find(:users, 8)
+      
+      # Verificar se encontrou o registro correto
+      assert elem(found_user, 1) == 8
+      assert elem(found_user, 2) == "special_user"
     end
   end
 end

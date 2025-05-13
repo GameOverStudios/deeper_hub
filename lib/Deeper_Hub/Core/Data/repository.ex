@@ -2,6 +2,9 @@ defmodule Deeper_Hub.Core.Data.Repository do
   @moduledoc """
   Módulo genérico para operações CRUD dinâmicas em tabelas Mnesia.
   Permite a manipulação de diferentes tabelas sem a necessidade de duplicar funções.
+  
+  Fornece funções para inserção, busca, atualização, exclusão e consulta de registros em tabelas Mnesia.
+  Todas as funções são projetadas para serem genéricas e funcionarem com qualquer tabela Mnesia.
   """
 
   alias Deeper_Hub.Core.Logger
@@ -38,17 +41,42 @@ defmodule Deeper_Hub.Core.Data.Repository do
   def insert(table_name, record) when is_atom(table_name) and is_tuple(record) do
     Logger.info("Tentando inserir registro na tabela #{table_name}", %{record: record})
 
-    case :mnesia.transaction(fn ->
-           :mnesia.write(record)
-         end) do
-      {:atomic, :ok} ->
-        Logger.info("Registro inserido com sucesso na tabela #{table_name}", %{record: record})
-        {:ok, record}
+    # Extrair a chave do registro (assumindo que é o segundo elemento da tupla)
+    key = elem(record, 1)
 
-      {:aborted, reason} ->
-        Logger.error("Falha ao inserir registro na tabela #{table_name}", %{
-          reason: reason,
+    # Verificar se já existe um registro com essa chave
+    case find(table_name, key) do
+      {:ok, _existing_record} ->
+        # Registro já existe, retornar erro
+        Logger.warning("Falha ao inserir registro na tabela #{table_name}: chave duplicada", %{
+          key: key,
           record: record
+        })
+        {:error, :duplicate_key}
+
+      {:error, :not_found} ->
+        # Registro não existe, podemos inserir
+        case :mnesia.transaction(fn ->
+               :mnesia.write(record)
+             end) do
+          {:atomic, :ok} ->
+            Logger.info("Registro inserido com sucesso na tabela #{table_name}", %{record: record})
+            {:ok, record}
+
+          {:aborted, reason} ->
+            Logger.error("Falha ao inserir registro na tabela #{table_name}", %{
+              reason: reason,
+              record: record
+            })
+
+            {:error, reason}
+        end
+
+      {:error, reason} ->
+        # Outro erro ao buscar o registro
+        Logger.error("Falha ao verificar existência do registro na tabela #{table_name}", %{
+          reason: reason,
+          key: key
         })
 
         {:error, reason}
@@ -130,8 +158,46 @@ defmodule Deeper_Hub.Core.Data.Repository do
   @spec update(table_name(), record()) :: {:ok, record()} | {:error, error_reason()}
   def update(table_name, record) when is_atom(table_name) and is_tuple(record) do
     Logger.info("Tentando atualizar registro na tabela #{table_name}", %{record: record})
-    # Reutiliza a função insert, pois :mnesia.write/1 atualiza se a chave já existir.
-    insert(table_name, record)
+    
+    # Extrai a chave do registro (assumindo que é o segundo elemento da tupla)
+    key = elem(record, 1)
+    
+    # Verifica se o registro existe
+    case find(table_name, key) do
+      {:ok, _existing_record} ->
+        # Executa a transação para atualizar o registro
+        transaction_result =
+          :mnesia.transaction(fn ->
+            # Deleta o registro existente
+            :mnesia.delete({table_name, key})
+            # Insere o novo registro
+            :mnesia.write(record)
+          end)
+        
+        case transaction_result do
+          {:atomic, :ok} ->
+            Logger.info("Registro atualizado com sucesso na tabela #{table_name}", %{
+              record: record,
+              key: key
+            })
+            {:ok, record}
+          {:aborted, reason} ->
+            Logger.error("Falha ao atualizar registro na tabela #{table_name}", %{
+              reason: reason,
+              record: record,
+              key: key
+            })
+            {:error, reason}
+        end
+        
+      {:error, :not_found} ->
+        # Se o registro não existe, simplesmente insere
+        insert(table_name, record)
+        
+      {:error, reason} ->
+        # Se ocorreu outro erro ao buscar o registro, propaga o erro
+        {:error, reason}
+    end
   end
 
   @doc """
@@ -161,15 +227,34 @@ defmodule Deeper_Hub.Core.Data.Repository do
   def delete(table_name, key) when is_atom(table_name) do
     Logger.info("Tentando deletar registro na tabela #{table_name} com chave #{inspect(key)}")
 
-    case :mnesia.transaction(fn ->
-           :mnesia.delete({table_name, key})
-         end) do
-      {:atomic, :ok} ->
-        Logger.info("Registro deletado com sucesso da tabela #{table_name}", %{key: key})
-        {:ok, :deleted}
+    # Primeiro verificar se o registro existe
+    case find(table_name, key) do
+      {:ok, _record} ->
+        # Registro existe, podemos deletar
+        case :mnesia.transaction(fn ->
+               :mnesia.delete({table_name, key})
+             end) do
+          {:atomic, :ok} ->
+            Logger.info("Registro deletado com sucesso da tabela #{table_name}", %{key: key})
+            {:ok, :deleted}
 
-      {:aborted, reason} ->
-        Logger.error("Falha ao deletar registro da tabela #{table_name}", %{
+          {:aborted, reason} ->
+            Logger.error("Falha ao deletar registro na tabela #{table_name}", %{
+              reason: reason,
+              key: key
+            })
+
+            {:error, reason}
+        end
+
+      {:error, :not_found} ->
+        # Registro não existe
+        Logger.warning("Tentativa de deletar registro inexistente na tabela #{table_name}", %{key: key})
+        {:error, :not_found}
+
+      {:error, reason} ->
+        # Outro erro ao buscar o registro
+        Logger.error("Falha ao verificar existência do registro na tabela #{table_name}", %{
           reason: reason,
           key: key
         })
@@ -201,138 +286,159 @@ defmodule Deeper_Hub.Core.Data.Repository do
   """
   @spec match(table_name(), mnesia_match_spec()) ::
           {:ok, list(record())} | {:error, error_reason()}
-  # Adicionado `is_list(match_spec)` se for sempre lista
   def match(table_name, match_spec) when is_atom(table_name) do
     Logger.info("Tentando buscar registros na tabela #{table_name} com match_spec", %{
       match_spec: match_spec
     })
 
-    # Obter a aridade da tabela para verificar se a match_spec está correta
-    case :mnesia.table_info(table_name, :arity) do
-      arity when is_integer(arity) and arity > 0 ->
-        # Criar uma match_head com apenas wildcards (:_)
-        match_head = List.duplicate(:_, arity) |> List.to_tuple()
-        # Construir a match_spec sem especificar o nome da tabela no match_head
-        corrected_match_spec = [{match_head, [], [:'$_']}]
-        
-        Logger.info("Match spec corrigida para tabela #{table_name}: #{inspect(corrected_match_spec)}")
-        
-        case :mnesia.transaction(fn ->
-               :mnesia.select(table_name, corrected_match_spec)
-             end) do
-          {:atomic, records_list} ->
-            Logger.info(
-              "#{length(records_list)} registros encontrados na tabela #{table_name}",
-              %{count: length(records_list)}
-            )
+    # Construir o padrão de busca
+    pattern = if match_spec == [] do
+      # Se não foi fornecido um padrão específico, buscar todos os registros
+      case :mnesia.table_info(table_name, :arity) do
+        arity when is_integer(arity) and arity > 0 ->
+          # Criar uma tupla com o nome da tabela como primeiro elemento e wildcards para os demais campos
+          List.to_tuple([table_name | List.duplicate(:_, arity - 1)])
+        {:error, reason} ->
+          Logger.error("Falha ao obter aridade da tabela #{table_name}", %{reason: reason})
+          {:error, reason}
+      end
+    else
+      # Usar o primeiro elemento da match_spec fornecida
+      hd(match_spec)
+    end
 
-            {:ok, records_list}
+    # Verificar se pattern é um erro
+    case pattern do
+      {:error, reason} ->
+        {:error, reason}
+      _ ->
+        Logger.debug("Padrão de busca: #{inspect(pattern)}")
+
+        case :mnesia.transaction(fn ->
+               :mnesia.match_object(table_name, pattern, :read)
+             end) do
+          {:atomic, records} ->
+            Logger.info("Registros encontrados na tabela #{table_name}", %{
+              count: length(records)
+            })
+
+            {:ok, records}
 
           {:aborted, reason} ->
             Logger.error("Falha ao buscar registros na tabela #{table_name}", %{
-              reason: reason
+              reason: reason,
+              pattern: pattern
             })
 
             {:error, reason}
         end
-        
-      {:error, reason} ->
-        Logger.error("Falha ao obter aridade da tabela #{table_name}", %{
-          reason: reason
-        })
-        
-        {:error, {:table_error, reason}}
     end
   end
 
-  # Dentro de c:\New\lib\Deeper_Hub\Core\Data\repository.ex
+  @doc """
+  Recupera todos os registros de uma tabela Mnesia.
 
-    @spec all(atom()) :: {:ok, list(tuple())} | {:error, any()}
-    def all(table) when is_atom(table) do
-      Logger.debug("[TRACE] Iniciando Repository.all/1 para tabela: #{inspect(table)}")
+  ## Parâmetros
 
-      transaction_result =
-        :mnesia.transaction(fn ->
-          Logger.debug("[TRACE] Dentro da transação para Repository.all/1")
+    - `table_name`: O átomo que representa o nome da tabela.
 
-          case :mnesia.table_info(table, :record_name) do
-            record_name when is_atom(record_name) ->
-              Logger.debug("[TRACE] table_info(:record_name) OK: #{inspect(record_name)}")
-              case :mnesia.table_info(table, :arity) do
-                arity when is_integer(arity) and arity > 0 ->
-                  Logger.debug("[TRACE] table_info(:arity) OK: #{inspect(arity)}")
-                  # Criar uma match_head com apenas wildcards (:_)
-                  match_head = List.duplicate(:_, arity) |> List.to_tuple()
-                  # Construir a match_spec sem especificar o nome da tabela no match_head
-                  match_spec = [{match_head, [], [:'$_']}]
-                  # Também vamos logar a aridade para debug
-                  Logger.debug("[TRACE] Aridade da tabela: #{arity}, Match head: #{inspect(match_head)}")
-                  Logger.debug("[TRACE] Match spec construída: #{inspect(match_spec)}")
+  ## Retorno
 
-                  # Envolver :mnesia.select em try...catch
-                  select_outcome =
-                    try do
-                      records = :mnesia.select(table, match_spec)
-                      Logger.debug("[TRACE] :mnesia.select/2 retornou (sucesso presumido): #{inspect(records)}")
-                      {:ok_select, records} # Sucesso
-                    catch
-                      kind, reason_details ->
-                        stacktrace = __STACKTRACE__
-                        Logger.error("[TRACE] :mnesia.select/2 CAUSOU EXCEÇÃO:")
-                        Logger.error("[TRACE]   Kind: #{inspect(kind)}")
-                        Logger.error("[TRACE]   Reason: #{inspect(reason_details)}")
-                        Logger.error("[TRACE]   Stacktrace: #{inspect(stacktrace)}")
-                        {:exception_in_select, kind, reason_details, stacktrace} # Falha com stacktrace
-                    end
+    - `{:ok, records}` onde records é uma lista de todos os registros da tabela.
+    - `{:error, reason}` em caso de falha.
 
-                  # Decidir o que a função da transação retorna
-                  case select_outcome do
-                    {:ok_select, records_from_select} ->
-                      records_from_select # Retorna os registros para :mnesia.transaction
-                    {:exception_in_select, kind, reason_details, stacktrace} ->
-                      # Abortar a transação com detalhes da exceção do select
-                      :mnesia.abort({:select_failed, kind, reason_details, stacktrace})
-                  end
+  ## Exemplos
 
-                {:error, {:no_exists, ^table, :arity}} ->
-                  Logger.error("[TRACE] Erro ao buscar :arity: Tabela '#{table}' não possui aridade.")
-                  :mnesia.abort({:no_exists, table, :arity})
-                other_arity_error ->
-                  Logger.error("[TRACE] Erro inesperado ao obter :arity: #{inspect(other_arity_error)}")
-                  :mnesia.abort({:unexpected_arity_error, other_arity_error})
-              end
-            {:error, {:no_exists, ^table, :record_name}} ->
-              Logger.error("[TRACE] Erro ao buscar :record_name: Tabela '#{table}' não possui nome de registro.")
-              :mnesia.abort({:no_exists, table, :record_name})
-            other_record_name_error ->
-              Logger.error("[TRACE] Erro inesperado ao obter :record_name: #{inspect(other_record_name_error)}")
-              :mnesia.abort({:unexpected_record_name_error, other_record_name_error})
-          end
-        end)
+      iex> Deeper_Hub.Core.Data.Repository.all(:users)
+      {:ok, [{:users, 1, "Alice", "alice@example.com"}, {:users, 2, "Bob", "bob@example.com"}]}
 
-      Logger.debug("[TRACE] Resultado final da transação: #{inspect(transaction_result)}")
+      iex> Deeper_Hub.Core.Data.Repository.all(:empty_table)
+      {:ok, []}
+  """
+  @spec all(table_name()) :: {:ok, list(record())} | {:error, error_reason()}
+  def all(table) when is_atom(table) do
+    Logger.debug("Iniciando Repository.all/1 para tabela: #{inspect(table)}")
 
-      case transaction_result do
-        {:atomic, records} ->
-          Logger.debug("[TRACE] Transação bem-sucedida. Registros: #{inspect(records)}")
-          {:ok, records}
-        {:aborted, {:no_exists, ^table, type}} when type in [:record_name, :arity] ->
-          Logger.error("[TRACE] Falha: Tabela '#{table}' não encontrada (#{type}).")
-          {:error, {:table_does_not_exist, table}}
-        {:aborted, {:select_failed, kind, reason_details, stacktrace}} -> # Captura o aborto customizado com stacktrace
-          Logger.error("""
-          [TRACE] Transação abortada porque :mnesia.select/2 falhou:
-            Kind: #{inspect(kind)}
-            Reason: #{inspect(reason_details)}
-            Stacktrace: #{inspect(stacktrace)}
-          """)
-          {:error, {:mnesia_error, {:select_failed_due_to_exception, {kind, reason_details}}}}
-        {:aborted, reason} -> # Outros abortos, incluindo o :badarg original se não for exceção
-          Logger.error("[TRACE] Erro na transação Mnesia (aborted): #{inspect(reason)}")
-          {:error, {:mnesia_error, reason}}
-        other_error ->
-          Logger.error("[TRACE] Erro inesperado fora da transação: #{inspect(other_error)}")
-          {:error, {:unexpected_error, other_error}}
-      end
+    case build_match_spec(table, []) do
+      {:ok, match_spec} ->
+        Logger.debug("Match spec construída: #{inspect(match_spec)}")
+
+        transaction_result =
+          :mnesia.transaction(fn ->
+            try do
+              :mnesia.select(table, match_spec)
+            catch
+              kind, reason_details ->
+                stacktrace = __STACKTRACE__
+                Logger.error("Exceção ao executar select na tabela #{table}:")
+                Logger.error("  Kind: #{inspect(kind)}")
+                Logger.error("  Reason: #{inspect(reason_details)}")
+                Logger.error("  Stacktrace: #{inspect(stacktrace)}")
+                :mnesia.abort({:select_failed, kind, reason_details, stacktrace})
+            end
+          end)
+
+        Logger.debug("Resultado da transação: #{inspect(transaction_result)}")
+
+        case transaction_result do
+          {:atomic, records} ->
+            Logger.info("Registros recuperados com sucesso da tabela #{table}", %{
+              count: length(records)
+            })
+            {:ok, records}
+          {:aborted, {:no_exists, ^table, _type}} ->
+            Logger.error("Tabela '#{table}' não encontrada")
+            {:error, {:table_does_not_exist, table}}
+          {:aborted, {:select_failed, kind, reason_details, _stacktrace}} ->
+            Logger.error("Falha ao executar select na tabela #{table}")
+            {:error, {:mnesia_error, {:select_failed, {kind, reason_details}}}}
+          # Tratamento específico para o erro badarg na tabela schema
+          {:aborted, {:badarg, :schema, _match_spec}} ->
+            Logger.error("Erro de argumento inválido ao acessar a tabela schema")
+            {:error, {:table_access_error, :schema, :badarg}}
+          {:aborted, reason} ->
+            Logger.error("Erro na transação Mnesia: #{inspect(reason)}")
+            {:error, {:mnesia_error, reason}}
+          error ->
+            Logger.error("Erro inesperado: #{inspect(error)}")
+            {:error, {:unexpected_error, error}}
+        end
+
+      {:error, reason} ->
+        Logger.error("Falha ao construir match_spec para tabela #{table}", %{
+          reason: reason
+        })
+
+        {:error, reason}
     end
+  end
+
+  @spec build_match_spec(table_name(), any()) :: 
+          {:ok, mnesia_match_spec()} | {:error, error_reason()}
+  defp build_match_spec(table_name, _input_match_spec) do
+    # Constrói uma match_spec baseada na aridade da tabela
+    try do
+      case :mnesia.table_info(table_name, :arity) do
+        arity when is_integer(arity) and arity > 0 ->
+          # Criar uma match_head com apenas wildcards (:_)
+          match_head = List.duplicate(:_, arity)
+          {:ok, [{List.to_tuple(match_head), [], [:'$_']}]}
+
+        {:error, {:no_exists, ^table_name, :arity}} ->
+          Logger.error("Tabela '#{table_name}' não possui aridade definida")
+          {:error, {:table_does_not_exist, table_name}}
+
+        other_error ->
+          Logger.error("Erro ao obter aridade da tabela #{table_name}: #{inspect(other_error)}")
+          {:error, {:table_error, other_error}}
+      end
+    catch
+      :exit, {:aborted, {:no_exists, ^table_name, _}} ->
+        Logger.error("Tabela '#{table_name}' não existe")
+        {:error, {:table_does_not_exist, table_name}}
+      kind, reason ->
+        Logger.error("Erro inesperado ao obter informações da tabela #{table_name}: #{inspect({kind, reason})}")
+        {:error, {:unexpected_error, {kind, reason}}}
+    end
+  end
 end

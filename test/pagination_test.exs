@@ -110,6 +110,18 @@ defmodule Deeper_Hub.Core.Data.PaginationTest do
       assert List.last(result.entries) == 100
     end
     
+    test "pagina uma lista corretamente com tamanho de página personalizado", %{test_list: list} do
+      result = Pagination.paginate_list(list, %{page: 2, page_size: 25})
+      
+      assert result.page_number == 2
+      assert result.page_size == 25
+      assert result.total_entries == 100
+      assert result.total_pages == 4
+      assert length(result.entries) == 25
+      assert hd(result.entries) == 26
+      assert List.last(result.entries) == 50
+    end
+    
     test "lida com página vazia (página além do total)", %{test_list: list} do
       result = Pagination.paginate_list(list, %{page: 11, page_size: 10})
       
@@ -128,6 +140,24 @@ defmodule Deeper_Hub.Core.Data.PaginationTest do
       assert result.total_entries == 0
       assert result.total_pages == 0
       assert result.entries == []
+    end
+    
+    test "lida com tamanho de página zero ou negativo", %{test_list: list} do
+      result_zero = Pagination.paginate_list(list, %{page: 1, page_size: 0})
+      result_negative = Pagination.paginate_list(list, %{page: 1, page_size: -5})
+      
+      # Ambos devem ter comportamento similar
+      assert result_zero.page_number == 1
+      assert result_zero.page_size == 0
+      assert result_zero.total_entries == 100
+      assert result_zero.total_pages == 0
+      assert result_zero.entries == []
+      
+      assert result_negative.page_number == 1
+      assert result_negative.page_size == -5
+      assert result_negative.total_entries == 100
+      assert result_negative.total_pages == 0
+      assert result_negative.entries == []
     end
     
     test "usa valores padrão quando não especificados", %{test_list: list} do
@@ -156,6 +186,10 @@ defmodule Deeper_Hub.Core.Data.PaginationTest do
       Enum.each(result.entries, fn record ->
         assert match?({:users, _, _, _, _, _}, record)
       end)
+      
+      # Verificar se todos os registros têm ids válidos (não precisamos verificar a ordenação já que Mnesia não garante ordem)
+      ids = Enum.map(result.entries, fn {_, id, _, _, _, _} -> id end)
+      assert Enum.all?(ids, fn id -> is_integer(id) and id > 0 end)
     end
     
     test "pagina resultados de uma tabela Mnesia - última página" do
@@ -204,6 +238,19 @@ defmodule Deeper_Hub.Core.Data.PaginationTest do
       result = Pagination.paginate_mnesia(:tabela_inexistente, %{page: 1, page_size: 5})
       
       # Deve retornar uma estrutura de paginação vazia, mesmo para tabela inexistente
+      assert result.page_number == 1
+      assert result.page_size == 5
+      assert result.total_entries == 0
+      assert result.total_pages == 0
+      assert result.entries == []
+    end
+    
+    test "lida com erro interno do Repository.all/1" do
+      # Simular um erro interno no Repository.all/1 usando um mock
+      # Como não temos uma biblioteca de mock disponível, vamos testar com uma tabela que sabemos que causará erro
+      result = Pagination.paginate_mnesia(:schema, %{page: 1, page_size: 5})
+      
+      # Mesmo com erro interno, deve retornar uma estrutura de paginação vazia
       assert result.page_number == 1
       assert result.page_size == 5
       assert result.total_entries == 0

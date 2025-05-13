@@ -49,21 +49,35 @@ defmodule Deeper_Hub.Core.Data.Pagination do
     page_size = Map.get(params, :page_size, 10)
 
     total_items = length(items)
-    total_pages = if page_size > 0, do: ceil(total_items / page_size) |> max(0), else: 0
-    actual_total_pages = if total_items == 0, do: 0, else: max(1, total_pages)
+    
+    # Tratar page_size menor ou igual a zero
+    if page_size <= 0 do
+      # Retornar uma estrutura de paginação vazia para page_size inválido
+      %{
+        entries: [],
+        page_number: page,
+        page_size: page_size,
+        total_entries: total_items,
+        total_pages: 0
+      }
+    else
+      # Cálculo normal para page_size válido
+      total_pages = ceil(total_items / page_size) |> max(0)
+      actual_total_pages = if total_items == 0, do: 0, else: max(1, total_pages)
 
-    start_index = (page - 1) * page_size
-    # end_index = start_index + page_size - 1 # Not needed with Enum.slice/3
+      start_index = (page - 1) * page_size
+      # end_index = start_index + page_size - 1 # Not needed with Enum.slice/3
 
-    paginated_items = Enum.slice(items, start_index, page_size)
+      paginated_items = Enum.slice(items, start_index, page_size)
 
-    %{
-      entries: paginated_items,
-      page_number: page,
-      page_size: page_size,
-      total_entries: total_items,
-      total_pages: actual_total_pages
-    }
+      %{
+        entries: paginated_items,
+        page_number: page,
+        page_size: page_size,
+        total_entries: total_items,
+        total_pages: actual_total_pages
+      }
+    end
   end
 
   @doc """
