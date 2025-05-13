@@ -20,10 +20,17 @@ defmodule Deeper_Hub.Core.Data.Database do
 
     # Cria o schema do Mnesia no nó atual
     case :mnesia.create_schema([node()]) do
-      :ok -> :ok
-      {:error, {_, {:already_exists, _}}} -> :ok
-      {:error, reason} -> 
-        Deeper_Hub.Core.Logger.error("Erro ao criar schema: #{inspect(reason)}", %{module: __MODULE__})
+      :ok ->
+        :ok
+
+      {:error, {_, {:already_exists, _}}} ->
+        :ok
+
+      {:error, reason} ->
+        Deeper_Hub.Core.Logger.error("Erro ao criar schema: #{inspect(reason)}", %{
+          module: __MODULE__
+        })
+
         {:error, reason}
     end
 
@@ -34,11 +41,19 @@ defmodule Deeper_Hub.Core.Data.Database do
     result = create_tables()
 
     case result do
-      :ok -> 
-        Deeper_Hub.Core.Logger.info("Banco de dados Mnesia inicializado com sucesso", %{module: __MODULE__})
+      :ok ->
+        Deeper_Hub.Core.Logger.info("Banco de dados Mnesia inicializado com sucesso", %{
+          module: __MODULE__
+        })
+
         :ok
-      {:error, reason} -> 
-        Deeper_Hub.Core.Logger.error("Falha na inicialização do banco de dados: #{inspect(reason)}", %{module: __MODULE__})
+
+      {:error, reason} ->
+        Deeper_Hub.Core.Logger.error(
+          "Falha na inicialização do banco de dados: #{inspect(reason)}",
+          %{module: __MODULE__}
+        )
+
         {:error, reason}
     end
   end
@@ -50,32 +65,47 @@ defmodule Deeper_Hub.Core.Data.Database do
   def create_tables do
     # Definição das tabelas
     table_definitions = [
-      {:users, [
-        {:attributes, [:id, :username, :email, :password_hash, :created_at]},
-        {:type, :set},
-        {:disc_copies, [node()]}
-      ]},
-      {:sessions, [
-        {:attributes, [:id, :user_id, :token, :expires_at]},
-        {:type, :set},
-        {:disc_copies, [node()]}
-      ]}
+      {:users,
+       [
+         {:attributes, [:id, :username, :email, :password_hash, :created_at]},
+         {:type, :set},
+         {:disc_copies, [node()]}
+       ]},
+      {:sessions,
+       [
+         {:attributes, [:id, :user_id, :token, :expires_at]},
+         {:type, :set},
+         {:disc_copies, [node()]}
+       ]}
     ]
 
     # Cria as tabelas com tratamento de erros
-    results = Enum.map(table_definitions, fn {table_name, table_opts} ->
-      case :mnesia.create_table(table_name, table_opts) do
-        {:atomic, :ok} -> 
-          Deeper_Hub.Core.Logger.info("Tabela #{table_name} criada com sucesso", %{module: __MODULE__})
-          :ok
-        {:aborted, {:already_exists, _}} ->
-          Deeper_Hub.Core.Logger.info("Tabela #{table_name} já existe, pulando criação", %{module: __MODULE__})
-          :ok
-        {:aborted, reason} -> 
-          Deeper_Hub.Core.Logger.error("Falha ao criar tabela #{table_name}: #{inspect(reason)}", %{module: __MODULE__})
-          {:error, reason}
-      end
-    end)
+    results =
+      Enum.map(table_definitions, fn {table_name, table_opts} ->
+        case :mnesia.create_table(table_name, table_opts) do
+          {:atomic, :ok} ->
+            Deeper_Hub.Core.Logger.info("Tabela #{table_name} criada com sucesso", %{
+              module: __MODULE__
+            })
+
+            :ok
+
+          {:aborted, {:already_exists, _}} ->
+            Deeper_Hub.Core.Logger.info("Tabela #{table_name} já existe, pulando criação", %{
+              module: __MODULE__
+            })
+
+            :ok
+
+          {:aborted, reason} ->
+            Deeper_Hub.Core.Logger.error(
+              "Falha ao criar tabela #{table_name}: #{inspect(reason)}",
+              %{module: __MODULE__}
+            )
+
+            {:error, reason}
+        end
+      end)
 
     # Verifica se todas as tabelas foram criadas ou já existiam
     if Enum.all?(results, &(&1 == :ok)) do
@@ -92,20 +122,20 @@ defmodule Deeper_Hub.Core.Data.Database do
 
   @doc """
   Realiza uma migração no banco de dados.
-  
+
   ## Parâmetros
     - migration_name: Nome da migração a ser executada
     - migration_fun: Função que realiza a migração
   """
   def migrate(migration_name, migration_fun) do
     Logger.info("Executando migração: #{migration_name}")
-    
+
     try do
       migration_fun.()
       Logger.info("Migração #{migration_name} concluída com sucesso")
       :ok
     rescue
-      error -> 
+      error ->
         Logger.error("Erro na migração #{migration_name}: #{inspect(error)}")
         {:error, error}
     end

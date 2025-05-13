@@ -49,13 +49,14 @@ defmodule DeeperHub.MixProject do
     [
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
-      {:memento, "~> 0.5.0"},  # Biblioteca para facilitar o trabalho com Mnesia
-      {:uuid, "~> 1.1"},       # Para geração de UUIDs
-      {:jason, "~> 1.4"},      # Para codificação/decodificação JSON
-      {:absinthe, "~> 1.7.0"}, # GraphQL framework para Elixir
-      {:absinthe_plug, "~> 1.5"}, # Integração de Absinthe com Plug
+      # Biblioteca para facilitar o trabalho com Mnesia
+      {:memento, "~> 0.5.0"},
+      # Para geração de UUIDs
+      {:uuid, "~> 1.1"},
+      # Para codificação/decodificação JSON
+      {:jason, "~> 1.4"},
       {:credo, "~> 1.7"},
-      {:ex_doc, "~> 0.38.1"},
+      {:ex_doc, "~> 0.38.1"}
     ]
   end
 end

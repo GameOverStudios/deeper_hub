@@ -34,11 +34,12 @@ defmodule Deeper_Hub.Core.Logger do
     color = Map.get(@colors, level, :white)
     formatted_message = format_message(level, message, metadata, color)
 
-    colored_message = apply(IO, :puts, [
-      apply(IO.ANSI, color, []) <>
-      formatted_message <>
-      apply(IO.ANSI, :reset, [])
-    ])
+    colored_message =
+      apply(IO, :puts, [
+        apply(IO.ANSI, color, []) <>
+          formatted_message <>
+          apply(IO.ANSI, :reset, [])
+      ])
 
     # Opcional: Adicionar logging em arquivo
     log_to_file(level, formatted_message)
@@ -72,9 +73,9 @@ defmodule Deeper_Hub.Core.Logger do
   @spec get_caller_module() :: module()
   defp get_caller_module do
     {:current_stacktrace, stacktrace} = Process.info(self(), :current_stacktrace)
-    
+
     # Procura o primeiro módulo que não seja o Logger, Process, ou Enum
-    Enum.find_value(stacktrace, :unknown, fn 
+    Enum.find_value(stacktrace, :unknown, fn
       {module, _function, _, _} when module not in [__MODULE__, Process, Enum] -> module
       _ -> nil
     end)
@@ -99,6 +100,7 @@ defmodule Deeper_Hub.Core.Logger do
 
     module_color = IO.ANSI.magenta()
     message_color = apply(IO.ANSI, color, [])
+
     "[#{timestamp}] #{module_color}[#{module_name}]#{IO.ANSI.reset()} #{message_color}#{message}#{IO.ANSI.reset()}#{if metadata_str != "", do: " #{metadata_str}", else: ""}"
   end
 

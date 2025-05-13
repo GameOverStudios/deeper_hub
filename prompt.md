@@ -148,3 +148,72 @@ Utilize esta checklist após cada implementação ou correção:
 Seguir estas diretrizes rigorosamente ajudará a manter a qualidade do código, minimizar erros e garantir que o projeto DeeperHub seja desenvolvido de acordo com as especificações. A revisão pós-implementação é **EXTREMAMENTE IMPORTANTE** e deve ser realizada após cada desenvolvimento ou correção para evitar a acumulação de problemas técnicos e garantir um código limpo e funcional.
 
 Lembre-se: Um código limpo e bem estruturado é mais fácil de manter, estender e depurar. Invista tempo na qualidade agora para economizar tempo no futuro.
+
+# Diretrizes de Correção de Erros de Compilação 🛠️
+
+## 🚨 Regras Importantes de Compilação e Lint
+
+### 1. Nomenclatura de Módulos 🏷️
+⚠️ **IMPORTANTE**: 
+- Todos os nomes de módulos devem seguir o padrão PascalCase
+- Evite underscores em nomes de módulos
+- Mantenha a hierarquia de pastas consistente com a nomenclatura dos módulos
+
+### 2. Variáveis Não Utilizadas 🚫
+⚠️ **IMPORTANTE**:
+- Sempre adicione um underscore (`_`) antes de variáveis não utilizadas
+- Exemplo: `{module, _function, _, _}` em pattern matching
+- Remova variáveis completamente se não tiverem nenhum uso
+
+### 3. Otimização de Operações com Enum 🔄
+⚠️ **IMPORTANTE**:
+- Prefira `Enum.map_join/3` em vez de `Enum.map/2 |> Enum.join/2`
+- Isso melhora a performance e reduz a complexidade do código
+
+### 4. Gerenciamento de Dependências 📦
+⚠️ **IMPORTANTE**:
+- Remova dependências não utilizadas do `mix.exs`
+- Mantenha as versões das dependências atualizadas
+- Documente o propósito de cada dependência
+
+### 5. Tratamento de Warnings de Compilação 🚧
+⚠️ **IMPORTANTE**:
+- Trate todos os warnings como erros potenciais
+- Corrija warnings assim que forem identificados
+- Use ferramentas como Credo para análise estática
+
+### 6. Documentação de Módulos e Funções 📝
+⚠️ **IMPORTANTE**:
+- Adicione `@moduledoc` para todos os módulos
+- Use `@doc` para documentar funções públicas
+- Inclua exemplos de uso quando possível
+
+### 7. Especificações de Tipo 🔍
+⚠️ **IMPORTANTE**:
+- Adicione `@spec` para todas as funções públicas
+- Garanta que as especificações de tipo estejam corretas
+- Use tipos mais específicos possíveis
+
+### 8. Gerenciamento de Aliases 🏷️
+⚠️ **IMPORTANTE**:
+- Mantenha aliases organizados alfabeticamente
+- Remova aliases não utilizados
+- Prefira aliases completos para evitar conflitos de nomenclatura
+
+### 9. Tratamento de Erros 🛡️
+⚠️ **IMPORTANTE**:
+- Sempre trate possíveis erros e casos de falha
+- Use pattern matching para tratamento de erros
+- Evite usar `_` para ignorar completamente erros
+
+### 10. Formatação de Código 🖌️
+⚠️ **IMPORTANTE**:
+- Use sempre `mix format` antes de commitar
+- Mantenha a consistência de indentação
+- Siga as convenções de estilo do Elixir
+
+## Conclusão
+Seguir estas diretrizes ajudará a manter a qualidade do código, reduzir bugs e melhorar a manutenibilidade do projeto DeeperHub.
+
+**Lembre-se**: Um código limpo hoje economiza horas de depuração no futuro! 🚀
+
