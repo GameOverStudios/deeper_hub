@@ -14,8 +14,23 @@ defmodule DeeperHub.Core.ConfigManager.Services.Setting do
   Inicializa as tabelas necessárias para o serviço de configurações.
   """
   def setup do
-    Logger.debug("Criando tabela Mnesia para configurações", %{module: __MODULE__})
-    Memento.Table.create(SettingTable)
+    Logger.debug("Verificando tabela Mnesia para configurações", %{module: __MODULE__})
+
+    # Verifica se a tabela já existe
+    tables = :mnesia.system_info(:tables)
+
+    if not Enum.member?(tables, SettingTable) do
+      Logger.debug("Criando tabela Mnesia para configurações", %{module: __MODULE__})
+
+      # Cria a tabela com propriedades de persistência
+      Memento.Table.create(SettingTable, [
+        disc_copies: [node()]  # Armazena em disco e memória
+      ])
+
+      Logger.debug("Tabela Mnesia criada com persistência em disco", %{module: __MODULE__})
+    else
+      Logger.debug("Tabela Mnesia para configurações já existe, usando a existente", %{module: __MODULE__})
+    end
   end
 
   @doc """

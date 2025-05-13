@@ -14,8 +14,23 @@ defmodule DeeperHub.Core.EventBus.Services.Event do
   Inicializa as tabelas necessárias para o serviço de eventos.
   """
   def setup do
-    Logger.debug("Criando tabela Mnesia para eventos", %{module: __MODULE__})
-    Memento.Table.create(EventTable)
+    Logger.debug("Verificando tabela Mnesia para eventos", %{module: __MODULE__})
+
+    # Verifica se a tabela já existe
+    tables = :mnesia.system_info(:tables)
+
+    if not Enum.member?(tables, EventTable) do
+      Logger.debug("Criando tabela Mnesia para eventos", %{module: __MODULE__})
+
+      # Cria a tabela com propriedades de persistência
+      Memento.Table.create(EventTable, [
+        disc_copies: [node()]  # Armazena em disco e memória
+      ])
+
+      Logger.debug("Tabela Mnesia para eventos criada com persistência em disco", %{module: __MODULE__})
+    else
+      Logger.debug("Tabela Mnesia para eventos já existe, usando a existente", %{module: __MODULE__})
+    end
   end
 
   @doc """

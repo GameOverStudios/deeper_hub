@@ -325,16 +325,34 @@ defmodule DeeperHub.Core.EventBus.Server do
     try do
       case :mnesia.system_info(:is_running) do
         :yes ->
-          # Garantir que a tabela Event esteja criada
-          EventService.setup()
+          # Verifica se a tabela já existe antes de tentar criar
+          tables = :mnesia.system_info(:tables)
+
+          if not Enum.member?(tables, EventTable) do
+            Logger.debug("Tabela Event não encontrada, criando...", %{})
+            EventService.setup()
+          else
+            Logger.debug("Tabela Event já existe, usando a existente", %{})
+          end
+
           Logger.debug("Tabelas Mnesia verificadas com sucesso", %{})
           :ok
         _ ->
           # Iniciar o Mnesia
           Logger.debug("Iniciando Mnesia", %{})
           :mnesia.start()
-          EventService.setup()
-          Logger.debug("Tabelas Mnesia criadas com sucesso", %{})
+
+          # Verifica se a tabela já existe antes de tentar criar
+          tables = :mnesia.system_info(:tables)
+
+          if not Enum.member?(tables, EventTable) do
+            Logger.debug("Tabela Event não encontrada, criando...", %{})
+            EventService.setup()
+          else
+            Logger.debug("Tabela Event já existe, usando a existente", %{})
+          end
+
+          Logger.debug("Tabelas Mnesia verificadas com sucesso", %{})
           :ok
       end
     rescue
@@ -345,8 +363,16 @@ defmodule DeeperHub.Core.EventBus.Server do
 
         # Se houver algum erro, tentar iniciar o Mnesia e criar as tabelas
         :mnesia.start()
-        EventService.setup()
-        Logger.info("Tabelas Mnesia criadas após erro", %{})
+
+        # Mesmo com erro, tentamos verificar se as tabelas já existem
+        tables = :mnesia.system_info(:tables)
+
+        if not Enum.member?(tables, EventTable) do
+          Logger.debug("Tabela Event não encontrada, criando após erro...", %{})
+          EventService.setup()
+        end
+
+        Logger.info("Tabelas Mnesia verificadas após erro", %{})
         :ok
     end
   end
