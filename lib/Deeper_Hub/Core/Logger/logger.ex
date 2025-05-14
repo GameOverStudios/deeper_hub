@@ -9,6 +9,9 @@ defmodule Deeper_Hub.Core.Logger do
   - Open/Closed: Extensível para novos níveis de log
   - Interface segregada para diferentes tipos de log
   """
+  
+  # Timestamp de inicialização do servidor para nomear os arquivos de log
+  @server_start_timestamp DateTime.utc_now() |> DateTime.to_iso8601(:basic) |> String.replace(~r/[:\+\-]/, "_")
 
   @colors %{
     info: :green,
@@ -104,13 +107,28 @@ defmodule Deeper_Hub.Core.Logger do
 
   @spec log_to_file(atom(), String.t()) :: :ok
   defp log_to_file(level, message) do
-    # Implementação básica de log em arquivo
-    # Em um cenário real, você pode usar bibliotecas como Logger ou
-    # implementar rotação de logs
+    # Implementação de log em arquivo com nome baseado em timestamp de inicialização
     log_dir = Path.join([File.cwd!(), "logs"])
     File.mkdir_p!(log_dir)
-
-    log_file = Path.join([log_dir, "#{level}.log"])
-    File.write!(log_file, message <> "\n", [:append])
+    
+    # Remove códigos ANSI de cores para os arquivos de log
+    clean_message = remove_ansi_codes(message)
+    
+    # Usa o timestamp de inicialização do servidor para nomear o arquivo de log
+    log_file = Path.join([log_dir, "#{@server_start_timestamp}_#{level}.log"])
+    File.write!(log_file, clean_message <> "\n", [:append])
+    
+    # Também escreve em um arquivo de debug geral para facilitar a depuração
+    if level == :debug do
+      debug_file = Path.join([log_dir, "#{@server_start_timestamp}_debug.log"])
+      File.write!(debug_file, clean_message <> "\n", [:append])
+    end
+  end
+  
+  # Remove códigos ANSI de cores de uma string
+  defp remove_ansi_codes(string) do
+    # Regex para remover códigos ANSI de cores
+    # Isso remove qualquer sequência que comece com ESC [ e termine com m
+    Regex.replace(~r/\e\[[0-9;]*[mK]/, string, "")
   end
 end
