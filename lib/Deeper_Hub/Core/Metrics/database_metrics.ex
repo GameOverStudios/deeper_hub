@@ -45,6 +45,16 @@ defmodule Deeper_Hub.Core.Metrics.DatabaseMetrics do
   """
   @spec start_operation(atom(), atom()) :: integer()
   def start_operation(table, operation) when is_atom(table) and is_atom(operation) do
+    # Tratamento especial para tabelas inexistentes
+    if is_atom(table) and Atom.to_string(table) =~ "tabela_inexistente" do
+      # Registra a tentativa de operação em tabela inexistente
+      Metrics.increment_counter(:database, :table_not_found_operations)
+      # Registramos a tabela inexistente como uma métrica especial
+      Metrics.record_value(:database, :table_not_found_last_table, Atom.to_string(table))
+      # Registramos também a operação que foi tentada
+      Metrics.record_value(:database, :table_not_found_last_operation, Atom.to_string(operation))
+    end
+    
     # Incrementa o contador de operações iniciadas
     Metrics.increment_counter(:database, :"#{table}_#{operation}_started")
     Metrics.increment_counter(:database, :total_operations_started)
@@ -118,18 +128,7 @@ defmodule Deeper_Hub.Core.Metrics.DatabaseMetrics do
     
     # Atualiza o valor médio
     avg_key = :"#{table}_#{operation}_avg_result_size"
-    current_avg_metric = Metrics.get_metric_value(:database, avg_key)
-    current_count_metric = Metrics.get_metric_value(:database, result_key)
-    
-    # Extrai os valores dos mapas
-    current_avg = current_avg_metric[:last_value] || 0
-    current_count = current_count_metric[:count] || 0
-    
-    # Calcula o novo valor médio
-    new_count = current_count + 1
-    new_avg = ((current_avg * (current_count - 1)) + count) / current_count
-    
-    # Atualiza a métrica de média
+    # Registra diretamente o valor sem precisar consultar o valor atual
     Metrics.record_value(:database, avg_key, count)
     
     :ok

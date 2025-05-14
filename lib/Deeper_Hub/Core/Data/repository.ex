@@ -333,7 +333,7 @@ defmodule Deeper_Hub.Core.Data.Repository do
              end) do
           {:atomic, :ok} ->
             Logger.info("Registro deletado com sucesso da tabela #{table_name}", %{key: key})
-            {:ok, key}
+            {:ok, :deleted}
 
           {:aborted, reason} ->
             Logger.error("Falha ao deletar registro da tabela #{table_name}", %{
@@ -516,6 +516,10 @@ defmodule Deeper_Hub.Core.Data.Repository do
             {:error, {:unexpected_error, error}}
         end
 
+      {:error, {:table_does_not_exist, table_name}} ->
+        Logger.error("Falha ao construir match_spec para a tabela #{table}: tabela não existe")
+        {:error, {:table_does_not_exist, table_name}}
+        
       {:error, reason} ->
         Logger.error("Falha ao construir match_spec para a tabela #{table}: #{inspect(reason)}")
         {:error, {:match_spec_error, reason}}
@@ -523,7 +527,7 @@ defmodule Deeper_Hub.Core.Data.Repository do
     
     # Registra a conclusão da operação
     case result do
-      {:ok, records} -> 
+      {:ok, _records} -> 
         DatabaseMetrics.complete_operation(table, :all, :success, start_time)
       {:error, _} -> 
         DatabaseMetrics.complete_operation(table, :all, :error, start_time)

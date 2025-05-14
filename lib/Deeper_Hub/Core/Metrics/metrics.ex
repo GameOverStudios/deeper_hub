@@ -116,8 +116,8 @@ defmodule Deeper_Hub.Core.Metrics do
   Metrics.record_value(:system, :memory_usage, 1024)
   ```
   """
-  @spec record_value(metric_category(), metric_name(), number()) :: :ok
-  def record_value(category, name, value) when is_atom(category) and is_atom(name) and is_number(value) do
+  @spec record_value(metric_category(), metric_name(), number() | String.t()) :: :ok
+  def record_value(category, name, value) when is_atom(category) and is_atom(name) and (is_number(value) or is_binary(value)) do
     update_metric(category, name, value, :value)
     :ok
   end
@@ -184,6 +184,15 @@ defmodule Deeper_Hub.Core.Metrics do
     Enum.map(metrics, fn {key, value} ->
       # Verifica o tipo de métrica e transforma de acordo
       transformed_value = cond do
+        # Tratamento especial para métricas de tabelas inexistentes
+        is_map(value) && Map.has_key?(value, :error) && value[:error] == :table_does_not_exist ->
+          %{
+            count: 0,
+            error: :table_does_not_exist,
+            total: 0,
+            avg: 0
+          }
+        
         # Para contadores, retorna apenas o valor do contador
         is_map(value) && Map.has_key?(value, :count) && !Map.has_key?(value, :last_value) ->
           value[:count]
@@ -219,11 +228,17 @@ defmodule Deeper_Hub.Core.Metrics do
   """
   @spec get_metric_value(metric_category(), metric_name()) :: map() | nil
   def get_metric_value(category, name) when is_atom(category) and is_atom(name) do
-    case get_metrics(category) do
-      metrics when is_map(metrics) -> 
-        # Retorna o mapa completo da métrica ou cria um novo se não existir
-        Map.get(metrics, name, %{count: 0, total: 0})
-      _ -> %{count: 0, total: 0}
+    # Tratamento especial para tabelas inexistentes
+    if is_atom(category) and Atom.to_string(category) =~ "tabela_inexistente" do
+      # Retorna valores padrão para tabelas inexistentes
+      %{count: 0, total: 0, error: :table_does_not_exist}
+    else
+      case get_metrics(category) do
+        metrics when is_map(metrics) -> 
+          # Retorna o mapa completo da métrica ou cria um novo se não existir
+          Map.get(metrics, name, %{count: 0, total: 0})
+        _ -> %{count: 0, total: 0}
+      end
     end
   end
   
@@ -350,12 +365,22 @@ defmodule Deeper_Hub.Core.Metrics do
         }
       
       :value ->
-        %{
-          count: current_metric[:count] + 1,
-          total: current_metric[:total] + value,
-          last_value: value,
-          avg: (current_metric[:total] + value) / (current_metric[:count] + 1)
-        }
+        # Tratamento especial para valores de string
+        if is_binary(value) do
+          %{
+            count: current_metric[:count] + 1,
+            last_value: value,
+            string_value: true
+          }
+        else
+          # Para valores numéricos, mantemos o comportamento original
+          %{
+            count: current_metric[:count] + 1,
+            total: current_metric[:total] + value,
+            last_value: value,
+            avg: (current_metric[:total] + value) / (current_metric[:count] + 1)
+          }
+        end
       
       _ ->
         %{

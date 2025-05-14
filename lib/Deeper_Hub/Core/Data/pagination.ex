@@ -1,25 +1,25 @@
 defmodule Deeper_Hub.Core.Data.Pagination do
   @moduledoc """
   Fornece funcionalidade de paginação para tabelas Mnesia e listas.
-  
+
   Este módulo implementa mecanismos para paginar resultados de consultas, permitindo
   a exibição de dados em páginas com tamanho configurável. Suporta tanto listas
   comuns quanto tabelas Mnesia.
-  
+
   ## Características
-  
+
   - Paginação de listas com tamanho de página configurável
   - Paginação de tabelas Mnesia com tratamento de erros
   - Cálculo automático de total de páginas e entradas
   - Tratamento robusto de casos de borda (listas vazias, valores inválidos)
-  
+
   ## Uso Básico
-  
+
   ```elixir
   # Paginar uma lista
   result = Pagination.paginate_list([1, 2, 3, 4, 5], %{page: 1, page_size: 2})
   # => %{entries: [1, 2], page_number: 1, page_size: 2, total_entries: 5, total_pages: 3}
-  
+
   # Paginar uma tabela Mnesia
   result = Pagination.paginate_mnesia(:users, %{page: 2, page_size: 10})
   # => %{entries: [...], page_number: 2, page_size: 10, total_entries: 25, total_pages: 3}
@@ -27,7 +27,7 @@ defmodule Deeper_Hub.Core.Data.Pagination do
   """
 
   alias Deeper_Hub.Core.Data.Repository
-  alias Deeper_Hub.Core.Logger
+  # Logger u00e9 usado apenas no mu00e9todo log_pagination_error
   alias Deeper_Hub.Core.Metrics.DatabaseMetrics
 
   @typedoc "Parameters for pagination, including page number and page size."
@@ -72,27 +72,27 @@ defmodule Deeper_Hub.Core.Data.Pagination do
   def paginate_list(items, params \\ %{}) do
     # Inicia a métrica de operação
     start_time = DatabaseMetrics.start_operation(:pagination, :paginate_list)
-    
+
     page = Map.get(params, :page, 1)
     page_size = Map.get(params, :page_size, 10)
     total_items = length(items)
-    
+
     # Tratar page_size menor ou igual a zero
     result = if page_size <= 0 do
       build_empty_pagination_result(page, page_size, total_items)
     else
       build_pagination_result(items, page, page_size, total_items)
     end
-    
+
     # Registra o tamanho do resultado
     DatabaseMetrics.record_result_size(:pagination, :paginate_list, length(result.entries))
-    
+
     # Registra a conclusão da operação
     DatabaseMetrics.complete_operation(:pagination, :paginate_list, :success, start_time)
-    
+
     result
   end
-  
+
   @doc false
   defp build_empty_pagination_result(page, page_size, total_items) do
     %{
@@ -103,7 +103,7 @@ defmodule Deeper_Hub.Core.Data.Pagination do
       total_pages: 0
     }
   end
-  
+
   @doc false
   defp build_pagination_result(items, page, page_size, total_items) do
     # Cálculo normal para page_size válido
@@ -173,39 +173,39 @@ defmodule Deeper_Hub.Core.Data.Pagination do
   def paginate_mnesia(table, params \\ %{}) when is_atom(table) do
     # Inicia a métrica de operação
     start_time = DatabaseMetrics.start_operation(table, :paginate_mnesia)
-    
+
     result = case fetch_records_for_pagination(table) do
-      {:ok, records} -> 
+      {:ok, records} ->
         # Registra o tamanho total dos registros antes da paginação
         DatabaseMetrics.record_result_size(table, :paginate_mnesia_total, length(records))
         paginate_list(records, params)
-      {:error, reason} -> 
+      {:error, _reason} ->
         # Registra o erro
         DatabaseMetrics.complete_operation(table, :paginate_mnesia, :error, start_time)
         paginate_list([], params)
     end
-    
+
     # Registra o tamanho do resultado paginado
     DatabaseMetrics.record_result_size(table, :paginate_mnesia_page, length(result.entries))
-    
+
     # Registra a conclusão da operação (se não foi registrada como erro)
     if result.total_entries > 0 do
       DatabaseMetrics.complete_operation(table, :paginate_mnesia, :success, start_time)
     end
-    
+
     result
   end
-  
+
   @doc false
   defp fetch_records_for_pagination(table) do
     case Repository.all(table) do
       {:ok, records} -> {:ok, records}
-      {:error, reason} -> 
-        log_pagination_error(table, reason)
-        {:error, reason}
+      {:error, error_reason} ->
+        log_pagination_error(table, error_reason)
+        {:error, error_reason}
     end
   end
-  
+
   @doc false
   defp log_pagination_error(table, reason) do
     Deeper_Hub.Core.Logger.warning(
