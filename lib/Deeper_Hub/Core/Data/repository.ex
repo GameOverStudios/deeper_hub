@@ -311,6 +311,13 @@ defmodule Deeper_Hub.Core.Data.Repository do
   """
   @spec insert(module(), map()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   def insert(schema, attrs) do
+    # Inicia span de telemetria para a operação
+    alias Deeper_Hub.Core.Telemetry
+    span = Telemetry.start_span("data.repository.insert", %{
+      schema: inspect(schema),
+      attrs_keys: Map.keys(attrs)
+    })
+    
     start_time = System.monotonic_time()
 
     # Registra a operação
@@ -350,6 +357,9 @@ defmodule Deeper_Hub.Core.Data.Repository do
           errors: changeset.errors
         })
     end
+    
+    # Finaliza span de telemetria
+    Telemetry.stop_span(span, %{result: result})
 
     result
   end
@@ -369,6 +379,13 @@ defmodule Deeper_Hub.Core.Data.Repository do
   """
   @spec get(module(), term()) :: {:ok, Ecto.Schema.t()} | {:error, :not_found}
   def get(schema, id) do
+    # Inicia span de telemetria para a operação
+    alias Deeper_Hub.Core.Telemetry
+    span = Telemetry.start_span("data.repository.get", %{
+      schema: inspect(schema),
+      id: id
+    })
+    
     start_time = System.monotonic_time()
 
     # Registra a operação
@@ -432,6 +449,9 @@ defmodule Deeper_Hub.Core.Data.Repository do
           id: id
         })
     end
+    
+    # Finaliza span de telemetria
+    Telemetry.stop_span(span, %{result: result})
 
     result
   end
@@ -451,9 +471,17 @@ defmodule Deeper_Hub.Core.Data.Repository do
   """
   @spec update(Ecto.Schema.t(), map()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   def update(struct, attrs) do
-    start_time = System.monotonic_time()
+    # Inicia span de telemetria para a operação
+    alias Deeper_Hub.Core.Telemetry
     schema = struct.__struct__
     id = Map.get(struct, :id)
+    span = Telemetry.start_span("data.repository.update", %{
+      schema: inspect(schema),
+      id: id,
+      attrs_keys: Map.keys(attrs)
+    })
+    
+    start_time = System.monotonic_time()
 
     # Registra a operação
     Logger.debug("Atualizando registro", %{
@@ -492,6 +520,9 @@ defmodule Deeper_Hub.Core.Data.Repository do
           errors: changeset.errors
         })
     end
+    
+    # Finaliza span de telemetria
+    Telemetry.stop_span(span, %{result: result})
 
     result
   end
@@ -510,9 +541,16 @@ defmodule Deeper_Hub.Core.Data.Repository do
   """
   @spec delete(Ecto.Schema.t()) :: {:ok, :deleted} | {:error, Ecto.Changeset.t()}
   def delete(struct) do
-    start_time = System.monotonic_time()
+    # Inicia span de telemetria para a operação
+    alias Deeper_Hub.Core.Telemetry
     schema = struct.__struct__
     id = Map.get(struct, :id)
+    span = Telemetry.start_span("data.repository.delete", %{
+      schema: inspect(schema),
+      id: id
+    })
+    
+    start_time = System.monotonic_time()
 
     # Registra a operação
     Logger.debug("Removendo registro", %{
@@ -554,6 +592,9 @@ defmodule Deeper_Hub.Core.Data.Repository do
           errors: changeset.errors
         })
     end
+    
+    # Finaliza span de telemetria
+    Telemetry.stop_span(span, %{result: result})
 
     result
   end
@@ -584,6 +625,13 @@ defmodule Deeper_Hub.Core.Data.Repository do
   """
   @spec list(module(), Keyword.t()) :: {:ok, list(Ecto.Schema.t())} | {:error, term()}
   def list(schema, opts \\ []) do
+    # Inicia span de telemetria para a operação
+    alias Deeper_Hub.Core.Telemetry
+    span = Telemetry.start_span("data.repository.list", %{
+      schema: inspect(schema),
+      opts: inspect(opts)
+    })
+    
     start_time = System.monotonic_time()
 
     # Registra a operação
@@ -593,7 +641,7 @@ defmodule Deeper_Hub.Core.Data.Repository do
       opts: opts
     })
 
-    try do
+    result = try do
       # Constrói a query base
       query = from(item in schema)
 
@@ -664,6 +712,11 @@ defmodule Deeper_Hub.Core.Data.Repository do
 
         {:error, e}
     end
+    
+    # Finaliza span de telemetria
+    Telemetry.stop_span(span, %{result: result})
+    
+    result
   end
 
   # Aplica limit e offset a uma query
@@ -721,6 +774,14 @@ defmodule Deeper_Hub.Core.Data.Repository do
   """
   @spec find(module(), map(), Keyword.t()) :: {:ok, list(Ecto.Schema.t())} | {:error, term()}
   def find(schema, conditions, opts \\ []) when is_map(conditions) do
+    # Inicia span de telemetria para a operação
+    alias Deeper_Hub.Core.Telemetry
+    span = Telemetry.start_span("data.repository.find", %{
+      schema: inspect(schema),
+      conditions: inspect(conditions),
+      opts: inspect(opts)
+    })
+    
     start_time = System.monotonic_time()
 
     # Registra a operação
@@ -731,7 +792,7 @@ defmodule Deeper_Hub.Core.Data.Repository do
       opts: opts
     })
 
-    try do
+    result = try do
       # Constrói a query base
       query = from(item in schema)
 
@@ -860,5 +921,10 @@ defmodule Deeper_Hub.Core.Data.Repository do
 
         {:error, e}
     end
+    
+    # Finaliza span de telemetria
+    Telemetry.stop_span(span, %{result: result})
+    
+    result
   end
 end

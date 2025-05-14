@@ -68,9 +68,12 @@ defmodule Deeper_Hub.Core.Metrics do
   Metrics.record_execution_time(:database, :query_time, 25.3)
   ```
   """
-  @spec record_execution_time(metric_category(), metric_name(), float()) :: :ok
-  def record_execution_time(category, name, time_ms) when is_atom(category) and is_atom(name) and is_number(time_ms) do
-    update_metric(category, name, time_ms, :execution_time)
+  @spec record_execution_time(metric_category(), metric_name() | String.t(), float()) :: :ok
+  def record_execution_time(category, name, time_ms) when is_atom(category) and is_number(time_ms) do
+    # Converte string para átomo se necessário
+    atom_name = if is_binary(name), do: String.to_atom(name), else: name
+    
+    update_metric(category, atom_name, time_ms, :execution_time)
     :ok
   end
   
@@ -90,14 +93,17 @@ defmodule Deeper_Hub.Core.Metrics do
   Metrics.increment_counter(:http, :error_count, 5)
   ```
   """
-  @spec increment_counter(metric_category(), metric_name(), integer()) :: :ok
-  def increment_counter(category, name, increment \\ 1) when is_atom(category) and is_atom(name) and is_integer(increment) do
+  @spec increment_counter(metric_category(), metric_name() | String.t(), integer()) :: :ok
+  def increment_counter(category, name, increment \\ 1) when is_atom(category) and is_integer(increment) do
+    # Converte string para átomo se necessário
+    atom_name = if is_binary(name), do: String.to_atom(name), else: name
+    
     # Obtém a métrica atual ou um mapa vazio se não existir
-    current_metric = get_metric_value(category, name)
+    current_metric = get_metric_value(category, atom_name)
     # Calcula o novo valor do contador
     new_count = (current_metric[:count] || 0) + increment
     # Atualiza a métrica
-    update_metric(category, name, new_count, :counter)
+    update_metric(category, atom_name, new_count, :counter)
     :ok
   end
   

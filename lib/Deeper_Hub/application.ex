@@ -10,6 +10,7 @@ defmodule DeeperHub.Application do
   alias Deeper_Hub.Core.Data.Migrations
   alias Deeper_Hub.Core.Data.Repo
   alias Deeper_Hub.Core.Metrics
+  alias Deeper_Hub.Core.Telemetry.TelemetrySupervisor
 
   @impl true
   def start(_type, _args) do
@@ -51,7 +52,10 @@ defmodule DeeperHub.Application do
       Repo,
       
       # Adiciona o gerenciador de cache do repositório
-      {Deeper_Hub.Core.Data.Repository, []}
+      {Deeper_Hub.Core.Data.Repository, []},
+      
+      # Adiciona o supervisor de telemetria
+      {TelemetrySupervisor, []}
     ] ++ Deeper_Hub.Core.Metrics.MetricsApplication.child_specs()
 
     opts = [strategy: :one_for_one, name: DeeperHub.Supervisor]
