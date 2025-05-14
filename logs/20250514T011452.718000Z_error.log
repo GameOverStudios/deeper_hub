@@ -127,3 +127,33 @@
 [02:20:42] [Deeper_Hub.Core.Data.Repository] Falha ao executar select na tabela schema
 [02:20:46] [Deeper_Hub.Core.Data.Repository] Tabela 'tabela_inexistente' não existe
 [02:20:46] [Deeper_Hub.Core.Data.Repository] Falha ao construir match_spec para a tabela tabela_inexistente: tabela não existe
+[02:21:36] [Deeper_Hub.Core.Data.Repository] Falha ao buscar registro na tabela users reason={:node_not_running, :nonode@nohost} key=100
+[02:21:36] [Deeper_Hub.Core.Data.Repository] Falha ao verificar existência do registro na tabela users reason={:node_not_running, :nonode@nohost} key=100
+[02:21:37] [Deeper_Hub.Core.Data.Repository] Falha ao buscar registro na tabela users reason={:node_not_running, :nonode@nohost} key=101
+[02:21:37] [Deeper_Hub.Core.Data.Repository] Falha ao verificar existência do registro na tabela users reason={:node_not_running, :nonode@nohost} key=101
+[02:24:34] [Deeper_Hub.Core.Data.Repository] Tabela 'tabela_inexistente' não existe
+[02:24:34] [Deeper_Hub.Core.Data.Repository] Falha ao construir match_spec para a tabela tabela_inexistente: tabela não existe
+[02:24:34] [Deeper_Hub.Core.Data.Repository] Falha ao buscar registros na tabela tabela_inexistente reason={:no_exists, :tabela_inexistente} pattern={:tabela_inexistente, :_, :_, :_, :_, :_}
+[02:24:35] [Deeper_Hub.Core.Data.Repository] Falha ao buscar registro na tabela tabela_inexistente reason={:no_exists, :tabela_inexistente} key=1
+[02:24:35] [Deeper_Hub.Core.Data.Repository] Falha ao buscar registro na tabela tabela_inexistente reason={:no_exists, :tabela_inexistente} key=1
+[02:24:35] [Deeper_Hub.Core.Data.Repository] Falha ao verificar existência do registro na tabela tabela_inexistente reason={:no_exists, :tabela_inexistente} key=1
+[02:24:37] [Deeper_Hub.Core.Data.Repository] Tabela 'tabela_inexistente' não existe
+[02:24:37] [Deeper_Hub.Core.Data.Repository] Falha ao construir match_spec para a tabela tabela_inexistente: tabela não existe
+[02:24:41] [Deeper_Hub.Core.Data.Repository] Exceção ao executar select na tabela schema:
+[02:24:41] [Deeper_Hub.Core.Data.Repository]   Kind: :exit
+[02:24:41] [Deeper_Hub.Core.Data.Repository]   Reason: {:aborted, {:badarg, :schema, [{{:_, :_, :_}, [], [:"$_"]}]}}
+[02:24:41] [Deeper_Hub.Core.Data.Repository]   Stacktrace: [{:mnesia, :abort, 1, [file: ~c"mnesia.erl", line: 683]}, {Deeper_Hub.Core.Data.Repository, :"-all/1-fun-0-", 2, [file: ~c"lib/Deeper_Hub/Core/Data/repository.ex", line: 568]}, {:mnesia_tm, :apply_fun, 3, [file: ~c"mnesia_tm.erl", line: 890]}, {:mnesia_tm, :execute_transaction, 5, [file: ~c"mnesia_tm.erl", line: 866]}, {Deeper_Hub.Core.Data.Repository, :all, 1, [file: ~c"lib/Deeper_Hub/Core/Data/repository.ex", line: 566]}, {Deeper_Hub.Core.Data.Pagination, :fetch_records_for_pagination, 1, [file: ~c"lib/Deeper_Hub/Core/Data/pagination.ex", line: 201]}, {Deeper_Hub.Core.Data.Pagination, :paginate_mnesia, 2, [file: ~c"lib/Deeper_Hub/Core/Data/pagination.ex", line: 177]}, {Deeper_Hub.Core.Data.PaginationTest, :"test paginate_mnesia/2 lida com erro interno do Repository.all/1", 1, [file: ~c"test/Deeper_Hub/Core/Data/pagination_test.exs", line: 261]}, {ExUnit.Runner, :exec_test, 2, [file: ~c"lib/ex_unit/runner.ex", line: 511]}, {:timer, :tc, 2, [file: ~c"timer.erl", line: 595]}, {ExUnit.Runner, :"-spawn_test_monitor/4-fun-1-", 6, [file: ~c"lib/ex_unit/runner.ex", line: 433]}]
+[02:24:41] [Deeper_Hub.Core.Data.Repository] Falha ao executar select na tabela schema
+[02:25:09] [Deeper_Hub.Core.Data.Repository] Tabela 'tabela_inexistente' não existe
+[02:25:09] [Deeper_Hub.Core.Data.Repository] Falha ao construir match_spec para a tabela tabela_inexistente: tabela não existe
+[02:25:14] [Deeper_Hub.Core.Data.Repository] Exceção ao executar select na tabela schema:
+[02:25:14] [Deeper_Hub.Core.Data.Repository]   Kind: :exit
+[02:25:14] [Deeper_Hub.Core.Data.Repository]   Reason: {:aborted, {:badarg, :schema, [{{:_, :_, :_}, [], [:"$_"]}]}}
+[02:25:14] [Deeper_Hub.Core.Data.Repository]   Stacktrace: [{:mnesia, :abort, 1, [file: ~c"mnesia.erl", line: 683]}, {Deeper_Hub.Core.Data.Repository, :"-all/1-fun-0-", 2, [file: ~c"lib/Deeper_Hub/Core/Data/repository.ex", line: 568]}, {:mnesia_tm, :apply_fun, 3, [file: ~c"mnesia_tm.erl", line: 890]}, {:mnesia_tm, :execute_transaction, 5, [file: ~c"mnesia_tm.erl", line: 866]}, {Deeper_Hub.Core.Data.Repository, :all, 1, [file: ~c"lib/Deeper_Hub/Core/Data/repository.ex", line: 566]}, {Deeper_Hub.Core.Data.Pagination, :fetch_records_for_pagination, 1, [file: ~c"lib/Deeper_Hub/Core/Data/pagination.ex", line: 201]}, {Deeper_Hub.Core.Data.Pagination, :paginate_mnesia, 2, [file: ~c"lib/Deeper_Hub/Core/Data/pagination.ex", line: 177]}, {Deeper_Hub.Core.Data.PaginationTest, :"test paginate_mnesia/2 lida com erro interno do Repository.all/1", 1, [file: ~c"test/Deeper_Hub/Core/Data/pagination_test.exs", line: 261]}, {ExUnit.Runner, :exec_test, 2, [file: ~c"lib/ex_unit/runner.ex", line: 511]}, {:timer, :tc, 2, [file: ~c"timer.erl", line: 595]}, {ExUnit.Runner, :"-spawn_test_monitor/4-fun-1-", 6, [file: ~c"lib/ex_unit/runner.ex", line: 433]}]
+[02:25:14] [Deeper_Hub.Core.Data.Repository] Falha ao executar select na tabela schema
+[02:25:15] [Deeper_Hub.Core.Data.Repository] Falha ao buscar registro na tabela tabela_inexistente reason={:no_exists, :tabela_inexistente} key=1
+[02:25:15] [Deeper_Hub.Core.Data.Repository] Falha ao verificar existência do registro na tabela tabela_inexistente reason={:no_exists, :tabela_inexistente} key=1
+[02:25:15] [Deeper_Hub.Core.Data.Repository] Falha ao buscar registros na tabela tabela_inexistente reason={:no_exists, :tabela_inexistente} pattern={:tabela_inexistente, :_, :_, :_, :_, :_}
+[02:25:15] [Deeper_Hub.Core.Data.Repository] Tabela 'tabela_inexistente' não existe
+[02:25:15] [Deeper_Hub.Core.Data.Repository] Falha ao construir match_spec para a tabela tabela_inexistente: tabela não existe
+[02:25:16] [Deeper_Hub.Core.Data.Repository] Falha ao buscar registro na tabela tabela_inexistente reason={:no_exists, :tabela_inexistente} key=1
