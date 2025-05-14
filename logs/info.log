@@ -6794,3 +6794,81 @@
 [00:22:39] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
 [00:22:39] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
 [00:22:39] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:23:54] [35m[Deeper_Hub.Core.Data.Database][0m [32mDiretório Mnesia configurado: c:/New/mnesia_data[0m
+[00:23:54] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users já existe, pulando criação[0m
+[00:23:54] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions já existe, pulando criação[0m
+[00:23:54] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[00:23:55] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:23:55] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:23:55] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:23:55] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:23:55] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:23:55] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:23:55] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:23:55] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:24:33] [35m[Deeper_Hub.Core.Data.Database][0m [32mDiretório Mnesia configurado: c:/New/mnesia_data[0m
+[00:24:33] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users já existe, pulando criação[0m
+[00:24:33] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions já existe, pulando criação[0m
+[00:24:33] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[00:24:34] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:24:34] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela test_table[0m record={:test_table, 1, "Test"}
+[00:24:34] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela test_table com chave 1[0m
+[00:24:34] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela test_table[0m record={:test_table, 1, "Test"}
+[00:24:34] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela test_table com chave 1[0m
+[00:24:34] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela test_table[0m record={:test_table, 1, "Test"} key=1
+[00:24:34] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando atualizar registro na tabela test_table[0m record={:test_table, 1, "Updated Test"}
+[00:24:34] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela test_table com chave 1[0m
+[00:24:34] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela test_table[0m record={:test_table, 1, "Test"} key=1
+[00:24:34] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro atualizado com sucesso na tabela test_table[0m record={:test_table, 1, "Updated Test"} key=1
+[00:24:34] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistros recuperados com sucesso da tabela test_table[0m count=1
+[00:24:34] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando deletar registro na tabela test_table com chave 1[0m
+[00:24:34] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela test_table com chave 1[0m
+[00:24:34] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela test_table[0m record={:test_table, 1, "Updated Test"} key=1
+[00:24:34] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro deletado com sucesso da tabela test_table[0m key=1
+[00:24:34] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:24:34] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:24:34] [35m[Deeper_Hub.Core.Metrics.MetricsIntegration][0m [32mSistema de métricas inicializado com sucesso[0m export_format=:json export_interval=0 export_path="logs/test_metrics"
+[00:40:12] [35m[Deeper_Hub.Core.Data.Database][0m [32mDiretório Mnesia configurado: c:/New/mnesia_data[0m
+[00:40:13] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users já existe, pulando criação[0m
+[00:40:13] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions já existe, pulando criação[0m
+[00:40:13] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[00:40:14] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:40:14] [35m[Deeper_Hub.Core.Metrics.MetricsIntegration][0m [32mSistema de métricas inicializado com sucesso[0m export_interval=0 export_format=:json export_path="logs/test_metrics"
+[00:40:14] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:40:14] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:40:15] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela test_table[0m record={:test_table, 1, "Test"}
+[00:40:15] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela test_table com chave 1[0m
+[00:40:15] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela test_table[0m record={:test_table, 1, "Test"}
+[00:40:15] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela test_table com chave 1[0m
+[00:40:15] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela test_table[0m record={:test_table, 1, "Test"} key=1
+[00:40:15] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando atualizar registro na tabela test_table[0m record={:test_table, 1, "Updated Test"}
+[00:40:15] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela test_table com chave 1[0m
+[00:40:15] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela test_table[0m record={:test_table, 1, "Test"} key=1
+[00:40:15] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro atualizado com sucesso na tabela test_table[0m record={:test_table, 1, "Updated Test"} key=1
+[00:40:15] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistros recuperados com sucesso da tabela test_table[0m count=1
+[00:40:15] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando deletar registro na tabela test_table com chave 1[0m
+[00:40:15] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela test_table com chave 1[0m
+[00:40:15] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela test_table[0m record={:test_table, 1, "Updated Test"} key=1
+[00:40:15] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro deletado com sucesso da tabela test_table[0m key=1
+[00:44:42] [35m[Deeper_Hub.Core.Data.Database][0m [32mDiretório Mnesia configurado: c:/New/mnesia_data[0m
+[00:44:43] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users já existe, pulando criação[0m
+[00:44:43] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions já existe, pulando criação[0m
+[00:44:43] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[00:44:43] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:44:43] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando inserir registro na tabela test_table[0m record={:test_table, 1, "Test"}
+[00:44:43] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela test_table com chave 1[0m
+[00:44:43] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro inserido com sucesso na tabela test_table[0m record={:test_table, 1, "Test"}
+[00:44:43] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela test_table com chave 1[0m
+[00:44:43] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela test_table[0m record={:test_table, 1, "Test"} key=1
+[00:44:43] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando atualizar registro na tabela test_table[0m record={:test_table, 1, "Updated Test"}
+[00:44:43] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela test_table com chave 1[0m
+[00:44:43] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela test_table[0m record={:test_table, 1, "Test"} key=1
+[00:44:43] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro atualizado com sucesso na tabela test_table[0m record={:test_table, 1, "Updated Test"} key=1
+[00:44:43] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistros recuperados com sucesso da tabela test_table[0m count=1
+[00:44:43] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando deletar registro na tabela test_table com chave 1[0m
+[00:44:43] [35m[Deeper_Hub.Core.Data.Repository][0m [32mTentando buscar registro na tabela test_table com chave 1[0m
+[00:44:43] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro encontrado na tabela test_table[0m record={:test_table, 1, "Updated Test"} key=1
+[00:44:43] [35m[Deeper_Hub.Core.Data.Repository][0m [32mRegistro deletado com sucesso da tabela test_table[0m key=1
+[00:44:43] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:44:43] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:44:43] [35m[Deeper_Hub.Core.Metrics.MetricsIntegration][0m [32mSistema de métricas inicializado com sucesso[0m export_interval=0 export_format=:json export_path="logs/test_metrics"

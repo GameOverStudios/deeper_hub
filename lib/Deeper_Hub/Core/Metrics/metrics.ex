@@ -127,28 +127,75 @@ defmodule Deeper_Hub.Core.Metrics do
   
   ## Parâmetros
   
-  - `category`: Categoria da métrica (ex: :database, :http, :cache)
+  - `category`: Categoria das métricas a serem obtidas
   
   ## Retorno
   
-  Um mapa com todas as métricas da categoria especificada.
+  Um mapa contendo todas as métricas da categoria especificada.
   
   ## Exemplos
   
   ```elixir
   metrics = Metrics.get_metrics(:database)
-  # => %{query_time: 25.3, query_count: 10}
   ```
   """
-  @spec get_metrics(metric_category()) :: metric_data()
+  @spec get_metrics(atom()) :: map()
   def get_metrics(category) when is_atom(category) do
-    # Certifica-se de que a tabela existe antes de tentar acessar
     ensure_metrics_table_exists()
     
     case :ets.lookup(@metrics_table, category) do
       [{^category, metrics}] -> metrics
       [] -> %{}
     end
+  end
+  
+  @doc """
+  Obtém todas as métricas de todas as categorias.
+  
+  ## Retorno
+  
+  Um mapa contendo todas as métricas do sistema, organizadas por categoria.
+  
+  ## Exemplos
+  
+  ```elixir
+  all_metrics = Metrics.get_all_metrics()
+  ```
+  """
+  @spec get_all_metrics() :: map()
+  def get_all_metrics do
+    ensure_metrics_table_exists()
+    
+    # Obtém todas as categorias de métricas
+    categories = :ets.tab2list(@metrics_table)
+    
+    # Converte a lista de tuplas em um mapa e transforma os valores para o formato esperado pelos testes
+    categories
+    |> Enum.map(fn {category, metrics} -> 
+      # Transforma as métricas desta categoria
+      transformed_metrics = transform_metrics_for_report(metrics)
+      {category, transformed_metrics}
+    end)
+    |> Enum.into(%{})
+  end
+  
+  # Função auxiliar para transformar as métricas no formato esperado pelos testes
+  defp transform_metrics_for_report(metrics) do
+    Enum.map(metrics, fn {key, value} ->
+      # Verifica o tipo de métrica e transforma de acordo
+      transformed_value = cond do
+        # Para contadores, retorna apenas o valor do contador
+        is_map(value) && Map.has_key?(value, :count) && !Map.has_key?(value, :last_value) ->
+          value[:count]
+          
+        # Para valores, mantém o mapa completo
+        true ->
+          value
+      end
+      
+      {key, transformed_value}
+    end)
+    |> Enum.into(%{})
   end
   
   @doc """

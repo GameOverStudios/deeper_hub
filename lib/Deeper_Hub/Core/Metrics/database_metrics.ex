@@ -268,55 +268,82 @@ defmodule Deeper_Hub.Core.Metrics.DatabaseMetrics do
     if metrics == %{} do
       get_empty_table_metrics()
     else
-    
-    # Estrutura esperada pelos testes
+      # Caso especial para a tabela de paginação
+      if table == :pagination do
+        get_pagination_metrics(metrics)
+      else
+        # Estrutura esperada pelos testes para tabelas normais
+        %{
+          operations: %{
+            insert: %{
+              count: get_metric_count(metrics, :"#{table}_insert_success") + get_metric_count(metrics, :"#{table}_insert_error"),
+              success: get_metric_count(metrics, :"#{table}_insert_success"),
+              error: get_metric_count(metrics, :"#{table}_insert_error"),
+              total_time: get_metric_total(metrics, :"#{table}_insert_time"),
+              avg_time: get_metric_avg(metrics, :"#{table}_insert_avg_time")
+            },
+            update: %{
+              count: get_metric_count(metrics, :"#{table}_update_success") + get_metric_count(metrics, :"#{table}_update_error"),
+              success: get_metric_count(metrics, :"#{table}_update_success"),
+              error: get_metric_count(metrics, :"#{table}_update_error"),
+              total_time: get_metric_total(metrics, :"#{table}_update_time"),
+              avg_time: get_metric_avg(metrics, :"#{table}_update_avg_time")
+            },
+            find: %{
+              count: get_metric_count(metrics, :"#{table}_find_success") + get_metric_count(metrics, :"#{table}_find_error"),
+              success: get_metric_count(metrics, :"#{table}_find_success"),
+              error: get_metric_count(metrics, :"#{table}_find_error"),
+              total_time: get_metric_total(metrics, :"#{table}_find_time"),
+              avg_time: get_metric_avg(metrics, :"#{table}_find_avg_time")
+            },
+            delete: %{
+              count: get_metric_count(metrics, :"#{table}_delete_success") + get_metric_count(metrics, :"#{table}_delete_error"),
+              success: get_metric_count(metrics, :"#{table}_delete_success"),
+              error: get_metric_count(metrics, :"#{table}_delete_error"),
+              total_time: get_metric_total(metrics, :"#{table}_delete_time"),
+              avg_time: get_metric_avg(metrics, :"#{table}_delete_avg_time")
+            }
+          },
+          result_sizes: %{
+            all: %{
+              count: get_metric_count(metrics, :"#{table}_all_result_size"),
+              max: get_metric_max(metrics, :"#{table}_all_max_result_size"),
+              avg: get_metric_avg(metrics, :"#{table}_all_avg_result_size"),
+              total: get_metric_total(metrics, :"#{table}_all_result_size")
+            },
+            find: %{
+              count: get_metric_count(metrics, :"#{table}_find_result_size"),
+              max: get_metric_max(metrics, :"#{table}_find_max_result_size"),
+              avg: get_metric_avg(metrics, :"#{table}_find_avg_result_size"),
+              total: get_metric_total(metrics, :"#{table}_find_result_size")
+            }
+          }
+        }
+      end
+    end
+  end
+  
+  # Função auxiliar para obter métricas de paginação
+  defp get_pagination_metrics(metrics) do
     %{
       operations: %{
-        insert: %{
-          count: get_metric_count(metrics, :"#{table}_insert_success") + get_metric_count(metrics, :"#{table}_insert_error"),
-          success: get_metric_count(metrics, :"#{table}_insert_success"),
-          error: get_metric_count(metrics, :"#{table}_insert_error"),
-          total_time: get_metric_total(metrics, :"#{table}_insert_time"),
-          avg_time: get_metric_avg(metrics, :"#{table}_insert_avg_time")
-        },
-        update: %{
-          count: get_metric_count(metrics, :"#{table}_update_success") + get_metric_count(metrics, :"#{table}_update_error"),
-          success: get_metric_count(metrics, :"#{table}_update_success"),
-          error: get_metric_count(metrics, :"#{table}_update_error"),
-          total_time: get_metric_total(metrics, :"#{table}_update_time"),
-          avg_time: get_metric_avg(metrics, :"#{table}_update_avg_time")
-        },
-        find: %{
-          count: get_metric_count(metrics, :"#{table}_find_success") + get_metric_count(metrics, :"#{table}_find_error"),
-          success: get_metric_count(metrics, :"#{table}_find_success"),
-          error: get_metric_count(metrics, :"#{table}_find_error"),
-          total_time: get_metric_total(metrics, :"#{table}_find_time"),
-          avg_time: get_metric_avg(metrics, :"#{table}_find_avg_time")
-        },
-        delete: %{
-          count: get_metric_count(metrics, :"#{table}_delete_success") + get_metric_count(metrics, :"#{table}_delete_error"),
-          success: get_metric_count(metrics, :"#{table}_delete_success"),
-          error: get_metric_count(metrics, :"#{table}_delete_error"),
-          total_time: get_metric_total(metrics, :"#{table}_delete_time"),
-          avg_time: get_metric_avg(metrics, :"#{table}_delete_avg_time")
+        paginate_list: %{
+          count: get_metric_count(metrics, :pagination_paginate_list_success) + get_metric_count(metrics, :pagination_paginate_list_error),
+          success: get_metric_count(metrics, :pagination_paginate_list_success),
+          error: get_metric_count(metrics, :pagination_paginate_list_error),
+          total_time: get_metric_total(metrics, :pagination_paginate_list_time),
+          avg_time: get_metric_avg(metrics, :pagination_paginate_list_avg_time)
         }
       },
       result_sizes: %{
-        all: %{
-          count: get_metric_count(metrics, :"#{table}_all_result_size"),
-          max: get_metric_max(metrics, :"#{table}_all_max_result_size"),
-          avg: get_metric_avg(metrics, :"#{table}_all_avg_result_size"),
-          total: get_metric_total(metrics, :"#{table}_all_result_size")
-        },
-        find: %{
-          count: get_metric_count(metrics, :"#{table}_find_result_size"),
-          max: get_metric_max(metrics, :"#{table}_find_max_result_size"),
-          avg: get_metric_avg(metrics, :"#{table}_find_avg_result_size"),
-          total: get_metric_total(metrics, :"#{table}_find_result_size")
+        paginate_list: %{
+          count: get_metric_count(metrics, :pagination_paginate_list_result_size),
+          max: get_metric_max(metrics, :pagination_paginate_list_max_result_size),
+          avg: get_metric_avg(metrics, :pagination_paginate_list_avg_result_size),
+          total: get_metric_total(metrics, :pagination_paginate_list_result_size)
         }
       }
     }
-    end
   end
   
   @doc """
@@ -409,6 +436,4 @@ defmodule Deeper_Hub.Core.Metrics.DatabaseMetrics do
     Metrics.record_value(:database, avg_key, new_avg)
     Metrics.record_value(:database, count_key, new_count)
   end
-  
-
 end
