@@ -1,3 +1,26 @@
+<<<<<<< HEAD
+# DeeperHub
+
+**TODO: Add description**
+
+## Installation
+
+If [available in Hex](https://hex.pm/docs/publish), the package can be installed
+by adding `deeper_hub` to your list of dependencies in `mix.exs`:
+
+```elixir
+def deps do
+  [
+    {:deeper_hub, "~> 0.1.0"}
+  ]
+end
+```
+
+Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
+and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
+be found at <https://hexdocs.pm/deeper_hub>.
+
+=======
 # DeeperHub Elixir Application
 
 Bem-vindo ao DeeperHub! Esta é uma aplicação Elixir projetada para fornecer uma base robusta para gerenciamento de dados, utilizando Mnesia como backend de banco de dados.
@@ -205,3 +228,4 @@ Se você precisar limpar o banco de dados Mnesia e recomeçar do zero:
 :mnesia.start()
 Deeper_Hub.Core.Data.Database.create_tables()
 ```
+>>>>>>> a7eaa30fe0070442f8e291be40ec02441ff2483a

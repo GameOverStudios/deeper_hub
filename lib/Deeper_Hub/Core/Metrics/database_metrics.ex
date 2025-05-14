@@ -119,6 +119,42 @@ defmodule Deeper_Hub.Core.Metrics.DatabaseMetrics do
   @spec record_result_size(atom(), atom(), non_neg_integer()) :: :ok
   def record_result_size(table, operation, count) 
       when is_atom(table) and is_atom(operation) and is_integer(count) and count >= 0 do
+<<<<<<< HEAD
+    # Determina o nome da tabela com base no schema ou átomo fornecido
+    table_name = cond do
+      # Se for um módulo Ecto.Schema, tenta obter o nome da tabela do schema
+      # Para o caso de User, deve retornar "users"
+      Code.ensure_loaded?(table) and function_exported?(table, :__schema__, 1) ->
+        table_source = table.__schema__(:source)
+        String.to_atom(table_source)
+        
+      # Caso seja um módulo Elixir que não é um schema Ecto
+      is_atom(table) and Atom.to_string(table) =~ "Elixir." ->
+        # Extrai o último segmento e converte para minúsculas
+        module_name = table |> Atom.to_string() |> String.split(".") |> List.last() |> String.downcase()
+        String.to_atom(module_name)
+      
+      # Caso seja um átomo simples (ex: :users)
+      true ->
+        table
+    end
+    
+    # Registra o tamanho do resultado
+    result_key = :"#{table_name}_#{operation}_result_size"
+    Metrics.record_value(:database, result_key, count)
+    
+    # Atualiza o tamanho máximo de resultado
+    max_key = :"#{table_name}_#{operation}_max_result_size"
+    current_max_metric = Metrics.get_metric_value(:database, max_key)
+    current_max = current_max_metric[:last_value] || 0
+    
+    if count > current_max do
+      Metrics.record_value(:database, max_key, count)
+    end
+    
+    # Atualiza o valor médio
+    avg_key = :"#{table_name}_#{operation}_avg_result_size"
+=======
     # Registra o tamanho do resultado
     result_key = :"#{table}_#{operation}_result_size"
     Metrics.record_value(:database, result_key, count)
@@ -128,6 +164,7 @@ defmodule Deeper_Hub.Core.Metrics.DatabaseMetrics do
     
     # Atualiza o valor médio
     avg_key = :"#{table}_#{operation}_avg_result_size"
+>>>>>>> a7eaa30fe0070442f8e291be40ec02441ff2483a
     # Registra diretamente o valor sem precisar consultar o valor atual
     Metrics.record_value(:database, avg_key, count)
     
@@ -135,6 +172,104 @@ defmodule Deeper_Hub.Core.Metrics.DatabaseMetrics do
   end
   
   @doc """
+<<<<<<< HEAD
+  Registra o tempo de execução de uma operação de banco de dados.
+  
+  ## Parâmetros
+  
+  - `operation`: Tipo de operação (:insert, :find, :update, :delete, :paginate, etc.)
+  - `schema`: O schema ou módulo relacionado à operação
+  - `time_ns`: Tempo de execução em nanossegundos
+  
+  ## Retorno
+  
+  - `:ok`
+  
+  ## Exemplos
+  
+  ```elixir
+  start_time = System.monotonic_time()
+  # ... executa a operação ...
+  DatabaseMetrics.record_operation_time(:insert, MyApp.User, System.monotonic_time() - start_time)
+  ```
+  """
+  @spec record_operation_time(atom(), module(), integer()) :: :ok
+  def record_operation_time(operation, schema, time_ns) when is_atom(operation) and is_atom(schema) do
+    # Converte o tempo de nanossegundos para milissegundos
+    time_ms = time_ns / 1_000_000
+    
+    # Registra o tempo de execução
+    table_name = get_table_name_from_schema(schema)
+    Metrics.record_execution_time(:database, :"#{table_name}_#{operation}_time", time_ms)
+    
+    # Atualiza o tempo médio
+    update_average_time(table_name, operation, time_ms)
+    
+    :ok
+  end
+  
+  @doc """
+  Registra o resultado de uma operação de banco de dados.
+  
+  ## Parâmetros
+  
+  - `operation`: Tipo de operação (:insert, :find, :update, :delete, :paginate, etc.)
+  - `schema`: O schema ou módulo relacionado à operação
+  - `result`: O resultado da operação ({:ok, _} ou {:error, _})
+  
+  ## Retorno
+  
+  - `:ok`
+  
+  ## Exemplos
+  
+  ```elixir
+  result = Repository.insert(MyApp.User, %{name: "John"})
+  DatabaseMetrics.record_operation_result(:insert, MyApp.User, result)
+  ```
+  """
+  @spec record_operation_result(atom(), module(), {:ok, term()} | {:error, term()}) :: :ok
+  def record_operation_result(operation, schema, result) when is_atom(operation) and is_atom(schema) do
+    # Determina se a operação foi bem-sucedida ou não
+    status = case result do
+      {:ok, _} -> :success
+      {:error, _} -> :error
+      _ -> :unknown
+    end
+    
+    # Registra o resultado
+    table_name = get_table_name_from_schema(schema)
+    Metrics.increment_counter(:database, :"#{table_name}_#{operation}_#{status}")
+    
+    :ok
+  end
+  
+  # Função auxiliar para extrair o nome da tabela a partir do schema
+  defp get_table_name_from_schema(schema) when is_atom(schema) do
+    # Extrai o último segmento do nome do módulo
+    # Ex: Elixir.MyApp.User -> :users
+    module_name = Atom.to_string(schema)
+    
+    # Verifica se é um módulo Elixir
+    if String.starts_with?(module_name, "Elixir.") do
+      # Extrai o último segmento
+      segments = String.split(module_name, ".")
+      last_segment = List.last(segments)
+      
+      # Converte para snake_case e pluraliza
+      last_segment
+      |> Macro.underscore()
+      |> String.downcase()
+      |> then(fn name -> String.to_atom(name <> "s") end)
+    else
+      # Se não for um módulo Elixir, usa o próprio átomo
+      schema
+    end
+  end
+  
+  @doc """
+=======
+>>>>>>> a7eaa30fe0070442f8e291be40ec02441ff2483a
   Obtém um relatório de métricas de banco de dados para uma tabela específica.
   
   ## Parâmetros
@@ -405,6 +540,9 @@ defmodule Deeper_Hub.Core.Metrics.DatabaseMetrics do
     end
   end
   
+<<<<<<< HEAD
+  # A função update_max_result_size foi incorporada diretamente na função record_result_size
+=======
   defp update_max_result_size(table, operation, count) do
     max_key = :"#{table}_#{operation}_max_result_size"
     current_max_metric = Metrics.get_metric_value(:database, max_key)
@@ -414,6 +552,7 @@ defmodule Deeper_Hub.Core.Metrics.DatabaseMetrics do
       Metrics.record_value(:database, max_key, count)
     end
   end
+>>>>>>> a7eaa30fe0070442f8e291be40ec02441ff2483a
   
   defp update_average_time(table, operation, execution_time) do
     avg_key = :"#{table}_#{operation}_avg_time"

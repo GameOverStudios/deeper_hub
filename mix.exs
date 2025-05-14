@@ -49,6 +49,18 @@ defmodule DeeperHub.MixProject do
     [
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
+<<<<<<< HEAD
+      {:uuid, "~> 1.1"},       # Para geração de UUIDs
+      {:jason, "~> 1.4"},      # Para codificação/decodificação JSON
+
+      # Source Code
+      {:credo, "~> 1.7"},
+      {:ex_doc, "~> 0.38.1"},
+
+      # Data
+      {:ecto, "~> 3.12"},
+      {:ecto_sqlite3, "~> 0.17"},
+=======
 
       # Biblioteca para facilitar o trabalho com Mnesia
       {:memento, "~> 0.5.0"},
@@ -65,6 +77,7 @@ defmodule DeeperHub.MixProject do
 
       # para acesso a dados
       {:ecto, "~> 3.12"}
+>>>>>>> a7eaa30fe0070442f8e291be40ec02441ff2483a
     ]
   end
 end
