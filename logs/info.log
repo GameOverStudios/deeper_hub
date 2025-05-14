@@ -6673,3 +6673,124 @@
 [23:46:56] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
 [23:46:56] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
 [23:46:56] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:47:52] [35m[Deeper_Hub.Core.Data.Database][0m [32mDiretório Mnesia configurado: c:/New/mnesia_data[0m
+[23:47:52] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users já existe, pulando criação[0m
+[23:47:52] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions já existe, pulando criação[0m
+[23:47:52] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[23:47:53] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:47:53] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:47:53] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:47:53] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:47:53] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:47:53] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:47:53] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:48:17] [35m[Deeper_Hub.Core.Data.Database][0m [32mDiretório Mnesia configurado: c:/New/mnesia_data[0m
+[23:48:17] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users já existe, pulando criação[0m
+[23:48:17] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions já existe, pulando criação[0m
+[23:48:17] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[23:48:17] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:48:17] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:48:17] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:48:17] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:48:17] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:48:17] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:48:17] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:51:09] [35m[Deeper_Hub.Core.Data.Database][0m [32mDiretório Mnesia configurado: c:/New/mnesia_data[0m
+[23:51:12] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users já existe, pulando criação[0m
+[23:51:12] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions já existe, pulando criação[0m
+[23:51:12] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[23:51:13] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:51:13] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:51:13] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:51:13] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:51:13] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:51:13] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:51:13] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:53:25] [35m[Deeper_Hub.Core.Data.Database][0m [32mDiretório Mnesia configurado: c:/New/mnesia_data[0m
+[23:53:26] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users já existe, pulando criação[0m
+[23:53:26] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions já existe, pulando criação[0m
+[23:53:26] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[23:53:26] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:53:26] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:53:26] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:53:26] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:53:26] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:53:26] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:53:26] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:56:11] [35m[Deeper_Hub.Core.Data.Database][0m [32mDiretório Mnesia configurado: c:/New/mnesia_data[0m
+[23:56:11] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users já existe, pulando criação[0m
+[23:56:11] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions já existe, pulando criação[0m
+[23:56:11] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[23:56:12] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:56:12] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:56:12] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:56:12] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:56:12] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:56:12] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:56:12] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:57:14] [35m[Deeper_Hub.Core.Data.Database][0m [32mDiretório Mnesia configurado: c:/New/mnesia_data[0m
+[23:57:14] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users já existe, pulando criação[0m
+[23:57:14] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions já existe, pulando criação[0m
+[23:57:14] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[23:57:16] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:57:16] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:57:16] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:57:16] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:57:16] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:57:16] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:57:16] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:57:44] [35m[Deeper_Hub.Core.Data.Database][0m [32mDiretório Mnesia configurado: c:/New/mnesia_data[0m
+[23:57:44] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users já existe, pulando criação[0m
+[23:57:44] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions já existe, pulando criação[0m
+[23:57:44] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[23:57:45] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:57:45] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:57:45] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:57:45] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:57:45] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:57:45] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[23:57:45] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:16:40] [35m[Deeper_Hub.Core.Data.Database][0m [32mDiretório Mnesia configurado: c:/New/mnesia_data[0m
+[00:16:40] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users já existe, pulando criação[0m
+[00:16:40] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions já existe, pulando criação[0m
+[00:16:40] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[00:16:41] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:16:41] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:16:41] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:16:41] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:16:41] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:16:41] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:16:41] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:19:01] [35m[Deeper_Hub.Core.Data.Database][0m [32mDiretório Mnesia configurado: c:/New/mnesia_data[0m
+[00:19:01] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users já existe, pulando criação[0m
+[00:19:01] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions já existe, pulando criação[0m
+[00:19:01] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[00:19:01] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:19:01] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:19:01] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:19:01] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:19:01] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:19:01] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:19:01] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:20:49] [35m[Deeper_Hub.Core.Data.Database][0m [32mDiretório Mnesia configurado: c:/New/mnesia_data[0m
+[00:20:49] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users já existe, pulando criação[0m
+[00:20:49] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions já existe, pulando criação[0m
+[00:20:49] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[00:20:51] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:20:51] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:20:51] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:20:51] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:20:51] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:20:51] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:20:51] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:22:38] [35m[Deeper_Hub.Core.Data.Database][0m [32mDiretório Mnesia configurado: c:/New/mnesia_data[0m
+[00:22:39] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela users já existe, pulando criação[0m
+[00:22:39] [35m[Deeper_Hub.Core.Data.Database][0m [32mTabela sessions já existe, pulando criação[0m
+[00:22:39] [35m[Deeper_Hub.Core.Data.Database][0m [32mBanco de dados Mnesia inicializado com sucesso[0m
+[00:22:39] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:22:39] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:22:39] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:22:39] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:22:39] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:22:39] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
+[00:22:39] [35m[Deeper_Hub.Core.Metrics][0m [32mSistema de métricas inicializado[0m
