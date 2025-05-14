@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Configura o ambiente de teste
 ExUnit.start()
 
@@ -36,6 +35,3 @@ try do
 rescue
   _ -> :ok
 end
-=======
-ExUnit.start()
->>>>>>> a7eaa30fe0070442f8e291be40ec02441ff2483a

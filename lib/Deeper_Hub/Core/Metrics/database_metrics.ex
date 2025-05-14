@@ -119,7 +119,6 @@ defmodule Deeper_Hub.Core.Metrics.DatabaseMetrics do
   @spec record_result_size(atom(), atom(), non_neg_integer()) :: :ok
   def record_result_size(table, operation, count) 
       when is_atom(table) and is_atom(operation) and is_integer(count) and count >= 0 do
-<<<<<<< HEAD
     # Determina o nome da tabela com base no schema ou átomo fornecido
     table_name = cond do
       # Se for um módulo Ecto.Schema, tenta obter o nome da tabela do schema
@@ -154,17 +153,6 @@ defmodule Deeper_Hub.Core.Metrics.DatabaseMetrics do
     
     # Atualiza o valor médio
     avg_key = :"#{table_name}_#{operation}_avg_result_size"
-=======
-    # Registra o tamanho do resultado
-    result_key = :"#{table}_#{operation}_result_size"
-    Metrics.record_value(:database, result_key, count)
-    
-    # Atualiza o tamanho máximo de resultado
-    update_max_result_size(table, operation, count)
-    
-    # Atualiza o valor médio
-    avg_key = :"#{table}_#{operation}_avg_result_size"
->>>>>>> a7eaa30fe0070442f8e291be40ec02441ff2483a
     # Registra diretamente o valor sem precisar consultar o valor atual
     Metrics.record_value(:database, avg_key, count)
     
@@ -172,7 +160,6 @@ defmodule Deeper_Hub.Core.Metrics.DatabaseMetrics do
   end
   
   @doc """
-<<<<<<< HEAD
   Registra o tempo de execução de uma operação de banco de dados.
   
   ## Parâmetros
@@ -268,8 +255,6 @@ defmodule Deeper_Hub.Core.Metrics.DatabaseMetrics do
   end
   
   @doc """
-=======
->>>>>>> a7eaa30fe0070442f8e291be40ec02441ff2483a
   Obtém um relatório de métricas de banco de dados para uma tabela específica.
   
   ## Parâmetros
@@ -540,19 +525,7 @@ defmodule Deeper_Hub.Core.Metrics.DatabaseMetrics do
     end
   end
   
-<<<<<<< HEAD
   # A função update_max_result_size foi incorporada diretamente na função record_result_size
-=======
-  defp update_max_result_size(table, operation, count) do
-    max_key = :"#{table}_#{operation}_max_result_size"
-    current_max_metric = Metrics.get_metric_value(:database, max_key)
-    current_max = current_max_metric[:last_value] || 0
-    
-    if count > current_max do
-      Metrics.record_value(:database, max_key, count)
-    end
-  end
->>>>>>> a7eaa30fe0070442f8e291be40ec02441ff2483a
   
   defp update_average_time(table, operation, execution_time) do
     avg_key = :"#{table}_#{operation}_avg_time"

@@ -1,5 +1,4 @@
 import Config
-<<<<<<< HEAD
 
 config :deeper_hub, Deeper_Hub.Core.Data.Repo,
   database: "database/dev.db",
@@ -10,5 +9,3 @@ config :deeper_hub, ecto_repos: [Deeper_Hub.Core.Data.Repo]
 
 # Configurações específicas para cada ambiente
 import_config "#{config_env()}.exs"
-=======
->>>>>>> a7eaa30fe0070442f8e291be40ec02441ff2483a

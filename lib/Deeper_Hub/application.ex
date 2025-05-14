@@ -4,7 +4,6 @@ defmodule DeeperHub.Application do
   Responsável por gerenciar a inicialização e supervisão dos processos da aplicação.
   """
   use Application
-<<<<<<< HEAD
   
   alias Deeper_Hub.Core.Logger
   alias Deeper_Hub.Core.Data.DatabaseConfig
@@ -58,20 +57,6 @@ defmodule DeeperHub.Application do
     opts = [strategy: :one_for_one, name: DeeperHub.Supervisor]
     
     # Inicia a árvore de supervisão
-=======
-
-  @impl true
-  def start(_type, _args) do
-    # Inicializa o banco de dados Mnesia
-    :ok = Deeper_Hub.Core.Data.Database.init()
-
-    children = [
-      # Adicione aqui os supervisores e processos iniciais da aplicação
-      {Deeper_Hub.Core.Data.Cache, []}
-    ]
-
-    opts = [strategy: :one_for_one, name: DeeperHub.Supervisor]
->>>>>>> a7eaa30fe0070442f8e291be40ec02441ff2483a
     Supervisor.start_link(children, opts)
   end
 end

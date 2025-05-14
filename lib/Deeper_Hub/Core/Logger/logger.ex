@@ -9,11 +9,7 @@ defmodule Deeper_Hub.Core.Logger do
   - Open/Closed: Extensível para novos níveis de log
   - Interface segregada para diferentes tipos de log
   """
-<<<<<<< HEAD
 
-=======
-  
->>>>>>> a7eaa30fe0070442f8e291be40ec02441ff2483a
   # Timestamp de inicialização do servidor para nomear os arquivos de log
   @server_start_timestamp DateTime.utc_now() |> DateTime.to_iso8601(:basic) |> String.replace(~r/[:\+\-]/, "_")
 
@@ -102,12 +98,8 @@ defmodule Deeper_Hub.Core.Logger do
       |> Enum.map(fn {k, v} -> "#{k}=#{inspect(v)}" end)
       |> Enum.join(" ")
 
-<<<<<<< HEAD
     # Azul marinho para o nome do módulo (combinando blue() com bright())
     module_color = IO.ANSI.blue() <> IO.ANSI.bright()
-=======
-    module_color = IO.ANSI.magenta()
->>>>>>> a7eaa30fe0070442f8e291be40ec02441ff2483a
     # Correção: Usar apply/3 para chamada dinâmica da função de cor
     message_color = apply(IO.ANSI, color, [])
 
@@ -119,7 +111,6 @@ defmodule Deeper_Hub.Core.Logger do
     # Implementação de log em arquivo com nome baseado em timestamp de inicialização
     log_dir = Path.join([File.cwd!(), "logs"])
     File.mkdir_p!(log_dir)
-<<<<<<< HEAD
 
     # Remove códigos ANSI de cores para os arquivos de log
     clean_message = remove_ansi_codes(message)
@@ -128,27 +119,13 @@ defmodule Deeper_Hub.Core.Logger do
     log_file = Path.join([log_dir, "#{@server_start_timestamp}_#{level}.log"])
     File.write!(log_file, clean_message <> "\n", [:append])
 
-=======
-    
-    # Remove códigos ANSI de cores para os arquivos de log
-    clean_message = remove_ansi_codes(message)
-    
-    # Usa o timestamp de inicialização do servidor para nomear o arquivo de log
-    log_file = Path.join([log_dir, "#{@server_start_timestamp}_#{level}.log"])
-    File.write!(log_file, clean_message <> "\n", [:append])
-    
->>>>>>> a7eaa30fe0070442f8e291be40ec02441ff2483a
     # Também escreve em um arquivo de debug geral para facilitar a depuração
     if level == :debug do
       debug_file = Path.join([log_dir, "#{@server_start_timestamp}_debug.log"])
       File.write!(debug_file, clean_message <> "\n", [:append])
     end
   end
-<<<<<<< HEAD
 
-=======
-  
->>>>>>> a7eaa30fe0070442f8e291be40ec02441ff2483a
   # Remove códigos ANSI de cores de uma string
   defp remove_ansi_codes(string) do
     # Regex para remover códigos ANSI de cores
