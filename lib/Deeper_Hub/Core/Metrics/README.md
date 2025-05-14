@@ -43,6 +43,7 @@ Deeper_Hub/Core/Metrics/
 - Contagem de operações por tabela e tipo
 - Tamanho dos resultados de consultas
 - Tempo médio de execução por operação
+- Registro de tentativas de operações em tabelas inexistentes
 
 ### Inicialização e Supervisão (`metrics_supervisor.ex`)
 
@@ -107,8 +108,9 @@ Metrics.record_execution_time(:http, :request_time, 150.5)
 # Incrementar contador
 Metrics.increment_counter(:http, :request_count)
 
-# Registrar valor
+# Registrar valor (suporta tanto números quanto strings)
 Metrics.record_value(:system, :memory_usage, 1024)
+Metrics.record_value(:system, :last_error, "Tabela inexistente")
 ```
 
 ### Métricas de Banco de Dados
@@ -194,6 +196,14 @@ O módulo de Métricas é projetado para ser facilmente integrado com outros mó
 - As métricas são armazenadas em tabelas ETS para acesso rápido e baixo impacto no desempenho
 - A coleta de métricas é projetada para ter o mínimo de sobrecarga possível
 - Para sistemas de alta carga, considere a exportação periódica de métricas para evitar crescimento excessivo da tabela ETS
+
+## Tratamento de Erros
+
+- O sistema de métricas é projetado para ser resiliente a falhas
+- Tentativas de acessar tabelas inexistentes são registradas como métricas específicas
+- Valores de métricas podem ser tanto numéricos quanto strings, permitindo maior flexibilidade
+- Erros durante a coleta de métricas não propagam falhas para o restante da aplicação
+- Relatórios de métricas incluem informações sobre erros encontrados durante a coleta
 
 ## Extensão
 
