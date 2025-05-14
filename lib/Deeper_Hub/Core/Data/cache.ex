@@ -120,6 +120,18 @@ defmodule Deeper_Hub.Core.Data.Cache do
     GenServer.call(__MODULE__, :stats)
   end
   
+  @doc """
+  Reseta as estatísticas do cache (hits, misses).
+  
+  ## Retorno
+  
+    - `:ok`
+  """
+  @spec reset_stats() :: :ok
+  def reset_stats do
+    GenServer.cast(__MODULE__, :reset_stats)
+  end
+  
   # Callbacks do GenServer
   
   @impl true
@@ -137,6 +149,21 @@ defmodule Deeper_Hub.Core.Data.Cache do
         Logger.debug("Cache miss para #{inspect(cache_key)}", %{module: __MODULE__})
         new_state = %{state | misses: state.misses + 1}
         {:reply, :not_found, new_state}
+        
+      %{value: :not_found, expires_at: expires_at} ->
+        # Caso especial para valores :not_found armazenados no cache
+        if :os.system_time(:millisecond) < expires_at do
+          # Cache hit
+          Logger.debug("Cache hit para #{inspect(cache_key)}", %{module: __MODULE__})
+          new_state = %{state | hits: state.hits + 1}
+          {:reply, :not_found, new_state}
+        else
+          # Cache expirado
+          Logger.debug("Cache expirado para #{inspect(cache_key)}", %{module: __MODULE__})
+          new_cache = Map.delete(state.cache, cache_key)
+          new_state = %{state | cache: new_cache, misses: state.misses + 1}
+          {:reply, :not_found, new_state}
+        end
         
       %{value: value, expires_at: expires_at} ->
         if :os.system_time(:millisecond) < expires_at do
@@ -199,6 +226,12 @@ defmodule Deeper_Hub.Core.Data.Cache do
   def handle_cast(:clear, state) do
     Logger.info("Limpando todo o cache (#{map_size(state.cache)} entradas)", %{module: __MODULE__})
     {:noreply, %{state | cache: %{}}}
+  end
+  
+  @impl true
+  def handle_cast(:reset_stats, state) do
+    Logger.info("Resetando estatísticas de cache", %{module: __MODULE__})
+    {:noreply, %{state | hits: 0, misses: 0}}
   end
   
   # Funções privadas

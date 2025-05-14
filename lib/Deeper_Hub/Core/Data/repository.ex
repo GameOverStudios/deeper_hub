@@ -217,7 +217,9 @@ defmodule Deeper_Hub.Core.Data.Repository do
             Cache.put(table_name, :find, key, db_result)
             DatabaseMetrics.complete_operation(table_name, :find, :success, start_time)
           {:error, :not_found} -> 
-            Cache.put(table_name, :find, key, db_result, 30_000) # TTL menor para not_found
+            # Armazena :not_found diretamente no cache para manter consistu00eancia com a API do Cache
+            # Isso evita que o Cache.get retorne {:ok, {:error, :not_found}} quando deveria retornar :not_found
+            Cache.put(table_name, :find, key, :not_found, 30_000) # TTL menor para not_found
             DatabaseMetrics.complete_operation(table_name, :find, :not_found, start_time)
           {:error, _} -> 
             DatabaseMetrics.complete_operation(table_name, :find, :error, start_time)
@@ -266,8 +268,8 @@ defmodule Deeper_Hub.Core.Data.Repository do
         do_update_record(table_name, record, key)
         
       {:error, :not_found} ->
-        # Se o registro não existe, simplesmente insere
-        insert(table_name, record)
+        # Se o registro não existe, insere diretamente sem verificar duplicação
+        do_insert_record(table_name, record)
         
       {:error, reason} ->
         # Se ocorreu outro erro ao buscar o registro, propaga o erro
@@ -432,33 +434,66 @@ defmodule Deeper_Hub.Core.Data.Repository do
   @spec match(table_name(), mnesia_match_spec()) ::
           {:ok, list(record())} | {:error, error_reason()}
   def match(table_name, match_spec) when is_atom(table_name) do
+    # Inicia a métrica de operação
+    start_time = DatabaseMetrics.start_operation(table_name, :match)
+    
     Logger.info("Tentando buscar registros na tabela #{table_name} com match_spec", %{
       match_spec: match_spec
     })
-
+    
+    # Tenta buscar do cache primeiro
+    result = case Cache.get(table_name, :match, match_spec) do
+      {:ok, cached_result} ->
+        # Registra hit no cache nas métricas
+        Logger.debug("Cache hit para #{table_name}/match/#{inspect(match_spec)}")
+        DatabaseMetrics.complete_operation(table_name, :match, :cache_hit, start_time)
+        cached_result
+        
+      :not_found ->
+        # Busca do banco de dados
+        db_result = do_match(table_name, match_spec, start_time)
+        
+        # Armazena o resultado no cache se for bem-sucedido
+        case db_result do
+          {:ok, _records} = result ->
+            Cache.put(table_name, :match, match_spec, result)
+          _ ->
+            # Não armazena erros no cache
+            :ok
+        end
+        
+        db_result
+    end
+    
+    result
+  end
+  
+  # Função auxiliar para realizar a busca por padrão
+  defp do_match(table_name, match_spec, start_time) do
     # Construir o padrão de busca
-    pattern = if match_spec == [] do
-      # Se não foi fornecido um padrão específico, buscar todos os registros
-      case :mnesia.table_info(table_name, :arity) do
-        arity when is_integer(arity) and arity > 0 ->
-          # Criar uma tupla com o nome da tabela como primeiro elemento e wildcards para os demais campos
-          List.to_tuple([table_name | List.duplicate(:_, arity - 1)])
-        {:error, reason} ->
-          Logger.error("Falha ao obter aridade da tabela #{table_name}", %{reason: reason})
+    pattern = if is_tuple(match_spec) do
+      # Se for uma tupla, usar diretamente como padrão de busca
+      match_spec
+    else
+      # Se não for uma tupla ou for vazio, construir um padrão genérico
+      case build_match_spec(table_name, []) do
+        {:ok, [spec | _]} -> 
+          # Usar o primeiro elemento da lista de match_specs
+          spec
+        {:error, reason} -> 
           {:error, reason}
       end
-    else
-      # Usar o primeiro elemento da match_spec fornecida
-      hd(match_spec)
     end
-
+    
     # Verificar se pattern é um erro
     case pattern do
       {:error, reason} ->
+        DatabaseMetrics.complete_operation(table_name, :match, :error, start_time)
         {:error, reason}
       _ ->
         Logger.debug("Padrão de busca: #{inspect(pattern)}")
-
+        
+        # Executa a consulta
         case :mnesia.transaction(fn ->
                :mnesia.match_object(table_name, pattern, :read)
              end) do
@@ -466,15 +501,21 @@ defmodule Deeper_Hub.Core.Data.Repository do
             Logger.info("Registros encontrados na tabela #{table_name}", %{
               count: length(records)
             })
-
+            
+            # Registra a conclusão da operação
+            DatabaseMetrics.complete_operation(table_name, :match, :success, start_time)
+            
             {:ok, records}
-
+            
           {:aborted, reason} ->
             Logger.error("Falha ao buscar registros na tabela #{table_name}", %{
               reason: reason,
               pattern: pattern
             })
-
+            
+            # Registra a conclusão da operação
+            DatabaseMetrics.complete_operation(table_name, :match, :error, start_time)
+            
             {:error, reason}
         end
     end
