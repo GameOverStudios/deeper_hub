@@ -1,0 +1,4 @@
+[01:15:20] [Deeper_Hub.Core.Data.Database] Diretório Mnesia configurado: c:/New/mnesia_data
+[01:15:20] [Deeper_Hub.Core.Data.Database] Tabela users já existe, pulando criação
+[01:15:20] [Deeper_Hub.Core.Data.Database] Tabela sessions já existe, pulando criação
+[01:15:20] [Deeper_Hub.Core.Data.Database] Banco de dados Mnesia inicializado com sucesso

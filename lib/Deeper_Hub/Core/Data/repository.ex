@@ -38,6 +38,7 @@ defmodule Deeper_Hub.Core.Data.Repository do
 
   alias Deeper_Hub.Core.Logger
   alias Deeper_Hub.Core.Metrics.DatabaseMetrics
+  alias Deeper_Hub.Core.Data.Cache
 
   @type table_name :: atom()
   @type record_key :: any()
@@ -96,8 +97,14 @@ defmodule Deeper_Hub.Core.Data.Repository do
     
     # Registra a conclusão da operação
     case result do
-      {:ok, _} -> DatabaseMetrics.complete_operation(table_name, :insert, :success, start_time)
-      {:error, _} -> DatabaseMetrics.complete_operation(table_name, :insert, :error, start_time)
+      {:ok, _} -> 
+        # Invalidar cache relacionado após inserção bem-sucedida
+        Cache.invalidate(table_name, :find, key)
+        Cache.invalidate(table_name, :all)
+        Cache.invalidate(table_name, :match)
+        DatabaseMetrics.complete_operation(table_name, :insert, :success, start_time)
+      {:error, _} -> 
+        DatabaseMetrics.complete_operation(table_name, :insert, :error, start_time)
     end
     
     result
@@ -171,34 +178,52 @@ defmodule Deeper_Hub.Core.Data.Repository do
     
     Logger.info("Tentando buscar registro na tabela #{table_name} com chave #{inspect(key)}")
 
-    result = case :mnesia.transaction(fn ->
-           :mnesia.read(table_name, key)
-         end) do
-      {:atomic, [record]} ->
-        Logger.info("Registro encontrado na tabela #{table_name}", %{key: key, record: record})
-        {:ok, record}
-
-      {:atomic, []} ->
-        Logger.warning(
-          "Registro não encontrado na tabela #{table_name} com chave #{inspect(key)}"
-        )
-
-        {:error, :not_found}
-
-      {:aborted, reason} ->
-        Logger.error("Falha ao buscar registro na tabela #{table_name}", %{
-          reason: reason,
-          key: key
-        })
+    # Tenta buscar do cache primeiro
+    result = case Cache.get(table_name, :find, key) do
+      {:ok, cached_result} ->
+        # Registra hit no cache nas métricas
+        Logger.debug("Cache hit para #{table_name}/find/#{inspect(key)}")
+        DatabaseMetrics.complete_operation(table_name, :find, :cache_hit, start_time)
+        cached_result
         
-        {:error, reason}
-    end
-    
-    # Registra a conclusão da operação
-    case result do
-      {:ok, _} -> DatabaseMetrics.complete_operation(table_name, :find, :success, start_time)
-      {:error, :not_found} -> DatabaseMetrics.complete_operation(table_name, :find, :not_found, start_time)
-      {:error, _} -> DatabaseMetrics.complete_operation(table_name, :find, :error, start_time)
+      :not_found ->
+        # Busca do banco de dados
+        db_result = case :mnesia.transaction(fn ->
+               :mnesia.read(table_name, key)
+             end) do
+          {:atomic, [record]} ->
+            Logger.info("Registro encontrado na tabela #{table_name}", %{key: key, record: record})
+            {:ok, record}
+
+          {:atomic, []} ->
+            Logger.warning(
+              "Registro não encontrado na tabela #{table_name} com chave #{inspect(key)}"
+            )
+
+            {:error, :not_found}
+
+          {:aborted, reason} ->
+            Logger.error("Falha ao buscar registro na tabela #{table_name}", %{
+              reason: reason,
+              key: key
+            })
+            
+            {:error, reason}
+        end
+        
+        # Se for um resultado de sucesso ou not_found, armazena no cache
+        case db_result do
+          {:ok, _} -> 
+            Cache.put(table_name, :find, key, db_result)
+            DatabaseMetrics.complete_operation(table_name, :find, :success, start_time)
+          {:error, :not_found} -> 
+            Cache.put(table_name, :find, key, db_result, 30_000) # TTL menor para not_found
+            DatabaseMetrics.complete_operation(table_name, :find, :not_found, start_time)
+          {:error, _} -> 
+            DatabaseMetrics.complete_operation(table_name, :find, :error, start_time)
+        end
+        
+        db_result
     end
     
     result
@@ -252,8 +277,14 @@ defmodule Deeper_Hub.Core.Data.Repository do
     
     # Registra a conclusão da operação
     case result do
-      {:ok, _} -> DatabaseMetrics.complete_operation(table_name, :update, :success, start_time)
-      {:error, _} -> DatabaseMetrics.complete_operation(table_name, :update, :error, start_time)
+      {:ok, _} -> 
+        # Invalidar cache relacionado após atualização bem-sucedida
+        Cache.invalidate(table_name, :find, key)
+        Cache.invalidate(table_name, :all)
+        Cache.invalidate(table_name, :match)
+        DatabaseMetrics.complete_operation(table_name, :update, :success, start_time)
+      {:error, _} -> 
+        DatabaseMetrics.complete_operation(table_name, :update, :error, start_time)
     end
     
     result
@@ -362,9 +393,16 @@ defmodule Deeper_Hub.Core.Data.Repository do
     
     # Registra a conclusão da operação
     case result do
-      {:ok, _} -> DatabaseMetrics.complete_operation(table_name, :delete, :success, start_time)
-      {:error, :not_found} -> DatabaseMetrics.complete_operation(table_name, :delete, :not_found, start_time)
-      {:error, _} -> DatabaseMetrics.complete_operation(table_name, :delete, :error, start_time)
+      {:ok, _} -> 
+        # Invalidar cache relacionado após exclusão bem-sucedida
+        Cache.invalidate(table_name, :find, key)
+        Cache.invalidate(table_name, :all)
+        Cache.invalidate(table_name, :match)
+        DatabaseMetrics.complete_operation(table_name, :delete, :success, start_time)
+      {:error, :not_found} -> 
+        DatabaseMetrics.complete_operation(table_name, :delete, :not_found, start_time)
+      {:error, _} -> 
+        DatabaseMetrics.complete_operation(table_name, :delete, :error, start_time)
     end
     
     result
@@ -469,68 +507,82 @@ defmodule Deeper_Hub.Core.Data.Repository do
     
     Logger.debug("Iniciando Repository.all/1 para tabela: #{inspect(table)}")
 
-    result = case build_match_spec(table, []) do
-      {:ok, match_spec} ->
-        Logger.debug("Match spec construída: #{inspect(match_spec)}")
+    # Tenta buscar do cache primeiro
+    result = case Cache.get(table, :all, nil) do
+      {:ok, cached_result} ->
+        # Registra hit no cache nas métricas
+        Logger.debug("Cache hit para #{table}/all")
+        DatabaseMetrics.complete_operation(table, :all, :cache_hit, start_time)
+        cached_result
+        
+      :not_found ->
+        # Busca do banco de dados
+        db_result = case build_match_spec(table, []) do
+          {:ok, match_spec} ->
+            Logger.debug("Match spec construída: #{inspect(match_spec)}")
 
-        transaction_result =
-          :mnesia.transaction(fn ->
-            try do
-              :mnesia.select(table, match_spec)
-            catch
-              kind, reason_details ->
-                stacktrace = __STACKTRACE__
-                Logger.error("Exceção ao executar select na tabela #{table}:")
-                Logger.error("  Kind: #{inspect(kind)}")
-                Logger.error("  Reason: #{inspect(reason_details)}")
-                Logger.error("  Stacktrace: #{inspect(stacktrace)}")
-                :mnesia.abort({:select_failed, kind, reason_details, stacktrace})
-            end
-          end)
+            transaction_result =
+              :mnesia.transaction(fn ->
+                try do
+                  :mnesia.select(table, match_spec)
+                catch
+                  kind, reason_details ->
+                    stacktrace = __STACKTRACE__
+                    Logger.error("Exceção ao executar select na tabela #{table}:")
+                    Logger.error("  Kind: #{inspect(kind)}")
+                    Logger.error("  Reason: #{inspect(reason_details)}")
+                    Logger.error("  Stacktrace: #{inspect(stacktrace)}")
+                    :mnesia.abort({:select_failed, kind, reason_details, stacktrace})
+                end
+              end)
 
-        Logger.debug("Resultado da transação: #{inspect(transaction_result)}")
+            Logger.debug("Resultado da transação: #{inspect(transaction_result)}")
 
-        case transaction_result do
-          {:atomic, records} ->
-            Logger.info("Registros recuperados com sucesso da tabela #{table}", %{
-              count: length(records)
-            })
-            # Registra o tamanho do resultado
-            DatabaseMetrics.record_result_size(table, :all, length(records))
-            {:ok, records}
-          {:aborted, {:no_exists, ^table, _type}} ->
-            Logger.error("Tabela '#{table}' não encontrada")
-            {:error, {:table_does_not_exist, table}}
-          {:aborted, {:select_failed, kind, reason_details, _stacktrace}} ->
-            Logger.error("Falha ao executar select na tabela #{table}")
-            {:error, {:mnesia_error, {:select_failed, {kind, reason_details}}}}
-          # Tratamento específico para o erro badarg na tabela schema
-          {:aborted, {:badarg, :schema, _match_spec}} ->
-            Logger.error("Erro de argumento inválido ao acessar a tabela schema")
-            {:error, {:table_access_error, :schema, :badarg}}
-          {:aborted, reason} ->
-            Logger.error("Erro na transação Mnesia: #{inspect(reason)}")
-            {:error, {:mnesia_error, reason}}
-          error ->
-            Logger.error("Erro inesperado: #{inspect(error)}")
-            {:error, {:unexpected_error, error}}
+            case transaction_result do
+              {:atomic, records} ->
+                Logger.info("Registros recuperados com sucesso da tabela #{table}", %{
+                  count: length(records)
+                })
+                # Registra o tamanho do resultado
+                DatabaseMetrics.record_result_size(table, :all, length(records))
+                {:ok, records}
+              {:aborted, {:no_exists, ^table, _type}} ->
+                Logger.error("Tabela '#{table}' não encontrada")
+                {:error, {:table_does_not_exist, table}}
+              {:aborted, {:select_failed, kind, reason_details, _stacktrace}} ->
+                Logger.error("Falha ao executar select na tabela #{table}")
+                {:error, {:mnesia_error, {:select_failed, {kind, reason_details}}}}
+              # Tratamento específico para o erro badarg na tabela schema
+              {:aborted, {:badarg, :schema, _match_spec}} ->
+                Logger.error("Erro de argumento inválido ao acessar a tabela schema")
+                {:error, {:table_access_error, :schema, :badarg}}
+              {:aborted, reason} ->
+                Logger.error("Erro na transação Mnesia: #{inspect(reason)}")
+                {:error, {:mnesia_error, reason}}
+              error ->
+                Logger.error("Erro inesperado: #{inspect(error)}")
+                {:error, {:unexpected_error, error}}
         end
 
-      {:error, {:table_does_not_exist, table_name}} ->
-        Logger.error("Falha ao construir match_spec para a tabela #{table}: tabela não existe")
-        {:error, {:table_does_not_exist, table_name}}
+          {:error, {:table_does_not_exist, table_name}} ->
+            Logger.error("Falha ao construir match_spec para a tabela #{table}: tabela não existe")
+            {:error, {:table_does_not_exist, table_name}}
+            
+          {:error, reason} ->
+            Logger.error("Falha ao construir match_spec para a tabela #{table}: #{inspect(reason)}")
+            {:error, {:match_spec_error, reason}}
+        end
         
-      {:error, reason} ->
-        Logger.error("Falha ao construir match_spec para a tabela #{table}: #{inspect(reason)}")
-        {:error, {:match_spec_error, reason}}
-    end
-    
-    # Registra a conclusão da operação
-    case result do
-      {:ok, _records} -> 
-        DatabaseMetrics.complete_operation(table, :all, :success, start_time)
-      {:error, _} -> 
-        DatabaseMetrics.complete_operation(table, :all, :error, start_time)
+        # Registra a conclusão da operação
+        case db_result do
+          {:ok, _records} -> 
+            Cache.put(table, :all, nil, db_result)
+            DatabaseMetrics.complete_operation(table, :all, :success, start_time)
+          {:error, _} -> 
+            DatabaseMetrics.complete_operation(table, :all, :error, start_time)
+        end
+        
+        db_result
     end
     
     result

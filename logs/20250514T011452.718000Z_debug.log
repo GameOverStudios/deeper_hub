@@ -1,0 +1,120 @@
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 999}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 999}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:users, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:users, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 2}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 2}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:products, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:products, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Invalidando cache para users/find/1
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Invalidando cache para users/find/1
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:users, :find, 2}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:users, :find, 2}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:products, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:products, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:products, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:products, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:products, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:products, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :all, nil}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :all, nil}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:products, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:products, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Invalidando cache para users/all/nil
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Invalidando cache para users/all/nil
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Invalidando cache para users/find/1
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Invalidando cache para users/find/1
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :all, nil}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :all, nil}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:products, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:products, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:users, :find, 1}
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:users, :find, 1}
+[01:25:46] [Deeper_Hub.Core.Data.Cache] Cache expirado para {:users, :find, 1}
+[01:25:46] [Deeper_Hub.Core.Data.Cache] Cache expirado para {:users, :find, 1}
+[01:25:46] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:25:46] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:25:46] [Deeper_Hub.Core.Data.Cache] Cache hit para {:users, :find, 1}
+[01:25:46] [Deeper_Hub.Core.Data.Cache] Cache hit para {:users, :find, 1}
+[01:25:46] [Deeper_Hub.Core.Data.Cache] Cache hit para {:users, :find, 1}
+[01:25:46] [Deeper_Hub.Core.Data.Cache] Cache hit para {:users, :find, 1}
+[01:25:46] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 2}
+[01:25:46] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 2}
+[01:25:46] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 3}
+[01:25:46] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 3}
+[01:26:44] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:26:44] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:26:44] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :all, nil}
+[01:26:44] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :all, nil}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:products, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:products, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Invalidando cache para users/all/nil
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Invalidando cache para users/all/nil
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Invalidando cache para users/find/1
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Invalidando cache para users/find/1
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :all, nil}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :all, nil}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:products, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:products, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 2}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 2}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:products, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:products, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Invalidando cache para users/find/1
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Invalidando cache para users/find/1
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:users, :find, 2}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:users, :find, 2}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:products, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:products, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 999}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 999}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache expirado para {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache expirado para {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:products, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:products, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:products, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:products, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Armazenando em cache: {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache hit para {:users, :find, 1}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 2}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 2}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 3}
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Cache miss para {:users, :find, 3}

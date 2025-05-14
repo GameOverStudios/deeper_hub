@@ -1,0 +1,40 @@
+[01:24:45] [Deeper_Hub.Core.Data.Database] Diretório Mnesia configurado: c:/New/mnesia_data
+[01:24:45] [Deeper_Hub.Core.Data.Database] Tabela users já existe, pulando criação
+[01:24:45] [Deeper_Hub.Core.Data.Database] Tabela sessions já existe, pulando criação
+[01:24:45] [Deeper_Hub.Core.Data.Database] Banco de dados Mnesia inicializado com sucesso
+[01:24:45] [Deeper_Hub.Core.Data.Cache] Iniciando sistema de cache para consultas Mnesia
+[01:24:59] [Deeper_Hub.Core.Data.Database] Diretório Mnesia configurado: c:/New/mnesia_data
+[01:24:59] [Deeper_Hub.Core.Data.Database] Tabela users já existe, pulando criação
+[01:24:59] [Deeper_Hub.Core.Data.Database] Tabela sessions já existe, pulando criação
+[01:24:59] [Deeper_Hub.Core.Data.Database] Banco de dados Mnesia inicializado com sucesso
+[01:24:59] [Deeper_Hub.Core.Data.Cache] Iniciando sistema de cache para consultas Mnesia
+[01:25:45] [Deeper_Hub.Core.Data.Database] Diretório Mnesia configurado: c:/New/mnesia_data
+[01:25:45] [Deeper_Hub.Core.Data.Database] Tabela users já existe, pulando criação
+[01:25:45] [Deeper_Hub.Core.Data.Database] Tabela sessions já existe, pulando criação
+[01:25:45] [Deeper_Hub.Core.Data.Database] Banco de dados Mnesia inicializado com sucesso
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Iniciando sistema de cache para consultas Mnesia
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Limpando todo o cache (0 entradas)
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Limpando todo o cache (0 entradas)
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Limpando todo o cache (1 entradas)
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Invalidadas 1 entradas de cache para tabela users
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Limpando todo o cache (2 entradas)
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Limpando todo o cache (2 entradas)
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Limpando todo o cache (0 entradas)
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Invalidadas 2 entradas de cache para tabela users
+[01:25:45] [Deeper_Hub.Core.Data.Cache] Limpando todo o cache (1 entradas)
+[01:25:46] [Deeper_Hub.Core.Data.Cache] Limpando todo o cache (0 entradas)
+[01:26:44] [Deeper_Hub.Core.Data.Database] Diretório Mnesia configurado: c:/New/mnesia_data
+[01:26:44] [Deeper_Hub.Core.Data.Database] Tabela users já existe, pulando criação
+[01:26:44] [Deeper_Hub.Core.Data.Database] Tabela sessions já existe, pulando criação
+[01:26:44] [Deeper_Hub.Core.Data.Database] Banco de dados Mnesia inicializado com sucesso
+[01:26:44] [Deeper_Hub.Core.Data.Cache] Iniciando sistema de cache para consultas Mnesia
+[01:26:44] [Deeper_Hub.Core.Data.Cache] Limpando todo o cache (0 entradas)
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Invalidadas 2 entradas de cache para tabela users
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Limpando todo o cache (1 entradas)
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Invalidadas 1 entradas de cache para tabela users
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Limpando todo o cache (2 entradas)
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Limpando todo o cache (0 entradas)
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Limpando todo o cache (0 entradas)
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Limpando todo o cache (2 entradas)
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Limpando todo o cache (0 entradas)
+[01:26:45] [Deeper_Hub.Core.Data.Cache] Limpando todo o cache (1 entradas)

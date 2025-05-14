@@ -12,9 +12,7 @@ defmodule DeeperHub.Application do
 
     children = [
       # Adicione aqui os supervisores e processos iniciais da aplicação
-      # Exemplo:
-      # {DeeperHub.Repo, []},
-      # {DeeperHub.Cache, []}
+      {Deeper_Hub.Core.Data.Cache, []}
     ]
 
     opts = [strategy: :one_for_one, name: DeeperHub.Supervisor]
