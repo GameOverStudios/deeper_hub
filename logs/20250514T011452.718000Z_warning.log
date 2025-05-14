@@ -1,0 +1,1018 @@
+[01:27:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela test_table com chave 1
+[01:27:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:27:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:27:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:27:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:27:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:27:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:27:29] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "duplicate", "duplicate@example.com", "hash_duplicate", ~U[2025-05-14 01:27:29.450000Z]} key=1
+[01:27:29] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:27:29.476000Z]} key=1
+[01:27:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:27:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:27:29] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:27:29.550000Z]} key=1
+[01:27:29] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:27:29.578000Z]} key=1
+[01:27:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:27:29] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:27:29.700000Z]} key=1
+[01:27:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:27:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:27:29] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:27:29.792000Z]} key=1
+[01:27:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 999
+[01:27:29] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:27:29.826000Z]} key=1
+[01:27:29] [Deeper_Hub.Core.Data.Repository] Tentativa de deletar registro inexistente na tabela users key=999
+[01:27:29] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:27:29.881000Z]} key=1
+[01:27:30] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:27:30.063000Z]} key=1
+[01:27:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:27:30] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:27:30.136000Z]} key=1
+[01:27:30] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:27:30.222000Z]} key=1
+[01:27:30] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:27:30.251000Z]} key=1
+[01:27:30] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:27:30.276000Z]} key=1
+[01:27:30] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:27:30.700000Z]} key=1
+[01:27:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:27:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:27:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:27:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:27:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:27:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:27:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:27:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:27:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:27:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:27:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:27:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:27:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:27:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:27:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:27:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:27:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:27:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:27:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:27:31] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:27:31.667000Z]} key=1
+[01:27:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:27:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:27:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:27:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:27:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:27:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:27:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:27:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:27:32] [Deeper_Hub.Core.Data.Pagination] Failed to fetch records from table 'tabela_inexistente' for pagination. Treating as empty. error={:table_does_not_exist, :tabela_inexistente}
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:27:32.362000Z]} key=1
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:27:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:27:33.164000Z]} key=1
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:27:33.861000Z]} key=1
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:27:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:27:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:27:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:27:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:27:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:27:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:27:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:27:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:27:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:27:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:27:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:27:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:27:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:27:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:27:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:27:36.046000Z]} key=1
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:27:36.596000Z]} key=1
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:27:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:27:37.219000Z]} key=1
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:27:37] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:27:38] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:27:38.016000Z]} key=1
+[01:27:38] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:27:38] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:27:38] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:27:38] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:27:38] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:27:38] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:27:38] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:27:38] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:27:38] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:27:38] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:27:38] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:27:38] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:27:38] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:27:38] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:27:38] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:27:38] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:27:38] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:27:38] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:27:39.101000Z]} key=1
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:27:39.757000Z]} key=1
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:27:39] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:27:40.361000Z]} key=1
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:27:40] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:27:40] [Deeper_Hub.Core.Data.Pagination] Failed to fetch records from table 'schema' for pagination. Treating as empty. error={:mnesia_error, {:select_failed, {:exit, {:aborted, {:badarg, :schema, [{{:_, :_, :_}, [], [:"$_"]}]}}}}}
+[01:27:41] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:27:40.978000Z]} key=1
+[01:27:41] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:27:41] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:27:41] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:27:41] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:27:41] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:27:41] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:27:41] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:27:41] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:27:41] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:27:41] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:27:41] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:27:41] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:27:41] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:27:41] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:27:41] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:27:41] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:27:41] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:27:41] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:27:41] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:27:42] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:27:42.674000Z]} key=1
+[01:27:42] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:27:42] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:27:42] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:27:42] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:27:42] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:27:42] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:27:43.609000Z]} key=1
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:27:43] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:27:44] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:27:44] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:27:44] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:27:44] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:27:44] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:27:44] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:28:22] [Deeper_Hub.Core.Data.Pagination] Failed to fetch records from table 'tabela_inexistente' for pagination. Treating as empty. error={:table_does_not_exist, :tabela_inexistente}
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:28:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:28:23] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:28:23] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:28:23] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:28:23] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:28:23] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:28:23] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:28:23] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:28:23] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:28:23] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:28:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:28:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:28:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:28:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:28:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:28:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:28:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:28:24] [Deeper_Hub.Core.Data.Pagination] Failed to fetch records from table 'schema' for pagination. Treating as empty. error={:mnesia_error, {:select_failed, {:exit, {:aborted, {:badarg, :schema, [{{:_, :_, :_}, [], [:"$_"]}]}}}}}
+[01:28:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:28:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:28:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:28:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:28:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:28:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:28:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:28:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:28:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:28:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:28:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:28:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:28:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:28:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:28:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:28:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:28:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:28:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:28:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:28:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:28:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:28:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:28:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:28:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:28:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:28:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:28:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:28:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:28:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:28:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:28:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:28:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:28:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:28:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:28:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:28:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:28:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:28:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:28:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:28:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:28:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:28:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:28:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:28:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:28:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:28:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:28:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:28:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:28:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:28:31] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:28:32] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:28:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:28:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:28:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:28:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:28:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:28:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:28:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:28:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:28:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:28:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:28:33] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:28:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:28:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:28:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:28:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:28:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:28:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:28:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:28:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:28:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:28:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:28:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:28:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:28:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:28:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:28:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:28:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:28:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:28:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:28:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:28:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:28:34] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:28:35] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:28:36] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 999
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Tentativa de deletar registro inexistente na tabela users key=999
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:28:45.426000Z]} key=1
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "duplicate", "duplicate@example.com", "hash_duplicate", ~U[2025-05-14 01:28:45.440000Z]} key=1
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:28:45.459000Z]} key=1
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:28:45.538000Z]} key=1
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:28:45.587000Z]} key=1
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:28:45.694000Z]} key=1
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:28:45.818000Z]} key=1
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:28:45.910000Z]} key=1
+[01:28:45] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:28:45.944000Z]} key=1
+[01:28:46] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:28:45.989000Z]} key=1
+[01:28:46] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:28:46.020000Z]} key=1
+[01:28:46] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:28:46] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:28:46.095000Z]} key=1
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "duplicate", "duplicate@example.com", "hash_duplicate", ~U[2025-05-14 01:31:57.107000Z]} key=1
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:31:57.128000Z]} key=1
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:31:57.214000Z]} key=1
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:31:57.305000Z]} key=1
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:31:57.363000Z]} key=1
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:31:57.397000Z]} key=1
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:31:57.426000Z]} key=1
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:31:57.508000Z]} key=1
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 999
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:31:57.536000Z]} key=1
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Tentativa de deletar registro inexistente na tabela users key=999
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:31:57.569000Z]} key=1
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:31:57.627000Z]} key=1
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:31:57] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:31:58] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:31:58] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:31:58.091000Z]} key=1
+[01:31:58] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 2
+[01:32:15] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela test_table com chave 1
+[01:32:16] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:32:16] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 999
+[01:32:16] [Deeper_Hub.Core.Data.Repository] Tentativa de deletar registro inexistente na tabela users key=999
+[01:32:16] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:32:16] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 3
+[01:32:16] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:32:16] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 2, "alice", "alice@example.com", "hash_alice", ~U[2025-05-14 01:32:16.735000Z]} key=2
+[01:32:16] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:32:16] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:32:16] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:32:16] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:32:16] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "duplicate", "duplicate@example.com", "hash_duplicate", ~U[2025-05-14 01:32:16.976000Z]} key=1
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:32:17.005000Z]} key=1
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:32:17.050000Z]} key=1
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:32:17.069000Z]} key=1
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:32:17.090000Z]} key=1
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:32:17.134000Z]} key=1
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:32:17.173000Z]} key=1
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 1
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:32:17.320000Z]} key=1
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:32:17.371000Z]} key=1
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:32:17.409000Z]} key=1
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "test_user", "test@example.com", "test_hash", ~U[2025-05-14 01:32:17.498000Z]} key=1
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 8
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:32:17.608000Z]} key=1
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 2, "user2", "user2@example.com", "hash2", ~U[2025-05-14 01:32:17.619000Z]} key=2
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 3, "user3", "user3@example.com", "hash3", ~U[2025-05-14 01:32:17.630000Z]} key=3
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 8, "user8", "user8@example.com", "hash8", ~U[2025-05-14 01:32:17.739000Z]} key=8
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:32:17] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:32:18] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:32:18] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:32:18] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:32:18] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:32:18] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:32:18] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:32:18] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:32:18] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:32:18] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:32:18] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:32:18.482000Z]} key=1
+[01:32:18] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 2, "user2", "user2@example.com", "hash2", ~U[2025-05-14 01:32:18.513000Z]} key=2
+[01:32:18] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 3, "user3", "user3@example.com", "hash3", ~U[2025-05-14 01:32:18.533000Z]} key=3
+[01:32:18] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:32:18] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:32:18] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:32:18] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:32:18] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 8, "user8", "user8@example.com", "hash8", ~U[2025-05-14 01:32:18.648000Z]} key=8
+[01:32:18] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:32:18] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:32:18] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:32:18] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:32:18] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:32:19.326000Z]} key=1
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 2, "user2", "user2@example.com", "hash2", ~U[2025-05-14 01:32:19.394000Z]} key=2
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 3, "user3", "user3@example.com", "hash3", ~U[2025-05-14 01:32:19.413000Z]} key=3
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 8, "user8", "user8@example.com", "hash8", ~U[2025-05-14 01:32:19.518000Z]} key=8
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:32:19.875000Z]} key=1
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 2, "user2", "user2@example.com", "hash2", ~U[2025-05-14 01:32:19.893000Z]} key=2
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 3, "user3", "user3@example.com", "hash3", ~U[2025-05-14 01:32:19.909000Z]} key=3
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:32:19] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 8, "user8", "user8@example.com", "hash8", ~U[2025-05-14 01:32:20.032000Z]} key=8
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:32:20.450000Z]} key=1
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 2, "user2", "user2@example.com", "hash2", ~U[2025-05-14 01:32:20.463000Z]} key=2
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 3, "user3", "user3@example.com", "hash3", ~U[2025-05-14 01:32:20.487000Z]} key=3
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 8, "user8", "user8@example.com", "hash8", ~U[2025-05-14 01:32:20.641000Z]} key=8
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:32:20] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:32:21.006000Z]} key=1
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 2, "user2", "user2@example.com", "hash2", ~U[2025-05-14 01:32:21.036000Z]} key=2
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 3, "user3", "user3@example.com", "hash3", ~U[2025-05-14 01:32:21.055000Z]} key=3
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 8, "user8", "user8@example.com", "hash8", ~U[2025-05-14 01:32:21.145000Z]} key=8
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:32:21] [Deeper_Hub.Core.Data.Pagination] Failed to fetch records from table 'schema' for pagination. Treating as empty. error={:mnesia_error, {:select_failed, {:exit, {:aborted, {:badarg, :schema, [{{:_, :_, :_}, [], [:"$_"]}]}}}}}
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:32:21.601000Z]} key=1
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 2, "user2", "user2@example.com", "hash2", ~U[2025-05-14 01:32:21.612000Z]} key=2
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 3, "user3", "user3@example.com", "hash3", ~U[2025-05-14 01:32:21.623000Z]} key=3
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 8, "user8", "user8@example.com", "hash8", ~U[2025-05-14 01:32:21.736000Z]} key=8
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:32:21] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:32:22.110000Z]} key=1
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 2, "user2", "user2@example.com", "hash2", ~U[2025-05-14 01:32:22.128000Z]} key=2
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 3, "user3", "user3@example.com", "hash3", ~U[2025-05-14 01:32:22.139000Z]} key=3
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 8, "user8", "user8@example.com", "hash8", ~U[2025-05-14 01:32:22.254000Z]} key=8
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:32:22] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:32:23] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:32:23.020000Z]} key=1
+[01:32:23] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 2, "user2", "user2@example.com", "hash2", ~U[2025-05-14 01:32:23.534000Z]} key=2
+[01:32:23] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 3, "user3", "user3@example.com", "hash3", ~U[2025-05-14 01:32:23.562000Z]} key=3
+[01:32:23] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:32:23] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:32:23] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:32:23] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:32:23] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 8, "user8", "user8@example.com", "hash8", ~U[2025-05-14 01:32:23.691000Z]} key=8
+[01:32:23] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:32:23] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:32:23] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:32:23] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:32:23] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:32:23] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:32:23] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:32:23] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:32:24.214000Z]} key=1
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 2, "user2", "user2@example.com", "hash2", ~U[2025-05-14 01:32:24.239000Z]} key=2
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 3, "user3", "user3@example.com", "hash3", ~U[2025-05-14 01:32:24.260000Z]} key=3
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 8, "user8", "user8@example.com", "hash8", ~U[2025-05-14 01:32:24.439000Z]} key=8
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:32:24] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:32:25.060000Z]} key=1
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 2, "user2", "user2@example.com", "hash2", ~U[2025-05-14 01:32:25.116000Z]} key=2
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 3, "user3", "user3@example.com", "hash3", ~U[2025-05-14 01:32:25.142000Z]} key=3
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 8, "user8", "user8@example.com", "hash8", ~U[2025-05-14 01:32:25.352000Z]} key=8
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:32:25.845000Z]} key=1
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 2, "user2", "user2@example.com", "hash2", ~U[2025-05-14 01:32:25.887000Z]} key=2
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 3, "user3", "user3@example.com", "hash3", ~U[2025-05-14 01:32:25.918000Z]} key=3
+[01:32:25] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:32:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:32:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:32:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:32:26] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 8, "user8", "user8@example.com", "hash8", ~U[2025-05-14 01:32:26.493000Z]} key=8
+[01:32:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:32:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:32:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:32:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:32:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:32:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:32:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:32:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:32:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:32:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:32:26] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:32:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:32:27] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:32:27.062000Z]} key=1
+[01:32:27] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 2, "user2", "user2@example.com", "hash2", ~U[2025-05-14 01:32:27.112000Z]} key=2
+[01:32:27] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 3, "user3", "user3@example.com", "hash3", ~U[2025-05-14 01:32:27.135000Z]} key=3
+[01:32:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:32:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:32:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:32:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:32:27] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 8, "user8", "user8@example.com", "hash8", ~U[2025-05-14 01:32:27.318000Z]} key=8
+[01:32:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:32:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:32:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:32:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:32:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:32:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:32:27] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:32:28.283000Z]} key=1
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 2, "user2", "user2@example.com", "hash2", ~U[2025-05-14 01:32:28.316000Z]} key=2
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 3, "user3", "user3@example.com", "hash3", ~U[2025-05-14 01:32:28.342000Z]} key=3
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 8, "user8", "user8@example.com", "hash8", ~U[2025-05-14 01:32:28.504000Z]} key=8
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:32:28] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:32:29] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:32:30] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 1, "user1", "user1@example.com", "hash1", ~U[2025-05-14 01:32:30.182000Z]} key=1
+[01:32:30] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 2, "user2", "user2@example.com", "hash2", ~U[2025-05-14 01:32:30.209000Z]} key=2
+[01:32:30] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 3, "user3", "user3@example.com", "hash3", ~U[2025-05-14 01:32:30.232000Z]} key=3
+[01:32:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 4
+[01:32:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 5
+[01:32:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 6
+[01:32:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 7
+[01:32:30] [Deeper_Hub.Core.Data.Repository] Falha ao inserir registro na tabela users: chave duplicada record={:users, 8, "user8", "user8@example.com", "hash8", ~U[2025-05-14 01:32:30.396000Z]} key=8
+[01:32:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 9
+[01:32:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 10
+[01:32:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 11
+[01:32:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 12
+[01:32:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 13
+[01:32:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 14
+[01:32:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 15
+[01:32:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 16
+[01:32:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 17
+[01:32:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 18
+[01:32:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 19
+[01:32:30] [Deeper_Hub.Core.Data.Repository] Registro não encontrado na tabela users com chave 20
+[01:32:30] [Deeper_Hub.Core.Data.Pagination] Failed to fetch records from table 'tabela_inexistente' for pagination. Treating as empty. error={:table_does_not_exist, :tabela_inexistente}
