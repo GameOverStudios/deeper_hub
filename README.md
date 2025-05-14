@@ -35,12 +35,12 @@ iex -S mix
 #### Inserir um Registro
 
 ```elixir
-# Supondo que você tenha um schema User
+# Usando o schema User existente no projeto
 alias Deeper_Hub.Core.Data.Repository
-alias MyApp.User
+alias Deeper_Hub.Core.Schemas.User
 
 # Inserir um novo usuário
-{:ok, user} = Repository.insert(User, %{name: "João Silva", email: "joao@example.com", active: true})
+{:ok, user} = Repository.insert(User, %{username: "joao_silva", email: "joao@example.com", password: "senha123", is_active: true})
 ```
 
 #### Buscar um Registro por ID
@@ -59,7 +59,7 @@ alias MyApp.User
 {:ok, user} = Repository.get(User, 1)
 
 # Depois, atualize-o
-{:ok, updated_user} = Repository.update(user, %{name: "João Santos"})
+{:ok, updated_user} = Repository.update(user, %{username: "joao_santos"})
 ```
 
 #### Excluir um Registro
@@ -94,32 +94,32 @@ alias MyApp.User
 
 ```elixir
 # Buscar usuários ativos
-{:ok, active_users} = Repository.find(User, %{active: true})
+{:ok, active_users} = Repository.find(User, %{is_active: true})
 
 # Buscar com múltiplas condições
-{:ok, users} = Repository.find(User, %{active: true, role: "admin"})
+{:ok, users} = Repository.find(User, %{is_active: true, username: {:like, "admin"}})
 
 # Buscar com operadores especiais
 # Valores nulos
-{:ok, users} = Repository.find(User, %{deleted_at: nil})
+{:ok, users} = Repository.find(User, %{last_login: nil})
 
 # Valores não nulos
 {:ok, users} = Repository.find(User, %{email: :not_nil})
 
 # Busca por lista de valores (IN)
-{:ok, users} = Repository.find(User, %{role: {:in, ["admin", "editor"]}})
+{:ok, users} = Repository.find(User, %{id: {:in, ["id1", "id2", "id3"]}})
 
 # Exclusão de lista de valores (NOT IN)
-{:ok, users} = Repository.find(User, %{role: {:not_in, ["guest", "viewer"]}})
+{:ok, users} = Repository.find(User, %{id: {:not_in, ["id4", "id5", "id6"]}})
 
 # Busca com LIKE (case-sensitive)
-{:ok, users} = Repository.find(User, %{name: {:like, "Silva"}})
+{:ok, users} = Repository.find(User, %{username: {:like, "silva"}})
 
 # Busca com ILIKE (case-insensitive)
-{:ok, users} = Repository.find(User, %{name: {:ilike, "silva"}})
+{:ok, users} = Repository.find(User, %{username: {:ilike, "silva"}})
 
 # Combinando com paginação
-{:ok, users} = Repository.find(User, %{active: true}, limit: 10, offset: 0)
+{:ok, users} = Repository.find(User, %{is_active: true}, limit: 10, offset: 0)
 ```
 
 ### Operações de Join
@@ -127,12 +127,12 @@ alias MyApp.User
 #### Inner Join
 
 ```elixir
-# Inner join entre User e Profile
+# Inner join entre User e outro schema (exemplo)
 {:ok, results} = Repository.join_inner(
   User,
-  Profile,
-  [:id, :name, :email, :profile_picture, :bio],
-  %{active: true},
+  OtherSchema, # Substitua por um schema real quando disponível
+  [:id, :username, :email],
+  %{is_active: true},
   join_on: {:id, :user_id}
 )
 
@@ -143,13 +143,13 @@ alias MyApp.User
 #### Left Join
 
 ```elixir
-# Left join entre User e Profile
-# Retorna todos os usuários, mesmo os que não têm perfil
+# Left join entre User e outro schema (exemplo)
+# Retorna todos os usuários, mesmo os que não têm relação com o outro schema
 {:ok, results} = Repository.join_left(
   User,
-  Profile,
-  [:id, :name, :email, :profile_picture, :bio],
-  %{active: true},
+  OtherSchema, # Substitua por um schema real quando disponível
+  [:id, :username, :email],
+  %{is_active: true},
   join_on: {:id, :user_id}
 )
 ```
@@ -157,13 +157,13 @@ alias MyApp.User
 #### Right Join
 
 ```elixir
-# Right join entre User e Profile
-# Retorna todos os perfis, mesmo os que não estão associados a um usuário
+# Right join entre User e outro schema (exemplo)
+# Retorna todos os registros do outro schema, mesmo os que não estão associados a um usuário
 {:ok, results} = Repository.join_right(
   User,
-  Profile,
-  [:id, :name, :email, :profile_picture, :bio],
-  %{active: true},
+  OtherSchema, # Substitua por um schema real quando disponível
+  [:id, :username, :email],
+  %{is_active: true},
   join_on: {:id, :user_id}
 )
 ```
