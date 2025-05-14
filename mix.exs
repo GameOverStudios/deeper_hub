@@ -64,6 +64,9 @@ defmodule DeeperHub.MixProject do
       {:telemetry, "~> 1.3"},
       {:telemetry_metrics, "~> 1.1"},
       {:telemetry_poller, "~> 1.2"},
+
+      # Cache
+      {:cachex, "~> 4.1"}
     ]
   end
 end

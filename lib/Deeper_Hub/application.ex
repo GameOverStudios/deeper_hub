@@ -48,7 +48,7 @@ defmodule DeeperHub.Application do
       Repo,
       
       # Adiciona o gerenciador de cache do repositório
-      {Deeper_Hub.Core.Data.Repository, []}
+      {Deeper_Hub.Core.Data.RepositoryCore, []}
     ]
 
     opts = [strategy: :one_for_one, name: DeeperHub.Supervisor]

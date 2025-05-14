@@ -148,3 +148,6 @@ Utilize esta checklist após cada implementação ou correção:
 Seguir estas diretrizes rigorosamente ajudará a manter a qualidade do código, minimizar erros e garantir que o projeto DeeperHub seja desenvolvido de acordo com as especificações. A revisão pós-implementação é **EXTREMAMENTE IMPORTANTE** e deve ser realizada após cada desenvolvimento ou correção para evitar a acumulação de problemas técnicos e garantir um código limpo e funcional.
 
 Lembre-se: Um código limpo e bem estruturado é mais fácil de manter, estender e depurar. Invista tempo na qualidade agora para economizar tempo no futuro.
+
+
+***IMPORTANTE:*** divida os arquios caso passe de 400 linhas e coloque a nomenclatura dos arquivos categorizados 
