@@ -11,7 +11,6 @@ defmodule Deeper_Hub.Core.Data.Repository do
   import Ecto.Query
   alias Deeper_Hub.Core.Data.Repo
   alias Deeper_Hub.Core.Logger
-  alias Deeper_Hub.Core.Metrics.DatabaseMetrics
 
   # Tabelas ETS para cache
   @cache_table :repository_cache
@@ -311,15 +310,8 @@ defmodule Deeper_Hub.Core.Data.Repository do
   """
   @spec insert(module(), map()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   def insert(schema, attrs) do
-    # Inicia span de telemetria para a operação
-    alias Deeper_Hub.Core.Telemetry
-    span = Telemetry.start_span("data.repository.insert", %{
-      schema: inspect(schema),
-      attrs_keys: Map.keys(attrs)
-    })
+    # Início da operação de inserção
     
-    start_time = System.monotonic_time()
-
     # Registra a operação
     Logger.debug("Inserindo registro", %{
       module: __MODULE__,
@@ -332,10 +324,6 @@ defmodule Deeper_Hub.Core.Data.Repository do
     |> struct()
     |> schema.changeset(attrs)
     |> Repo.insert()
-
-    # Registra métricas
-    DatabaseMetrics.record_operation_time(:insert, schema, System.monotonic_time() - start_time)
-    DatabaseMetrics.record_operation_result(:insert, schema, result)
 
     # Registra o resultado
     case result do
@@ -358,8 +346,7 @@ defmodule Deeper_Hub.Core.Data.Repository do
         })
     end
     
-    # Finaliza span de telemetria
-    Telemetry.stop_span(span, %{result: result})
+    # Finaliza operação de inserção
 
     result
   end
@@ -379,15 +366,8 @@ defmodule Deeper_Hub.Core.Data.Repository do
   """
   @spec get(module(), term()) :: {:ok, Ecto.Schema.t()} | {:error, :not_found}
   def get(schema, id) do
-    # Inicia span de telemetria para a operação
-    alias Deeper_Hub.Core.Telemetry
-    span = Telemetry.start_span("data.repository.get", %{
-      schema: inspect(schema),
-      id: id
-    })
+    # Início da operação de busca
     
-    start_time = System.monotonic_time()
-
     # Registra a operação
     Logger.debug("Buscando registro por ID", %{
       module: __MODULE__,
@@ -405,9 +385,7 @@ defmodule Deeper_Hub.Core.Data.Repository do
           id: id
         })
 
-        # Registra métricas
-        DatabaseMetrics.record_operation_time(:get, schema, System.monotonic_time() - start_time)
-        DatabaseMetrics.record_operation_result(:get, schema, {:ok, value})
+        # Registro encontrado no cache
 
         {:ok, value}
 
@@ -415,9 +393,7 @@ defmodule Deeper_Hub.Core.Data.Repository do
         # Busca no banco de dados
         case Repo.get(schema, id) do
           nil ->
-            # Registra métricas
-            DatabaseMetrics.record_operation_time(:get, schema, System.monotonic_time() - start_time)
-            DatabaseMetrics.record_operation_result(:get, schema, {:error, :not_found})
+            # Registro não encontrado no banco de dados
 
             {:error, :not_found}
 
@@ -425,9 +401,7 @@ defmodule Deeper_Hub.Core.Data.Repository do
             # Armazena no cache para futuras consultas
             put_in_cache(schema, id, record)
 
-            # Registra métricas
-            DatabaseMetrics.record_operation_time(:get, schema, System.monotonic_time() - start_time)
-            DatabaseMetrics.record_operation_result(:get, schema, {:ok, record})
+            # Registro encontrado no banco de dados
 
             {:ok, record}
         end
@@ -450,8 +424,7 @@ defmodule Deeper_Hub.Core.Data.Repository do
         })
     end
     
-    # Finaliza span de telemetria
-    Telemetry.stop_span(span, %{result: result})
+    # Finaliza operação de busca
 
     result
   end
@@ -471,58 +444,43 @@ defmodule Deeper_Hub.Core.Data.Repository do
   """
   @spec update(Ecto.Schema.t(), map()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   def update(struct, attrs) do
-    # Inicia span de telemetria para a operação
-    alias Deeper_Hub.Core.Telemetry
-    schema = struct.__struct__
-    id = Map.get(struct, :id)
-    span = Telemetry.start_span("data.repository.update", %{
-      schema: inspect(schema),
-      id: id,
-      attrs_keys: Map.keys(attrs)
-    })
+    # Início da operação de atualização
     
-    start_time = System.monotonic_time()
-
     # Registra a operação
     Logger.debug("Atualizando registro", %{
       module: __MODULE__,
-      schema: schema,
-      id: id,
+      schema: struct.__struct__,
+      id: Map.get(struct, :id),
       attrs: attrs
     })
 
     # Cria um changeset e atualiza
     result = struct
-    |> schema.changeset(attrs)
+    |> struct.__struct__.changeset(attrs)
     |> Repo.update()
-
-    # Registra métricas
-    DatabaseMetrics.record_operation_time(:update, schema, System.monotonic_time() - start_time)
-    DatabaseMetrics.record_operation_result(:update, schema, result)
 
     # Registra o resultado
     case result do
       {:ok, updated_struct} ->
         Logger.debug("Registro atualizado com sucesso", %{
           module: __MODULE__,
-          schema: schema,
-          id: id
+          schema: struct.__struct__,
+          id: Map.get(struct, :id)
         })
 
         # Atualiza o cache
-        put_in_cache(schema, id, updated_struct)
+        put_in_cache(struct.__struct__, Map.get(struct, :id), updated_struct)
 
       {:error, changeset} ->
         Logger.error("Falha ao atualizar registro", %{
           module: __MODULE__,
-          schema: schema,
-          id: id,
+          schema: struct.__struct__,
+          id: Map.get(struct, :id),
           errors: changeset.errors
         })
     end
     
-    # Finaliza span de telemetria
-    Telemetry.stop_span(span, %{result: result})
+    # Finaliza operação de atualização
 
     result
   end
@@ -541,29 +499,20 @@ defmodule Deeper_Hub.Core.Data.Repository do
   """
   @spec delete(Ecto.Schema.t()) :: {:ok, :deleted} | {:error, Ecto.Changeset.t()}
   def delete(struct) do
-    # Inicia span de telemetria para a operação
-    alias Deeper_Hub.Core.Telemetry
-    schema = struct.__struct__
-    id = Map.get(struct, :id)
-    span = Telemetry.start_span("data.repository.delete", %{
-      schema: inspect(schema),
-      id: id
-    })
+    # Início da operação de exclusão
     
-    start_time = System.monotonic_time()
-
     # Registra a operação
     Logger.debug("Removendo registro", %{
       module: __MODULE__,
-      schema: schema,
-      id: id
+      schema: struct.__struct__,
+      id: Map.get(struct, :id)
     })
 
     # Remove o registro
     result = case Repo.delete(struct) do
       {:ok, _} ->
         # Invalida o cache
-        invalidate_cache(schema, id)
+        invalidate_cache(struct.__struct__, Map.get(struct, :id))
 
         {:ok, :deleted}
 
@@ -571,30 +520,25 @@ defmodule Deeper_Hub.Core.Data.Repository do
         {:error, changeset}
     end
 
-    # Registra métricas
-    DatabaseMetrics.record_operation_time(:delete, schema, System.monotonic_time() - start_time)
-    DatabaseMetrics.record_operation_result(:delete, schema, result)
-
     # Registra o resultado
     case result do
       {:ok, :deleted} ->
         Logger.debug("Registro removido com sucesso", %{
           module: __MODULE__,
-          schema: schema,
-          id: id
+          schema: struct.__struct__,
+          id: Map.get(struct, :id)
         })
 
       {:error, changeset} ->
         Logger.error("Falha ao remover registro", %{
           module: __MODULE__,
-          schema: schema,
-          id: id,
+          schema: struct.__struct__,
+          id: Map.get(struct, :id),
           errors: changeset.errors
         })
     end
     
-    # Finaliza span de telemetria
-    Telemetry.stop_span(span, %{result: result})
+    # Finaliza operação de exclusão
 
     result
   end
@@ -625,14 +569,9 @@ defmodule Deeper_Hub.Core.Data.Repository do
   """
   @spec list(module(), Keyword.t()) :: {:ok, list(Ecto.Schema.t())} | {:error, term()}
   def list(schema, opts \\ []) do
-    # Inicia span de telemetria para a operação
-    alias Deeper_Hub.Core.Telemetry
-    span = Telemetry.start_span("data.repository.list", %{
-      schema: inspect(schema),
-      opts: inspect(opts)
-    })
+    # Início da operação de listagem
     
-    start_time = System.monotonic_time()
+    query_start_time = System.monotonic_time()
 
     # Registra a operação
     Logger.debug("Listando registros", %{
@@ -665,18 +604,12 @@ defmodule Deeper_Hub.Core.Data.Repository do
       # Executa a query
       records = Repo.all(query)
 
-      # Registra métricas
-      duration = System.monotonic_time() - start_time
-      DatabaseMetrics.record_operation_time(:list, schema, duration)
-      DatabaseMetrics.record_operation_result(:list, schema, {:ok, records})
-      DatabaseMetrics.record_result_size(:list, schema, length(records))
-
       # Registra o resultado
       Logger.debug("Registros listados com sucesso", %{
         module: __MODULE__,
         schema: schema,
         count: length(records),
-        duration_ms: System.convert_time_unit(duration, :native, :millisecond)
+        duration_ms: System.convert_time_unit(System.monotonic_time() - query_start_time, :native, :millisecond)
       })
 
       {:ok, records}
@@ -691,9 +624,7 @@ defmodule Deeper_Hub.Core.Data.Repository do
           stacktrace: __STACKTRACE__
         })
 
-        # Registra métricas
-        DatabaseMetrics.record_operation_time(:list, schema, System.monotonic_time() - start_time)
-        DatabaseMetrics.record_operation_result(:list, schema, {:error, :table_not_found})
+        # Tabela não encontrada
 
         {:error, :table_not_found}
 
@@ -706,15 +637,12 @@ defmodule Deeper_Hub.Core.Data.Repository do
           stacktrace: __STACKTRACE__
         })
 
-        # Registra métricas
-        DatabaseMetrics.record_operation_time(:list, schema, System.monotonic_time() - start_time)
-        DatabaseMetrics.record_operation_result(:list, schema, {:error, e})
+        # Erro ao listar registros
 
         {:error, e}
     end
     
-    # Finaliza span de telemetria
-    Telemetry.stop_span(span, %{result: result})
+    # Finaliza operação de listagem
     
     result
   end
@@ -774,15 +702,9 @@ defmodule Deeper_Hub.Core.Data.Repository do
   """
   @spec find(module(), map(), Keyword.t()) :: {:ok, list(Ecto.Schema.t())} | {:error, term()}
   def find(schema, conditions, opts \\ []) when is_map(conditions) do
-    # Inicia span de telemetria para a operação
-    alias Deeper_Hub.Core.Telemetry
-    span = Telemetry.start_span("data.repository.find", %{
-      schema: inspect(schema),
-      conditions: inspect(conditions),
-      opts: inspect(opts)
-    })
+    # Início da operação de busca com condições
     
-    start_time = System.monotonic_time()
+    query_start_time = System.monotonic_time()
 
     # Registra a operação
     Logger.debug("Buscando registros por condições", %{
@@ -854,12 +776,8 @@ defmodule Deeper_Hub.Core.Data.Repository do
 
       # Executa a query
       records = Repo.all(query)
-
-      # Registra métricas
-      duration = System.monotonic_time() - start_time
-      DatabaseMetrics.record_operation_time(:find, schema, duration)
-      DatabaseMetrics.record_operation_result(:find, schema, {:ok, records})
-      DatabaseMetrics.record_result_size(:find, schema, length(records))
+      
+      duration = System.monotonic_time() - query_start_time
 
       # Registra o resultado
       Logger.debug("Registros encontrados com sucesso", %{
@@ -882,9 +800,7 @@ defmodule Deeper_Hub.Core.Data.Repository do
           stacktrace: __STACKTRACE__
         })
 
-        # Registra métricas
-        DatabaseMetrics.record_operation_time(:find, schema, System.monotonic_time() - start_time)
-        DatabaseMetrics.record_operation_result(:find, schema, {:error, :table_not_found})
+        # Tabela não encontrada
 
         {:error, :table_not_found}
 
@@ -899,9 +815,7 @@ defmodule Deeper_Hub.Core.Data.Repository do
           stacktrace: __STACKTRACE__
         })
 
-        # Registra métricas
-        DatabaseMetrics.record_operation_time(:find, schema, System.monotonic_time() - start_time)
-        DatabaseMetrics.record_operation_result(:find, schema, {:error, :invalid_conditions})
+        # Condições de busca inválidas
 
         {:error, :invalid_conditions}
 
@@ -915,15 +829,12 @@ defmodule Deeper_Hub.Core.Data.Repository do
           stacktrace: __STACKTRACE__
         })
 
-        # Registra métricas
-        DatabaseMetrics.record_operation_time(:find, schema, System.monotonic_time() - start_time)
-        DatabaseMetrics.record_operation_result(:find, schema, {:error, e})
+        # Erro ao buscar registros
 
         {:error, e}
     end
     
-    # Finaliza span de telemetria
-    Telemetry.stop_span(span, %{result: result})
+    # Finaliza operação de busca
     
     result
   end

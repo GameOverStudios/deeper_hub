@@ -9,17 +9,13 @@ defmodule DeeperHub.Application do
   alias Deeper_Hub.Core.Data.DatabaseConfig
   alias Deeper_Hub.Core.Data.Migrations
   alias Deeper_Hub.Core.Data.Repo
-  alias Deeper_Hub.Core.Metrics
-  alias Deeper_Hub.Core.Telemetry.TelemetrySupervisor
 
   @impl true
   def start(_type, _args) do
     # Inicializa o banco de dados
     Logger.info("Inicializando aplicação DeeperHub", %{module: __MODULE__})
     
-    # Inicializa o sistema de métricas
-    Metrics.initialize()
-    Logger.info("Sistema de métricas inicializado", %{module: __MODULE__})
+    # Sistema de métricas foi removido
     
     # Configura o banco de dados e verifica se ele existe
     case DatabaseConfig.configure() do
@@ -52,11 +48,8 @@ defmodule DeeperHub.Application do
       Repo,
       
       # Adiciona o gerenciador de cache do repositório
-      {Deeper_Hub.Core.Data.Repository, []},
-      
-      # Adiciona o supervisor de telemetria
-      {TelemetrySupervisor, []}
-    ] ++ Deeper_Hub.Core.Metrics.MetricsApplication.child_specs()
+      {Deeper_Hub.Core.Data.Repository, []}
+    ]
 
     opts = [strategy: :one_for_one, name: DeeperHub.Supervisor]
     
