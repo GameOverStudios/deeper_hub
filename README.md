@@ -32,12 +32,17 @@ iex -S mix
 
 ### Operações CRUD Básicas
 
+> **Nota**: O projeto DeeperHub utiliza UUIDs (binary_id) como chaves primárias em vez de IDs numéricos sequenciais. Todos os exemplos abaixo usam UUIDs no formato string.
+
 #### Inserir um Registro
 
 ```elixir
 # Usando o schema User existente no projeto
 alias Deeper_Hub.Core.Data.Repository
 alias Deeper_Hub.Core.Schemas.User
+
+# Gerar um UUID para testes (opcional)
+# uuid = UUID.uuid4() # Requer a dependência :uuid
 
 # Inserir um novo usuário
 {:ok, user} = Repository.insert(User, %{username: "joao_silva", email: "joao@example.com", password: "senha123", is_active: true})
@@ -46,8 +51,8 @@ alias Deeper_Hub.Core.Schemas.User
 #### Buscar um Registro por ID
 
 ```elixir
-# Buscar um usuário pelo ID
-{:ok, user} = Repository.get(User, 1)
+# Buscar um usuário pelo ID (usando UUID)
+{:ok, user} = Repository.get(User, "f81d4fae-7dec-11d0-a765-00a0c91e6bf6")
 
 # O resultado é armazenado em cache automaticamente para consultas futuras
 ```
@@ -56,7 +61,7 @@ alias Deeper_Hub.Core.Schemas.User
 
 ```elixir
 # Primeiro, busque o registro
-{:ok, user} = Repository.get(User, 1)
+{:ok, user} = Repository.get(User, "f81d4fae-7dec-11d0-a765-00a0c91e6bf6")
 
 # Depois, atualize-o
 {:ok, updated_user} = Repository.update(user, %{username: "joao_santos"})
@@ -66,7 +71,7 @@ alias Deeper_Hub.Core.Schemas.User
 
 ```elixir
 # Primeiro, busque o registro
-{:ok, user} = Repository.get(User, 1)
+{:ok, user} = Repository.get(User, "f81d4fae-7dec-11d0-a765-00a0c91e6bf6")
 
 # Depois, exclua-o
 {:ok, :deleted} = Repository.delete(user)
@@ -107,10 +112,10 @@ alias Deeper_Hub.Core.Schemas.User
 {:ok, users} = Repository.find(User, %{email: :not_nil})
 
 # Busca por lista de valores (IN)
-{:ok, users} = Repository.find(User, %{id: {:in, ["id1", "id2", "id3"]}})
+{:ok, users} = Repository.find(User, %{id: {:in, ["f81d4fae-7dec-11d0-a765-00a0c91e6bf6", "f81d4fae-7dec-11d0-a765-00a0c91e6bf7"]}})
 
 # Exclusão de lista de valores (NOT IN)
-{:ok, users} = Repository.find(User, %{id: {:not_in, ["id4", "id5", "id6"]}})
+{:ok, users} = Repository.find(User, %{id: {:not_in, ["f81d4fae-7dec-11d0-a765-00a0c91e6bf8", "f81d4fae-7dec-11d0-a765-00a0c91e6bf9"]}})
 
 # Busca com LIKE (case-sensitive)
 {:ok, users} = Repository.find(User, %{username: {:like, "silva"}})
