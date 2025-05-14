@@ -52,7 +52,7 @@ alias Deeper_Hub.Core.Schemas.User
 
 ```elixir
 # Buscar um usuário pelo ID (usando UUID)
-{:ok, user} = Repository.get(User, "f81d4fae-7dec-11d0-a765-00a0c91e6bf6")
+Repository.get(User, "f81d4fae-7dec-11d0-a765-00a0c91e6bf6")
 
 # O resultado é armazenado em cache automaticamente para consultas futuras
 ```
@@ -84,15 +84,13 @@ alias Deeper_Hub.Core.Schemas.User
 ```elixir
 # Listar todos os usuários
 {:ok, users} = Repository.list(User)
+IO.inspect(users)
 
 # Listar com limite e deslocamento (paginação)
-{:ok, users} = Repository.list(User, limit: 10, offset: 0)
-
-# Listar com pré-carregamento de associações
-{:ok, users} = Repository.list(User, preload: [:profile, :posts])
+{:ok, users_page} = Repository.list(User, limit: 10, offset: 0)
 
 # Listar com ordenação personalizada
-{:ok, users} = Repository.list(User, order_by: [desc: :inserted_at])
+{:ok, sorted_users} = Repository.list(User, order_by: [desc: :inserted_at])
 ```
 
 #### Buscar Registros com Condições
@@ -102,29 +100,29 @@ alias Deeper_Hub.Core.Schemas.User
 {:ok, active_users} = Repository.find(User, %{is_active: true})
 
 # Buscar com múltiplas condições
-{:ok, users} = Repository.find(User, %{is_active: true, username: {:like, "admin"}})
+{:ok, admin_users} = Repository.find(User, %{is_active: true, username: {:like, "admin"}})
 
 # Buscar com operadores especiais
 # Valores nulos
-{:ok, users} = Repository.find(User, %{last_login: nil})
+{:ok, no_login_users} = Repository.find(User, %{last_login: nil})
 
 # Valores não nulos
-{:ok, users} = Repository.find(User, %{email: :not_nil})
+{:ok, with_email_users} = Repository.find(User, %{email: :not_nil})
 
 # Busca por lista de valores (IN)
-{:ok, users} = Repository.find(User, %{id: {:in, ["f81d4fae-7dec-11d0-a765-00a0c91e6bf6", "f81d4fae-7dec-11d0-a765-00a0c91e6bf7"]}})
+{:ok, specific_users} = Repository.find(User, %{id: {:in, ["f81d4fae-7dec-11d0-a765-00a0c91e6bf6", "f81d4fae-7dec-11d0-a765-00a0c91e6bf7"]}})
 
 # Exclusão de lista de valores (NOT IN)
-{:ok, users} = Repository.find(User, %{id: {:not_in, ["f81d4fae-7dec-11d0-a765-00a0c91e6bf8", "f81d4fae-7dec-11d0-a765-00a0c91e6bf9"]}})
+{:ok, filtered_users} = Repository.find(User, %{id: {:not_in, ["f81d4fae-7dec-11d0-a765-00a0c91e6bf8", "f81d4fae-7dec-11d0-a765-00a0c91e6bf9"]}})
 
 # Busca com LIKE (case-sensitive)
-{:ok, users} = Repository.find(User, %{username: {:like, "silva"}})
+{:ok, silva_users} = Repository.find(User, %{username: {:like, "silva"}})
 
 # Busca com ILIKE (case-insensitive)
-{:ok, users} = Repository.find(User, %{username: {:ilike, "silva"}})
+{:ok, silva_users_i} = Repository.find(User, %{username: {:ilike, "silva"}})
 
 # Combinando com paginação
-{:ok, users} = Repository.find(User, %{is_active: true}, limit: 10, offset: 0)
+{:ok, active_users_page} = Repository.find(User, %{is_active: true}, limit: 10, offset: 0)
 ```
 
 ### Operações de Join
@@ -142,7 +140,7 @@ alias Deeper_Hub.Core.Schemas.User
 )
 
 # O parâmetro join_on especifica os campos para a condição de join
-# No exemplo acima: User.id = Profile.user_id
+# No exemplo acima: User.id = OtherSchema.user_id
 ```
 
 #### Left Join
@@ -180,6 +178,7 @@ alias Deeper_Hub.Core.Schemas.User
 ```elixir
 # Obter estatísticas de uso do cache
 stats = Repository.get_cache_stats()
+IO.inspect(stats, label: "Estatísticas de cache")
 # Retorna um mapa com hits, misses e hit_rate
 ```
 
@@ -187,7 +186,7 @@ stats = Repository.get_cache_stats()
 
 ```elixir
 # Invalidar o cache para um registro específico
-:ok = Repository.invalidate_cache(User, 1)
+:ok = Repository.invalidate_cache(User, "f81d4fae-7dec-11d0-a765-00a0c91e6bf6")
 ```
 
 ## Configuração
