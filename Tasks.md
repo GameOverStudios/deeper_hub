@@ -19,9 +19,9 @@ A integração dos módulos Core visa criar um sistema robusto e resiliente, cap
 - [x] Implementar o CircuitBreaker com suporte a storage em memória
 - [x] Implementar o CircuitBreaker com suporte a métricas e telemetria
 - [x] Implementar o CircuitBreaker com suporte a eventos
-- [ ] Integrar o CircuitBreaker com o Cache para fallback de dados
-- [ ] Implementar testes de integração entre CircuitBreaker e Cache
-- [ ] Documentar padrões de uso para CircuitBreaker com Cache
+- [x] Integrar o CircuitBreaker com o Cache para fallback de dados
+- [x] Implementar testes de integração entre CircuitBreaker e Cache
+- [x] Documentar padrões de uso para CircuitBreaker com Cache
 
 ### 2. Metrics e Telemetry
 
@@ -44,10 +44,10 @@ A integração dos módulos Core visa criar um sistema robusto e resiliente, cap
 
 - [x] Refatorar o módulo Repository em componentes menores (Core, CRUD, Joins)
 - [x] Implementar testes para o módulo Repository
-- [ ] Integrar o CircuitBreaker com o Repository para operações de banco de dados
-- [ ] Implementar fallback para operações de leitura usando Cache
-- [ ] Implementar retry policies para operações de escrita
-- [ ] Documentar padrões de uso para repositórios resilientes
+- [x] Integrar o CircuitBreaker com o Repository para operações de banco de dados
+- [x] Implementar fallback para operações de leitura usando Cache
+- [x] Implementar retry policies para operações de escrita
+- [x] Documentar padrões de uso para repositórios resilientes
 
 ### 5. Observabilidade Unificada
 
