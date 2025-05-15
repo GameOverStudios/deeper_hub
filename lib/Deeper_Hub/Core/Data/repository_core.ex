@@ -304,7 +304,7 @@ defmodule Deeper_Hub.Core.Data.RepositoryCore do
     - `:ok` se o valor for armazenado com sucesso
   """
   @spec put_in_cache(module(), term(), term(), integer() | nil) :: :ok
-  def put_in_cache(schema, id, value, ttl) do
+  def put_in_cache(schema, id, value, ttl) when not is_atom(schema) or schema == nil do
     # Garante que o cache está inicializado antes de qualquer operação
     ensure_cache_initialized()
 
@@ -320,6 +320,28 @@ defmodule Deeper_Hub.Core.Data.RepositoryCore do
         module: __MODULE__,
         schema: inspect(schema),
         id: id,
+        ttl: ttl
+      })
+    end
+    
+    :ok
+  end
+
+  # Implementação para cache_type (atom)
+  @spec put_in_cache(atom(), term(), term(), integer() | nil) :: :ok
+  def put_in_cache(cache_type, key, value, ttl) when is_atom(cache_type) do
+    # Garante que o cache está inicializado antes de qualquer operação
+    ensure_cache_initialized()
+    
+    # Armazena o valor no cache usando a chave diretamente
+    :ets.insert(@cache_table, {{cache_type, key}, value})
+    
+    # Se um TTL foi especificado, programa a expiração
+    if ttl do
+      Logger.debug("TTL especificado para cache de consulta: #{ttl}ms", %{
+        module: __MODULE__,
+        cache_type: cache_type,
+        key: key,
         ttl: ttl
       })
     end
@@ -355,30 +377,10 @@ defmodule Deeper_Hub.Core.Data.RepositoryCore do
   @spec delete_from_cache(module(), term()) :: :ok
   def delete_from_cache(schema, id), do: invalidate_cache(schema, id)
 
-  # Implementação para cache_type (atom)
-  @spec put_in_cache(atom(), term(), term(), integer() | nil) :: :ok
-  def put_in_cache(cache_type, key, value, ttl) when is_atom(cache_type) do
-    # Garante que o cache está inicializado antes de qualquer operação
-    ensure_cache_initialized()
-    
-    # Armazena o valor no cache usando a chave diretamente
-    :ets.insert(@cache_table, {{cache_type, key}, value})
-    
-    # Se um TTL foi especificado, programa a expiração
-    if ttl do
-      Logger.debug("TTL especificado para cache de consulta: #{ttl}ms", %{
-        module: __MODULE__,
-        cache_type: cache_type,
-        key: key,
-        ttl: ttl
-      })
-    end
-    
-    :ok
-  end
+
   
   # Funções put_in_cache/3 com valor padrão
-  def put_in_cache(schema, id, value), do: put_in_cache(schema, id, value, nil)
+  def put_in_cache(schema, id, value) when not is_atom(schema) or schema == nil, do: put_in_cache(schema, id, value, nil)
   def put_in_cache(cache_type, key, value) when is_atom(cache_type), do: put_in_cache(cache_type, key, value, nil)
   
   @doc """
