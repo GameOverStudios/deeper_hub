@@ -66,6 +66,9 @@ defmodule DeeperHub.MixProject do
       {:telemetry_metrics, "~> 1.1"},
       {:telemetry_poller, "~> 1.2"},
 
+      # Eventos
+      {:event_bus, "~> 1.7"},
+
       # Cache
       {:cachex, "~> 4.1"}
     ]
