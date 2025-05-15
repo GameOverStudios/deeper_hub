@@ -70,7 +70,10 @@ defmodule DeeperHub.MixProject do
       {:event_bus, "~> 1.7"},
 
       # Cache
-      {:cachex, "~> 4.1"}
+      {:cachex, "~> 4.1"},
+
+      # Tests
+      {:ex_machina, "~> 2.8.0", only: :test},
     ]
   end
 end
