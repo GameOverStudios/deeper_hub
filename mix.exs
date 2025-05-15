@@ -59,6 +59,7 @@ defmodule DeeperHub.MixProject do
       # Data
       {:ecto, "~> 3.12"},
       {:ecto_sqlite3, "~> 0.17"},
+      {:db_connection, "~> 2.7"},
 
       # Telemetria e observabilidade
       {:telemetry, "~> 1.3"},
