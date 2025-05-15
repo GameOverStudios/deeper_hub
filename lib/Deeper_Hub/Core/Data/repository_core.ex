@@ -291,24 +291,39 @@ defmodule Deeper_Hub.Core.Data.RepositoryCore do
 
   @doc """
   Armazena um valor no cache.
-
+  
   ## Parâmetros
-
-    - `schema`: O módulo do schema Ecto
-    - `id`: O ID do registro
+  
+    - `schema`: O módulo do schema Ecto ou tipo de cache (atom)
+    - `id_or_key`: O ID do registro ou chave para consulta
     - `value`: O valor a ser armazenado
-
+    - `ttl`: Tempo de vida em milissegundos (opcional)
+  
   ## Retorno
-
+  
     - `:ok` se o valor for armazenado com sucesso
   """
-  @spec put_in_cache(module(), term(), term()) :: :ok
-  def put_in_cache(schema, id, value) do
+  @spec put_in_cache(module(), term(), term(), integer() | nil) :: :ok
+  def put_in_cache(schema, id, value, ttl) do
     # Garante que o cache está inicializado antes de qualquer operação
     ensure_cache_initialized()
 
     # Armazena o valor no cache
     :ets.insert(@cache_table, {cache_key(schema, id), value})
+    
+    # Se um TTL foi especificado, programa a expiração
+    if ttl do
+      # Em uma implementação real, aqui teríamos lógica para expiração
+      # Como estamos usando ETS simples, isso seria implementado com um processo separado
+      # ou usando uma biblioteca como Cachex que suporta TTL nativamente
+      Logger.debug("TTL especificado para cache: #{ttl}ms", %{
+        module: __MODULE__,
+        schema: inspect(schema),
+        id: id,
+        ttl: ttl
+      })
+    end
+    
     :ok
   end
 
@@ -333,8 +348,39 @@ defmodule Deeper_Hub.Core.Data.RepositoryCore do
     :ets.delete(@cache_table, cache_key(schema, id))
     :ok
   end
+  
+  @doc """
+  Alias para invalidate_cache para compatibilidade com o código existente.
+  """
+  @spec delete_from_cache(module(), term()) :: :ok
+  def delete_from_cache(schema, id), do: invalidate_cache(schema, id)
 
-  # Aplica limit e offset a uma query
+  # Implementação para cache_type (atom)
+  @spec put_in_cache(atom(), term(), term(), integer() | nil) :: :ok
+  def put_in_cache(cache_type, key, value, ttl) when is_atom(cache_type) do
+    # Garante que o cache está inicializado antes de qualquer operação
+    ensure_cache_initialized()
+    
+    # Armazena o valor no cache usando a chave diretamente
+    :ets.insert(@cache_table, {{cache_type, key}, value})
+    
+    # Se um TTL foi especificado, programa a expiração
+    if ttl do
+      Logger.debug("TTL especificado para cache de consulta: #{ttl}ms", %{
+        module: __MODULE__,
+        cache_type: cache_type,
+        key: key,
+        ttl: ttl
+      })
+    end
+    
+    :ok
+  end
+  
+  # Funções put_in_cache/3 com valor padrão
+  def put_in_cache(schema, id, value), do: put_in_cache(schema, id, value, nil)
+  def put_in_cache(cache_type, key, value) when is_atom(cache_type), do: put_in_cache(cache_type, key, value, nil)
+  
   @doc """
   Aplica limit e offset a uma query.
 

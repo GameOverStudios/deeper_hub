@@ -28,6 +28,7 @@ defmodule Deeper_Hub.Core.Data.RepositoryIntegration do
   alias Deeper_Hub.Core.Data.RepositoryCache
   alias Deeper_Hub.Core.Data.RepositoryCircuitBreaker
   alias Deeper_Hub.Core.Data.RepositoryMetrics
+  alias Deeper_Hub.Core.Data.RepositoryConfig
   alias Deeper_Hub.Core.Logger
   alias Deeper_Hub.Core.Cache.CacheFacade, as: Cache
   
@@ -51,17 +52,51 @@ defmodule Deeper_Hub.Core.Data.RepositoryIntegration do
       schemas: Enum.map(schemas, &inspect/1)
     })
     
-    # Inicializa telemetria
-    RepositoryTelemetry.setup()
+    # Carrega as configurações
+    cache_config = RepositoryConfig.cache_config()
+    circuit_breaker_config = RepositoryConfig.circuit_breaker_config()
+    _telemetry_config = RepositoryConfig.telemetry_config()
+    _metrics_config = RepositoryConfig.metrics_config()
     
-    # Inicializa métricas
-    RepositoryMetrics.setup()
+    # Inicializa telemetria se estiver habilitada
+    if RepositoryConfig.telemetry_enabled?() do
+      RepositoryTelemetry.setup()
+      Logger.info("Telemetria inicializada", %{module: __MODULE__})
+    else
+      Logger.info("Telemetria desabilitada pela configuração", %{module: __MODULE__})
+    end
     
-    # Inicializa cache
-    RepositoryCache.setup(schemas)
+    # Inicializa métricas se estiverem habilitadas
+    if RepositoryConfig.metrics_enabled?() do
+      RepositoryMetrics.setup()
+      Logger.info("Métricas inicializadas", %{module: __MODULE__})
+    else
+      Logger.info("Métricas desabilitadas pela configuração", %{module: __MODULE__})
+    end
     
-    # Inicializa circuit breaker
-    RepositoryCircuitBreaker.setup(schemas)
+    # Inicializa cache se estiver habilitado
+    if RepositoryConfig.cache_enabled?() do
+      RepositoryCache.setup(schemas)
+      Logger.info("Cache inicializado", %{
+        module: __MODULE__,
+        ttl: cache_config.ttl,
+        max_size: cache_config.max_size
+      })
+    else
+      Logger.info("Cache desabilitado pela configuração", %{module: __MODULE__})
+    end
+    
+    # Inicializa circuit breaker se estiver habilitado
+    if RepositoryConfig.circuit_breaker_enabled?() do
+      RepositoryCircuitBreaker.setup(schemas)
+      Logger.info("Circuit breaker inicializado", %{
+        module: __MODULE__,
+        max_failures: circuit_breaker_config.max_failures,
+        reset_timeout: circuit_breaker_config.reset_timeout
+      })
+    else
+      Logger.info("Circuit breaker desabilitado pela configuração", %{module: __MODULE__})
+    end
     
     Logger.info("Componentes do repositório inicializados com sucesso", %{
       module: __MODULE__,
@@ -91,14 +126,23 @@ defmodule Deeper_Hub.Core.Data.RepositoryIntegration do
       schemas: Enum.map(schemas, &inspect/1)
     })
     
-    # Limpa o cache para cada schema
-    Enum.each(schemas, &RepositoryCache.invalidate_schema/1)
+    # Limpa o cache para cada schema se estiver habilitado
+    if RepositoryConfig.cache_enabled?() do
+      Enum.each(schemas, &RepositoryCache.invalidate_schema/1)
+      Logger.info("Cache reiniciado", %{module: __MODULE__})
+    end
     
-    # Reseta os circuit breakers para cada schema
-    Enum.each(schemas, &RepositoryCircuitBreaker.reset/1)
+    # Reseta os circuit breakers para cada schema se estiver habilitado
+    if RepositoryConfig.circuit_breaker_enabled?() do
+      Enum.each(schemas, &RepositoryCircuitBreaker.reset/1)
+      Logger.info("Circuit breakers resetados", %{module: __MODULE__})
+    end
     
-    # Reinicializa telemetria
-    RepositoryTelemetry.setup()
+    # Reinicializa telemetria se estiver habilitada
+    if RepositoryConfig.telemetry_enabled?() do
+      RepositoryTelemetry.setup()
+      Logger.info("Telemetria reinicializada", %{module: __MODULE__})
+    end
     
     Logger.info("Componentes do repositório reiniciados com sucesso", %{
       module: __MODULE__,
@@ -122,27 +166,54 @@ defmodule Deeper_Hub.Core.Data.RepositoryIntegration do
   - `map` - Um mapa contendo o estado de cada componente
   """
   def get_status(schema) do
-    # Obtém o estado do circuit breaker
-    read_circuit_state = RepositoryCircuitBreaker.get_read_state(schema)
-    write_circuit_state = RepositoryCircuitBreaker.get_write_state(schema)
+    # Obtém as configurações
+    cache_enabled = RepositoryConfig.cache_enabled?()
+    circuit_breaker_enabled = RepositoryConfig.circuit_breaker_enabled?()
+    telemetry_enabled = RepositoryConfig.telemetry_enabled?()
+    metrics_enabled = RepositoryConfig.metrics_enabled?()
+    events_enabled = RepositoryConfig.events_enabled?()
     
-    # Obtém o tamanho do cache
-    {:ok, record_cache_size} = Cache.size("repository:#{get_schema_name(schema)}:records")
-    {:ok, query_cache_size} = Cache.size("repository:#{get_schema_name(schema)}:queries")
-    
-    # Retorna o estado consolidado
-    %{
+    # Inicializa o resultado com informações básicas
+    result = %{
       schema: schema,
-      circuit_breaker: %{
+      config: %{
+        cache_enabled: cache_enabled,
+        circuit_breaker_enabled: circuit_breaker_enabled,
+        telemetry_enabled: telemetry_enabled,
+        metrics_enabled: metrics_enabled,
+        events_enabled: events_enabled
+      }
+    }
+    
+    # Adiciona informações do circuit breaker se estiver habilitado
+    result = if circuit_breaker_enabled do
+      read_circuit_state = RepositoryCircuitBreaker.get_read_state(schema)
+      write_circuit_state = RepositoryCircuitBreaker.get_write_state(schema)
+      
+      Map.put(result, :circuit_breaker, %{
         read: read_circuit_state,
         write: write_circuit_state
-      },
-      cache: %{
+      })
+    else
+      result
+    end
+    
+    # Adiciona informações do cache se estiver habilitado
+    result = if cache_enabled do
+      {:ok, record_cache_size} = Cache.size("repository:#{get_schema_name(schema)}:records")
+      {:ok, query_cache_size} = Cache.size("repository:#{get_schema_name(schema)}:queries")
+      
+      Map.put(result, :cache, %{
         records: record_cache_size,
         queries: query_cache_size,
         total: record_cache_size + query_cache_size
-      }
-    }
+      })
+    else
+      result
+    end
+    
+    # Retorna o estado consolidado
+    result
   end
   
   # Funções privadas auxiliares

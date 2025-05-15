@@ -124,7 +124,7 @@ defmodule Deeper_Hub.Core.Data.RepositoryTelemetry do
     if Map.has_key?(measurements, :duration) do
       duration_ms = System.convert_time_unit(measurements.duration, :native, :millisecond)
       
-      Metrics.observe("deeper_hub.core.data.repository.#{operation}.duration_ms", duration_ms, %{
+      Metrics.histogram("deeper_hub.core.data.repository.#{operation}.duration_ms", duration_ms, %{
         schema: schema,
         result: result
       })
@@ -158,7 +158,7 @@ defmodule Deeper_Hub.Core.Data.RepositoryTelemetry do
       0
     end
     
-    # Determina o nível de log com base no resultado
+    # Determina o nível de log e mensagem com base no resultado
     {level, message} = case result do
       :success ->
         {:debug, "Operação #{operation} concluída com sucesso"}
@@ -192,11 +192,9 @@ defmodule Deeper_Hub.Core.Data.RepositoryTelemetry do
       log_metadata
     end
     
-    # Registra o log
+    # Registra o log usando apenas os níveis que realmente usamos
     case level do
       :debug -> Logger.debug(message, log_metadata)
-      :info -> Logger.info(message, log_metadata)
-      :warning -> Logger.warning(message, log_metadata)
       :error -> Logger.error(message, log_metadata)
     end
   end

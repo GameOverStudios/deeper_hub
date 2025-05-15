@@ -25,9 +25,10 @@ defmodule Deeper_Hub.Core.Data.RepositoryEventIntegration do
   - `error` - Detalhes do erro (quando aplicável)
   """
   
-  alias Deeper_Hub.Core.EventBus.EventBusFacade, as: EventBus
-  alias Deeper_Hub.Core.Logger
   alias Deeper_Hub.Core.Metrics.MetricsFacade, as: Metrics
+  alias Deeper_Hub.Core.Logger
+  alias Deeper_Hub.Core.Data.RepositoryConfig
+  alias Deeper_Hub.Core.EventBus.EventBusFacade, as: EventBus
   
   @doc """
   Publica um evento de inserção de registro.
@@ -43,73 +44,49 @@ defmodule Deeper_Hub.Core.Data.RepositoryEventIntegration do
   - `:ok` - Se o evento for publicado com sucesso
   - `{:error, reason}` - Se ocorrer um erro ao publicar o evento
   """
-  def publish_record_inserted(schema, id, record \\ nil) do
-    # Registra métrica de início da operação
-    start_time = System.monotonic_time()
-    Metrics.increment("deeper_hub.core.data.repository.event.record_inserted.started", %{
-      schema: inspect(schema)
-    })
-    
-    # Prepara os metadados do evento
-    event_data = %{
-      schema: schema,
-      id: id,
-      timestamp: DateTime.utc_now(),
-      operation: :insert
-    }
-    
-    # Adiciona o registro se fornecido
-    event_data = if record do
-      Map.put(event_data, :record, record)
+  def publish_insert_event(schema, id, record, result, duration) do
+    # Verifica se a publicação de eventos de inserção está habilitada
+    if RepositoryConfig.publish_insert_events?() do
+      # Registra a duração da operação como uma métrica
+      Metrics.histogram(
+        "deeper_hub.core.data.repository.event.insert.duration",
+        %{schema: inspect(schema)},
+        duration
+      )
+      
+      # Cria o payload do evento
+      payload = %{
+        id: id,
+        schema: schema,
+        record: record,
+        result: result,
+        timestamp: DateTime.utc_now(),
+        duration_ms: duration
+      }
+      
+      # Publica o evento no barramento
+      EventBus.publish(
+        :repository_insert,
+        payload,
+        %{source: "Deeper_Hub.Core.Data.RepositoryEventIntegration"}
+      )
+      
+      # Registra o evento no log
+      Logger.debug("Evento de inserção publicado", %{
+        module: __MODULE__,
+        schema: inspect(schema),
+        id: id,
+        duration_ms: duration
+      })
     else
-      event_data
+      Logger.debug("Publicação de eventos de inserção desabilitada", %{
+        module: __MODULE__,
+        schema: inspect(schema),
+        id: id
+      })
     end
     
-    # Publica o evento
-    result = EventBus.publish(:repository_record_inserted, event_data)
-    
-    # Registra métrica de conclusão da operação
-    duration = System.monotonic_time() - start_time
-    duration_ms = System.convert_time_unit(duration, :native, :millisecond)
-    
-    case result do
-      :ok ->
-        # Registra métrica de sucesso
-        Metrics.increment("deeper_hub.core.data.repository.event.record_inserted.success", %{
-          schema: inspect(schema)
-        })
-        
-        # Registra métrica de duração
-        Metrics.observe("deeper_hub.core.data.repository.event.record_inserted.duration_ms", duration_ms, %{
-          schema: inspect(schema)
-        })
-        
-        Logger.debug("Evento de inserção de registro publicado com sucesso", %{
-          module: __MODULE__,
-          schema: schema,
-          id: id,
-          duration_ms: duration_ms
-        })
-        
-        :ok
-        
-      {:error, reason} ->
-        # Registra métrica de falha
-        Metrics.increment("deeper_hub.core.data.repository.event.record_inserted.failed", %{
-          schema: inspect(schema),
-          reason: inspect(reason)
-        })
-        
-        Logger.error("Falha ao publicar evento de inserção de registro", %{
-          module: __MODULE__,
-          schema: schema,
-          id: id,
-          reason: reason,
-          duration_ms: duration_ms
-        })
-        
-        {:error, reason}
-    end
+    :ok
   end
   
   @doc """
@@ -119,7 +96,6 @@ defmodule Deeper_Hub.Core.Data.RepositoryEventIntegration do
   
   - `schema` - O schema Ecto do registro
   - `id` - O ID do registro atualizado
-  - `record` - O registro atualizado (opcional)
   - `changes` - As alterações realizadas (opcional)
   
   ## Retorno
@@ -127,80 +103,49 @@ defmodule Deeper_Hub.Core.Data.RepositoryEventIntegration do
   - `:ok` - Se o evento for publicado com sucesso
   - `{:error, reason}` - Se ocorrer um erro ao publicar o evento
   """
-  def publish_record_updated(schema, id, record \\ nil, changes \\ nil) do
-    # Registra métrica de início da operação
-    start_time = System.monotonic_time()
-    Metrics.increment("deeper_hub.core.data.repository.event.record_updated.started", %{
-      schema: inspect(schema)
-    })
-    
-    # Prepara os metadados do evento
-    event_data = %{
-      schema: schema,
-      id: id,
-      timestamp: DateTime.utc_now(),
-      operation: :update
-    }
-    
-    # Adiciona o registro se fornecido
-    event_data = if record do
-      Map.put(event_data, :record, record)
+  def publish_update_event(schema, id, changes, result, duration) do
+    # Verifica se a publicação de eventos de atualização está habilitada
+    if RepositoryConfig.publish_update_events?() do
+      # Registra a duração da operação como uma métrica
+      Metrics.histogram(
+        "deeper_hub.core.data.repository.event.update.duration",
+        %{schema: inspect(schema)},
+        duration
+      )
+      
+      # Cria o payload do evento
+      payload = %{
+        id: id,
+        schema: schema,
+        changes: changes,
+        result: result,
+        timestamp: DateTime.utc_now(),
+        duration_ms: duration
+      }
+      
+      # Publica o evento no barramento
+      EventBus.publish(
+        :repository_update,
+        payload,
+        %{source: "Deeper_Hub.Core.Data.RepositoryEventIntegration"}
+      )
+      
+      # Registra o evento no log
+      Logger.debug("Evento de atualização publicado", %{
+        module: __MODULE__,
+        schema: inspect(schema),
+        id: id,
+        duration_ms: duration
+      })
     else
-      event_data
+      Logger.debug("Publicação de eventos de atualização desabilitada", %{
+        module: __MODULE__,
+        schema: inspect(schema),
+        id: id
+      })
     end
     
-    # Adiciona as alterações se fornecidas
-    event_data = if changes do
-      Map.put(event_data, :changes, changes)
-    else
-      event_data
-    end
-    
-    # Publica o evento
-    result = EventBus.publish(:repository_record_updated, event_data)
-    
-    # Registra métrica de conclusão da operação
-    duration = System.monotonic_time() - start_time
-    duration_ms = System.convert_time_unit(duration, :native, :millisecond)
-    
-    case result do
-      :ok ->
-        # Registra métrica de sucesso
-        Metrics.increment("deeper_hub.core.data.repository.event.record_updated.success", %{
-          schema: inspect(schema)
-        })
-        
-        # Registra métrica de duração
-        Metrics.observe("deeper_hub.core.data.repository.event.record_updated.duration_ms", duration_ms, %{
-          schema: inspect(schema)
-        })
-        
-        Logger.debug("Evento de atualização de registro publicado com sucesso", %{
-          module: __MODULE__,
-          schema: schema,
-          id: id,
-          duration_ms: duration_ms
-        })
-        
-        :ok
-        
-      {:error, reason} ->
-        # Registra métrica de falha
-        Metrics.increment("deeper_hub.core.data.repository.event.record_updated.failed", %{
-          schema: inspect(schema),
-          reason: inspect(reason)
-        })
-        
-        Logger.error("Falha ao publicar evento de atualização de registro", %{
-          module: __MODULE__,
-          schema: schema,
-          id: id,
-          reason: reason,
-          duration_ms: duration_ms
-        })
-        
-        {:error, reason}
-    end
+    :ok
   end
   
   @doc """
@@ -216,164 +161,233 @@ defmodule Deeper_Hub.Core.Data.RepositoryEventIntegration do
   - `:ok` - Se o evento for publicado com sucesso
   - `{:error, reason}` - Se ocorrer um erro ao publicar o evento
   """
-  def publish_record_deleted(schema, id) do
-    # Registra métrica de início da operação
-    start_time = System.monotonic_time()
-    Metrics.increment("deeper_hub.core.data.repository.event.record_deleted.started", %{
-      schema: inspect(schema)
-    })
-    
-    # Prepara os metadados do evento
-    event_data = %{
-      schema: schema,
-      id: id,
-      timestamp: DateTime.utc_now(),
-      operation: :delete
-    }
-    
-    # Publica o evento
-    result = EventBus.publish(:repository_record_deleted, event_data)
-    
-    # Registra métrica de conclusão da operação
-    duration = System.monotonic_time() - start_time
-    duration_ms = System.convert_time_unit(duration, :native, :millisecond)
-    
-    case result do
-      :ok ->
-        # Registra métrica de sucesso
-        Metrics.increment("deeper_hub.core.data.repository.event.record_deleted.success", %{
-          schema: inspect(schema)
-        })
-        
-        # Registra métrica de duração
-        Metrics.observe("deeper_hub.core.data.repository.event.record_deleted.duration_ms", duration_ms, %{
-          schema: inspect(schema)
-        })
-        
-        Logger.debug("Evento de exclusão de registro publicado com sucesso", %{
-          module: __MODULE__,
-          schema: schema,
-          id: id,
-          duration_ms: duration_ms
-        })
-        
-        :ok
-        
-      {:error, reason} ->
-        # Registra métrica de falha
-        Metrics.increment("deeper_hub.core.data.repository.event.record_deleted.failed", %{
-          schema: inspect(schema),
-          reason: inspect(reason)
-        })
-        
-        Logger.error("Falha ao publicar evento de exclusão de registro", %{
-          module: __MODULE__,
-          schema: schema,
-          id: id,
-          reason: reason,
-          duration_ms: duration_ms
-        })
-        
-        {:error, reason}
+  def publish_delete_event(schema, id, result, duration) do
+    # Verifica se a publicação de eventos de exclusão está habilitada
+    if RepositoryConfig.publish_delete_events?() do
+      # Registra a duração da operação como uma métrica
+      Metrics.histogram(
+        "deeper_hub.core.data.repository.event.delete.duration",
+        %{schema: inspect(schema)},
+        duration
+      )
+      
+      # Cria o payload do evento
+      payload = %{
+        id: id,
+        schema: schema,
+        result: result,
+        timestamp: DateTime.utc_now(),
+        duration_ms: duration
+      }
+      
+      # Publica o evento no barramento
+      EventBus.publish(
+        :repository_delete,
+        payload,
+        %{source: "Deeper_Hub.Core.Data.RepositoryEventIntegration"}
+      )
+      
+      # Registra o evento no log
+      Logger.debug("Evento de exclusão publicado", %{
+        module: __MODULE__,
+        schema: inspect(schema),
+        id: id,
+        duration_ms: duration
+      })
+    else
+      Logger.debug("Publicação de eventos de exclusão desabilitada", %{
+        module: __MODULE__,
+        schema: inspect(schema),
+        id: id
+      })
     end
+    
+    :ok
   end
   
   @doc """
-  Publica um evento de execução de consulta.
+  Publica um evento de consulta de registros.
   
   ## Parâmetros
   
   - `schema` - O schema Ecto da consulta
-  - `operation` - A operação realizada (:list, :find, etc.)
-  - `params` - Os parâmetros da consulta (opcional)
-  - `result_count` - O número de registros retornados (opcional)
+  - `query` - A consulta realizada
   
   ## Retorno
   
   - `:ok` - Se o evento for publicado com sucesso
   - `{:error, reason}` - Se ocorrer um erro ao publicar o evento
   """
-  def publish_query_executed(schema, operation, params \\ nil, result_count \\ nil) do
-    # Registra métrica de início da operação
-    start_time = System.monotonic_time()
-    Metrics.increment("deeper_hub.core.data.repository.event.query_executed.started", %{
-      schema: inspect(schema),
-      operation: operation
-    })
-    
-    # Prepara os metadados do evento
-    event_data = %{
-      schema: schema,
-      operation: operation,
-      timestamp: DateTime.utc_now()
-    }
-    
-    # Adiciona os parâmetros se fornecidos
-    event_data = if params do
-      Map.put(event_data, :params, params)
+  def publish_list_event(schema, query, result, duration) do
+    # Verifica se a publicação de eventos de consulta está habilitada
+    if RepositoryConfig.publish_query_events?() do
+      # Registra a duração da operação como uma métrica
+      Metrics.histogram(
+        "deeper_hub.core.data.repository.event.list.duration",
+        %{schema: inspect(schema)},
+        duration
+      )
+      
+      # Cria o payload do evento
+      payload = %{
+        schema: schema,
+        query: inspect(query),
+        result: result,
+        count: case result do
+          {:ok, records} when is_list(records) -> length(records)
+          _ -> 0
+        end,
+        timestamp: DateTime.utc_now(),
+        duration_ms: duration
+      }
+      
+      # Publica o evento no barramento
+      EventBus.publish(
+        :repository_list,
+        payload,
+        %{source: "Deeper_Hub.Core.Data.RepositoryEventIntegration"}
+      )
+      
+      # Registra o evento no log
+      Logger.debug("Evento de listagem publicado", %{
+        module: __MODULE__,
+        schema: inspect(schema),
+        count: payload.count,
+        duration_ms: duration
+      })
     else
-      event_data
+      Logger.debug("Publicação de eventos de consulta desabilitada", %{
+        module: __MODULE__,
+        schema: inspect(schema)
+      })
     end
     
-    # Adiciona o número de registros se fornecido
-    event_data = if result_count do
-      Map.put(event_data, :result_count, result_count)
-    else
-      event_data
-    end
-    
-    # Publica o evento
-    result = EventBus.publish(:repository_query_executed, event_data)
-    
-    # Registra métrica de conclusão da operação
-    duration = System.monotonic_time() - start_time
-    duration_ms = System.convert_time_unit(duration, :native, :millisecond)
-    
-    case result do
-      :ok ->
-        # Registra métrica de sucesso
-        Metrics.increment("deeper_hub.core.data.repository.event.query_executed.success", %{
-          schema: inspect(schema),
-          operation: operation
-        })
-        
-        # Registra métrica de duração
-        Metrics.observe("deeper_hub.core.data.repository.event.query_executed.duration_ms", duration_ms, %{
-          schema: inspect(schema),
-          operation: operation
-        })
-        
-        Logger.debug("Evento de execução de consulta publicado com sucesso", %{
-          module: __MODULE__,
-          schema: schema,
-          operation: operation,
-          duration_ms: duration_ms
-        })
-        
-        :ok
-        
-      {:error, reason} ->
-        # Registra métrica de falha
-        Metrics.increment("deeper_hub.core.data.repository.event.query_executed.failed", %{
-          schema: inspect(schema),
-          operation: operation,
-          reason: inspect(reason)
-        })
-        
-        Logger.error("Falha ao publicar evento de execução de consulta", %{
-          module: __MODULE__,
-          schema: schema,
-          operation: operation,
-          reason: reason,
-          duration_ms: duration_ms
-        })
-        
-        {:error, reason}
-    end
+    :ok
   end
   
   @doc """
-  Publica um evento de conclusão de transação.
+  Publica um evento de consulta de registro específico.
+  
+  ## Parâmetros
+  
+  - `schema` - O schema Ecto do registro
+  - `id` - O ID do registro consultado
+  - `result` - O resultado da operação
+  - `duration` - A duração da operação em milissegundos
+  
+  ## Retorno
+  
+  - `:ok` - Se o evento for publicado com sucesso
+  - `{:error, reason}` - Se ocorrer um erro ao publicar o evento
+  """
+  def publish_get_event(schema, id, result, duration) do
+    # Verifica se a publicação de eventos de consulta está habilitada
+    if RepositoryConfig.publish_query_events?() do
+      # Registra a duração da operação como uma métrica
+      Metrics.histogram(
+        "deeper_hub.core.data.repository.event.get.duration",
+        %{schema: inspect(schema)},
+        duration
+      )
+      
+      # Cria o payload do evento
+      payload = %{
+        id: id,
+        schema: schema,
+        result: result,
+        timestamp: DateTime.utc_now(),
+        duration_ms: duration
+      }
+      
+      # Publica o evento no barramento
+      EventBus.publish(
+        :repository_get,
+        payload,
+        %{source: "Deeper_Hub.Core.Data.RepositoryEventIntegration"}
+      )
+      
+      # Registra o evento no log
+      Logger.debug("Evento de consulta publicado", %{
+        module: __MODULE__,
+        schema: inspect(schema),
+        id: id,
+        duration_ms: duration
+      })
+    else
+      Logger.debug("Publicação de eventos de consulta desabilitada", %{
+        module: __MODULE__,
+        schema: inspect(schema),
+        id: id
+      })
+    end
+    
+    :ok
+  end
+  
+  @doc """
+  Publica um evento de busca de registros.
+  
+  ## Parâmetros
+  
+  - `schema` - O schema Ecto dos registros
+  - `query` - A consulta realizada
+  - `result` - O resultado da operação
+  - `duration` - A duração da operação em milissegundos
+  
+  ## Retorno
+  
+  - `:ok` - Se o evento for publicado com sucesso
+  - `{:error, reason}` - Se ocorrer um erro ao publicar o evento
+  """
+  def publish_find_event(schema, query, result, duration) do
+    # Verifica se a publicação de eventos de consulta está habilitada
+    if RepositoryConfig.publish_query_events?() do
+      # Registra a duração da operação como uma métrica
+      Metrics.histogram(
+        "deeper_hub.core.data.repository.event.find.duration",
+        %{schema: inspect(schema)},
+        duration
+      )
+      
+      # Cria o payload do evento
+      payload = %{
+        schema: schema,
+        query: inspect(query),
+        result: result,
+        count: case result do
+          {:ok, records} when is_list(records) -> length(records)
+          _ -> 0
+        end,
+        timestamp: DateTime.utc_now(),
+        duration_ms: duration
+      }
+      
+      # Publica o evento no barramento
+      EventBus.publish(
+        :repository_find,
+        payload,
+        %{source: "Deeper_Hub.Core.Data.RepositoryEventIntegration"}
+      )
+      
+      # Registra o evento no log
+      Logger.debug("Evento de busca publicado", %{
+        module: __MODULE__,
+        schema: inspect(schema),
+        count: payload.count,
+        duration_ms: duration
+      })
+    else
+      Logger.debug("Publicação de eventos de consulta desabilitada", %{
+        module: __MODULE__,
+        schema: inspect(schema)
+      })
+    end
+    
+    :ok
+  end
+  
+  @doc """
+  Publica um evento de transação concluída.
   
   ## Parâmetros
   
@@ -416,7 +430,7 @@ defmodule Deeper_Hub.Core.Data.RepositoryEventIntegration do
         })
         
         # Registra métrica de duração
-        Metrics.observe("deeper_hub.core.data.repository.event.transaction_completed.duration_ms", duration_ms, %{
+        Metrics.histogram("deeper_hub.core.data.repository.event.transaction_completed.duration_ms", duration_ms, %{
           transaction_id: transaction_id
         })
         
@@ -500,7 +514,7 @@ defmodule Deeper_Hub.Core.Data.RepositoryEventIntegration do
         })
         
         # Registra métrica de duração
-        Metrics.observe("deeper_hub.core.data.repository.event.error.duration_ms", duration_ms, %{
+        Metrics.histogram("deeper_hub.core.data.repository.event.error.duration_ms", duration_ms, %{
           schema: inspect(schema),
           operation: operation
         })

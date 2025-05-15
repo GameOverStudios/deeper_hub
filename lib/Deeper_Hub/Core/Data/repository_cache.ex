@@ -59,14 +59,14 @@ defmodule Deeper_Hub.Core.Data.RepositoryCache do
       schema_name = get_schema_name(schema)
       
       # Cache para registros individuais
-      Cache.create_namespace(
+      Cache.start_cache(
         get_record_cache_namespace(schema),
         ttl: ttl,
         max_size: max_size
       )
       
       # Cache para consultas
-      Cache.create_namespace(
+      Cache.start_cache(
         get_query_cache_namespace(schema),
         ttl: ttl,
         max_size: max_size
@@ -279,7 +279,7 @@ defmodule Deeper_Hub.Core.Data.RepositoryCache do
     schema_name = get_schema_name(schema)
     
     # Remove o registro do cache
-    Cache.delete(namespace, key)
+    Cache.del(namespace, key)
     
     # Atualiza métrica de tamanho do cache
     update_cache_size_metric(schema)
@@ -306,10 +306,10 @@ defmodule Deeper_Hub.Core.Data.RepositoryCache do
   """
   def invalidate_schema(schema) do
     # Invalida cache de registros
-    Cache.clear_namespace(get_record_cache_namespace(schema))
+    Cache.clear(get_record_cache_namespace(schema))
     
     # Invalida cache de consultas
-    Cache.clear_namespace(get_query_cache_namespace(schema))
+    Cache.clear(get_query_cache_namespace(schema))
     
     # Atualiza métrica de tamanho do cache
     update_cache_size_metric(schema)

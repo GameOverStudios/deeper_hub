@@ -282,7 +282,10 @@ defmodule Deeper_Hub.Core.Data.RepositoryCircuitBreaker do
   - `:closed` - Se o circuito estiver fechado
   """
   def get_read_state(schema) do
-    CircuitBreaker.get_state(get_read_circuit_name(schema))
+    case CircuitBreaker.state(get_read_circuit_name(schema)) do
+      {:ok, state} -> state
+      {:error, _} -> :closed  # Valor padrão se o circuit breaker não existir
+    end
   end
   
   @doc """
@@ -299,7 +302,10 @@ defmodule Deeper_Hub.Core.Data.RepositoryCircuitBreaker do
   - `:closed` - Se o circuito estiver fechado
   """
   def get_write_state(schema) do
-    CircuitBreaker.get_state(get_write_circuit_name(schema))
+    case CircuitBreaker.state(get_write_circuit_name(schema)) do
+      {:ok, state} -> state
+      {:error, _} -> :closed  # Valor padrão se o circuit breaker não existir
+    end
   end
   
   # Funções privadas auxiliares
@@ -336,7 +342,10 @@ defmodule Deeper_Hub.Core.Data.RepositoryCircuitBreaker do
   
   # Atualiza métricas com o estado atual do circuit breaker
   defp update_circuit_breaker_metrics(circuit_name, schema) do
-    state = CircuitBreaker.get_state(circuit_name)
+    state = case CircuitBreaker.state(circuit_name) do
+      {:ok, current_state} -> current_state
+      {:error, _} -> :closed  # Valor padrão se o circuit breaker não existir
+    end
     schema_atom = if is_atom(schema), do: schema, else: String.to_atom(schema)
     RepositoryMetrics.set_circuit_breaker_state(state, schema_atom)
   end

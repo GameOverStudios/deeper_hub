@@ -43,54 +43,38 @@ defmodule Deeper_Hub.Core.Data.RepositoryMetrics do
   garantir que todas as métricas estejam registradas.
   """
   def setup do
-    # Registra contadores
-    Metrics.declare_counter("deeper_hub.core.data.repository.get.count", 
-      "Número de operações de busca por ID")
-    Metrics.declare_counter("deeper_hub.core.data.repository.insert.count", 
-      "Número de operações de inserção")
-    Metrics.declare_counter("deeper_hub.core.data.repository.update.count", 
-      "Número de operações de atualização")
-    Metrics.declare_counter("deeper_hub.core.data.repository.delete.count", 
-      "Número de operações de exclusão")
-    Metrics.declare_counter("deeper_hub.core.data.repository.list.count", 
-      "Número de operações de listagem")
-    Metrics.declare_counter("deeper_hub.core.data.repository.find.count", 
-      "Número de operações de busca por condições")
+    # Não precisamos declarar métricas explicitamente, pois a MetricsFacade
+    # cria métricas dinamicamente quando são usadas pela primeira vez
     
-    Metrics.declare_counter("deeper_hub.core.data.repository.cache.hit", 
-      "Número de acertos no cache")
-    Metrics.declare_counter("deeper_hub.core.data.repository.cache.miss", 
-      "Número de erros no cache")
+    # Registramos algumas métricas iniciais para garantir que apareçam nos dashboards
+    # mesmo antes de serem usadas
     
-    # Registra histogramas
-    Metrics.declare_histogram("deeper_hub.core.data.repository.get.duration_ms", 
-      "Duração das operações de busca por ID em milissegundos",
-      [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000])
-    Metrics.declare_histogram("deeper_hub.core.data.repository.insert.duration_ms", 
-      "Duração das operações de inserção em milissegundos",
-      [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000])
-    Metrics.declare_histogram("deeper_hub.core.data.repository.update.duration_ms", 
-      "Duração das operações de atualização em milissegundos",
-      [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000])
-    Metrics.declare_histogram("deeper_hub.core.data.repository.delete.duration_ms", 
-      "Duração das operações de exclusão em milissegundos",
-      [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000])
-    Metrics.declare_histogram("deeper_hub.core.data.repository.list.duration_ms", 
-      "Duração das operações de listagem em milissegundos",
-      [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000])
-    Metrics.declare_histogram("deeper_hub.core.data.repository.find.duration_ms", 
-      "Duração das operações de busca por condições em milissegundos",
-      [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000])
+    # Contadores de operações
+    Metrics.increment("deeper_hub.core.data.repository.get.count", %{result: :init}, 0)
+    Metrics.increment("deeper_hub.core.data.repository.insert.count", %{result: :init}, 0)
+    Metrics.increment("deeper_hub.core.data.repository.update.count", %{result: :init}, 0)
+    Metrics.increment("deeper_hub.core.data.repository.delete.count", %{result: :init}, 0)
+    Metrics.increment("deeper_hub.core.data.repository.list.count", %{result: :init}, 0)
+    Metrics.increment("deeper_hub.core.data.repository.find.count", %{result: :init}, 0)
     
-    Metrics.declare_histogram("deeper_hub.core.data.repository.query.result_count", 
-      "Número de registros retornados por consulta",
-      [0, 1, 5, 10, 50, 100, 500, 1000, 5000, 10000])
+    # Contadores de cache
+    Metrics.increment("deeper_hub.core.data.repository.cache.hit", %{operation: :init}, 0)
+    Metrics.increment("deeper_hub.core.data.repository.cache.miss", %{operation: :init}, 0)
     
-    # Registra gauges
-    Metrics.declare_gauge("deeper_hub.core.data.repository.circuit_breaker.state", 
-      "Estado do circuit breaker (0: aberto, 1: meio-aberto, 2: fechado)")
-    Metrics.declare_gauge("deeper_hub.core.data.repository.cache.size", 
-      "Tamanho do cache em número de entradas")
+    # Histogramas de duração
+    Metrics.histogram("deeper_hub.core.data.repository.get.duration_ms", 0, %{result: :init})
+    Metrics.histogram("deeper_hub.core.data.repository.insert.duration_ms", 0, %{result: :init})
+    Metrics.histogram("deeper_hub.core.data.repository.update.duration_ms", 0, %{result: :init})
+    Metrics.histogram("deeper_hub.core.data.repository.delete.duration_ms", 0, %{result: :init})
+    Metrics.histogram("deeper_hub.core.data.repository.list.duration_ms", 0, %{result: :init})
+    Metrics.histogram("deeper_hub.core.data.repository.find.duration_ms", 0, %{result: :init})
+    
+    # Histograma de contagem de resultados
+    Metrics.histogram("deeper_hub.core.data.repository.query.result_count", 0, %{operation: :init})
+    
+    # Gauges
+    Metrics.gauge("deeper_hub.core.data.repository.circuit_breaker.state", -1, %{schema: "init"})
+    Metrics.gauge("deeper_hub.core.data.repository.cache.size", 0, %{schema: "init"})
     
     :ok
   end
@@ -122,7 +106,7 @@ defmodule Deeper_Hub.Core.Data.RepositoryMetrics do
   - `result` - O resultado da operação
   """
   def observe_operation_duration(operation, duration_ms, schema, result) do
-    Metrics.observe("deeper_hub.core.data.repository.#{operation}.duration_ms", duration_ms, %{
+    Metrics.histogram("deeper_hub.core.data.repository.#{operation}.duration_ms", duration_ms, %{
       schema: inspect(schema),
       result: result
     })
@@ -168,7 +152,7 @@ defmodule Deeper_Hub.Core.Data.RepositoryMetrics do
   - `operation` - A operação realizada
   """
   def observe_query_result_count(count, schema, operation) do
-    Metrics.observe("deeper_hub.core.data.repository.query.result_count", count, %{
+    Metrics.histogram("deeper_hub.core.data.repository.query.result_count", count, %{
       schema: inspect(schema),
       operation: operation
     })
@@ -193,7 +177,7 @@ defmodule Deeper_Hub.Core.Data.RepositoryMetrics do
       _ -> -1
     end
     
-    Metrics.set("deeper_hub.core.data.repository.circuit_breaker.state", state_value, %{
+    Metrics.gauge("deeper_hub.core.data.repository.circuit_breaker.state", state_value, %{
       schema: inspect(schema)
     })
   end
@@ -213,7 +197,7 @@ defmodule Deeper_Hub.Core.Data.RepositoryMetrics do
       %{}
     end
     
-    Metrics.set("deeper_hub.core.data.repository.cache.size", size, tags)
+    Metrics.gauge("deeper_hub.core.data.repository.cache.size", size, tags)
   end
   
   @doc """

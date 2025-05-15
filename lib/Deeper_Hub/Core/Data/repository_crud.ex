@@ -51,8 +51,7 @@ defmodule Deeper_Hub.Core.Data.RepositoryCrud do
     reset_timeout_ms: 30_000  # Tempo para resetar o circuito (30 segundos)
   }
   
-  # TTL padrão para itens em cache (1 hora)
-  @default_cache_ttl 3_600_000
+  # TTL padrão para itens em cache  # Configurações padrão são carregadas do RepositoryConfig
   
   # Inicializa o CircuitBreaker quando o módulo é carregado
   @on_load :init_circuit_breaker
@@ -592,7 +591,7 @@ defmodule Deeper_Hub.Core.Data.RepositoryCrud do
                 # Registro excluído com sucesso
                 
                 # Remove do cache
-                RepositoryCore.delete_from_cache(schema, id)
+                RepositoryCore.invalidate_cache(schema, id)
                 
                 # Publica evento de exclusão bem-sucedida
                 EventBus.publish(
