@@ -128,10 +128,12 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
             error: e,
             stacktrace: __STACKTRACE__
           })
+
+          # Tabela não encontrada
           {:error, :table_not_found}
 
         e ->
-          # Erro genérico
+          # Outros erros
           Logger.error("Falha ao realizar INNER JOIN", %{
             module: __MODULE__,
             schema1: schema1,
@@ -152,20 +154,26 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
     # Registra o resultado final com métricas
     case result do
       {:ok, records} ->
-        Logger.debug("INNER JOIN realizado com sucesso", %{
+        Logger.debug("Registros encontrados com sucesso (INNER JOIN)", %{
           module: __MODULE__,
           schema1: schema1,
           schema2: schema2,
-          count: length(records),
-          duration_ms: duration_ms
+          error: e,
+          stacktrace: __STACKTRACE__
         })
 
-      {:error, e} ->
-        Logger.error("Erro ao realizar INNER JOIN", %{
+        # Tabela não encontrada
+
+        {:error, :table_not_found}
+
+      e ->
+        # Outros erros
+        Logger.error("Falha ao realizar INNER JOIN", %{
           module: __MODULE__,
           schema1: schema1,
           schema2: schema2,
-          error: e
+          error: e,
+          stacktrace: __STACKTRACE__
         })
 
         # Erro ao realizar join
@@ -205,7 +213,7 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
 
       # Left join entre User e Profile onde User.id = Profile.user_id
       # Retorna todos os usuários, mesmo os que não têm perfil
-      {:ok, results} = RepositoryJoins.join_left(User, Profile,
+      {:ok, results} = RepositoryJoins.join_left(User, Profile, 
                                                 [:name, :email, :profile_picture],
                                                 %{active: true},
                                                 join_on: {:id, :user_id})
@@ -238,26 +246,24 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
               opt_keys = [:join_on, :preload, :limit, :offset]
               
               opts_from_where = Enum.filter(where_conditions_arg, fn {k, _v} -> k in opt_keys end)
-              new_processed_opts = Keyword.merge(opts_arg, opts_from_where) # Start with original opts_arg
+              new_processed_opts = Keyword.merge(opts_arg, opts_from_where)
 
-              filter_keywords = Keyword.drop(where_conditions_arg, opt_keys) # Corrected function
+              filter_keywords = Keyword.drop(where_conditions_arg, opt_keys)
               
               new_actual_filters = 
                 if Enum.empty?(filter_keywords) do
                   nil
                 else
-                  Map.new(filter_keywords) # Convert remaining keywords to map for filters
+                  Map.new(filter_keywords)
                 end
               {new_processed_opts, new_actual_filters}
-            
             is_map(where_conditions_arg) ->
-              {opts_arg, where_conditions_arg} # opts_arg remains unchanged, actual_filters is where_conditions_arg
-            
-            true -> # where_conditions_arg is nil or other unexpected type
-              {opts_arg, nil} # opts_arg remains unchanged, actual_filters is nil
+              {opts_arg, where_conditions_arg}
+            true ->
+              {opts_arg, nil}
           end
 
-        # Determina os campos para a condição de join using processed_opts from cond
+        # Determina os campos para a condição de join
         {field1, field2} = determine_join_fields(schema1, schema2, processed_opts)
 
         # Constrói a query base com o join
@@ -290,10 +296,12 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
             error: e,
             stacktrace: __STACKTRACE__
           })
+
+          # Tabela não encontrada
           {:error, :table_not_found}
 
         e ->
-          # Erro genérico
+          # Outros erros
           Logger.error("Falha ao realizar LEFT JOIN", %{
             module: __MODULE__,
             schema1: schema1,
@@ -301,6 +309,8 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
             error: e,
             stacktrace: __STACKTRACE__
           })
+
+          # Erro ao realizar join
           {:error, e}
       end
     end)
@@ -312,20 +322,32 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
     # Registra o resultado final com métricas
     case result do
       {:ok, records} ->
-        Logger.debug("LEFT JOIN realizado com sucesso", %{
+        Logger.debug("Registros encontrados com sucesso (LEFT JOIN)", %{
           module: __MODULE__,
           schema1: schema1,
           schema2: schema2,
           count: length(records),
           duration_ms: duration_ms
         })
-
-      {:error, e} ->
-        Logger.error("Erro ao realizar LEFT JOIN", %{
+        
+      {:error, reason} ->
+        Logger.debug("LEFT JOIN finalizado com erro", %{
           module: __MODULE__,
           schema1: schema1,
           schema2: schema2,
-          error: e
+          reason: inspect(reason),
+          duration_ms: duration_ms
+        })
+    end
+        {:error, :table_not_found}
+
+      e ->
+        Logger.error("Falha ao realizar LEFT JOIN", %{
+          module: __MODULE__,
+          schema1: schema1,
+          schema2: schema2,
+          error: e,
+          stacktrace: __STACKTRACE__
         })
         {:error, e}
     end
