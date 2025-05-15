@@ -383,9 +383,12 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
       opts: opts_arg
     })
 
-    result = try do
-      # Parameter processing
-      {processed_opts, actual_filters} =
+    # Usa o pool de conexões gerenciado pelo DBConnection para executar a consulta
+    # Isso garante que a conexão será devolvida ao pool após o uso
+    result = DBConn.run(nil, fn ->
+      try do
+        # Parameter processing
+        {processed_opts, actual_filters} =
         cond do
           is_list(where_conditions_arg) ->
             opt_keys = [:join_on, :preload, :limit, :offset]
@@ -458,7 +461,8 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
           stacktrace: __STACKTRACE__
         })
         {:error, e}
-    end
+      end
+    end)
 
     # Finaliza operação de right join
     result

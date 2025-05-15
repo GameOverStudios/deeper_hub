@@ -177,21 +177,22 @@ defmodule Deeper_Hub.Core.Data.RepositoryCrud do
         {:ok, value}
 
       :not_found ->
-        # Busca no banco de dados
-        case Repo.get(schema, id) do
-          nil ->
-            # Registro não encontrado no banco de dados
+        # Busca no banco de dados usando o pool de conexões gerenciado pelo DBConnection
+        # Isso garante que a conexão será devolvida ao pool após o uso
+        DBConn.run(nil, fn ->
+          case Repo.get(schema, id) do
+            nil ->
+              # Registro não encontrado no banco de dados
+              {:error, :not_found}
 
-            {:error, :not_found}
+            record ->
+              # Armazena no cache para futuras consultas
+              RepositoryCore.put_in_cache(schema, id, record)
 
-          record ->
-            # Armazena no cache para futuras consultas
-            RepositoryCore.put_in_cache(schema, id, record)
-
-            # Registro encontrado no banco de dados
-
-            {:ok, record}
-        end
+              # Registro encontrado no banco de dados
+              {:ok, record}
+          end
+        end)
     end
 
     # Registra o resultado
@@ -393,9 +394,12 @@ defmodule Deeper_Hub.Core.Data.RepositoryCrud do
       opts: opts
     })
 
-    result = try do
-      # Constrói a query base
-      query = from(item in schema)
+    # Usa o pool de conexões gerenciado pelo DBConnection para executar a consulta
+    # Isso garante que a conexão será devolvida ao pool após o uso
+    result = DBConn.run(nil, fn ->
+      try do
+        # Constrói a query base
+        query = from(item in schema)
 
       # Aplica pré-carregamento se especificado
       query = case Keyword.get(opts, :preload) do
@@ -453,7 +457,8 @@ defmodule Deeper_Hub.Core.Data.RepositoryCrud do
         # Erro ao listar registros
 
         {:error, e}
-    end
+      end
+    end)
 
     # Finaliza operação de listagem
 
