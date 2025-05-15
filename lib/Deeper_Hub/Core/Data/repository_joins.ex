@@ -45,38 +45,65 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
   """
   @spec join_inner(module(), module(), list() | nil, map() | nil, Keyword.t()) ::
           {:ok, list(map())} | {:error, term()}
-  def join_inner(schema1, schema2, select_fields \\ nil, where_conditions \\ nil, opts \\ []) do
+  def join_inner(schema1, schema2, select_fields_arg \\ nil, where_conditions_arg \\ nil, opts_arg \\ []) do
     # Início da operação de inner join
 
     query_start_time = System.monotonic_time()
 
-    # Registra a operação
+    # Log original arguments for better debugging insight
     Logger.debug("Realizando INNER JOIN", %{
       module: __MODULE__,
       schema1: schema1,
       schema2: schema2,
-      select_fields: select_fields,
-      where_conditions: where_conditions,
-      opts: opts
+      select_fields: select_fields_arg,
+      where_conditions: where_conditions_arg,
+      opts: opts_arg
     })
 
     result = try do
-      # Determina os campos para a condição de join
-      {field1, field2} = determine_join_fields(schema1, schema2, opts)
+      # Parameter processing
+      {processed_opts, actual_filters} =
+        cond do
+          is_list(where_conditions_arg) ->
+            # Define keys that are options, not filters for where clause
+            opt_keys = [:join_on, :preload, :limit, :offset]
+            
+            opts_from_where = Enum.filter(where_conditions_arg, fn {k, _v} -> k in opt_keys end)
+            new_processed_opts = Keyword.merge(opts_arg, opts_from_where) # Start with original opts_arg
+
+            filter_keywords = Keyword.drop(where_conditions_arg, opt_keys) # Corrected function
+            
+            new_actual_filters = 
+              if Enum.empty?(filter_keywords) do
+                nil
+              else
+                Map.new(filter_keywords) # Convert remaining keywords to map for filters
+              end
+            {new_processed_opts, new_actual_filters}
+          
+          is_map(where_conditions_arg) ->
+            {opts_arg, where_conditions_arg} # opts_arg remains unchanged, actual_filters is where_conditions_arg
+          
+          true -> # where_conditions_arg is nil or other unexpected type
+            {opts_arg, nil} # opts_arg remains unchanged, actual_filters is nil
+        end
+
+      # Determina os campos para a condição de join using processed_opts from cond
+      {field1, field2} = determine_join_fields(schema1, schema2, processed_opts)
 
       # Constrói a query base com o join
       query = from(s1 in schema1,
                   inner_join: s2 in ^schema2,
                   on: field(s1, ^field1) == field(s2, ^field2))
 
-      # Aplica seleção de campos se especificada
-      query = apply_select(query, schema1, schema2, select_fields)
+      # Aplica seleção de campos se especificada (using original select_fields_arg)
+      query = apply_select(query, schema1, schema2, select_fields_arg)
 
-      # Aplica condições where se especificadas
-      query = apply_where_conditions(query, where_conditions)
+      # Aplica condições where se especificadas (using processed actual_filters)
+      query = apply_where_conditions(query, actual_filters)
 
-      # Aplica limit e offset se fornecidos
-      query = RepositoryCore.apply_limit_offset(query, opts)
+      # Aplica limit e offset se fornecidos (using processed_opts)
+      query = RepositoryCore.apply_limit_offset(query, processed_opts)
 
       # Executa a query
       records = Repo.all(query)
@@ -163,38 +190,59 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
   """
   @spec join_left(module(), module(), list() | nil, map() | nil, Keyword.t()) ::
           {:ok, list(map())} | {:error, term()}
-  def join_left(schema1, schema2, select_fields \\ nil, where_conditions \\ nil, opts \\ []) do
+  def join_left(schema1, schema2, select_fields_arg \\ nil, where_conditions_arg \\ nil, opts_arg \\ []) do
     # Início da operação de left join
 
     query_start_time = System.monotonic_time()
 
-    # Registra a operação
+    # Log original arguments for better debugging insight
     Logger.debug("Realizando LEFT JOIN", %{
       module: __MODULE__,
       schema1: schema1,
       schema2: schema2,
-      select_fields: select_fields,
-      where_conditions: where_conditions,
-      opts: opts
+      select_fields: select_fields_arg,
+      where_conditions: where_conditions_arg,
+      opts: opts_arg
     })
 
     result = try do
-      # Determina os campos para a condição de join
-      {field1, field2} = determine_join_fields(schema1, schema2, opts)
+      # Parameter processing
+      {processed_opts, actual_filters} =
+        cond do
+          is_list(where_conditions_arg) ->
+            opt_keys = [:join_on, :preload, :limit, :offset]
+            opts_from_where = Enum.filter(where_conditions_arg, fn {k, _v} -> k in opt_keys end)
+            new_processed_opts = Keyword.merge(opts_arg, opts_from_where) # Start with original opts_arg
+            filter_keywords = Keyword.drop(where_conditions_arg, opt_keys) # Corrected function
+            new_actual_filters = 
+              if Enum.empty?(filter_keywords) do
+                nil
+              else
+                Map.new(filter_keywords)
+              end
+            {new_processed_opts, new_actual_filters}
+          is_map(where_conditions_arg) ->
+            {opts_arg, where_conditions_arg}
+          true ->
+            {opts_arg, nil}
+        end
+
+      # Determina os campos para a condição de join using processed_opts
+      {field1, field2} = determine_join_fields(schema1, schema2, processed_opts)
 
       # Constrói a query base com o join
       query = from(s1 in schema1,
                   left_join: s2 in ^schema2,
                   on: field(s1, ^field1) == field(s2, ^field2))
 
-      # Aplica seleção de campos se especificada
-      query = apply_select(query, schema1, schema2, select_fields)
+      # Aplica seleção de campos se especificada (using original select_fields_arg)
+      query = apply_select(query, schema1, schema2, select_fields_arg)
 
-      # Aplica condições where se especificadas
-      query = apply_where_conditions(query, where_conditions)
+      # Aplica condições where se especificadas (using processed actual_filters)
+      query = apply_where_conditions(query, actual_filters)
 
-      # Aplica limit e offset se fornecidos
-      query = RepositoryCore.apply_limit_offset(query, opts)
+      # Aplica limit e offset se fornecidos (using processed_opts)
+      query = RepositoryCore.apply_limit_offset(query, processed_opts)
 
       # Executa a query
       records = Repo.all(query)
@@ -213,7 +261,6 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
       {:ok, records}
     rescue
       e in [UndefinedFunctionError] ->
-        # Tabela pode não existir
         error_msg = "Tabela para schema não encontrada"
         Logger.error(error_msg, %{
           module: __MODULE__,
@@ -222,13 +269,9 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
           error: e,
           stacktrace: __STACKTRACE__
         })
-
-        # Tabela não encontrada
-
         {:error, :table_not_found}
 
       e ->
-        # Outros erros
         Logger.error("Falha ao realizar LEFT JOIN", %{
           module: __MODULE__,
           schema1: schema1,
@@ -236,9 +279,6 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
           error: e,
           stacktrace: __STACKTRACE__
         })
-
-        # Erro ao realizar join
-
         {:error, e}
     end
 
@@ -274,45 +314,65 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
 
       # Right join entre User e Profile onde User.id = Profile.user_id
       # Retorna todos os perfis, mesmo os que não estão associados a um usuário
-      {:ok, results} = RepositoryJoins.join_right(User, Profile, 
+      {:ok, results} = RepositoryJoins.join_right(User, Profile,
                                                  [:name, :email, :profile_picture],
                                                  %{active: true},
                                                  join_on: {:id, :user_id})
   """
   @spec join_right(module(), module(), list() | nil, map() | nil, Keyword.t()) ::
           {:ok, list(map())} | {:error, term()}
-  def join_right(schema1, schema2, select_fields \\ nil, where_conditions \\ nil, opts \\ []) do
+  def join_right(schema1, schema2, select_fields_arg \\ nil, where_conditions_arg \\ nil, opts_arg \\ []) do
     # Início da operação de right join
-
     query_start_time = System.monotonic_time()
 
-    # Registra a operação
+    # Log original arguments for better debugging insight
     Logger.debug("Realizando RIGHT JOIN", %{
       module: __MODULE__,
       schema1: schema1,
       schema2: schema2,
-      select_fields: select_fields,
-      where_conditions: where_conditions,
-      opts: opts
+      select_fields: select_fields_arg,
+      where_conditions: where_conditions_arg,
+      opts: opts_arg
     })
 
     result = try do
-      # Determina os campos para a condição de join
-      {field1, field2} = determine_join_fields(schema1, schema2, opts)
+      # Parameter processing
+      {processed_opts, actual_filters} =
+        cond do
+          is_list(where_conditions_arg) ->
+            opt_keys = [:join_on, :preload, :limit, :offset]
+            opts_from_where = Enum.filter(where_conditions_arg, fn {k, _v} -> k in opt_keys end)
+            new_processed_opts = Keyword.merge(opts_arg, opts_from_where) # Start with original opts_arg
+            filter_keywords = Keyword.drop(where_conditions_arg, opt_keys) # Corrected function
+            new_actual_filters = 
+              if Enum.empty?(filter_keywords) do
+                nil
+              else
+                Map.new(filter_keywords)
+              end
+            {new_processed_opts, new_actual_filters}
+          is_map(where_conditions_arg) ->
+            {opts_arg, where_conditions_arg}
+          true ->
+            {opts_arg, nil}
+        end
+
+      # Determina os campos para a condição de join using processed_opts
+      {field1, field2} = determine_join_fields(schema1, schema2, processed_opts)
 
       # Constrói a query base com o join
       query = from(s1 in schema1,
                   right_join: s2 in ^schema2,
                   on: field(s1, ^field1) == field(s2, ^field2))
 
-      # Aplica seleção de campos se especificada
-      query = apply_select(query, schema1, schema2, select_fields)
+      # Aplica seleção de campos se especificada (using original select_fields_arg)
+      query = apply_select(query, schema1, schema2, select_fields_arg)
 
-      # Aplica condições where se especificadas
-      query = apply_where_conditions(query, where_conditions)
+      # Aplica condições where se especificadas (using processed actual_filters)
+      query = apply_where_conditions(query, actual_filters)
 
-      # Aplica limit e offset se fornecidos
-      query = RepositoryCore.apply_limit_offset(query, opts)
+      # Aplica limit e offset se fornecidos (using processed_opts)
+      query = RepositoryCore.apply_limit_offset(query, processed_opts)
 
       # Executa a query
       records = Repo.all(query)
@@ -331,7 +391,6 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
       {:ok, records}
     rescue
       e in [UndefinedFunctionError] ->
-        # Tabela pode não existir
         error_msg = "Tabela para schema não encontrada"
         Logger.error(error_msg, %{
           module: __MODULE__,
@@ -340,13 +399,9 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
           error: e,
           stacktrace: __STACKTRACE__
         })
-
-        # Tabela não encontrada
-
         {:error, :table_not_found}
 
       e ->
-        # Outros erros
         Logger.error("Falha ao realizar RIGHT JOIN", %{
           module: __MODULE__,
           schema1: schema1,
@@ -354,14 +409,10 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
           error: e,
           stacktrace: __STACKTRACE__
         })
-
-        # Erro ao realizar join
-
         {:error, e}
     end
 
     # Finaliza operação de right join
-
     result
   end
 
@@ -392,36 +443,77 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
   end
 
   @doc false
-  defp apply_select(query, _schema1, _schema2, nil) do
-    # Se não houver seleção específica, seleciona todos os campos
-    query
+  defp schema_to_alias_id_atom(schema_module) do
+    schema_module
+    |> Module.split()
+    |> List.last()
+    |> Macro.underscore()
+    |> then(&String.to_atom("#{&1}_id"))
   end
 
   @doc false
-  defp apply_select(query, schema1, schema2, select_fields) when is_list(select_fields) do
-    # Aplica seleção de campos específicos
-    schema1_alias = schema1 |> Module.split() |> List.last() |> String.downcase()
-    schema2_alias = schema2 |> Module.split() |> List.last() |> String.downcase()
-    
-    # Constrói um mapa de seleção para os campos especificados
-    select_map = Enum.reduce(select_fields, %{}, fn
-      {schema_name, field_name}, acc when is_atom(schema_name) and is_atom(field_name) ->
-        # Campo com prefixo de schema específico
-        schema_alias = case schema_name do
-          ^schema1 -> schema1_alias
-          ^schema2 -> schema2_alias
-          _ -> raise ArgumentError, "Schema inválido: #{inspect(schema_name)}"
-        end
+  defp schema_to_prefix(schema_module) do
+    schema_module
+    |> Module.split()
+    |> List.last()
+    |> Macro.underscore()
+    |> then(&("#{&1}_"))
+  end
+
+  @doc false
+  defp apply_select(query, schema1, schema2, select_fields_arg) do
+    s1_fields = schema1.__schema__(:fields)
+    s2_fields = schema2.__schema__(:fields)
+
+    s2_id_alias = schema_to_alias_id_atom(schema2)
+    s2_prefix = schema_to_prefix(schema2)
+
+    select_map =
+      cond do
+        select_fields_arg == nil or select_fields_arg == %{} ->
+          s1_select = Enum.into(s1_fields, %{}, fn field -> {field, dynamic([s1, _s2], field(s1, ^field))} end)
+          s2_select_aliased = Enum.into(s2_fields, %{}, fn
+            :id -> {s2_id_alias, dynamic([_s1, s2], field(s2, :id))}
+            field -> {String.to_atom("#{s2_prefix}#{field}"), dynamic([_s1, s2], field(s2, ^field))}
+          end)
+          Map.merge(s1_select, s2_select_aliased)
+
+        is_list(select_fields_arg) ->
+          selected_s1_fields = Enum.filter(s1_fields, fn field -> field in select_fields_arg end)
+          s1_select = Enum.into(selected_s1_fields, %{}, fn field -> {field, dynamic([s1, _s2], field(s1, ^field))} end)
+          s2_select_aliased = Enum.into(s2_fields, %{}, fn
+            :id -> {s2_id_alias, dynamic([_s1, s2], field(s2, :id))}
+            field -> {String.to_atom("#{s2_prefix}#{field}"), dynamic([_s1, s2], field(s2, ^field))}
+          end)
+          Map.merge(s1_select, s2_select_aliased)
         
-        Map.put(acc, :"#{schema_alias}_#{field_name}", dynamic([s1, s2], field(s1, ^field_name)))
-      
-      field_name, acc when is_atom(field_name) ->
-        # Campo sem prefixo de schema (assume schema1)
-        Map.put(acc, field_name, dynamic([s1, s2], field(s1, ^field_name)))
-    end)
-    
-    # Aplica a seleção na query
-    from([s1, s2] in query, select: ^select_map)
+        is_map(select_fields_arg) ->
+          s1_requested_fields_from_map = Map.keys(select_fields_arg)
+          # Ensure :id from schema1 is always included, along with fields from map keys.
+          # Filter against actual s1_fields to ensure validity.
+          s1_final_field_atoms_to_select = 
+            [:id | s1_requested_fields_from_map]
+            |> Enum.uniq()
+            |> Enum.filter(fn field_atom -> field_atom in s1_fields end)
+
+          s1_select = Enum.into(s1_final_field_atoms_to_select, %{}, fn field -> {field, dynamic([s1, _s2], field(s1, ^field))} end)
+          
+          s2_select_aliased = Enum.into(s2_fields, %{}, fn
+            :id -> {s2_id_alias, dynamic([_s1, s2], field(s2, :id))}
+            field -> {String.to_atom("#{s2_prefix}#{field}"), dynamic([_s1, s2], field(s2, ^field))}
+          end)
+          Map.merge(s1_select, s2_select_aliased)
+
+        true -> # Fallback for unsupported types, defaults to selecting all
+          s1_select = Enum.into(s1_fields, %{}, fn field -> {field, dynamic([s1, _s2], field(s1, ^field))} end)
+          s2_select_aliased = Enum.into(s2_fields, %{}, fn
+            :id -> {s2_id_alias, dynamic([_s1, s2], field(s2, :id))}
+            field -> {String.to_atom("#{s2_prefix}#{field}"), dynamic([_s1, s2], field(s2, ^field))}
+          end)
+          Map.merge(s1_select, s2_select_aliased)
+      end
+
+    from([_s1, _s2] in query, select: ^select_map)
   end
 
   @doc false

@@ -1,9 +1,9 @@
 defmodule Deeper_Hub.Core.Data.Repository do
   @moduledoc """
-  Repositório genérico para operações CRUD.
+  Repositório genérico para operações CRUD e outras interações com o banco de dados.
 
   Este módulo funciona como uma fachada (Facade) para os módulos específicos:
-  - RepositoryCore: Funções de gerenciamento de cache e inicialização
+  - RepositoryCore: Funções auxiliares e gerenciamento de processos.
   - RepositoryCrud: Operações CRUD básicas (insert, get, update, delete, list, find)
   - RepositoryJoins: Operações de join (inner, left, right)
   """
@@ -11,12 +11,12 @@ defmodule Deeper_Hub.Core.Data.Repository do
   alias Deeper_Hub.Core.Data.RepositoryCore
   alias Deeper_Hub.Core.Data.RepositoryCrud
   alias Deeper_Hub.Core.Data.RepositoryJoins
-  
+
   @doc """
   Define a especificação para o supervisor.
-  
+
   Esta função é chamada pelo supervisor para iniciar o processo
-  do repositório.
+  do repositório (gerenciado por RepositoryCore).
   """
   def child_spec(opts) do
     %{
@@ -28,23 +28,10 @@ defmodule Deeper_Hub.Core.Data.Repository do
     }
   end
 
-  # Delegação de funções de cache e inicialização
-  
+  # Delegação de funções de gerenciamento de processo e auxiliares para RepositoryCore
+
   @doc """
-  Inicializa o cache do repositório.
-
-  Esta função cria as tabelas ETS necessárias para o cache se elas ainda não existirem.
-  É seguro chamar esta função múltiplas vezes.
-
-  ## Retorno
-
-  - `:ok` se a inicialização for bem-sucedida
-  """
-  @spec initialize_cache() :: :ok
-  defdelegate initialize_cache(), to: RepositoryCore
-  
-  @doc """
-  Inicia o processo GenServer do repositório.
+  Inicia o processo GenServer do repositório (via RepositoryCore).
 
   ## Parâmetros
 
@@ -57,87 +44,7 @@ defmodule Deeper_Hub.Core.Data.Repository do
   """
   @spec start_link(keyword()) :: {:ok, pid()} | {:error, term()}
   defdelegate start_link(opts), to: RepositoryCore
-  
-  @doc """
-  Inicializa o cache do repositório.
 
-  ## Retorno
-
-  - `:ok` se a inicialização for bem-sucedida
-  """
-  @spec init_cache() :: :ok
-  defdelegate init_cache(), to: RepositoryCore
-  
-  @doc """
-  Invalida uma entrada específica no cache.
-
-  ## Parâmetros
-
-  - `schema`: O módulo do schema Ecto
-  - `id`: O ID do registro a ser invalidado
-
-  ## Retorno
-
-  - `:ok` se a operação for bem-sucedida
-  """
-  @spec invalidate_cache(module(), term()) :: :ok
-  defdelegate invalidate_cache(schema, id), to: RepositoryCore
-  
-  @doc """
-  Retorna estatísticas de uso do cache.
-
-  ## Retorno
-
-  Um mapa contendo:
-    - `:hits`: Número de acertos no cache
-    - `:misses`: Número de erros no cache
-    - `:hit_rate`: Taxa de acertos (hits / (hits + misses))
-  """
-  @spec get_cache_stats() :: %{hits: non_neg_integer(), misses: non_neg_integer(), hit_rate: float()}
-  defdelegate get_cache_stats(), to: RepositoryCore
-  
-  @doc """
-  Garante que as tabelas ETS do cache estão inicializadas.
-
-  ## Retorno
-
-  - `:ok` se o cache estiver inicializado corretamente
-  """
-  @spec ensure_cache_initialized() :: :ok
-  defdelegate ensure_cache_initialized(), to: RepositoryCore
-  
-  @doc """
-  Busca um valor no cache.
-
-  ## Parâmetros
-
-  - `schema`: O módulo do schema Ecto
-  - `id`: O ID do registro a ser buscado
-
-  ## Retorno
-
-  - `{:ok, value}` se o valor for encontrado no cache
-  - `:not_found` se o valor não for encontrado no cache
-  """
-  @spec get_from_cache(module(), term()) :: {:ok, term()} | :not_found
-  defdelegate get_from_cache(schema, id), to: RepositoryCore
-  
-  @doc """
-  Armazena um valor no cache.
-
-  ## Parâmetros
-
-  - `schema`: O módulo do schema Ecto
-  - `id`: O ID do registro
-  - `value`: O valor a ser armazenado
-
-  ## Retorno
-
-  - `:ok` se o valor for armazenado com sucesso
-  """
-  @spec put_in_cache(module(), term(), term()) :: :ok
-  defdelegate put_in_cache(schema, id, value), to: RepositoryCore
-  
   @doc """
   Aplica limitação e deslocamento a uma consulta Ecto.
 
@@ -153,8 +60,8 @@ defmodule Deeper_Hub.Core.Data.Repository do
   @spec apply_limit_offset(Ecto.Query.t(), keyword()) :: Ecto.Query.t()
   defdelegate apply_limit_offset(query, opts), to: RepositoryCore
 
-  # Delegação de operações CRUD
-  
+  # Delegação de operações CRUD para RepositoryCrud
+
   @doc """
   Insere um novo registro no banco de dados.
 
@@ -170,7 +77,7 @@ defmodule Deeper_Hub.Core.Data.Repository do
   """
   @spec insert(module(), map()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   defdelegate insert(schema, attrs), to: RepositoryCrud
-  
+
   @doc """
   Busca um registro pelo ID.
 
@@ -186,7 +93,7 @@ defmodule Deeper_Hub.Core.Data.Repository do
   """
   @spec get(module(), term()) :: {:ok, Ecto.Schema.t()} | {:error, :not_found}
   defdelegate get(schema, id), to: RepositoryCrud
-  
+
   @doc """
   Atualiza um registro existente.
 
@@ -202,111 +109,179 @@ defmodule Deeper_Hub.Core.Data.Repository do
   """
   @spec update(Ecto.Schema.t(), map()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   defdelegate update(struct, attrs), to: RepositoryCrud
-  
+
   @doc """
-  Remove um registro do banco de dados.
+  Deleta um registro.
 
   ## Parâmetros
 
-  - `struct`: A struct Ecto a ser removida
+  - `struct`: A struct Ecto a ser deletada
 
   ## Retorno
 
-  - `{:ok, :deleted}` se o registro for removido com sucesso
+  - `{:ok, struct}` se o registro for deletado com sucesso
   - `{:error, changeset}` em caso de falha
   """
-  @spec delete(Ecto.Schema.t()) :: {:ok, :deleted} | {:error, Ecto.Changeset.t()}
+  @spec delete(Ecto.Schema.t()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   defdelegate delete(struct), to: RepositoryCrud
-  
+
   @doc """
-  Lista registros com opções de paginação.
+  Lista todos os registros de um schema, com opções de filtro e paginação.
 
   ## Parâmetros
 
   - `schema`: O módulo do schema Ecto
-  - `opts`: Opções de paginação (`:limit` e `:offset`)
+  - `opts`: Opções de filtro e paginação (ex: `[active: true, limit: 10, offset: 0]`)
 
   ## Retorno
 
-  - `{:ok, [struct]}` com a lista de registros
-  - `{:error, reason}` em caso de falha
+  - `{:ok, list_of_structs}` contendo a lista de registros
   """
-  @spec list(module(), keyword()) :: {:ok, [Ecto.Schema.t()]} | {:error, term()}
+  @spec list(module(), keyword()) :: {:ok, list(Ecto.Schema.t())}
   defdelegate list(schema, opts \\ []), to: RepositoryCrud
-  
+
   @doc """
-  Busca registros que atendem a determinadas condições.
+  Encontra registros com base em um conjunto de filtros.
 
   ## Parâmetros
 
   - `schema`: O módulo do schema Ecto
-  - `conditions`: Condições para a busca (mapa de campo => valor)
-  - `opts`: Opções adicionais para a busca
+  - `filters`: Condições de filtro (ex: `[name: "John", age: 30]`)
+  - `opts`: Opções de paginação (`:limit`, `:offset`)
 
   ## Retorno
 
-  - `{:ok, [struct]}` com a lista de registros encontrados
-  - `{:error, reason}` em caso de falha
+  - `{:ok, list_of_structs}` contendo os registros encontrados
   """
-  @spec find(module(), map(), keyword()) :: {:ok, [Ecto.Schema.t()]} | {:error, term()}
-  defdelegate find(schema, conditions, opts \\ []), to: RepositoryCrud
+  @spec find(module(), keyword(), keyword()) :: {:ok, list(Ecto.Schema.t())}
+  defdelegate find(schema, filters, opts \\ []), to: RepositoryCrud
 
-  # Delegação de operações de join
-  
+  # Delegação de operações de Join para RepositoryJoins
+
   @doc """
-  Realiza um INNER JOIN entre duas tabelas.
+  Realiza um inner join entre duas tabelas.
 
   ## Parâmetros
 
-  - `schema1`: O módulo do primeiro schema Ecto
-  - `schema2`: O módulo do segundo schema Ecto
-  - `select_fields`: Campos a serem selecionados (lista de átomos)
-  - `where_conditions`: Condições para a cláusula WHERE (mapa)
-  - `opts`: Opções adicionais, incluindo `:join_on` para especificar os campos de join
+  - `from_schema`: O schema principal da consulta
+  - `join_schema`: O schema a ser unido
+  - `on_clause`: A condição para o join (ex: `[from_schema_id: :id]`)
+  - `select_fields`: Campos a serem selecionados (opcional)
+  - `filters`: Condições de filtro (opcional)
+  - `opts`: Opções de paginação (`:limit`, `:offset`) (opcional)
 
   ## Retorno
 
-  - `{:ok, [map]}` com a lista de resultados do join
-  - `{:error, reason}` em caso de falha
+  - `{:ok, list_of_results}`
   """
-  @spec join_inner(module(), module(), list(atom()) | nil, map() | nil, keyword()) :: {:ok, [map()]} | {:error, term()}
-  defdelegate join_inner(schema1, schema2, select_fields \\ nil, where_conditions \\ nil, opts \\ []), to: RepositoryJoins
-  
+  @spec join_inner(module(), module(), keyword(), list() | nil, keyword() | nil, keyword() | nil) :: {:ok, list(map()) | list(Ecto.Schema.t())}
+  def join_inner(from_schema, join_schema, on_clause_kw, select_fields \\ nil, filters \\ [], opts \\ []) do
+    join_on_tuple =
+      cond do
+        Keyword.keyword?(on_clause_kw) && length(on_clause_kw) == 1 ->
+          List.first(on_clause_kw)
+        is_tuple(on_clause_kw) && tuple_size(on_clause_kw) == 2 ->
+          on_clause_kw
+        true ->
+          if Keyword.keyword?(on_clause_kw) && !Enum.empty?(on_clause_kw) do
+            List.first(on_clause_kw)
+          else
+            nil
+          end
+      end
+
+    new_opts =
+      if join_on_tuple do
+        Keyword.put(opts, :join_on, join_on_tuple)
+      else
+        opts
+      end
+
+    RepositoryJoins.join_inner(from_schema, join_schema, select_fields, filters, new_opts)
+  end
+
   @doc """
-  Realiza um LEFT JOIN entre duas tabelas.
+  Realiza um left join entre duas tabelas.
 
   ## Parâmetros
 
-  - `schema1`: O módulo do primeiro schema Ecto (lado esquerdo)
-  - `schema2`: O módulo do segundo schema Ecto (lado direito)
-  - `select_fields`: Campos a serem selecionados (lista de átomos)
-  - `where_conditions`: Condições para a cláusula WHERE (mapa)
-  - `opts`: Opções adicionais, incluindo `:join_on` para especificar os campos de join
+  - `from_schema`: O schema principal da consulta
+  - `join_schema`: O schema a ser unido
+  - `on_clause`: A condição para o join
+  - `select_fields`: Campos a serem selecionados (opcional)
+  - `filters`: Condições de filtro (opcional)
+  - `opts`: Opções de paginação (`:limit`, `:offset`) (opcional)
 
   ## Retorno
 
-  - `{:ok, [map]}` com a lista de resultados do join
-  - `{:error, reason}` em caso de falha
+  - `{:ok, list_of_results}`
   """
-  @spec join_left(module(), module(), list(atom()) | nil, map() | nil, keyword()) :: {:ok, [map()]} | {:error, term()}
-  defdelegate join_left(schema1, schema2, select_fields \\ nil, where_conditions \\ nil, opts \\ []), to: RepositoryJoins
-  
+  @spec join_left(module(), module(), keyword(), list() | nil, keyword() | nil, keyword() | nil) :: {:ok, list(map()) | list(Ecto.Schema.t())}
+  def join_left(from_schema, join_schema, on_clause_kw, select_fields \\ nil, filters \\ [], opts \\ []) do
+    join_on_tuple =
+      cond do
+        Keyword.keyword?(on_clause_kw) && length(on_clause_kw) == 1 ->
+          List.first(on_clause_kw)
+        is_tuple(on_clause_kw) && tuple_size(on_clause_kw) == 2 ->
+          on_clause_kw
+        true ->
+          if Keyword.keyword?(on_clause_kw) && !Enum.empty?(on_clause_kw) do
+            List.first(on_clause_kw)
+          else
+            nil
+          end
+      end
+
+    new_opts =
+      if join_on_tuple do
+        Keyword.put(opts, :join_on, join_on_tuple)
+      else
+        opts
+      end
+
+    RepositoryJoins.join_left(from_schema, join_schema, select_fields, filters, new_opts)
+  end
+
   @doc """
-  Realiza um RIGHT JOIN entre duas tabelas.
+  Realiza um right join entre duas tabelas.
 
   ## Parâmetros
 
-  - `schema1`: O módulo do primeiro schema Ecto (lado esquerdo)
-  - `schema2`: O módulo do segundo schema Ecto (lado direito)
-  - `select_fields`: Campos a serem selecionados (lista de átomos)
-  - `where_conditions`: Condições para a cláusula WHERE (mapa)
-  - `opts`: Opções adicionais, incluindo `:join_on` para especificar os campos de join
+  - `from_schema`: O schema principal da consulta
+  - `join_schema`: O schema a ser unido
+  - `on_clause`: A condição para o join
+  - `select_fields`: Campos a serem selecionados (opcional)
+  - `filters`: Condições de filtro (opcional)
+  - `opts`: Opções de paginação (`:limit`, `:offset`) (opcional)
 
   ## Retorno
 
-  - `{:ok, [map]}` com a lista de resultados do join
-  - `{:error, reason}` em caso de falha
+  - `{:ok, list_of_results}`
   """
-  @spec join_right(module(), module(), list(atom()) | nil, map() | nil, keyword()) :: {:ok, [map()]} | {:error, term()}
-  defdelegate join_right(schema1, schema2, select_fields \\ nil, where_conditions \\ nil, opts \\ []), to: RepositoryJoins
+  @spec join_right(module(), module(), keyword(), list() | nil, keyword() | nil, keyword() | nil) :: {:ok, list(map()) | list(Ecto.Schema.t())}
+  def join_right(from_schema, join_schema, on_clause_kw, select_fields \\ nil, filters \\ [], opts \\ []) do
+    join_on_tuple =
+      cond do
+        Keyword.keyword?(on_clause_kw) && length(on_clause_kw) == 1 ->
+          List.first(on_clause_kw)
+        is_tuple(on_clause_kw) && tuple_size(on_clause_kw) == 2 ->
+          on_clause_kw
+        true ->
+          if Keyword.keyword?(on_clause_kw) && !Enum.empty?(on_clause_kw) do
+            List.first(on_clause_kw)
+          else
+            nil
+          end
+      end
+
+    new_opts =
+      if join_on_tuple do
+        Keyword.put(opts, :join_on, join_on_tuple)
+      else
+        opts
+      end
+
+    # Assuming RepositoryJoins.right_join/5 will be implemented
+    RepositoryJoins.join_right(from_schema, join_schema, select_fields, filters, new_opts)
+  end
 end

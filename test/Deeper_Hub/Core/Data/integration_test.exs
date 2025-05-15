@@ -36,14 +36,6 @@ defmodule Deeper_Hub.Core.Data.IntegrationTest do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(Repo)
     Ecto.Adapters.SQL.Sandbox.mode(Repo, {:shared, self()})
     
-    # Limpar o cache antes de cada teste
-    :ets.delete_all_objects(:repository_cache)
-    :ets.delete_all_objects(:repository_cache_stats)
-    
-    # Inicializar estatísticas de cache
-    :ets.insert(:repository_cache_stats, {:hits, 0})
-    :ets.insert(:repository_cache_stats, {:misses, 0})
-    
     :ok
   end
 
@@ -63,10 +55,8 @@ defmodule Deeper_Hub.Core.Data.IntegrationTest do
     {:ok, fetched_user} = Repository.get(User, user.id)
     assert fetched_user.id == user.id
     
-    # 3. Verificar estatísticas de cache após a segunda busca
+    # 3. Buscar o usuário pelo ID (segunda vez para fins de fluxo, cache não mais relevante)
     {:ok, _} = Repository.get(User, user.id)
-    stats = Repository.get_cache_stats()
-    assert stats.hits >= 1
     
     # 4. Atualizar o usuário
     {:ok, updated_user} = Repository.update(user, %{username: "updated_integration_user"})
@@ -170,38 +160,5 @@ defmodule Deeper_Hub.Core.Data.IntegrationTest do
     end
     
     assert {:error, _} = error_result
-  end
-
-  test "desempenho do cache" do
-    # 1. Inserir um usuário para teste
-    {:ok, user} = Repository.insert(User, %{
-      username: "cache_test_user",
-      email: "cache@example.com",
-      password: "password123",
-      is_active: true
-    })
-    
-    # 2. Primeira busca (miss)
-    # Limpamos o cache antes para garantir que será um miss
-    :ok = Repository.invalidate_cache(User, user.id)
-    {:ok, _} = Repository.get(User, user.id)
-    
-    # 3. Segunda busca (hit)
-    {:ok, _} = Repository.get(User, user.id)
-    
-    # 4. Verificar estatísticas
-    stats = Repository.get_cache_stats()
-    assert stats.hits >= 1
-    assert stats.misses >= 1
-    
-    # 5. Invalidar cache
-    :ok = Repository.invalidate_cache(User, user.id)
-    
-    # 6. Próxima busca deve ser miss
-    {:ok, _} = Repository.get(User, user.id)
-    
-    # 7. Verificar estatísticas atualizadas
-    new_stats = Repository.get_cache_stats()
-    assert new_stats.misses > stats.misses
   end
 end

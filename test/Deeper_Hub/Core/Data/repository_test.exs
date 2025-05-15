@@ -10,14 +10,6 @@ defmodule Deeper_Hub.Core.Data.RepositoryTest do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(Repo)
     Ecto.Adapters.SQL.Sandbox.mode(Repo, {:shared, self()})
     
-    # Limpar o cache antes de cada teste
-    :ets.delete_all_objects(:repository_cache)
-    :ets.delete_all_objects(:repository_cache_stats)
-    
-    # Inicializar estatísticas de cache
-    :ets.insert(:repository_cache_stats, {:hits, 0})
-    :ets.insert(:repository_cache_stats, {:misses, 0})
-    
     # Criar um usuário para testes
     user_attrs = %{
       username: "test_user",
@@ -137,45 +129,6 @@ defmodule Deeper_Hub.Core.Data.RepositoryTest do
         assert {:ok, found_users} = Repository.find(User, %{id: {:in, test_ids}})
         assert length(found_users) == 2
       end
-    end
-  end
-
-  describe "cache management" do
-    test "get/2 caches results", %{user: user} do
-      # First call should miss cache
-      assert {:ok, _} = Repository.get(User, user.id)
-      
-      # Get initial stats
-      initial_stats = Repository.get_cache_stats()
-      
-      # Second call should hit cache
-      assert {:ok, _} = Repository.get(User, user.id)
-      
-      # Get updated stats
-      updated_stats = Repository.get_cache_stats()
-      
-      # Verify cache hit increased
-      assert updated_stats.hits > initial_stats.hits
-    end
-    
-    test "invalidate_cache/2 removes item from cache", %{user: user} do
-      # Ensure item is in cache
-      assert {:ok, _} = Repository.get(User, user.id)
-      
-      # Invalidate cache
-      assert :ok = Repository.invalidate_cache(User, user.id)
-      
-      # Get stats before second call
-      stats_before = Repository.get_cache_stats()
-      
-      # Call again should miss cache
-      assert {:ok, _} = Repository.get(User, user.id)
-      
-      # Get updated stats
-      stats_after = Repository.get_cache_stats()
-      
-      # Verify cache miss increased
-      assert stats_after.misses > stats_before.misses
     end
   end
 end

@@ -439,7 +439,7 @@ defmodule Deeper_Hub.Core.Data.RepositoryCrud do
 
         {field_name, {:ilike, term}}, acc_query ->
           # Busca com ILIKE (case-insensitive)
-          from(item in acc_query, where: ilike(field(item, ^field_name), ^"%#{term}%"))
+          from(item in acc_query, where: like(fragment("lower(?)", field(item, ^field_name)), ^String.downcase("%#{term}%")))
 
         {field_name, value}, acc_query ->
           # Igualdade simples
