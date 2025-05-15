@@ -9,6 +9,7 @@ defmodule Deeper_Hub.Core.Data.Pagination do
   import Ecto.Query
   alias Deeper_Hub.Core.Data.Repo
   alias Deeper_Hub.Core.Logger
+  alias Deeper_Hub.Core.Data.DBConnection.DBConnectionFacade, as: DBConn
 
 
   @doc """
@@ -65,20 +66,35 @@ defmodule Deeper_Hub.Core.Data.Pagination do
         query
       end
 
-      # Conta o total de registros
-      total_query = from(item in query, select: count(item.id))
-      total = Repo.one(total_query)
+      # Executa as queries dentro de uma conexão gerenciada pelo DBConnection
+      result = DBConn.run(nil, fn -> 
+        try do
+          # Conta o total de registros
+          total_query = from(item in query, select: count(item.id))
+          total = Repo.one(total_query)
 
-      # Calcula o total de páginas
-      total_pages = ceil(total / page_size)
+          # Calcula o total de páginas
+          total_pages = ceil(total / page_size)
 
-      # Aplica a paginação
-      paginated_query = query
-      |> limit(^page_size)
-      |> offset(^offset_value)
+          # Aplica a paginação
+          paginated_query = query
+          |> limit(^page_size)
+          |> offset(^offset_value)
 
-      # Executa a query paginada
-      items = Repo.all(paginated_query)
+          # Executa a query paginada
+          items = Repo.all(paginated_query)
+          
+          {items, total, total_pages}
+        rescue
+          e -> {:error, e}
+        end
+      end)
+      
+      # Extrai as variáveis do resultado
+      {items, total, total_pages} = case result do
+        {:error, e} -> raise e
+        {items, total, total_pages} -> {items, total, total_pages}
+      end
 
       # Monta o resultado
       result = %{
