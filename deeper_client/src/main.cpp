@@ -64,34 +64,25 @@ nlohmann::json create_database_operation(const std::string& operation, const std
 void teste_usuarios(WebsocketClient& client) {
     std::cout << "\nExecutando teste de usuários..." << std::endl;
     
-    // 1. Criar um usuário com dados únicos
-    std::string username = "user_" + std::to_string(std::rand());
-    std::string email = username + "@email.com";
+    std::string username = "user_" + std::to_string(std::rand() % 10000);
+    std::string email = username + "@example.com";
+    std::string password = "senha123";
+    std::string request_id = std::to_string(std::rand() % 100000);
     
-    nlohmann::json user_data = {
-        {"username", username},
-        {"email", email},
-        {"password", "senha123"}
-    };
-    
-    // Cria uma mensagem simples para o servidor
-    nlohmann::json simple_message = {
+    // Cria a mensagem no formato simplificado
+    nlohmann::json payload = {
         {"action", "create_user"},
         {"username", username},
         {"email", email},
-        {"password", "senha123"},
-        {"request_id", std::to_string(std::rand())}
+        {"password", password},
+        {"request_id", request_id}
     };
     
-    // Formata a mensagem para o canal Phoenix
-    nlohmann::json payload = simple_message;
+    // Envia a mensagem para o servidor
+    std::string message = client.format_phoenix_message("message", "websocket", payload, std::to_string(std::rand() % 100000));
     
-    // Envia a mensagem para o canal Phoenix
-    std::cout << "Enviando operação de criação de usuário..." << std::endl;
-    std::string message = client.format_phoenix_message("message", "websocket", payload);
+    std::cout << "Enviando mensagem: " << message << std::endl;
     client.send_message(message);
-    
-    // Aguarda um pouco para a operação ser processada
     std::this_thread::sleep_for(std::chrono::seconds(2));
 }
 
@@ -99,18 +90,17 @@ void teste_usuarios(WebsocketClient& client) {
 void listar_usuarios(WebsocketClient& client) {
     std::cout << "\nListando todos os usuários..." << std::endl;
     
-    // Cria uma mensagem simples para o servidor
-    nlohmann::json simple_message = {
+    // Cria a mensagem no formato simplificado
+    std::string request_id = std::to_string(std::rand() % 100000);
+    nlohmann::json payload = {
         {"action", "list_users"},
-        {"request_id", std::to_string(std::rand())}
+        {"request_id", request_id}
     };
     
-    // Formata a mensagem para o canal Phoenix
-    nlohmann::json payload = simple_message;
-    
-    // Envia a mensagem para o canal Phoenix
+    // Envia a mensagem para o servidor
     std::cout << "Enviando operação de listagem de usuários..." << std::endl;
-    std::string message = client.format_phoenix_message("message", "websocket", payload);
+    std::string message = client.format_phoenix_message("message", "websocket", payload, std::to_string(std::rand() % 100000));
+    std::cout << "Enviando mensagem: " << message << std::endl;
     client.send_message(message);
     
     // Aguarda um pouco para a operação ser processada
