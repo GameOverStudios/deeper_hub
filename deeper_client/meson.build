@@ -64,8 +64,35 @@ websocketpp_dep = dependency('websocketpp',
   ]
 )
 
-# Adiciona as dependências à lista
-dep_list += [json_dep, websocketpp_dep]
+# Configuração para Windows
+if host_machine.system() == 'windows'
+  # Bibliotecas do Windows necessárias para WinHTTP
+  win_http_dep = cpp.find_library('winhttp', required: true)
+  
+  # Adiciona definições necessárias para o Windows
+  add_project_arguments('-D_WIN32_WINNT=0x0601', language: 'cpp')  # Windows 7 ou superior
+  
+  # Adiciona as dependências do Windows
+  windows_deps = [
+    win_http_dep,
+    cpp.find_library('wininet'),
+    cpp.find_library('ole32'),
+    cpp.find_library('oleaut32'),
+    cpp.find_library('crypt32'),
+    cpp.find_library('shlwapi'),
+    cpp.find_library('advapi32'),
+    cpp.find_library('ws2_32')
+  ]
+  
+  # Adiciona as dependências à lista
+  dep_list += [json_dep, websocketpp_dep] + windows_deps
+  
+  message('Configuração para Windows concluída')
+else
+  # Configuração para outros sistemas operacionais (se necessário)
+  message('Configuração concluída para ' + host_machine.system())
+  dep_list += [json_dep, websocketpp_dep]
+endif
 
 # Configuração do executável
 executable('deeper_client',
