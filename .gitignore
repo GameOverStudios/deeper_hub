@@ -4,7 +4,7 @@
 # If you run "mix test --cover", coverage assets end up here.
 /cover/
 
-/deeper_client/Subprojects/
+/Subprojects/
 
 # The directory Mix downloads your dependencies sources to.
 /deps/
