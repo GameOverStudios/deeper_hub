@@ -23,22 +23,18 @@ else
 endif
 
 # Argumentos de compilação comuns
-common_cpp_args = [
-  '-DWEBSOCKETPP_STRICT_MASKING',
-  '-DASIO_STANDALONE',
-  '-DASIO_HAS_STD_ADDRESSOF',
-  '-DASIO_HAS_STD_ARRAY',
-  '-DASIO_HAS_CSTDINT',
-  '-DASIO_HAS_STD_SHARED_PTR',
-  '-DASIO_HAS_STD_TYPE_TRAITS',
-  '-DASIO_HAS_VARIADIC_TEMPLATES',
-  '-DASIO_HAS_STD_FUNCTION',
-  '-DASIO_HAS_STD_CHRONO'
-]
+common_cpp_args = []
+
+# Adiciona definições para Windows
+if host_machine.system() == 'windows'
+  common_cpp_args += ['-D_WIN32_WINNT=0x0601'] # Windows 7 ou superior
+endif
 
 # Arquivos fonte
 src_files = [
-  'src/main.cpp'
+  'src/main.cpp',
+  'src/http_client.cpp',
+  'src/websocket_client.cpp'
 ]
 
 # Diretórios de inclusão
@@ -52,16 +48,6 @@ json_dep = dependency('nlohmann_json',
   fallback: ['nlohmann_json', 'nlohmann_json_dep'],
   required: true,
   default_options: ['default_library=static', 'tests=false']
-)
-
-websocketpp_dep = dependency('websocketpp',
-  fallback: ['websocketpp', 'websocketpp_dep'],
-  required: true,
-  default_options: [
-    'tests=false',
-    'examples=false',
-    'boost_program_options=disabled'
-  ]
 )
 
 # Configuração para Windows
@@ -85,13 +71,13 @@ if host_machine.system() == 'windows'
   ]
   
   # Adiciona as dependências à lista
-  dep_list += [json_dep, websocketpp_dep] + windows_deps
+  dep_list += [json_dep] + windows_deps
   
   message('Configuração para Windows concluída')
 else
   # Configuração para outros sistemas operacionais (se necessário)
   message('Configuração concluída para ' + host_machine.system())
-  dep_list += [json_dep, websocketpp_dep]
+  dep_list += [json_dep]
 endif
 
 # Configuração do executável

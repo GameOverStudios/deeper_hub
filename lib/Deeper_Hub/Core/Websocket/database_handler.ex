@@ -41,6 +41,21 @@ defmodule Deeper_Hub.Core.Websocket.DatabaseHandler do
       request_id: operation.request_id,
       socket_id: socket.id
     })
+    
+    # Debug adicional para verificar o formato dos dados
+    Logger.debug("Tipo de dados da operação: #{inspect(operation.__struct__)}")
+    Logger.debug("Dados da operação: #{inspect(operation.data)}")
+    
+    # Tenta decodificar os dados se for uma string
+    if is_binary(operation.data) do
+      Logger.debug("Tentando decodificar dados JSON")
+      case Jason.decode(operation.data) do
+        {:ok, decoded} -> Logger.debug("Dados decodificados com sucesso: #{inspect(decoded)}")
+        {:error, error} -> Logger.error("Erro ao decodificar dados: #{inspect(error)}")
+      end
+    else
+      Logger.error("Dados não estão no formato esperado (string): #{inspect(operation.data)}")
+    end
 
     # Emite evento de operação de banco de dados
     EventDefinitions.emit(
@@ -107,8 +122,29 @@ defmodule Deeper_Hub.Core.Websocket.DatabaseHandler do
           "data" => sanitized_data,
           "timestamp" => System.system_time(:millisecond)
         }
-
-        {:reply, {:ok, response}, socket}
+        
+        # Garante que a resposta seja serializável
+        Logger.debug("Enviando resposta de sucesso: #{inspect(response)}")
+        
+        # Tenta serializar a resposta para garantir que não haverá erros
+        case Jason.encode(response) do
+          {:ok, _json_string} ->
+            # Se a serialização for bem-sucedida, envia a resposta
+            {:reply, {:ok, response}, socket}
+          {:error, error} ->
+            # Se houver erro na serialização, log e envia uma resposta simplificada
+            Logger.error("Erro ao serializar resposta: #{inspect(error)}")
+            simplified_response = %{
+              "type" => "database_response",
+              "schema" => operation.schema,
+              "operation" => operation.operation,
+              "request_id" => operation.request_id,
+              "status" => "success",
+              "message" => "Operação realizada com sucesso",
+              "timestamp" => System.system_time(:millisecond)
+            }
+            {:reply, {:ok, simplified_response}, socket}
+        end
 
       {:error, reason} ->
         # Log de erro
