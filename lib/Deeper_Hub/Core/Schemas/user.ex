@@ -2,9 +2,12 @@ defmodule Deeper_Hub.Core.Schemas.User do
   @moduledoc """
   Schema para usuários do sistema.
   
-  Este módulo define a estrutura de dados para usuários no banco de dados,
+  Este schema define a estrutura de dados para usuários no banco de dados,
   incluindo validações e relacionamentos.
   """
+  
+  # Adiciona suporte à serialização JSON, excluindo campos sensíveis
+  @derive {Jason.Encoder, except: [:password, :password_hash]}
   
   use Ecto.Schema
   import Ecto.Changeset

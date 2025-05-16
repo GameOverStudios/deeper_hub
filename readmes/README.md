@@ -1,9 +1,9 @@
 **Parte 1: Introdução e Funcionalidades Centrais**
 
 ```markdown
-# DeeperHub - Sistema Integrado de Gerenciamento e API
+# Deeper_Hub - Sistema Integrado de Gerenciamento e API
 
-Bem-vindo ao DeeperHub! Este documento descreve as funcionalidades completas oferecidas pelo sistema, com base na documentação dos seus módulos. O DeeperHub é uma plataforma robusta projetada para gerenciar usuários, APIs, segurança, notificações, e muito mais, com foco em modularidade e extensibilidade.
+Bem-vindo ao Deeper_Hub! Este documento descreve as funcionalidades completas oferecidas pelo sistema, com base na documentação dos seus módulos. O Deeper_Hub é uma plataforma robusta projetada para gerenciar usuários, APIs, segurança, notificações, e muito mais, com foco em modularidade e extensibilidade.
 
 ## Sumário de Funcionalidades
 
@@ -52,7 +52,7 @@ Bem-vindo ao DeeperHub! Este documento descreve as funcionalidades completas ofe
 
 ## 1. Gerenciamento da Aplicação
 
-O módulo `DeeperHub.ApplicationFacade` (e seu alias `DeeperHub.ApplicationModule`) oferece controle e visibilidade sobre o estado da aplicação DeeperHub.
+O módulo `Deeper_Hub.ApplicationFacade` (e seu alias `Deeper_Hub.ApplicationModule`) oferece controle e visibilidade sobre o estado da aplicação Deeper_Hub.
 
 *   **Verificar Versão:** Obter a versão atual da aplicação.
 *   **Verificar Ambiente:** Identificar o ambiente de execução (ex: `:dev`, `:test`, `:prod`).
@@ -67,7 +67,7 @@ O módulo `DeeperHub.ApplicationFacade` (e seu alias `DeeperHub.ApplicationModul
 
 ## 2. Sistema de Logging
 
-O DeeperHub possui um sistema de logging estruturado e centralizado, acessível principalmente através de `DeeperHub.Logger` e fachadas como `DeeperHub.Core.Services.LoggerFacade`.
+O Deeper_Hub possui um sistema de logging estruturado e centralizado, acessível principalmente através de `Deeper_Hub.Logger` e fachadas como `Deeper_Hub.Core.Services.LoggerFacade`.
 
 *   **Logging Estruturado em Níveis:**
     *   `debug/2,3`: Registrar mensagens de depuração.
@@ -78,23 +78,23 @@ O DeeperHub possui um sistema de logging estruturado e centralizado, acessível 
     *   `notice/2,3`: Registrar notificações.
     *   `emergency/2,3`: Registrar emergências.
 *   **Contexto de Logging:**
-    *   Definir e limpar metadados de contexto (`DeeperHub.Logger.Context`) que são automaticamente incluídos em todas as mensagens de log subsequentes dentro do mesmo processo.
+    *   Definir e limpar metadados de contexto (`Deeper_Hub.Logger.Context`) que são automaticamente incluídos em todas as mensagens de log subsequentes dentro do mesmo processo.
     *   Definir e obter IDs de correlação para rastrear fluxos de requisições.
-*   **Emojis Personalizáveis:** Configurar emojis para diferentes níveis de log para melhor legibilidade (`DeeperHub.Logger.Config`).
-*   **Múltiplos Backends:** Suporte para adicionar e remover diferentes backends de logging (`DeeperHub.Logger.LoggerFacade`, `DeeperHub.Logger.StructuredLogger`).
+*   **Emojis Personalizáveis:** Configurar emojis para diferentes níveis de log para melhor legibilidade (`Deeper_Hub.Logger.Config`).
+*   **Múltiplos Backends:** Suporte para adicionar e remover diferentes backends de logging (`Deeper_Hub.Logger.LoggerFacade`, `Deeper_Hub.Logger.StructuredLogger`).
 *   **Integração com Phoenix:**
-    *   Um plug (`DeeperHub.Logger.PhoenixIntegration.RequestLogger`) para registrar automaticamente informações sobre requisições HTTP, incluindo método, caminho, status, tempo de resposta, com opções para loggar headers, parâmetros e cookies (com mascaramento de dados sensíveis).
+    *   Um plug (`Deeper_Hub.Logger.PhoenixIntegration.RequestLogger`) para registrar automaticamente informações sobre requisições HTTP, incluindo método, caminho, status, tempo de resposta, com opções para loggar headers, parâmetros e cookies (com mascaramento de dados sensíveis).
 *   **Sanitização de Logs:**
-    *   O módulo `DeeperHub.Security.LogSanitizer` (e seu alias `DeeperHub.Shared.Validation.InputSanitizer`) fornece funcionalidades para sanitizar mensagens de log e metadados, removendo informações sensíveis e prevenindo injeção de dados.
+    *   O módulo `Deeper_Hub.Security.LogSanitizer` (e seu alias `Deeper_Hub.Shared.Validation.InputSanitizer`) fornece funcionalidades para sanitizar mensagens de log e metadados, removendo informações sensíveis e prevenindo injeção de dados.
 *   **Rastreamento Distribuído:**
-    *   O módulo `DeeperHub.Shared.Logging.DistributedTracing` permite criar e gerenciar traces e spans para rastrear operações através de múltiplos componentes, integrando-se com o logging estruturado.
-*   **Telemetria Interna:** O próprio sistema de logging possui telemetria para monitorar suas ações (`DeeperHub.Logger.Telemetry`).
+    *   O módulo `Deeper_Hub.Shared.Logging.DistributedTracing` permite criar e gerenciar traces e spans para rastrear operações através de múltiplos componentes, integrando-se com o logging estruturado.
+*   **Telemetria Interna:** O próprio sistema de logging possui telemetria para monitorar suas ações (`Deeper_Hub.Logger.Telemetry`).
 
 ---
 
 ## 3. Gerenciamento de Configuração
 
-O `DeeperHub.Core.ConfigManager` atua como um ponto centralizado para todas as configurações do sistema.
+O `Deeper_Hub.Core.ConfigManager` atua como um ponto centralizado para todas as configurações do sistema.
 
 *   **Acesso a Configurações:**
     *   Obter o valor de uma configuração por chave e escopo, com um valor padrão (`get/3`, `get_value/3`).
@@ -110,14 +110,14 @@ O `DeeperHub.Core.ConfigManager` atua como um ponto centralizado para todas as c
 *   **Observabilidade de Mudanças:**
     *   Registrar manipuladores de eventos para serem notificados sobre criação, atualização ou exclusão de configurações (`on_config_change/2`).
     *   Cancelar o registro de manipuladores de eventos (`off_config_change/2`).
-*   **Inicialização:** O sistema de configuração é inicializado com um cache (`DeeperHub.Core.ConfigManager.Setting.init_cache/0`).
-*   **Armazenamento:** As configurações são persistidas usando um schema Ecto (`DeeperHub.Core.ConfigManager.Schema.Setting`).
+*   **Inicialização:** O sistema de configuração é inicializado com um cache (`Deeper_Hub.Core.ConfigManager.Setting.init_cache/0`).
+*   **Armazenamento:** As configurações são persistidas usando um schema Ecto (`Deeper_Hub.Core.ConfigManager.Schema.Setting`).
 
 ---
 
 ## 4. Sistema de Eventos (Pub/Sub)
 
-O DeeperHub implementa um sistema de publicação e assinatura de eventos (`DeeperHub.Core.Event` e `DeeperHub.Core.Event.EventBus`) para comunicação assíncrona e desacoplada.
+O Deeper_Hub implementa um sistema de publicação e assinatura de eventos (`Deeper_Hub.Core.Event` e `Deeper_Hub.Core.Event.EventBus`) para comunicação assíncrona e desacoplada.
 
 *   **Publicação de Eventos:**
     *   Publicar eventos com um nome, uma carga útil (payload) e opções (`publish/3`, `emit/3`).
@@ -133,13 +133,13 @@ O DeeperHub implementa um sistema de publicação e assinatura de eventos (`Deep
     *   Listar todas as assinaturas de eventos, opcionalmente filtradas por nome do evento (`list_subscriptions/1`).
     *   Obter a configuração atual do sistema de eventos, incluindo limites de histórico e configurações de retry (`get_config/0`).
     *   Obter métricas sobre o sistema de eventos, como contagem de eventos publicados, entregues e falhos (`get_metrics/0`).
-*   **Resiliência:** O sistema inclui um supervisor (`DeeperHub.Core.EventSupervisor`) para garantir a disponibilidade do serviço de eventos.
+*   **Resiliência:** O sistema inclui um supervisor (`Deeper_Hub.Core.EventSupervisor`) para garantir a disponibilidade do serviço de eventos.
 *   **Configurabilidade:**
     *   Limite de histórico de eventos.
     *   Habilitação de retry para entrega de eventos.
     *   Número máximo de tentativas de retry.
     *   Intervalo entre tentativas de retry.
-    (Todas configuráveis via `DeeperHub.Core.ConfigManager`)
+    (Todas configuráveis via `Deeper_Hub.Core.ConfigManager`)
 
 ```
 
@@ -150,7 +150,7 @@ O DeeperHub implementa um sistema de publicação e assinatura de eventos (`Deep
 ```markdown
 ## 5. Funcionalidades da API REST
 
-O módulo `DeeperHub.API` é responsável por definir, gerenciar e proteger a Interface de Programação de Aplicativos (API) RESTful do sistema DeeperHub. Ele serve como o principal ponto de interação para clientes externos (aplicações web, mobile, serviços de terceiros) consumirem as funcionalidades e dados do DeeperHub.
+O módulo `Deeper_Hub.API` é responsável por definir, gerenciar e proteger a Interface de Programação de Aplicativos (API) RESTful do sistema Deeper_Hub. Ele serve como o principal ponto de interação para clientes externos (aplicações web, mobile, serviços de terceiros) consumirem as funcionalidades e dados do Deeper_Hub.
 
 ### 5.1. Responsabilidades e Funcionalidades Chave
 
@@ -159,7 +159,7 @@ O módulo `DeeperHub.API` é responsável por definir, gerenciar e proteger a In
   * Suporte aos verbos HTTP padrão (GET, POST, PUT, PATCH, DELETE).
 
 * **Validação de Requisições:**
-  * Validação de parâmetros de query, path e corpo da requisição via `DeeperHub.API.Validation.APIRequestValidator`.
+  * Validação de parâmetros de query, path e corpo da requisição via `Deeper_Hub.API.Validation.APIRequestValidator`.
   * Validação de tipos de dados, formatos e regras de negócio.
   * Criação de schemas de validação dinâmicos para endpoints da API.
   * Sanitização de dados de entrada para prevenir injeção de código.
@@ -171,7 +171,7 @@ O módulo `DeeperHub.API` é responsável por definir, gerenciar e proteger a In
   * Suporte a chaves de bypass para casos especiais.
 
 * **Autenticação e Autorização:**
-  * Integração com `DeeperHub.Auth` para autenticação via tokens de API ou JWTs de sessão.
+  * Integração com `Deeper_Hub.Auth` para autenticação via tokens de API ou JWTs de sessão.
   * Verificação de permissões para acessar recursos/endpoints específicos.
 
 * **Versionamento da API:**
@@ -179,7 +179,7 @@ O módulo `DeeperHub.API` é responsável por definir, gerenciar e proteger a In
   * Permite evolução sem quebrar clientes existentes.
 
 * **Formatação de Respostas:**
-  * Padronização do formato das respostas JSON (sucesso, erro, validação) via `DeeperHub.Core.APIResponder`.
+  * Padronização do formato das respostas JSON (sucesso, erro, validação) via `Deeper_Hub.Core.APIResponder`.
   * Inclusão de metadados e links relacionados (HATEOAS).
 
 * **Documentação da API:**
@@ -194,7 +194,7 @@ O módulo `DeeperHub.API` é responsável por definir, gerenciar e proteger a In
   * Configuração de políticas de CORS para permitir ou restringir acesso de diferentes origens.
 
 * **Caching de Respostas:**
-  * Integração com `DeeperHub.Core.Cache` para armazenar respostas em cache.
+  * Integração com `Deeper_Hub.Core.Cache` para armazenar respostas em cache.
   * Redução da carga no servidor para dados pouco voláteis.
 
 ### 5.2. Arquitetura e Componentes Principais
@@ -208,7 +208,7 @@ O módulo `DeeperHub.API` é responsável por definir, gerenciar e proteger a In
 
 * Recebem requisições HTTP e extraem parâmetros.
 * Chamam os módulos de serviço/fachadas de domínio apropriados.
-* Formatam a resposta usando `DeeperHub.Core.APIResponder`.
+* Formatam a resposta usando `Deeper_Hub.Core.APIResponder`.
 * Implementam a lógica específica de cada endpoint.
 
 #### 5.2.3. Schemas de Validação
@@ -273,7 +273,7 @@ api/         # Lógica de negócio da API
 2. Requisição passa por middlewares de autenticação e rate limiting
 3. `ServerController.index/2` é chamado
 4. Parâmetros são validados
-5. Serviço de domínio é chamado: `DeeperHub.Servers.list_servers(%{tag: "pvp", page: 2})`
+5. Serviço de domínio é chamado: `Deeper_Hub.Servers.list_servers(%{tag: "pvp", page: 2})`
 6. Resposta é formatada e retornada
 
 #### 5.5.2. Aplicativo Mobile Cria Novo Usuário
@@ -332,7 +332,7 @@ Todas as respostas seguem um formato padronizado:
 
 ### 5.8. Monitoramento e Métricas
 
-O módulo `DeeperHub.API.Metrics` coleta e expõe métricas sobre o uso da API:
+O módulo `Deeper_Hub.API.Metrics` coleta e expõe métricas sobre o uso da API:
 
 * Número de requisições por endpoint
 * Tempo de resposta
@@ -354,7 +354,7 @@ As métricas podem ser acessadas em `/metrics` (protegido por autenticação bá
 
 ## 6. Gerenciamento de Contas de Usuário
 
-O módulo `DeeperHub.Accounts` (e seu antigo intermediário `DeeperHub.Accounts.AccountManager`, agora refatorado para delegação direta a serviços) é a fachada principal para todas as operações relacionadas a contas de usuário.
+O módulo `Deeper_Hub.Accounts` (e seu antigo intermediário `Deeper_Hub.Accounts.AccountManager`, agora refatorado para delegação direta a serviços) é a fachada principal para todas as operações relacionadas a contas de usuário.
 
 *   **Ciclo de Vida do Usuário:**
     *   **Criação de Usuário:** Criar um novo usuário com atributos básicos (`create_user/1`).
@@ -370,28 +370,28 @@ O módulo `DeeperHub.Accounts` (e seu antigo intermediário `DeeperHub.Accounts.
     *   **Criação de Perfil:** Criar um perfil para um usuário existente (`create_profile/2`).
     *   **Obtenção de Perfil:** Obter o perfil de um usuário (`get_profile/1`).
     *   **Atualização de Perfil:** Atualizar os atributos do perfil de um usuário (`update_profile/2`).
-    *   **Funções de Perfil (`DeeperHub.Accounts.Profile`):**
+    *   **Funções de Perfil (`Deeper_Hub.Accounts.Profile`):**
         *   Calcular idade com base na data de nascimento (`age/1`).
         *   Formatar nome de exibição (`display_name/1`).
         *   Formatar localização (`format_location/1`).
         *   Obter nome completo (`full_name/1`).
         *   Verificar se o perfil possui informações de localização (`has_location?/1`).
         *   Verificar se um perfil está completo (nome, sobrenome, data de nascimento) (`is_complete?/1`).
-*   **Contadores e Estatísticas (`DeeperHub.Accounts.AccountManager`):**
+*   **Contadores e Estatísticas (`Deeper_Hub.Accounts.AccountManager`):**
     *   Contar usuários ativos (`count_active_users/0`).
     *   Contar contas bloqueadas (`count_locked_accounts/0`).
     *   Contar registros recentes em um período (`count_recent_registrations/1`).
 *   **Disponibilidade de Email:**
     *   Verificar se um email está disponível para uso, opcionalmente ignorando o usuário atual (`is_email_available?/2` em `AccountManager`).
 *   **Integração com Eventos:**
-    *   O `DeeperHub.Accounts.Integrations.EventIntegration` publica eventos para o sistema DeeperHub Core sobre:
+    *   O `Deeper_Hub.Accounts.Integrations.EventIntegration` publica eventos para o sistema Deeper_Hub Core sobre:
         *   Criação de usuário (`publish_user_created/3`).
         *   Atualização de usuário (`publish_user_updated/3`).
         *   Verificação de email (`publish_email_verified/3`).
         *   Redefinição de senha (`publish_password_reset/3`).
         *   Desativação de conta (`publish_account_deactivated/3`).
         *   Reativação de conta (`publish_account_reactivated/2`).
-*   **Feature Flags para Contas (`DeeperHub.Accounts.FeatureFlags`):**
+*   **Feature Flags para Contas (`Deeper_Hub.Accounts.FeatureFlags`):**
     *   Verificar se funcionalidades específicas de contas estão habilitadas, como:
         *   Registro de novos usuários (`registration_enabled?/1`, `self_registration_enabled?/1`).
         *   Login por senha (`password_login_enabled?/1`).
@@ -402,12 +402,12 @@ O módulo `DeeperHub.Accounts` (e seu antigo intermediário `DeeperHub.Accounts.
         *   Cadastro e login com MFA (`mfa_enrollment_enabled?/2`, `mfa_login_enabled?/2`).
         *   Funcionalidade \"Lembrar-me\" (`remember_me_enabled?/1`).
 *   **Serviços Internos Detalhados:**
-    *   `DeeperHub.Accounts.Services.UserService`: Gerencia CRUD de usuários, confirmação de email e contadores.
-    *   `DeeperHub.Accounts.Services.ProfileService`: Gerencia CRUD de perfis, avatares e preferências.
-    *   `DeeperHub.Accounts.Services.RegistrationService`: Orquestra o fluxo completo de registro.
-    *   `DeeperHub.Accounts.Services.PasswordService`: Gerencia hashing, comparação e atualização de senhas.
-    *   `DeeperHub.Accounts.Services.EmailVerificationWorker`: Processa reenvios e lembretes de verificação de email.
-    *   `DeeperHub.Accounts.Services.SessionCleanupWorker`: Limpa sessões expiradas periodicamente.
+    *   `Deeper_Hub.Accounts.Services.UserService`: Gerencia CRUD de usuários, confirmação de email e contadores.
+    *   `Deeper_Hub.Accounts.Services.ProfileService`: Gerencia CRUD de perfis, avatares e preferências.
+    *   `Deeper_Hub.Accounts.Services.RegistrationService`: Orquestra o fluxo completo de registro.
+    *   `Deeper_Hub.Accounts.Services.PasswordService`: Gerencia hashing, comparação e atualização de senhas.
+    *   `Deeper_Hub.Accounts.Services.EmailVerificationWorker`: Processa reenvios e lembretes de verificação de email.
+    *   `Deeper_Hub.Accounts.Services.SessionCleanupWorker`: Limpa sessões expiradas periodicamente.
 
 ```
 
@@ -418,7 +418,7 @@ O módulo `DeeperHub.Accounts` (e seu antigo intermediário `DeeperHub.Accounts.
 ```markdown
 ## 7. Autenticação e Autorização
 
-O `DeeperHub.Auth` (e sua fachada `DeeperHub.Auth.AuthFacade`) é o ponto central para autenticação e autorização.
+O `Deeper_Hub.Auth` (e sua fachada `Deeper_Hub.Auth.AuthFacade`) é o ponto central para autenticação e autorização.
 
 *   **Autenticação de Usuário:**
     *   Autenticar um usuário com email/identificador e senha, com opções para IP, informações do dispositivo e metadados (`login/3`, `login/5`).
@@ -437,26 +437,26 @@ O `DeeperHub.Auth` (e sua fachada `DeeperHub.Auth.AuthFacade`) é o ponto centra
     *   Verificar se um usuário tem permissão para acessar um recurso e realizar uma ação (`authorize/3`).
 *   **Inicialização:** O módulo Auth pode ser inicializado para configurar caches e recursos (`init/0`).
 *   **Adaptadores e Serviços Internos:**
-    *   `DeeperHub.Auth.Adapters.AuthAdapterUnified`: GenServer unificado para autenticação, autorização e sessões.
-    *   `DeeperHub.Auth.Adapters.AuthenticationAdapter`: Implementação padrão para autenticação.
-    *   `DeeperHub.Auth.Adapters.AuthorizationAdapter`: Gerencia papéis e permissões (RBAC).
-    *   `DeeperHub.Auth.Adapters.PasswordAdapter`: Lida com hashing e políticas de senha.
-    *   `DeeperHub.Auth.Adapters.SessionAdapter`: Gerencia o ciclo de vida das sessões.
-    *   `DeeperHub.Auth.Adapters.TokenAdapter`: Lida com geração e validação de JWTs.
-    *   `DeeperHub.Auth.Services.LoginService`: Lógica de login primário.
-    *   `DeeperHub.Auth.Services.SessionService`: Lógica de gerenciamento de sessões.
-    *   `DeeperHub.Auth.Services.TokenService` (e `DeeperHub.Accounts.TokenService`): Gerencia tokens diversos (API, email, convite, reset de senha).
-    *   `DeeperHub.Auth.PermissionService` e `DeeperHub.Auth.RoleService`: Gerenciam permissões e papéis detalhadamente.
+    *   `Deeper_Hub.Auth.Adapters.AuthAdapterUnified`: GenServer unificado para autenticação, autorização e sessões.
+    *   `Deeper_Hub.Auth.Adapters.AuthenticationAdapter`: Implementação padrão para autenticação.
+    *   `Deeper_Hub.Auth.Adapters.AuthorizationAdapter`: Gerencia papéis e permissões (RBAC).
+    *   `Deeper_Hub.Auth.Adapters.PasswordAdapter`: Lida com hashing e políticas de senha.
+    *   `Deeper_Hub.Auth.Adapters.SessionAdapter`: Gerencia o ciclo de vida das sessões.
+    *   `Deeper_Hub.Auth.Adapters.TokenAdapter`: Lida com geração e validação de JWTs.
+    *   `Deeper_Hub.Auth.Services.LoginService`: Lógica de login primário.
+    *   `Deeper_Hub.Auth.Services.SessionService`: Lógica de gerenciamento de sessões.
+    *   `Deeper_Hub.Auth.Services.TokenService` (e `Deeper_Hub.Accounts.TokenService`): Gerencia tokens diversos (API, email, convite, reset de senha).
+    *   `Deeper_Hub.Auth.PermissionService` e `Deeper_Hub.Auth.RoleService`: Gerenciam permissões e papéis detalhadamente.
 *   **Integrações:**
-    *   **Auditoria:** Eventos de autenticação são logados (`DeeperHub.Auth.Integrations.AuditIntegration`).
-    *   **Eventos:** Publica eventos de login, logout, MFA, mudança de senha, criação/revogação de sessão/token (`DeeperHub.Auth.Integrations.EventIntegration`).
-    *   **Rate Limiting:** Aplica limitação de taxa para endpoints de autenticação (`DeeperHub.Auth.RateLimitIntegration`).
+    *   **Auditoria:** Eventos de autenticação são logados (`Deeper_Hub.Auth.Integrations.AuditIntegration`).
+    *   **Eventos:** Publica eventos de login, logout, MFA, mudança de senha, criação/revogação de sessão/token (`Deeper_Hub.Auth.Integrations.EventIntegration`).
+    *   **Rate Limiting:** Aplica limitação de taxa para endpoints de autenticação (`Deeper_Hub.Auth.RateLimitIntegration`).
 
 ---
 
 ## 8. Autenticação Multifator (MFA)
 
-O `DeeperHub.MFA.MFAFacade` fornece a interface para o sistema de Autenticação Multifator.
+O `Deeper_Hub.MFA.MFAFacade` fornece a interface para o sistema de Autenticação Multifator.
 
 *   **Gerenciamento de Métodos MFA:**
     *   Configurar um novo método MFA para um usuário (ex: TOTP, WebAuthn) (`setup_method/3`).
@@ -480,42 +480,42 @@ O `DeeperHub.MFA.MFAFacade` fornece a interface para o sistema de Autenticação
     *   Verificar em lote a conformidade MFA de múltiplos usuários (`MFANotificationIntegration.batch_check_and_notify/2`).
     *   Agendar verificações periódicas de conformidade MFA (`MFANotificationIntegration.schedule_periodic_checks/1`).
 *   **Integrações:**
-    *   **Middleware HTTP:** `DeeperHub.MFA.MFAMiddleware` para integrar fluxos MFA em aplicações web.
+    *   **Middleware HTTP:** `Deeper_Hub.MFA.MFAMiddleware` para integrar fluxos MFA em aplicações web.
     *   **Serviços Específicos:**
-        *   `DeeperHub.MFA.Services.TOTPService`: Para autenticação TOTP.
-        *   `DeeperHub.MFA.Services.WebAuthnService`: Para integração com WebAuthn.
-        *   `DeeperHub.MFA.Services.PushVerificationService`: Para verificação via notificações push.
-        *   `DeeperHub.MFA.Services.MFAPolicyService`: Para aplicar políticas de MFA.
+        *   `Deeper_Hub.MFA.Services.TOTPService`: Para autenticação TOTP.
+        *   `Deeper_Hub.MFA.Services.WebAuthnService`: Para integração com WebAuthn.
+        *   `Deeper_Hub.MFA.Services.PushVerificationService`: Para verificação via notificações push.
+        *   `Deeper_Hub.MFA.Services.MFAPolicyService`: Para aplicar políticas de MFA.
     *   **Anomalias:** Integração com detector de anomalias para eventos MFA (`MFAAnomalyIntegration`).
     *   **Notificações:** Envio de notificações para eventos de conformidade MFA (`MFANotificationIntegration`).
-    *   **Telemetria:** Monitoramento de desempenho e uso do sistema MFA (`DeeperHub.MFA.Telemetry`).
+    *   **Telemetria:** Monitoramento de desempenho e uso do sistema MFA (`Deeper_Hub.MFA.Telemetry`).
 
 ---
 
 ## 9. Autenticação OAuth
 
-O sistema (`Elixir.DeeperHub.OAuth.OAuthFacadeUnified` e `Elixir.DeeperHub.OAuth.OAuthCompatibility`) permite integração com provedores OAuth externos.
+O sistema (`Elixir.Deeper_Hub.OAuth.OAuthFacadeUnified` e `Elixir.Deeper_Hub.OAuth.OAuthCompatibility`) permite integração com provedores OAuth externos.
 
 *   **Fluxo de Autenticação OAuth:**
     *   Gerar a URL de autorização para um provedor OAuth (`authorize_url/2,3`).
     *   Trocar o código de autorização (recebido do provedor) por tokens de acesso e refresh (`exchange_code/3`).
     *   Obter informações do usuário do provedor OAuth usando o token de acesso (`get_user_info/2`).
-    *   Autenticar um usuário no DeeperHub usando as informações e tokens do provedor (`authenticate/4`).
+    *   Autenticar um usuário no Deeper_Hub usando as informações e tokens do provedor (`authenticate/4`).
 *   **Gerenciamento de Contas Vinculadas:**
-    *   Vincular uma conta de provedor externo a um usuário DeeperHub existente (`link_account/4`).
+    *   Vincular uma conta de provedor externo a um usuário Deeper_Hub existente (`link_account/4`).
     *   Listar todas as contas de provedores externos vinculadas a um usuário (`list_linked_accounts/1`).
     *   Remover a vinculação de uma conta externa (`unlink_account/2`).
 *   **Infraestrutura:**
-    *   **Cache:** Cache para informações de usuário obtidas de provedores OAuth (`DeeperHub.OAuth.Cache.UserInfoCache`).
-    *   **Comunicação Segura com APIs OAuth:** Utiliza Circuit Breaker para chamadas aos endpoints dos provedores (`DeeperHub.OAuth.Integrations.OAuthApiIntegration`).
-    *   **Eventos:** Publica eventos sobre vinculação/desvinculação de contas, autenticações e atualização de tokens (`DeeperHub.OAuth.Integrations.EventIntegration`).
-    *   **Telemetria:** Monitoramento de eventos e métricas relacionadas ao OAuth (`DeeperHub.OAuth.Telemetry`).
+    *   **Cache:** Cache para informações de usuário obtidas de provedores OAuth (`Deeper_Hub.OAuth.Cache.UserInfoCache`).
+    *   **Comunicação Segura com APIs OAuth:** Utiliza Circuit Breaker para chamadas aos endpoints dos provedores (`Deeper_Hub.OAuth.Integrations.OAuthApiIntegration`).
+    *   **Eventos:** Publica eventos sobre vinculação/desvinculação de contas, autenticações e atualização de tokens (`Deeper_Hub.OAuth.Integrations.EventIntegration`).
+    *   **Telemetria:** Monitoramento de eventos e métricas relacionadas ao OAuth (`Deeper_Hub.OAuth.Telemetry`).
 
 ---
 
 ## 10. Autenticação WebAuthn (FIDO2)
 
-O `DeeperHub.WebAuthn.WebAuthnFacade` (e `DeeperHub.WebAuthn`) oferece suporte à autenticação sem senha usando o padrão WebAuthn.
+O `Deeper_Hub.WebAuthn.WebAuthnFacade` (e `Deeper_Hub.WebAuthn`) oferece suporte à autenticação sem senha usando o padrão WebAuthn.
 
 *   **Registro de Credenciais:**
     *   Iniciar o processo de registro de uma nova credencial WebAuthn para um usuário, gerando opções para o cliente (navegador/dispositivo) (`begin_registration/3`).
@@ -538,7 +538,7 @@ O `DeeperHub.WebAuthn.WebAuthnFacade` (e `DeeperHub.WebAuthn`) oferece suporte �
 ```markdown
 ## 11. Recuperação de Contas
 
-O `DeeperHub.Recovery.RecoveryFacade` (e sua versão unificada) gerencia os processos de recuperação de conta.
+O `Deeper_Hub.Recovery.RecoveryFacade` (e sua versão unificada) gerencia os processos de recuperação de conta.
 
 *   **Recuperação de Senha:**
     *   Iniciar o processo de recuperação de senha para um email, enviando um token de recuperação (`forgot_password/1`, `request_password_reset/1,2`).
@@ -551,16 +551,16 @@ O `DeeperHub.Recovery.RecoveryFacade` (e sua versão unificada) gerencia os proc
     *   Verificar se um endereço de email já está registrado no sistema (`is_email_available?/1,2`).
 *   **Monitoramento e Segurança:**
     *   Obter a idade de tokens de verificação/recuperação (`EmailVerificationAdapter.get_token_age/1`, `PasswordResetAdapter.get_token_age/1`).
-    *   **Auditoria:** Eventos de recuperação (solicitações, redefinições, validação de tokens, bloqueios) são logados (`DeeperHub.Recovery.Integrations.AuditIntegration`).
-    *   **Eventos:** Publicação de eventos sobre geração de tokens, verificação de tokens e conclusão de redefinição de senha (`DeeperHub.Recovery.Integrations.EventIntegration`).
-    *   **Rate Limiting:** Aplica limitação de taxa para endpoints de recuperação de conta e verificação de email (`DeeperHub.Recovery.RateLimitIntegration`).
-    *   **Telemetria:** Monitoramento de eventos e métricas relacionadas à recuperação de contas (`DeeperHub.Recovery.Telemetry`).
+    *   **Auditoria:** Eventos de recuperação (solicitações, redefinições, validação de tokens, bloqueios) são logados (`Deeper_Hub.Recovery.Integrations.AuditIntegration`).
+    *   **Eventos:** Publicação de eventos sobre geração de tokens, verificação de tokens e conclusão de redefinição de senha (`Deeper_Hub.Recovery.Integrations.EventIntegration`).
+    *   **Rate Limiting:** Aplica limitação de taxa para endpoints de recuperação de conta e verificação de email (`Deeper_Hub.Recovery.RateLimitIntegration`).
+    *   **Telemetria:** Monitoramento de eventos e métricas relacionadas à recuperação de contas (`Deeper_Hub.Recovery.Telemetry`).
 
 ---
 
 ## 12. Políticas de Sessão
 
-O `DeeperHub.SessionPolicy.SessionPolicyFacade` (e sua versão unificada) gerencia as políticas de sessão para controlar o comportamento das sessões de usuário.
+O `Deeper_Hub.SessionPolicy.SessionPolicyFacade` (e sua versão unificada) gerencia as políticas de sessão para controlar o comportamento das sessões de usuário.
 
 *   **Gerenciamento de Políticas:**
     *   Obter a política de sessão padrão global do sistema (`get_default_policy/1`).
@@ -573,7 +573,7 @@ O `DeeperHub.SessionPolicy.SessionPolicyFacade` (e sua versão unificada) gerenc
     *   Calcular o tempo restante de uma sessão com base nas políticas (`calculate_remaining_time/2`).
 *   **Exceções de Política:**
     *   Criar uma exceção a uma política para um usuário específico, permitindo configurações personalizadas temporárias ou permanentes (`create_exception/4`).
-*   **Gerenciamento de Sessões Concorrentes (`DeeperHub.SessionPolicy.SessionPolicyService`):**
+*   **Gerenciamento de Sessões Concorrentes (`Deeper_Hub.SessionPolicy.SessionPolicyService`):**
     *   Adicionar ou atualizar uma exceção de política de sessão para um usuário (`add_exception/2`).
     *   Aplicar estratégias de gerenciamento quando o limite de sessões é atingido (ex: bloquear nova, terminar mais antiga) (`apply_strategy/3`).
     *   Verificar se uma nova sessão é permitida para um usuário com base no limite de sessões concorrentes (`check_session_allowed/2`).
@@ -585,11 +585,11 @@ O `DeeperHub.SessionPolicy.SessionPolicyFacade` (e sua versão unificada) gerenc
 
 ## 13. Sistema de Segurança Abrangente
 
-O DeeperHub possui um módulo de Segurança (`DeeperHub.Security`) robusto e multifacetado, gerenciado centralmente pelo `DeeperHub.Security.SecurityManager` e exposto pela `DeeperHub.Security.SecurityFacade`.
+O Deeper_Hub possui um módulo de Segurança (`Deeper_Hub.Security`) robusto e multifacetado, gerenciado centralmente pelo `Deeper_Hub.Security.SecurityManager` e exposto pela `Deeper_Hub.Security.SecurityFacade`.
 
 ### 13.1. Gerenciamento de Dispositivos e Localização
 
-*   **Gerenciamento de Dispositivos (`DeeperHub.Security.SecurityManager.Services.DeviceService`, `DeeperHub.Security.DeviceFingerprint`):**
+*   **Gerenciamento de Dispositivos (`Deeper_Hub.Security.SecurityManager.Services.DeviceService`, `Deeper_Hub.Security.DeviceFingerprint`):**
     *   Registrar um novo dispositivo para um usuário, incluindo informações de fingerprint (`register_device/2`).
     *   Listar dispositivos registrados para um usuário (`list_devices/1`).
     *   Marcar um dispositivo como confiável (`trust_device/2`).
@@ -600,7 +600,7 @@ O DeeperHub possui um módulo de Segurança (`DeeperHub.Security`) robusto e mul
     *   Atualizar informações de último uso (IP, timestamp) de um dispositivo.
     *   Gerar e comparar fingerprints de dispositivos.
     *   Detectar anomalias comparando fingerprints atuais com históricos.
-*   **Verificação de Localização (`DeeperHub.Security.GeoLocationService`, `DeeperHub.LoginLocation`):**
+*   **Verificação de Localização (`Deeper_Hub.Security.GeoLocationService`, `Deeper_Hub.LoginLocation`):**
     *   Obter informações de geolocalização a partir de um endereço IP (`get_location/1,2`).
     *   Avaliar o risco de uma localização com base em fatores de segurança (`assess_location_risk/3`).
     *   Detectar \"viagens impossíveis\" comparando localizações e tempos (`is_impossible_travel?/3`).
@@ -611,7 +611,7 @@ O DeeperHub possui um módulo de Segurança (`DeeperHub.Security`) robusto e mul
     *   Verificar se uma localização é suspeita (`check_suspicious/2`).
     *   Integração com serviços de GeoIP com Circuit Breaker (`GeoIPServiceWithCircuitBreaker`).
 
-### 13.2. Firewall de IP (`DeeperHub.Security.Services.IpFirewallService`, `DeeperHub.Security.Config.IPFirewallConfig`)
+### 13.2. Firewall de IP (`Deeper_Hub.Security.Services.IpFirewallService`, `Deeper_Hub.Security.Config.IPFirewallConfig`)
 
 *   **Bloqueio e Permissão de IPs:**
     *   Bloquear IPs temporária ou permanentemente, com motivo (`block_ip/3,4`).
@@ -624,20 +624,20 @@ O DeeperHub possui um módulo de Segurança (`DeeperHub.Security`) robusto e mul
     *   Habilitar/desabilitar bloqueio automático.
     *   Definir número máximo de tentativas falhas antes do bloqueio automático e duração do bloqueio.
 *   **Integração com Phoenix:**
-    *   Um Plug (`DeeperHub.Security.Plugs.IPFirewallPlug`) para aplicar o firewall de IP diretamente no pipeline do router Phoenix.
-*   **Cache:** Utiliza cache para verificações rápidas (`DeeperHub.Security.Cache.SecurityCache`).
-*   **Telemetria:** Eventos de bloqueio/permissão de IP são registrados (`DeeperHub.Security.Telemetry.IPFirewallTelemetry`).
+    *   Um Plug (`Deeper_Hub.Security.Plugs.IPFirewallPlug`) para aplicar o firewall de IP diretamente no pipeline do router Phoenix.
+*   **Cache:** Utiliza cache para verificações rápidas (`Deeper_Hub.Security.Cache.SecurityCache`).
+*   **Telemetria:** Eventos de bloqueio/permissão de IP são registrados (`Deeper_Hub.Security.Telemetry.IPFirewallTelemetry`).
 
 ### 13.3. Proteção Contra Ataques Específicos
 
-*   **Proteção Contra Força Bruta (`DeeperHub.Security.BruteForceProtection`, `DefaultBruteForceProtectionService`):**
+*   **Proteção Contra Força Bruta (`Deeper_Hub.Security.BruteForceProtection`, `DefaultBruteForceProtectionService`):**
     *   Verificar se uma tentativa de acesso é permitida, requer CAPTCHA ou está bloqueada (`check_attempt/2`).
     *   Registrar tentativas de acesso falhas e bem-sucedidas (`record_failed_attempt/2`, `record_successful_attempt/1`).
     *   Limpar o histórico de tentativas para um identificador (`clear_attempts/1`).
     *   Verificar se um identificador está bloqueado ou requer CAPTCHA.
     *   Obter estatísticas sobre tentativas e bloqueios.
     *   Limpeza periódica de dados antigos de tentativas (`BruteForceProtection.Workers.CleanupWorker`).
-*   **Proteção Contra CSRF (`DeeperHub.Security.CsrfProtection`, `CSRFProtectionCompatibility`):**
+*   **Proteção Contra CSRF (`Deeper_Hub.Security.CsrfProtection`, `CSRFProtectionCompatibility`):**
     *   Gerar tokens CSRF para sessões (`generate_token/2`).
     *   Gerar campos de formulário HTML com tokens CSRF (`form_field/2`).
     *   Gerar cabeçalhos de segurança com tokens CSRF (`security_headers/2`).
@@ -645,27 +645,27 @@ O DeeperHub possui um módulo de Segurança (`DeeperHub.Security`) robusto e mul
     *   Verificar se uma requisição HTTP tem proteção CSRF válida (`verify_request/3`).
     *   Invalidar tokens CSRF para uma sessão (`invalidate_tokens/1`, `invalidate_all_tokens/2`).
     *   Registrar e obter estatísticas de tentativas de CSRF.
-*   **Proteção Contra Injeção de SQL (`DeeperHub.Security.SqlInjectionProtection`, `SQLInjectionProtectionCompatibility`):**
+*   **Proteção Contra Injeção de SQL (`Deeper_Hub.Security.SqlInjectionProtection`, `SQLInjectionProtectionCompatibility`):**
     *   Verificar se uma consulta SQL ou uma string contém padrões de injeção (`check_query/2`, `check_string/2`).
     *   Sanitizar strings e consultas SQL para remover padrões de injeção (`sanitize_string/2`).
     *   Parametrizar consultas SQL para evitar injeção (`parameterize/3`).
     *   Gerar consultas SQL seguras a partir de especificações (`generate_safe_query/2`).
     *   Validar parâmetros para uso seguro em consultas SQL (`validate_params/2`).
     *   Registrar e obter estatísticas de tentativas de injeção SQL.
-*   **Proteção Contra Path Traversal (`DeeperHub.Security.PathTraversalProtection`):**
+*   **Proteção Contra Path Traversal (`Deeper_Hub.Security.PathTraversalProtection`):**
     *   Verificar se um caminho contém tentativas de path traversal (`check_path/2`).
     *   Sanitizar caminhos removendo tentativas de path traversal (`sanitize_path/2`).
     *   Normalizar caminhos removendo redundâncias (`normalize_path/2`).
     *   Verificar se um caminho está dentro de um diretório base permitido (`verify_path_in_base/3`).
     *   Configurar diretórios base permitidos (`configure_allowed_dirs/1`).
     *   Registrar e obter estatísticas de tentativas de path traversal.
-*   **Proteção Contra XSS (`DeeperHub.Security.XssProtection`):**
+*   **Proteção Contra XSS (`Deeper_Hub.Security.XssProtection`):**
     *   Verificar se uma string contém padrões de XSS (`check_string/2`).
     *   Sanitizar strings e conteúdo HTML para remover scripts e atributos perigosos (`sanitize_string/2`, `sanitize_html/2`).
     *   Gerar cabeçalhos de segurança para proteção contra XSS (`security_headers/1`).
     *   Validar parâmetros para uso seguro em saídas HTML (`validate_params/2`).
     *   Registrar e obter estatísticas de tentativas de XSS.
-*   **Proteção Contra DDoS (`DeeperHub.Security.DdosProtection`):**
+*   **Proteção Contra DDoS (`Deeper_Hub.Security.DdosProtection`):**
     *   Registrar requisições para controle de taxa (`record_request/3`).
     *   Verificar se uma requisição deve ser permitida, limitada ou bloqueada (`check_request/3`).
     *   Bloquear/desbloquear IPs (`block_ip/3`, `unblock_ip/1`).
@@ -673,7 +673,7 @@ O DeeperHub possui um módulo de Segurança (`DeeperHub.Security`) robusto e mul
     *   Obter estatísticas de requisições e bloqueios.
     *   Ativar/desativar modo de proteção avançada (`set_advanced_protection/2`).
 
-### 13.4. Detecção de Fraude (`DeeperHub.Security.FraudDetection`, `FraudDetection.Core`)
+### 13.4. Detecção de Fraude (`Deeper_Hub.Security.FraudDetection`, `FraudDetection.Core`)
 
 *   **Análise de Risco em Operações:**
     *   Analisar tentativas de login (`analyze_login/1`).
@@ -685,15 +685,15 @@ O DeeperHub possui um módulo de Segurança (`DeeperHub.Security`) robusto e mul
     *   Obter detalhes de uma detecção específica (`get_detection/1`).
     *   Listar detecções com filtros avançados (tipo, nível de risco, status, usuário, datas) (`list_detections/1`).
     *   Atualizar o status de uma detecção (ex: revisado, resolvido) e adicionar notas (`update_detection_status/4`, `add_detection_notes/3`).
-*   **Gerenciamento de Regras (`DeeperHub.Security.FraudDetection.Services.RulesManagerService`):**
+*   **Gerenciamento de Regras (`Deeper_Hub.Security.FraudDetection.Services.RulesManagerService`):**
     *   Adicionar, remover e atualizar regras de detecção de fraude por tipo de operação.
     *   Obter todas as regras ou regras para um tipo específico.
     *   Exportar e importar regras em formatos como JSON/YAML.
     *   Resetar regras para os valores padrão.
-*   **Cálculo de Risco (`DeeperHub.Security.FraudDetection.Services.RiskCalculatorService`):**
+*   **Cálculo de Risco (`Deeper_Hub.Security.FraudDetection.Services.RiskCalculatorService`):**
     *   Calcular níveis de risco para diferentes tipos de operações (login, mudança de perfil, transação, uso de API, anomalia biométrica).
     *   Atualizar regras de cálculo de risco.
-*   **Notificações de Fraude (`DeeperHub.Security.FraudDetection.Services.FraudNotifierService`):**
+*   **Notificações de Fraude (`Deeper_Hub.Security.FraudDetection.Services.FraudNotifierService`):**
     *   Notificar sobre detecções específicas, com base no nível de risco.
     *   Notificar equipe de segurança e usuários afetados.
     *   Enviar resumos diários de atividades de fraude.
@@ -703,9 +703,9 @@ O DeeperHub possui um módulo de Segurança (`DeeperHub.Security`) robusto e mul
 *   **Workers de Suporte:**
     *   `AnalysisWorker`: Executa análises periódicas de padrões de fraude.
     *   `CleanupWorker`: Limpa dados antigos do sistema de detecção de fraude.
-*   **Telemetria:** Monitoramento de eventos e métricas relacionadas à detecção de fraude (`DeeperHub.Security.FraudDetection.Telemetry`).
+*   **Telemetria:** Monitoramento de eventos e métricas relacionadas à detecção de fraude (`Deeper_Hub.Security.FraudDetection.Telemetry`).
 
-### 13.5. Avaliação de Risco (`DeeperHub.Security.RiskAssessment.RiskAssessmentFacade`)
+### 13.5. Avaliação de Risco (`Deeper_Hub.Security.RiskAssessment.RiskAssessmentFacade`)
 
 *   **Avaliação de Risco de Operações:**
     *   Avaliar o risco de uma operação genérica, login, transação, mudança de perfil, requisição API ou sessão (`evaluate_risk/3`, `assess_action_risk/4`, etc.).
@@ -723,9 +723,9 @@ O DeeperHub possui um módulo de Segurança (`DeeperHub.Security`) robusto e mul
     *   Gerar relatórios de risco (`generate_risk_report/3`).
     *   Obter estatísticas de risco (`get_risk_statistics/2`, `get_stats/0`).
     *   Obter relatórios de métricas de risco (`get_metrics_report/1`).
-*   **Telemetria:** Monitoramento de eventos e métricas relacionadas à avaliação de risco (`DeeperHub.Security.RiskAssessment.Telemetry`).
+*   **Telemetria:** Monitoramento de eventos e métricas relacionadas à avaliação de risco (`Deeper_Hub.Security.RiskAssessment.Telemetry`).
 
-### 13.6. Análise Comportamental (`DeeperHub.Security.BehavioralAnalysis.Adapters.BehavioralAnalysisAdapter`)
+### 13.6. Análise Comportamental (`Deeper_Hub.Security.BehavioralAnalysis.Adapters.BehavioralAnalysisAdapter`)
 
 *   **Análise de Comportamento:**
     *   Analisar o comportamento recente de um usuário em busca de anomalias (`analyze_user_behavior/2`).
@@ -740,30 +740,30 @@ O DeeperHub possui um módulo de Segurança (`DeeperHub.Security`) robusto e mul
 *   **Relatórios e Estatísticas:**
     *   Gerar relatórios de análise comportamental (`generate_behavior_report/2`).
     *   Obter estatísticas sobre análises comportamentais (`get_statistics/1`).
-*   **Telemetria:** Monitoramento de eventos e métricas relacionadas à análise comportamental (`DeeperHub.Security.BehavioralAnalysis.Telemetry`).
+*   **Telemetria:** Monitoramento de eventos e métricas relacionadas à análise comportamental (`Deeper_Hub.Security.BehavioralAnalysis.Telemetry`).
 
 ### 13.7. Outras Funcionalidades de Segurança
 
-*   **Autenticação de Administradores (`DeeperHub.Security.AdminAuth.AdminAuthAdapter`):**
+*   **Autenticação de Administradores (`Deeper_Hub.Security.AdminAuth.AdminAuthAdapter`):**
     *   Autenticação, gerenciamento de senhas, contas, permissões e tokens para administradores.
     *   Suporte a TOTP para ações administrativas (`AdminTOTPService`).
     *   Log de ações administrativas (`AdminActionAuthService`).
-*   **Criptografia em Repouso (`DeeperHub.Security.AtRestEncryptionService`):**
+*   **Criptografia em Repouso (`Deeper_Hub.Security.AtRestEncryptionService`):**
     *   Criptografar e descriptografar dados sensíveis armazenados.
     *   Rotação de chaves e recriptografia de dados.
-*   **Mascaramento de Dados (`DeeperHub.Security.DataMasking.DataMaskingFacade`):**
+*   **Mascaramento de Dados (`Deeper_Hub.Security.DataMasking.DataMaskingFacade`):**
     *   Mascarar dados sensíveis (CPF, cartão de crédito, email, telefone) para logs e exibição.
-*   **Monitoramento de Segurança (`DeeperHub.Security.Monitoring.SecurityMonitoringFacade`):**
+*   **Monitoramento de Segurança (`Deeper_Hub.Security.Monitoring.SecurityMonitoringFacade`):**
     *   Registrar eventos de segurança, gerar alertas e configurar canais de notificação para ameaças.
-*   **Validação de Entradas de Segurança (`DeeperHub.Security.Validation.SecurityInputValidation`):**
+*   **Validação de Entradas de Segurança (`Deeper_Hub.Security.Validation.SecurityInputValidation`):**
     *   Validar configurações de políticas de segurança (firewall de IP, MFA, senha, rate limit).
-*   **Políticas de Segurança (`DeeperHub.Security.Policy.SecurityPolicyManager`):**
+*   **Políticas de Segurança (`Deeper_Hub.Security.Policy.SecurityPolicyManager`):**
     *   Gerenciar centralmente todas as configurações de segurança com controle de acesso RBAC.
 *   **Integrações de Segurança:**
     *   Integração com Cache, Eventos e RBAC para diversos módulos de segurança.
     *   Integração entre Risco, Autenticação e Fraude (`RiskAuthIntegration`, `RiskFraudIntegration`, `RiskNotificationIntegration`).
-*   **Telemetria Geral de Segurança:** O `DeeperHub.Security.Telemetry` registra métricas de diversos componentes de segurança.
-*   **Feature Flags de Segurança:** `DeeperHub.Security.FeatureFlags` permite habilitar/desabilitar dinamicamente proteções.
+*   **Telemetria Geral de Segurança:** O `Deeper_Hub.Security.Telemetry` registra métricas de diversos componentes de segurança.
+*   **Feature Flags de Segurança:** `Deeper_Hub.Security.FeatureFlags` permite habilitar/desabilitar dinamicamente proteções.
 ```
 
 ---
@@ -773,7 +773,7 @@ O DeeperHub possui um módulo de Segurança (`DeeperHub.Security`) robusto e mul
 ```markdown
 ## 14. Gerenciamento de Feature Flags
 
-O DeeperHub utiliza um sistema de Feature Flags (`DeeperHub.FeatureFlags.FeatureFlagFacade`, `FeatureFlagUnifiedFacade`, e adaptadores) para controlar o lançamento de funcionalidades de forma dinâmica.
+O Deeper_Hub utiliza um sistema de Feature Flags (`Deeper_Hub.FeatureFlags.FeatureFlagFacade`, `FeatureFlagUnifiedFacade`, e adaptadores) para controlar o lançamento de funcionalidades de forma dinâmica.
 
 *   **Gerenciamento de Flags:**
     *   Registrar novas feature flags com descrição e opções (`register_feature/3`).
@@ -790,32 +790,32 @@ O DeeperHub utiliza um sistema de Feature Flags (`DeeperHub.FeatureFlags.Feature
 *   **Execução Condicional:**
     *   Executar uma função apenas se uma feature estiver habilitada para um contexto ou usuário, com opção de fallback (`FeatureFlagExtensions.with_feature/4`, `with_feature_for_user/5`).
 *   **Integrações e Extensões:**
-    *   **Cache:** Cache otimizado para acesso rápido a flags (`DeeperHub.FeatureFlags.Cache.FlagCache`).
-    *   **RBAC:** Integrar controle de acesso a features com base em papéis de usuário (`DeeperHub.FeatureFlags.Integrations.RBACIntegration`).
+    *   **Cache:** Cache otimizado para acesso rápido a flags (`Deeper_Hub.FeatureFlags.Cache.FlagCache`).
+    *   **RBAC:** Integrar controle de acesso a features com base em papéis de usuário (`Deeper_Hub.FeatureFlags.Integrations.RBACIntegration`).
         *   Conceder/revogar acesso a features para papéis.
         *   Conceder/revogar acesso temporário a features para usuários.
-    *   **Auditoria:** Registrar eventos de gerenciamento de flags (criação, habilitação/desabilitação, etc.) (`DeeperHub.FeatureFlags.Integrations.AuditIntegration`).
-    *   **Eventos:** Publicar eventos quando flags são criadas, atualizadas ou regras são modificadas (`DeeperHub.FeatureFlags.Integrations.EventIntegration`).
-    *   **Domínio:** Flags específicas para módulos de domínio (`DeeperHub.Domain.FeatureFlags` e seus submódulos).
-*   **Telemetria:** Monitorar uso, desempenho e erros do sistema de feature flags (`DeeperHub.FeatureFlags.Telemetry`).
-*   **Inicialização:** O sistema de feature flags possui um inicializador para registrar features padrão e configurar integrações (`DeeperHub.FeatureFlags.Initializer`).
+    *   **Auditoria:** Registrar eventos de gerenciamento de flags (criação, habilitação/desabilitação, etc.) (`Deeper_Hub.FeatureFlags.Integrations.AuditIntegration`).
+    *   **Eventos:** Publicar eventos quando flags são criadas, atualizadas ou regras são modificadas (`Deeper_Hub.FeatureFlags.Integrations.EventIntegration`).
+    *   **Domínio:** Flags específicas para módulos de domínio (`Deeper_Hub.Domain.FeatureFlags` e seus submódulos).
+*   **Telemetria:** Monitorar uso, desempenho e erros do sistema de feature flags (`Deeper_Hub.FeatureFlags.Telemetry`).
+*   **Inicialização:** O sistema de feature flags possui um inicializador para registrar features padrão e configurar integrações (`Deeper_Hub.FeatureFlags.Initializer`).
 
 ---
 
 ## 15. Sistema de Auditoria
 
-O `DeeperHub.Audit.AuditFacade` fornece uma interface para registrar e consultar eventos de auditoria, garantindo rastreabilidade das ações no sistema.
+O `Deeper_Hub.Audit.AuditFacade` fornece uma interface para registrar e consultar eventos de auditoria, garantindo rastreabilidade das ações no sistema.
 
 *   **Registro de Eventos:**
     *   Registrar um evento de auditoria genérico com ID do usuário, tipo de evento, detalhes e opções (IP, user agent, severidade) (`log_event/4`).
     *   Registrar um evento de segurança específico (`log_security_event/3`).
     *   Registrar um evento de sistema (ex: startup, shutdown) (`log_system_event/2`).
-*   **Registro de Eventos de Negócio com Rastreamento (`DeeperHub.Audit.Integrations.AuditIntegration`):**
+*   **Registro de Eventos de Negócio com Rastreamento (`Deeper_Hub.Audit.Integrations.AuditIntegration`):**
     *   Iniciar um trace para operações de negócio complexas (`start_business_trace/2`).
     *   Registrar operações de negócio dentro de um trace (`log_business_operation/5`).
     *   Finalizar um trace de operação de negócio (`end_business_trace/3`).
     *   Gerenciar o ID do trace atual no contexto do processo.
-*   **Registro Detalhado por Módulo (`DeeperHub.Audit.Integrations.AuditIntegration.*`):**
+*   **Registro Detalhado por Módulo (`Deeper_Hub.Audit.Integrations.AuditIntegration.*`):**
     *   **API:** Log de requisições, respostas, erros, rate limiting e mudanças de configuração da API.
     *   **Contas:** Log de criação, desativação, atualização de contas e mudanças de perfil.
     *   **Aplicação:** Log de reinício da aplicação e mudanças no modo de depuração.
@@ -830,22 +830,22 @@ O `DeeperHub.Audit.AuditFacade` fornece uma interface para registrar e consultar
     *   Exportar eventos de auditoria para formatos como CSV ou JSON, com filtros e opções (`export_events/3`).
 *   **Estatísticas:**
     *   Obter estatísticas de eventos de auditoria para um período, com filtros (`get_statistics/2`). Resultados cacheados para performance.
-*   **Detecção de Anomalias (`DeeperHub.Audit.Services.AuditAnomalyDetector`, `AnomalyBatchProcessor`, `AnomalyEventIntegration`, `AnomalyNotificationIntegration`):**
+*   **Detecção de Anomalias (`Deeper_Hub.Audit.Services.AuditAnomalyDetector`, `AnomalyBatchProcessor`, `AnomalyEventIntegration`, `AnomalyNotificationIntegration`):**
     *   Analisar logs de auditoria para detectar anomalias de frequência, padrão e comportamentais (incluindo com ML).
     *   Processar anomalias detectadas em lote.
     *   Publicar eventos de anomalias detectadas.
     *   Integrar com o sistema de notificações para alertar sobre anomalias.
 *   **Gerenciamento de Logs:**
-    *   **Armazenamento:** Serviço para gerenciar armazenamento, compressão, arquivamento e limpeza de logs antigos (`DeeperHub.Audit.Services.AuditStorageService`).
-    *   **Retenção:** Aplicar políticas de retenção para arquivar ou excluir logs antigos (`DeeperHub.Audit.Policies.RetentionPolicy`).
-    *   **Agendamento:** Agendador para executar políticas de retenção periodicamente (`DeeperHub.Audit.Scheduler.RetentionScheduler`).
-*   **Relatórios (`DeeperHub.Audit.Services.AuditReportingService`, `AuditReportFormatter`, `AuditReportWorker`):**
+    *   **Armazenamento:** Serviço para gerenciar armazenamento, compressão, arquivamento e limpeza de logs antigos (`Deeper_Hub.Audit.Services.AuditStorageService`).
+    *   **Retenção:** Aplicar políticas de retenção para arquivar ou excluir logs antigos (`Deeper_Hub.Audit.Policies.RetentionPolicy`).
+    *   **Agendamento:** Agendador para executar políticas de retenção periodicamente (`Deeper_Hub.Audit.Scheduler.RetentionScheduler`).
+*   **Relatórios (`Deeper_Hub.Audit.Services.AuditReportingService`, `AuditReportFormatter`, `AuditReportWorker`):**
     *   Gerar relatórios de atividade de usuários, anomalias, segurança e atividade de recursos.
     *   Suporte a diferentes formatos (JSON, CSV, HTML, PDF).
     *   Geração assíncrona de relatórios.
-*   **Feature Flags de Auditoria (`DeeperHub.Audit.FeatureFlags`):**
+*   **Feature Flags de Auditoria (`Deeper_Hub.Audit.FeatureFlags`):**
     *   Controlar tipos de detecção de anomalias, formatos de exportação e integrações.
-*   **Telemetria:** Coletar métricas e instrumentar operações de auditoria (`DeeperHub.Audit.Telemetry`).
+*   **Telemetria:** Coletar métricas e instrumentar operações de auditoria (`Deeper_Hub.Audit.Telemetry`).
 *   **Workers Internos:**
     *   `AuditLogWorker`: Processamento assíncrono de logs.
     *   `SecurityEventWorker`: Processamento e análise de eventos de segurança.
@@ -854,14 +854,14 @@ O `DeeperHub.Audit.AuditFacade` fornece uma interface para registrar e consultar
 
 ## 16. Notificações
 
-O sistema de notificações (`DeeperHub.Notifications.NotificationFacade`, `DeeperHub.Core.NotificationsFacade`, e suas versões unificadas) permite enviar mensagens para usuários através de diversos canais.
+O sistema de notificações (`Deeper_Hub.Notifications.NotificationFacade`, `Deeper_Hub.Core.NotificationsFacade`, e suas versões unificadas) permite enviar mensagens para usuários através de diversos canais.
 
 *   **Envio de Notificações:**
     *   Enviar notificações para um usuário específico, com título, mensagem e opções (tipo, prioridade, metadados) (`send_notification/4`).
     *   Enviar notificações em massa para múltiplos usuários (`send_bulk_notification/4`).
     *   Agendar notificações para envio futuro (`schedule_notification/5`).
     *   Cancelar notificações agendadas (`cancel_scheduled_notification/1`).
-*   **Tipos de Notificação Específicos (`DeeperHub.Notifications`):**
+*   **Tipos de Notificação Específicos (`Deeper_Hub.Notifications`):**
     *   Notificar sobre login na conta (`notify_login/3`).
     *   Notificar sobre acesso de novo dispositivo (`notify_new_device/3`).
     *   Notificar sobre acesso de nova localização (`notify_new_location/3`).
@@ -876,20 +876,20 @@ O sistema de notificações (`DeeperHub.Notifications.NotificationFacade`, `Deep
     *   Obter histórico de notificações de um usuário com filtros e paginação (`HistoryService.get_notification_history/4`).
     *   Exportar histórico de notificações (`HistoryService.export_notification_history/4`).
     *   Obter estatísticas de notificações de um usuário (`HistoryService.get_notification_stats/2`).
-*   **Preferências de Notificação (`DeeperHub.Notifications.Services.PreferencesService`):**
+*   **Preferências de Notificação (`Deeper_Hub.Notifications.Services.PreferencesService`):**
     *   Obter e atualizar as preferências de notificação de um usuário (`get_notification_preferences/1`, `update_notification_preferences/2`).
     *   Desativar ou ativar todas as notificações para um usuário (`disable_all_notifications/1`, `enable_all_notifications/2`).
     *   Verificar se um usuário deve receber um tipo específico de notificação (`should_receive_notification?/3`).
-*   **Canais de Notificação (`DeeperHub.Notifications.Channels.*`):**
+*   **Canais de Notificação (`Deeper_Hub.Notifications.Channels.*`):**
     *   Suporte a múltiplos canais: Email, In-App, Push.
     *   Lógica específica para cada canal (ex: `InAppChannel.list_unread/2`).
 *   **Templates e Internacionalização:**
-    *   Gerenciamento de templates para emails e outras notificações (`DeeperHub.Notifications.Templates.TemplateManager`).
-    *   Suporte a traduções para templates (`DeeperHub.Notifications.Templates.I18n.Translator`).
+    *   Gerenciamento de templates para emails e outras notificações (`Deeper_Hub.Notifications.Templates.TemplateManager`).
+    *   Suporte a traduções para templates (`Deeper_Hub.Notifications.Templates.I18n.Translator`).
 *   **Infraestrutura e Integrações:**
     *   **Cache:** Cache para preferências de usuário e templates (`PreferencesCache`, `TemplateCache`).
-    *   **Auditoria:** Log de envio, leitura e falhas de notificações (`DeeperHub.Notifications.Integrations.AuditIntegration`).
-    *   **Eventos:** Publicação de eventos sobre envio, leitura, falhas e atualização de preferências (`DeeperHub.Notifications.Integrations.EventIntegration`).
+    *   **Auditoria:** Log de envio, leitura e falhas de notificações (`Deeper_Hub.Notifications.Integrations.AuditIntegration`).
+    *   **Eventos:** Publicação de eventos sobre envio, leitura, falhas e atualização de preferências (`Deeper_Hub.Notifications.Integrations.EventIntegration`).
     *   **Tarefas em Segundo Plano:** Notificações para eventos de tarefas em segundo plano (`BackgroundTasksNotificationIntegration`).
     *   **Feature Flags:** Notificações para eventos de gerenciamento de feature flags (`FeatureFlagsNotificationIntegration`).
     *   **Fraude:** Notificações para detecções de fraude e ações relacionadas (`FraudNotificationIntegration`).
@@ -901,13 +901,13 @@ O sistema de notificações (`DeeperHub.Notifications.NotificationFacade`, `Deep
     *   `MetricsWorker`: Coleta periódica de métricas de notificação.
     *   `RetentionWorker`: Limpeza de notificações antigas.
     *   `ScheduledNotificationWorker`: Processamento de notificações agendadas.
-*   **Telemetria:** Coleta de métricas de desempenho do sistema de notificações (`DeeperHub.Notifications.Telemetry`).
+*   **Telemetria:** Coleta de métricas de desempenho do sistema de notificações (`Deeper_Hub.Notifications.Telemetry`).
 
 ---
 
 ## 17. Webhooks
 
-O `DeeperHub.Webhooks.WebhooksFacade` (e `DeeperHub.Webhooks`) gerencia webhooks para integrações externas.
+O `Deeper_Hub.Webhooks.WebhooksFacade` (e `Deeper_Hub.Webhooks`) gerencia webhooks para integrações externas.
 
 *   **Gerenciamento de Webhooks:**
     *   Registrar um novo webhook para um tipo de evento, URL de destino, headers e segredo opcionais (`register_webhook/5`, `register_client_webhook/4`).
@@ -931,16 +931,16 @@ O `DeeperHub.Webhooks.WebhooksFacade` (e `DeeperHub.Webhooks`) gerencia webhooks
         *   Worker para verificações periódicas de saúde (`HealthCheckWorker`).
         *   Worker para tentar \"curar\" webhooks com falhas (`AutoHealing`).
 *   **Processamento de Eventos:**
-    *   Módulo `DeeperHub.Webhooks.Event` para definir eventos suportados e filtrar dados sensíveis de payloads.
+    *   Módulo `Deeper_Hub.Webhooks.Event` para definir eventos suportados e filtrar dados sensíveis de payloads.
     *   Agendador para verificar e disparar eventos de webhook pendentes (`Scheduler`).
     *   Dispatcher para gerenciar tentativas de entrega e status (`Dispatcher`).
 *   **Armazenamento e Auditoria:**
-    *   Armazenamento de definições de webhooks e eventos de webhook (tentativas, status) (`DeeperHub.Webhooks.Storage`, `Schema.Webhook`, `Schema.WebhookEvent`).
-    *   Log de eventos de webhook (criação, desativação, entregas, falhas) no sistema de auditoria (`DeeperHub.Webhooks.Integrations.AuditIntegration`).
+    *   Armazenamento de definições de webhooks e eventos de webhook (tentativas, status) (`Deeper_Hub.Webhooks.Storage`, `Schema.Webhook`, `Schema.WebhookEvent`).
+    *   Log de eventos de webhook (criação, desativação, entregas, falhas) no sistema de auditoria (`Deeper_Hub.Webhooks.Integrations.AuditIntegration`).
 *   **Workers:**
     *   `CleanupWorker`: Limpeza periódica de eventos de webhook antigos.
     *   `DeliveryWorker`: Processamento assíncrono de entrega de webhooks.
-*   **Telemetria:** Coleta de métricas sobre entregas, falhas e desempenho de webhooks (`DeeperHub.Webhooks.Telemetry`).
+*   **Telemetria:** Coleta de métricas sobre entregas, falhas e desempenho de webhooks (`Deeper_Hub.Webhooks.Telemetry`).
 
 ```
 
@@ -951,7 +951,7 @@ O `DeeperHub.Webhooks.WebhooksFacade` (e `DeeperHub.Webhooks`) gerencia webhooks
 ```markdown
 ## 18. Tarefas em Segundo Plano
 
-O `DeeperHub.BackgroundTasks.BackgroundTasksFacade` (e suas versões unificadas) gerencia a execução de tarefas assíncronas.
+O `Deeper_Hub.BackgroundTasks.BackgroundTasksFacade` (e suas versões unificadas) gerencia a execução de tarefas assíncronas.
 
 *   **Enfileiramento e Agendamento:**
     *   Enfileirar uma nova tarefa para execução, com nome, argumentos e opções (prioridade, atraso, timeout, retries) (`enqueue_task/3`).
@@ -971,9 +971,9 @@ O `DeeperHub.BackgroundTasks.BackgroundTasksFacade` (e suas versões unificadas)
     *   Pausar e retomar a execução de tarefas em segundo plano (`pause_execution/1`, `resume_execution/1`).
     *   Limpar tarefas antigas do sistema (`cleanup_old_tasks/2`).
 *   **Infraestrutura:**
-    *   **Cache:** Cache para metadados de tarefas (`DeeperHub.BackgroundTasks.Cache.BackgroundTasksCache`).
+    *   **Cache:** Cache para metadados de tarefas (`Deeper_Hub.BackgroundTasks.Cache.BackgroundTasksCache`).
     *   **Integrações:**
-        *   **Auditoria:** Log de eventos de tarefas (agendamento, início, conclusão, falha, cancelamento) (`DeeperHub.BackgroundTasks.Integrations.AuditIntegration`).
+        *   **Auditoria:** Log de eventos de tarefas (agendamento, início, conclusão, falha, cancelamento) (`Deeper_Hub.BackgroundTasks.Integrations.AuditIntegration`).
         *   **Eventos:** Publicação de eventos sobre o ciclo de vida das tarefas (`BackgroundTasksEventIntegration`).
         *   **Métricas:** Registro de métricas de desempenho do sistema de tarefas (`BackgroundTasksMetricsIntegration`).
         *   **Notificações:** Envio de notificações sobre eventos de tarefas (`BackgroundTasksNotificationIntegration`).
@@ -983,11 +983,11 @@ O `DeeperHub.BackgroundTasks.BackgroundTasksFacade` (e suas versões unificadas)
 
 ## 19. Serviços de Domínio
 
-O DeeperHub organiza funcionalidades de negócio em \"Serviços de Domínio\".
+O Deeper_Hub organiza funcionalidades de negócio em \"Serviços de Domínio\".
 
 ### 19.1. Serviços de Servidores (Servers)
 
-Gerenciado por `DeeperHub.Services.Servers`.
+Gerenciado por `Deeper_Hub.Services.Servers`.
 
 *   **CRUD de Servidores:**
     *   Criar um novo servidor com atributos (nome, descrição, endereço, etc.) (`create_server/1`).
@@ -1006,12 +1006,12 @@ Gerenciado por `DeeperHub.Services.Servers`.
     *   Criar uma avaliação para um servidor (rating, título, conteúdo) (`create_server_review/1`).
     *   Listar avaliações de um servidor, com filtros (`list_server_reviews/2`).
 *   **Integrações:**
-    *   **Rate Limiting:** `DeeperHub.Services.Servers.RateLimitIntegration` para limitar a frequência de operações como criação de servidor, adição de tags, etc.
-    *   **Telemetria:** `DeeperHub.Services.Servers.Telemetry` para monitorar operações de servidores.
+    *   **Rate Limiting:** `Deeper_Hub.Services.Servers.RateLimitIntegration` para limitar a frequência de operações como criação de servidor, adição de tags, etc.
+    *   **Telemetria:** `Deeper_Hub.Services.Servers.Telemetry` para monitorar operações de servidores.
 
 ### 19.2. Pacotes de Servidores (ServerPackages)
 
-Gerenciado por `DeeperHub.Services.ServerPackages.ServerPackagesAdapter` e `CachedAdapter`.
+Gerenciado por `Deeper_Hub.Services.ServerPackages.ServerPackagesAdapter` e `CachedAdapter`.
 
 *   **CRUD de Pacotes:**
     *   Criar um novo pacote de servidor (nome, preço, duração, etc.) (`create_server_package/1`).
@@ -1023,11 +1023,11 @@ Gerenciado por `DeeperHub.Services.ServerPackages.ServerPackagesAdapter` e `Cach
     *   Listar pacotes de um servidor específico (`list_server_packages_by_server/2`).
     *   Obter pacotes ativos de um servidor (`Storage.get_active_server_packages/1`).
 *   **Cache:** O `CachedAdapter` utiliza cache para otimizar operações de leitura.
-*   **Telemetria:** `DeeperHub.Services.ServerPackages.Telemetry` para monitorar operações de pacotes.
+*   **Telemetria:** `Deeper_Hub.Services.ServerPackages.Telemetry` para monitorar operações de pacotes.
 
 ### 19.3. Eventos de Servidores (ServerEvents)
 
-Gerenciado por `DeeperHub.Services.ServerEvents.ServerEventsAdapter` e `CachedAdapter`.
+Gerenciado por `Deeper_Hub.Services.ServerEvents.ServerEventsAdapter` e `CachedAdapter`.
 
 *   **CRUD de Eventos:**
     *   Criar um novo evento de servidor (título, horários, etc.) (`create_event/1`).
@@ -1040,11 +1040,11 @@ Gerenciado por `DeeperHub.Services.ServerEvents.ServerEventsAdapter` e `CachedAd
     *   Listar eventos que estão ocorrendo atualmente (`list_current_events/2`).
     *   Listar eventos futuros (`list_upcoming_events/1` no `CachedAdapter`).
 *   **Cache:** O `CachedAdapter` utiliza cache para otimizar operações de leitura.
-*   **Telemetria:** `DeeperHub.Services.ServerEvents.Telemetry` para monitorar operações de eventos.
+*   **Telemetria:** `Deeper_Hub.Services.ServerEvents.Telemetry` para monitorar operações de eventos.
 
 ### 19.4. Alertas de Servidores (ServerAlerts)
 
-Gerenciado por `DeeperHub.Services.ServerAlerts.ServerAlertsAdapter` e `CachedAdapter`.
+Gerenciado por `Deeper_Hub.Services.ServerAlerts.ServerAlertsAdapter` e `CachedAdapter`.
 
 *   **CRUD de Alertas:**
     *   Criar um novo alerta de servidor (mensagem, servidor, usuário) (`create_alert/1`).
@@ -1058,11 +1058,11 @@ Gerenciado por `DeeperHub.Services.ServerAlerts.ServerAlertsAdapter` e `CachedAd
     *   Listar alertas ativos (`list_active_alerts/1` no `CachedAdapter`).
 *   **Broadcast:** Enviar um alerta para todos os usuários de um servidor (`broadcast_alert/3`).
 *   **Cache:** O `CachedAdapter` utiliza cache para otimizar operações de leitura.
-*   **Telemetria:** `DeeperHub.Services.ServerAlerts.Telemetry` para monitorar operações de alertas.
+*   **Telemetria:** `Deeper_Hub.Services.ServerAlerts.Telemetry` para monitorar operações de alertas.
 
 ### 19.5. Tags de Servidores (ServerTags)
 
-Gerenciado por `DeeperHub.Services.ServerTags.ServerTagsAdapter` e `CachedAdapter`.
+Gerenciado por `Deeper_Hub.Services.ServerTags.ServerTagsAdapter` e `CachedAdapter`.
 
 *   **Gerenciamento de Tags:**
     *   Criar uma nova tag (`create_tag/1`).
@@ -1079,11 +1079,11 @@ Gerenciado por `DeeperHub.Services.ServerTags.ServerTagsAdapter` e `CachedAdapte
     *   Listar servidores que possuem uma tag específica (`list_servers_by_tag/2`).
     *   Listar tags populares (`list_popular_tags/1` no `CachedAdapter`).
 *   **Cache:** O `CachedAdapter` utiliza cache para otimizar operações de leitura.
-*   **Telemetria:** `DeeperHub.Services.ServerTags.Telemetry` para monitorar operações de tags.
+*   **Telemetria:** `Deeper_Hub.Services.ServerTags.Telemetry` para monitorar operações de tags.
 
 ### 19.6. Mensagens de Atualização de Servidores (ServerUpdateMessages)
 
-Gerenciado por `DeeperHub.Services.ServerUpdateMessages.ServerUpdateMessagesAdapter` e `CachedAdapter`.
+Gerenciado por `Deeper_Hub.Services.ServerUpdateMessages.ServerUpdateMessagesAdapter` e `CachedAdapter`.
 
 *   **CRUD de Mensagens de Atualização:**
     *   Criar uma nova mensagem de atualização (notas, versão, etc.) (`create_update_message/1`).
@@ -1095,11 +1095,11 @@ Gerenciado por `DeeperHub.Services.ServerUpdateMessages.ServerUpdateMessagesAdap
     *   Listar mensagens de atualização de um servidor específico (`list_update_messages_by_server/2`).
     *   Obter a última mensagem de atualização de um servidor (`get_latest_update_message/2`).
 *   **Cache:** O `CachedAdapter` utiliza cache para otimizar operações de leitura.
-*   **Telemetria:** `DeeperHub.Services.ServerUpdateMessages.Telemetry` para monitorar operações de mensagens.
+*   **Telemetria:** `Deeper_Hub.Services.ServerUpdateMessages.Telemetry` para monitorar operações de mensagens.
 
 ### 19.7. Avaliações de Servidores (ServerReviews)
 
-Gerenciado por `DeeperHub.Services.ServerReviews.ServerReviewsAdapter` e `CachedAdapter`.
+Gerenciado por `Deeper_Hub.Services.ServerReviews.ServerReviewsAdapter` e `CachedAdapter`.
 
 *   **CRUD de Avaliações:**
     *   Criar uma nova avaliação de servidor (rating, comentários) (`create_review/1`).
@@ -1117,26 +1117,26 @@ Gerenciado por `DeeperHub.Services.ServerReviews.ServerReviewsAdapter` e `Cached
     *   Validar e sanitizar completamente uma avaliação (`SecurityIntegration.validate_and_sanitize_review/2`).
 *   **Rate Limiting:** Limitar a frequência de submissão, edição, e outras operações de reviews (`RateLimitIntegration`).
 *   **Cache:** O `CachedAdapter` utiliza cache para otimizar operações de leitura.
-*   **Telemetria:** `DeeperHub.Services.ServerReviews.Telemetry` para monitorar operações de avaliações.
+*   **Telemetria:** `Deeper_Hub.Services.ServerReviews.Telemetry` para monitorar operações de avaliações.
 
 ### 19.8. Conquistas (Achievements)
 
-Gerenciado por `DeeperHub.Services.Achievements.Adapters.DefaultAchievementsService`. (Nota: `AchievementsAdapter` está obsoleto).
+Gerenciado por `Deeper_Hub.Services.Achievements.Adapters.DefaultAchievementsService`. (Nota: `AchievementsAdapter` está obsoleto).
 
-O módulo `DeeperHub.Achievements` é responsável por gerenciar o sistema de conquistas (achievements) da plataforma, permitindo a definição de várias conquistas, rastreamento do progresso dos usuários e concessão de recompensas quando os critérios são atendidos.
+O módulo `Deeper_Hub.Achievements` é responsável por gerenciar o sistema de conquistas (achievements) da plataforma, permitindo a definição de várias conquistas, rastreamento do progresso dos usuários e concessão de recompensas quando os critérios são atendidos.
 
 *   **Funcionalidades Principais:**
     *   **Definição de Conquistas:** CRUD para Conquistas (`Schema.Achievement`) com nome, descrição, ícone, critérios e pontos associados.
     *   **Tipos de Conquistas:** Suporte a diferentes categorias (baseadas em contagem de ações, marcos específicos, participação em eventos).
     *   **Rastreamento de Progresso:** Monitoramento das ações dos usuários e atualização do progresso em direção às conquistas.
     *   **Desbloqueio Automático:** Verificação automática de critérios e concessão de conquistas quando os requisitos são atendidos.
-    *   **Notificações:** Integração com `DeeperHub.Notifications` para alertar usuários sobre conquistas desbloqueadas.
+    *   **Notificações:** Integração com `Deeper_Hub.Notifications` para alertar usuários sobre conquistas desbloqueadas.
 
 *   **Componentes Principais:**
-    *   `DeeperHub.Achievements.AchievementsFacade`: Ponto de entrada principal para interação com o módulo.
-    *   `DeeperHub.Achievements.Services.AchievementsService`: Implementação da lógica de negócio.
-    *   `DeeperHub.Achievements.Schema.Achievement`: Define a estrutura de uma conquista.
-    *   `DeeperHub.Achievements.Schema.UserAchievement`: Rastreia o progresso e o status de desbloqueio por usuário.
+    *   `Deeper_Hub.Achievements.AchievementsFacade`: Ponto de entrada principal para interação com o módulo.
+    *   `Deeper_Hub.Achievements.Services.AchievementsService`: Implementação da lógica de negócio.
+    *   `Deeper_Hub.Achievements.Schema.Achievement`: Define a estrutura de uma conquista.
+    *   `Deeper_Hub.Achievements.Schema.UserAchievement`: Rastreia o progresso e o status de desbloqueio por usuário.
 
 *   **APIs Principais:**
     *   `list_achievements/1`: Lista todas as conquistas disponíveis.
@@ -1146,20 +1146,20 @@ O módulo `DeeperHub.Achievements` é responsável por gerenciar o sistema de co
 *   **Integrações:**
     *   **EventBus:** Escuta eventos de outros módulos para atualizar o progresso das conquistas.
     *   **Notificações:** Envia notificações quando conquistas são desbloqueadas.
-    *   **Recompensas:** Pode ser integrado com `DeeperHub.Rewards` para conceder recompensas ao desbloquear conquistas.
+    *   **Recompensas:** Pode ser integrado com `Deeper_Hub.Rewards` para conceder recompensas ao desbloquear conquistas.
 
 *   **Configuração:**
     *   URL de ícone padrão para conquistas sem ícone específico.
     *   Controle de notificações ao desbloquear conquistas.
     *   Configurações de cache para otimização de desempenho.
 
-*   **Telemetria:** `DeeperHub.Services.Achievements.Telemetry` para monitorar métricas como conquistas desbloqueadas e atualizações de progresso.
+*   **Telemetria:** `Deeper_Hub.Services.Achievements.Telemetry` para monitorar métricas como conquistas desbloqueadas e atualizações de progresso.
 
 *   **Observação:** O `AchievementsAdapter` está obsoleto em favor do `DefaultAchievementsService`.
 
 ### 19.9. Desafios (Challenges)
 
-Gerenciado por `DeeperHub.Services.Challenges.Adapters.DefaultChallengesService`.
+Gerenciado por `Deeper_Hub.Services.Challenges.Adapters.DefaultChallengesService`.
 
 *   **Funcionalidades não detalhadas na documentação, mas inferidas pelo nome e schemas:**
     *   Definição de Desafios (`Schema.Challenge`): Gerenciar desafios (nome, descrição, critério, recompensa, data de início/fim).
@@ -1168,9 +1168,9 @@ Gerenciado por `DeeperHub.Services.Challenges.Adapters.DefaultChallengesService`
 
 ### 19.10. Listas Genéricas (Lists)
 
-O módulo `DeeperHub.Services.Lists.Storage` fornece um CRUD genérico para diversas entidades de \"listas\" que são usadas como tipos ou categorias em outros módulos.
+O módulo `Deeper_Hub.Services.Lists.Storage` fornece um CRUD genérico para diversas entidades de \"listas\" que são usadas como tipos ou categorias em outros módulos.
 
-*   **Entidades Gerenciadas (Schemas em `DeeperHub.Services.Lists.Schema`):**
+*   **Entidades Gerenciadas (Schemas em `Deeper_Hub.Services.Lists.Schema`):**
     *   `AchievementType`: Tipos de conquistas.
     *   `Category`: Categorias gerais.
     *   `ContentType`: Tipos de conteúdo.
@@ -1184,21 +1184,21 @@ O módulo `DeeperHub.Services.Lists.Storage` fornece um CRUD genérico para dive
     *   `Tag`: (Schema não detalhado).
 *   **Operações CRUD Genéricas:**
     *   Criar, obter, listar e atualizar itens dessas listas.
-*   **Telemetria:** `DeeperHub.Services.Lists.Telemetry` para monitorar o serviço de listas.
+*   **Telemetria:** `Deeper_Hub.Services.Lists.Telemetry` para monitorar o serviço de listas.
 
 ### 19.11. Recompensas (Rewards)
 
-Gerenciado por `DeeperHub.Services.Rewards.Adapters.DefaultRewardsService` e `RewardsAdapter`.
+Gerenciado por `Deeper_Hub.Services.Rewards.Adapters.DefaultRewardsService` e `RewardsAdapter`.
 
 *   **Funcionalidades (baseadas no `Storage` e `Schema`):**
     *   Definição de Recompensas (`Schema.Reward`): Gerenciar recompensas (nome, descrição, tipo, valor, critério para obtenção).
     *   Resgate de Recompensas por Usuário (`Schema.UserReward`): Rastrear quais usuários resgataram quais recompensas e quando.
     *   Verificar se um usuário já resgatou uma recompensa (`Storage.has_claimed_reward?/2`).
-*   **Telemetria:** `DeeperHub.Services.Rewards.Telemetry` para monitorar o serviço de recompensas.
+*   **Telemetria:** `Deeper_Hub.Services.Rewards.Telemetry` para monitorar o serviço de recompensas.
 
 ### 19.12. Interações de Usuários (UserInteractions)
 
-Gerenciado por `DeeperHub.Services.UserInteractions.UserInteractionsAdapter` e `DefaultUserInteractionsService`.
+Gerenciado por `Deeper_Hub.Services.UserInteractions.UserInteractionsAdapter` e `DefaultUserInteractionsService`.
 
 *   **Favoritos:**
     *   Adicionar/remover um servidor aos favoritos de um usuário (`add_favorite/2`, `remove_favorite/2`).
@@ -1216,11 +1216,11 @@ Gerenciado por `DeeperHub.Services.UserInteractions.UserInteractionsAdapter` e `
 *   **Denúncias (Reports):**
     *   Criar uma nova denúncia sobre conteúdo ou usuário (`create_report/1`).
     *   Listar denúncias com filtros (`list_reports/1`).
-*   **Telemetria:** `DeeperHub.Services.UserInteractions.Telemetry` para monitorar interações de usuários.
+*   **Telemetria:** `Deeper_Hub.Services.UserInteractions.Telemetry` para monitorar interações de usuários.
 
 ### 19.13. Suporte ao Cliente (Support)
 
-Gerenciado por `DeeperHub.Services.Support.SupportAdapter` e `DefaultSupportService`.
+Gerenciado por `Deeper_Hub.Services.Support.SupportAdapter` e `DefaultSupportService`.
 
 *   **Gerenciamento de Tickets:**
     *   Criar um novo ticket de suporte (assunto, descrição, usuário, prioridade) (`create_ticket/1`).
@@ -1234,7 +1234,7 @@ Gerenciado por `DeeperHub.Services.Support.SupportAdapter` e `DefaultSupportServ
 *   **Integrações:**
     *   **Notificações:** Envio de notificações sobre criação de tickets, respostas, lembretes e atualizações de status (`NotificationIntegration`).
     *   **Rate Limiting:** Limitar a frequência de criação de tickets, adição de mensagens, etc. (`RateLimitIntegration`).
-*   **Telemetria:** `DeeperHub.Services.Support.Telemetry` para monitorar o sistema de suporte.
+*   **Telemetria:** `Deeper_Hub.Services.Support.Telemetry` para monitorar o sistema de suporte.
 
 ---
 
@@ -1242,7 +1242,7 @@ Gerenciado por `DeeperHub.Services.Support.SupportAdapter` e `DefaultSupportServ
 
 Módulos de infraestrutura e utilitários compartilhados por todo o sistema.
 
-### 20.1. Cache (`DeeperHub.Shared.Cache`, `CacheAdapter`, `CacheService`, `EtsCache`)
+### 20.1. Cache (`Deeper_Hub.Shared.Cache`, `CacheAdapter`, `CacheService`, `EtsCache`)
 
 *   **Operações de Cache:**
     *   Armazenar (`put/3,4`), obter (`get/1,3`), e deletar (`delete/1,2`) valores no cache.
@@ -1257,9 +1257,9 @@ Módulos de infraestrutura e utilitários compartilhados por todo o sistema.
     *   Obter estatísticas do cache (hits, misses, tamanho) (`get_stats/0`, `stats/0`).
     *   Coletor e relator de métricas do cache, com histórico (`MetricsReporter`).
     *   Inicialização do cache com implementações específicas (ex: `EtsCache`).
-*   **Telemetria:** Emissão de eventos de telemetria para operações de cache (`DeeperHub.Shared.Cache.Telemetry`).
+*   **Telemetria:** Emissão de eventos de telemetria para operações de cache (`Deeper_Hub.Shared.Cache.Telemetry`).
 
-### 20.2. Circuit Breaker (`DeeperHub.Shared.CircuitBreaker`, `CircuitBreakerFacade`)
+### 20.2. Circuit Breaker (`Deeper_Hub.Shared.CircuitBreaker`, `CircuitBreakerFacade`)
 
 *   **Proteção de Chamadas:**
     *   Executar funções com proteção contra falhas repetitivas (`call/3,4`).
@@ -1273,7 +1273,7 @@ Módulos de infraestrutura e utilitários compartilhados por todo o sistema.
     *   Atualizar a configuração de um circuit breaker dinamicamente (`update_config/2`).
 *   **Implementação:** Utiliza GenServer para gerenciar o estado de cada circuit breaker.
 
-### 20.3. Criptografia (`DeeperHub.Shared.Encryption`, `AtRestEncryptionService`, `EncryptionService`, `KeyManagementService`)
+### 20.3. Criptografia (`Deeper_Hub.Shared.Encryption`, `AtRestEncryptionService`, `EncryptionService`, `KeyManagementService`)
 
 *   **Criptografia e Descriptografia:**
     *   Criptografar dados usando a chave ativa do sistema (`encrypt/2`).
@@ -1299,13 +1299,13 @@ Módulos de infraestrutura e utilitários compartilhados por todo o sistema.
 
 ### 20.4. Utilitários
 
-*   **Datas e Horas (`DeeperHub.Shared.Utils.DateUtils`):**
+*   **Datas e Horas (`Deeper_Hub.Shared.Utils.DateUtils`):**
     *   Adicionar/subtrair intervalos de tempo a datas/horas (`add/3`).
     *   Calcular a diferença entre duas datas/horas em diferentes unidades (`diff/3`).
     *   Formatar datas/horas em strings legíveis com diferentes formatos e locales (`format_datetime/3`).
     *   Formatar durações em segundos para strings legíveis (`format_duration/2`).
     *   Verificar se uma data/hora está entre duas outras (`is_between/3`).
-*   **Arquivos (`DeeperHub.Shared.Utils.FileUtils`):**
+*   **Arquivos (`Deeper_Hub.Shared.Utils.FileUtils`):**
     *   Verificar existência de arquivos (`file_exists?/1`).
     *   Ler conteúdo de arquivos de texto (`read_text_file/1`).
     *   Escrever conteúdo em arquivos de texto, com opções de append e criação de diretórios (`write_text_file/3`).
@@ -1313,7 +1313,7 @@ Módulos de infraestrutura e utilitários compartilhados por todo o sistema.
     *   Obter informações de arquivos (tamanho, tipo, timestamps) (`get_file_info/1`).
     *   Calcular hash de arquivos (MD5, SHA1, SHA256, SHA512) (`calculate_file_hash/2`).
     *   Determinar tipo MIME de arquivos pela extensão (`get_mime_type/1`).
-*   **Listas (`DeeperHub.Shared.Utils.ListUtils`):**
+*   **Listas (`Deeper_Hub.Shared.Utils.ListUtils`):**
     *   Dividir listas em chunks (`chunk/2`).
     *   Calcular diferença entre listas, com função de chave opcional (`diff/3`).
     *   Agrupar elementos por uma função chave (`group_by/2`).
@@ -1322,7 +1322,7 @@ Módulos de infraestrutura e utilitários compartilhados por todo o sistema.
     *   Particionar listas com base em um predicado (`partition/2`).
     *   Ordenar listas de mapas/structs por múltiplas chaves e direções (`sort_by_keys/2`).
     *   Remover duplicatas, com função de chave opcional (`unique/2`).
-*   **Mapas (`DeeperHub.Shared.Utils.MapUtils`):**
+*   **Mapas (`Deeper_Hub.Shared.Utils.MapUtils`):**
     *   Converter chaves de átomo para string e vice-versa, recursivamente (`atom_keys_to_strings/2`, `string_keys_to_atoms/2`).
     *   Remover entradas com valores `nil`, recursivamente (`compact/2`).
     *   Mesclar mapas profundamente (`deep_merge/2`).
@@ -1330,14 +1330,14 @@ Módulos de infraestrutura e utilitários compartilhados por todo o sistema.
     *   Obter/atualizar valores aninhados usando um caminho de chaves (`get_in_path/3`, `update_in_path/3`).
     *   Aplicar uma função a todos os valores de um mapa, recursivamente (`map_values/3`).
     *   Converter um mapa para uma lista de mapas chave-valor (`to_key_value_list/3`).
-*   **Métricas (`DeeperHub.Shared.Utils.MetricsUtils`):**
+*   **Métricas (`Deeper_Hub.Shared.Utils.MetricsUtils`):**
     *   Calcular estatísticas básicas (contagem, min, max, soma, média, mediana, variância, desvio padrão) (`calculate_stats/1`).
     *   Calcular percentis (`calculate_percentiles/2`).
     *   Detectar anomalias usando Z-score (`detect_anomalies/2`).
     *   Formatar valores métricos com unidades e precisão (`format_metric/3`).
     *   Agrupar métricas por intervalo de tempo com agregação (`group_by_time/5`).
     *   Calcular taxa de mudança entre valores (`rate_of_change/3`).
-*   **Segurança (`DeeperHub.Shared.Utils.SecurityUtils`):**
+*   **Segurança (`Deeper_Hub.Shared.Utils.SecurityUtils`):**
     *   Gerar IDs únicos seguros (UUID, hex, base64) (`generate_id/1`).
     *   Gerar tokens aleatórios (`generate_token/2`).
     *   Gerar códigos de recuperação (`generate_recovery_code/2`).
@@ -1345,7 +1345,7 @@ Módulos de infraestrutura e utilitários compartilhados por todo o sistema.
     *   Hash seguro de senhas (PBKDF2-SHA512) e verificação (`hash_password/2`, `verify_password/2`).
     *   Avaliar risco agregado de múltiplos fatores (`evaluate_risk/1`).
     *   (Stub) Verificar se um IP está bloqueado (`is_ip_blocked/2`).
-*   **Validação e Sanitização (`DeeperHub.Shared.Validation.*`):**
+*   **Validação e Sanitização (`Deeper_Hub.Shared.Validation.*`):**
     *   `InputSanitizer`: Verificar e sanitizar strings e mapas contra XSS, injeção de SQL e injeção de comando.
     *   `InputValidator`: Validar formatos de email, telefone, URL, datas, documentos (CPF/CNPJ), JSON, senhas e schemas de dados.
     *   `EmailValidator`: Validações de email mais profundas (domínio, MX, blacklist).
@@ -1362,7 +1362,7 @@ Módulos de infraestrutura e utilitários compartilhados por todo o sistema.
 
 ### 21.1. Console Interativo (CLI)
 
-O `DeeperHub.Console.ConsoleFacade` (e `DeeperHub.Console`) fornece uma interface de linha de comando para operações administrativas.
+O `Deeper_Hub.Console.ConsoleFacade` (e `Deeper_Hub.Console`) fornece uma interface de linha de comando para operações administrativas.
 
 *   **Execução de Comandos:**
     *   Executar comandos com argumentos e opções (`execute/3`).
@@ -1381,19 +1381,19 @@ O `DeeperHub.Console.ConsoleFacade` (e `DeeperHub.Console`) fornece uma interfac
     *   `ListCommand`: Para listar recursos.
     *   `StatusCommand`: Para verificar o status do sistema.
     *   `VersionCommand`: Para exibir informações de versão.
-*   **Configuração do Console (`DeeperHub.Console.Config.ConsoleConfig`):**
+*   **Configuração do Console (`Deeper_Hub.Console.Config.ConsoleConfig`):**
     *   Gerenciar tamanho do histórico, prompt, sugestões automáticas, salvamento de histórico.
     *   Definir e verificar comandos críticos (que podem gerar notificações).
-*   **Saída Formatada (`DeeperHub.Console.Services.OutputService`):**
+*   **Saída Formatada (`Deeper_Hub.Console.Services.OutputService`):**
     *   Formatar e imprimir resultados, erros, avisos, sucessos e tabelas.
 *   **Integrações:**
-    *   **Auditoria:** Registrar execução de comandos, erros e verificações de permissão (`DeeperHub.Console.Integrations.AuditIntegration`).
-    *   **Notificações:** Enviar notificações para execução de comandos críticos ou tentativas não autorizadas (`DeeperHub.Console.Integrations.NotificationIntegration`).
-*   **Telemetria:** Monitorar execução de comandos e verificações de permissão (`DeeperHub.Console.Telemetry`).
+    *   **Auditoria:** Registrar execução de comandos, erros e verificações de permissão (`Deeper_Hub.Console.Integrations.AuditIntegration`).
+    *   **Notificações:** Enviar notificações para execução de comandos críticos ou tentativas não autorizadas (`Deeper_Hub.Console.Integrations.NotificationIntegration`).
+*   **Telemetria:** Monitorar execução de comandos e verificações de permissão (`Deeper_Hub.Console.Telemetry`).
 
 ### 21.2. Inspetor de Módulos
 
-O `DeeperHub.Inspector.InspectorFacade` (e `DeeperHub.ModuleInspectorSimple` para uma versão sem dependências complexas) permite analisar módulos Elixir.
+O `Deeper_Hub.Inspector.InspectorFacade` (e `Deeper_Hub.ModuleInspectorSimple` para uma versão sem dependências complexas) permite analisar módulos Elixir.
 
 *   **Inspeção de Elementos:**
     *   Inspecionar módulos, funções ou typespecs para extrair informações detalhadas (`inspect_element/2`).
@@ -1409,5 +1409,5 @@ O `DeeperHub.Inspector.InspectorFacade` (e `DeeperHub.ModuleInspectorSimple` par
 *   **Formatação de Resultados:**
     *   Formatar o resultado da inspeção para exibição em texto, JSON ou HTML (`format_result/2`).
 *   **Persistência (Experimental):**
-    *   `DeeperHub.InspectorRepo` sugere a capacidade de armazenar informações de inspeção em um banco de dados SQLite.
-*   **Telemetria:** `DeeperHub.ModuleInspector.Telemetry` para monitorar operações de inspeção.
+    *   `Deeper_Hub.InspectorRepo` sugere a capacidade de armazenar informações de inspeção em um banco de dados SQLite.
+*   **Telemetria:** `Deeper_Hub.ModuleInspector.Telemetry` para monitorar operações de inspeção.

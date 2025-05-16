@@ -2,7 +2,7 @@
 ExUnit.start()
 
 # Configuração do banco de dados para testes
-Application.put_env(:deeper_hub, Deeper_Hub.Core.Data.Repo, 
+Application.put_env(:deeper_hub, Deeper_Hub.Core.Data.Repo,
   database: "database/test.db",
   pool: Ecto.Adapters.SQL.Sandbox
 )
@@ -21,7 +21,7 @@ Ecto.Adapters.SQL.Sandbox.mode(Deeper_Hub.Core.Data.Repo, {:shared, self()})
 try do
   Deeper_Hub.Core.Data.Migrations.run_migrations()
 rescue
-  e -> 
+  e ->
     IO.puts("Aviso: Falha ao executar migrações em test_helper.exs: #{inspect(e)}")
     :ok
 end
@@ -31,7 +31,7 @@ Ecto.Adapters.SQL.Sandbox.mode(Deeper_Hub.Core.Data.Repo, :manual)
 
 # Limpa as métricas antes de cada teste, sem inicializar novamente
 try do
-  Deeper_Hub.Core.Metrics.clear_all_metrics()
+
 rescue
   _ -> :ok
 end

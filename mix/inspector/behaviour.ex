@@ -1,4 +1,4 @@
-defmodule DeeperHub.Inspector.Behaviour do
+defmodule Deeper_Hub.Inspector.Behaviour do
   @moduledoc """
   Schema Ecto para relacionar um módulo com um comportamento que ele implementa. 🧩
   """
@@ -11,7 +11,7 @@ defmodule DeeperHub.Inspector.Behaviour do
     # Armazena como string
     field :behaviour_module, :string, primary_key: true
 
-    # belongs_to :module, DeeperHub.Inspector.Module, foreign_key: :module_name, references: :name, type: :string
+    # belongs_to :module, Deeper_Hub.Inspector.Module, foreign_key: :module_name, references: :name, type: :string
 
     timestamps(type: :utc_datetime)
   end

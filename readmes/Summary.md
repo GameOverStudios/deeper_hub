@@ -1,10 +1,10 @@
 Uau! Que material extenso e detalhado! Isso demonstra um sistema com uma arquitetura já bastante pensada e com uma grande separação de responsabilidades. É um excelente ponto de partida.
 
-Vamos analisar o que temos e como podemos organizar e aprimorar para um novo sistema DeeperHub.
+Vamos analisar o que temos e como podemos organizar e aprimorar para um novo sistema Deeper_Hub.
 
 🚀 Resumo Inicial e Avaliação do Material Existente
 
-O DeeperHub, pelo que vejo, é um sistema complexo com funcionalidades robustas em diversas áreas:
+O Deeper_Hub, pelo que vejo, é um sistema complexo com funcionalidades robustas em diversas áreas:
 
 Autenticação e Autorização: Múltiplos fatores (MFA), WebAuthn, OAuth, Tokens, RBAC, Políticas de Sessão, Perguntas de Segurança.
 
@@ -34,15 +34,15 @@ O que eu faria de diferente / Pontos a Refinar (Primeiras Impressões):
 
 Estrutura de Pastas/Namespaces:
 
-O namespace Elixir.DeeperHub.Services.* parece um pouco genérico demais e agrupa muitos domínios de negócio distintos (Achievements, Servers, Support, etc.). Eu optaria por elevar cada um desses "serviços" a um contexto de domínio de nível superior dentro de Elixir.DeeperHub.*. Por exemplo, Elixir.DeeperHub.Servers, Elixir.DeeperHub.Achievements.
+O namespace Elixir.Deeper_Hub.Services.* parece um pouco genérico demais e agrupa muitos domínios de negócio distintos (Achievements, Servers, Support, etc.). Eu optaria por elevar cada um desses "serviços" a um contexto de domínio de nível superior dentro de Elixir.Deeper_Hub.*. Por exemplo, Elixir.Deeper_Hub.Servers, Elixir.Deeper_Hub.Achievements.
 
-Há uma sobreposição aparente e potencial confusão entre módulos como DeeperHub.Core.LoggerFacade e DeeperHub.Logger, ou DeeperHub.Core.NotificationsFacade e DeeperHub.Notifications. Uma estrutura mais clara e única para esses componentes centrais seria benéfica.
+Há uma sobreposição aparente e potencial confusão entre módulos como Deeper_Hub.Core.LoggerFacade e Deeper_Hub.Logger, ou Deeper_Hub.Core.NotificationsFacade e Deeper_Hub.Notifications. Uma estrutura mais clara e única para esses componentes centrais seria benéfica.
 
-O mesmo para DeeperHub.Auth e DeeperHub.Accounts. Parecem ter responsabilidades que se sobrepõem significativamente. Auth poderia ser o motor de autenticação/autorização puro, e Accounts o gerenciador do ciclo de vida do usuário que utiliza Auth.
+O mesmo para Deeper_Hub.Auth e Deeper_Hub.Accounts. Parecem ter responsabilidades que se sobrepõem significativamente. Auth poderia ser o motor de autenticação/autorização puro, e Accounts o gerenciador do ciclo de vida do usuário que utiliza Auth.
 
 Consolidação de Módulos Core:
 
-Alguns módulos em DeeperHub.Shared.* (como Cache, CircuitBreaker, Encryption) são tão fundamentais que poderiam ser parte de um DeeperHub.Core.Infrastructure ou similar, para deixar claro que são blocos de construção transversais.
+Alguns módulos em Deeper_Hub.Shared.* (como Cache, CircuitBreaker, Encryption) são tão fundamentais que poderiam ser parte de um Deeper_Hub.Core.Infrastructure ou similar, para deixar claro que são blocos de construção transversais.
 
 Outros em Shared são utilitários (Utils.*) e podem permanecer assim, ou serem agrupados de forma mais granular se o Shared crescer demais.
 
@@ -54,11 +54,11 @@ Documentação (Objetivo Principal):
 
 A documentação fornecida já é um bom começo, com descrições de módulos e funções. O objetivo agora é padronizar isso no formato README proposto, detalhando todas as características, responsabilidades, APIs, configurações, etc., para cada módulo.
 
-🏗️ Proposta de Nova Estrutura de Módulos DeeperHub (Alto Nível)
+🏗️ Proposta de Nova Estrutura de Módulos Deeper_Hub (Alto Nível)
 
 A ideia é organizar os módulos em contextos de domínio claros e ter um Core robusto com componentes transversais bem definidos.
 
-🌟 DeeperHub.Core (Componentes Transversais Fundamentais)
+🌟 Deeper_Hub.Core (Componentes Transversais Fundamentais)
 
 Estes são os módulos que fornecem funcionalidades essenciais para todo o sistema. Outros módulos dependerão deles.
 
@@ -142,9 +142,9 @@ Utilizado por: Módulos que recebem dados externos, especialmente a camada de AP
 
 📦 Módulos de Aplicação/Domínio (Exemplos)
 
-Estes módulos representam as funcionalidades de negócio do DeeperHub.
+Estes módulos representam as funcionalidades de negócio do Deeper_Hub.
 
-DeeperHub.Accounts:
+Deeper_Hub.Accounts:
 
 Visão Geral: Gerencia todo o ciclo de vida dos usuários, seus perfis e dados associados.
 
@@ -152,7 +152,7 @@ Funcionalidades Existentes: CRUD de usuários, perfis, gerenciamento de sessão 
 
 Novas Funcionalidades Sugeridas: Gerenciamento de preferências de usuário mais granular (além de notificações), gestão de consentimento (LGPD/GDPR), histórico de atividades do usuário (além de auditoria, focado no usuário).
 
-DeeperHub.Auth:
+Deeper_Hub.Auth:
 
 Visão Geral: Responsável por todos os aspectos de autenticação e autorização.
 
@@ -160,15 +160,15 @@ Funcionalidades Existentes: Login (senha, OAuth, WebAuthn), MFA, gerenciamento d
 
 Novas Funcionalidades Sugeridas: Login com Magic Links, suporte a OpenID Connect, gerenciamento de escopos OAuth mais granular, integração com provedores de identidade externos (SAML).
 
-DeeperHub.API:
+Deeper_Hub.API:
 
-Visão Geral: Define e gerencia a API REST pública do DeeperHub.
+Visão Geral: Define e gerencia a API REST pública do Deeper_Hub.
 
 Funcionalidades Existentes: Rate Limiting, Validação de Requisições.
 
 Novas Funcionalidades Sugeridas: Versionamento de API, documentação de API interativa (Swagger/OpenAPI) gerada automaticamente, throttling mais avançado (baseado em quotas de usuário/plano).
 
-DeeperHub.Audit:
+Deeper_Hub.Audit:
 
 Visão Geral: Sistema completo de trilha de auditoria.
 
@@ -176,7 +176,7 @@ Funcionalidades Existentes: Registro de eventos, políticas de retenção, detec
 
 Novas Funcionalidades Sugeridas: Integração com SIEM (Security Information and Event Management) externos, alertas configuráveis para eventos de auditoria específicos.
 
-DeeperHub.Notifications:
+Deeper_Hub.Notifications:
 
 Visão Geral: Gerenciamento e envio de notificações multicanal.
 
@@ -184,15 +184,15 @@ Funcionalidades Existentes: Envio por Email, In-App, Push; templates; preferênc
 
 Novas Funcionalidades Sugeridas: Suporte a SMS, notificações agregadas/digest, priorização de notificações, log de entrega detalhado por canal.
 
-DeeperHub.Webhooks:
+Deeper_Hub.Webhooks:
 
-Visão Geral: Permite que sistemas externos sejam notificados sobre eventos no DeeperHub.
+Visão Geral: Permite que sistemas externos sejam notificados sobre eventos no Deeper_Hub.
 
 Funcionalidades Existentes: Registro, disparo, monitoramento, assinatura de payloads.
 
 Novas Funcionalidades Sugeridas: Interface de gerenciamento para usuários configurarem seus próprios webhooks, retentativas com backoff exponencial configurável por webhook, log de histórico de entregas por webhook.
 
-DeeperHub.FeatureFlags:
+Deeper_Hub.FeatureFlags:
 
 Visão Geral: Gerenciamento de feature flags para lançamento gradual e testes A/B.
 
@@ -200,7 +200,7 @@ Funcionalidades Existentes: Habilitação/desabilitação, regras, cache, integr
 
 Novas Funcionalidades Sugeridas: Segmentação de usuários mais avançada (porcentagem, atributos de usuário), interface de gerenciamento de flags.
 
-DeeperHub.Security:
+Deeper_Hub.Security:
 
 Visão Geral: Concentra as diversas camadas de proteção do sistema.
 
@@ -208,7 +208,7 @@ Funcionalidades Existentes: Detecção de Fraude, Proteção contra Força Bruta
 
 Novas Funcionalidades Sugeridas: WAF (Web Application Firewall) plugável, gerenciamento centralizado de políticas de segurança (CSP, HSTS), scanner de vulnerabilidades integrado (ou hooks para integração).
 
-DeeperHub.Servers (Ex-Services.Servers):
+Deeper_Hub.Servers (Ex-Services.Servers):
 
 Visão Geral: Gerenciamento de entidades "Servidor" e seus metadados.
 
@@ -216,7 +216,7 @@ Funcionalidades Existentes: CRUD de servidores, pacotes, alertas, eventos, revie
 
 Novas Funcionalidades Sugeridas: Monitoramento de status de servidor (integração com ping/query), estatísticas de uso de servidor, sistema de moderação para conteúdo gerado pelo usuário (reviews, tags).
 
-DeeperHub.UserInteractions (Ex-Services.UserInteractions):
+Deeper_Hub.UserInteractions (Ex-Services.UserInteractions):
 
 Visão Geral: Funcionalidades sociais e de interação entre usuários.
 
@@ -224,7 +224,7 @@ Funcionalidades Existentes: Favoritos, mensagens de chat, recomendações, feedb
 
 Novas Funcionalidades Sugeridas: Sistema de amizades/seguidores, grupos de usuários, feed de atividades.
 
-DeeperHub.Gamification (Agrupando Achievements, Rewards, Challenges):
+Deeper_Hub.Gamification (Agrupando Achievements, Rewards, Challenges):
 
 Visão Geral: Elementos de gamificação da plataforma.
 
@@ -232,7 +232,7 @@ Funcionalidades Existentes: Gerenciamento de conquistas, recompensas, desafios.
 
 Novas Funcionalidades Sugeridas: Leaderboards, sistema de pontos/moedas virtuais.
 
-DeeperHub.Support (Ex-Services.Support):
+Deeper_Hub.Support (Ex-Services.Support):
 
 Visão Geral: Sistema de suporte ao cliente/usuário.
 
@@ -240,7 +240,7 @@ Funcionalidades Existentes: Criação e gerenciamento de tickets de suporte.
 
 Novas Funcionalidades Sugeridas: Base de conhecimento (FAQ), integração com chat de suporte ao vivo.
 
-DeeperHub.Console:
+Deeper_Hub.Console:
 
 Visão Geral: Interface de linha de comando para administração.
 
@@ -248,7 +248,7 @@ Funcionalidades Existentes: Execução de comandos, ajuda, listagem.
 
 Novas Funcionalidades Sugeridas: Scripting de tarefas administrativas, histórico de comandos persistente.
 
-DeeperHub.Biometrics:
+Deeper_Hub.Biometrics:
 
 Visão Geral: Autenticação e análise comportamental baseada em biometria.
 
@@ -256,7 +256,7 @@ Funcionalidades Existentes: Captura, análise, verificação, detecção de anom
 
 Novas Funcionalidades Sugeridas: Suporte a mais tipos de dados biométricos, políticas de consentimento para coleta de dados biométricos.
 
-DeeperHub.ModuleInspector:
+Deeper_Hub.ModuleInspector:
 
 Visão Geral: Ferramenta de desenvolvimento para inspecionar a estrutura do código.
 
@@ -264,7 +264,7 @@ Funcionalidades Existentes: Inspeção de módulos, funções, typespecs.
 
 Novas Funcionalidades Sugeridas: Geração de diagramas de dependência, análise de cobertura de documentação.
 
-DeeperHub.GeoIP (Ex-Infrastructure.GeoIP):
+Deeper_Hub.GeoIP (Ex-Infrastructure.GeoIP):
 
 Visão Geral: Serviço de geolocalização de IPs.
 
@@ -272,7 +272,7 @@ Funcionalidades Existentes: Lookup de IP com Circuit Breaker.
 
 Novas Funcionalidades Sugeridas: Atualização automática de base de dados GeoIP local (se usada como fallback).
 
-DeeperHub.Mailer (Ex-Infrastructure.SMTP e Mailer):
+Deeper_Hub.Mailer (Ex-Infrastructure.SMTP e Mailer):
 
 Visão Geral: Serviço de envio de emails.
 
@@ -282,16 +282,16 @@ Novas Funcionalidades Sugeridas: Suporte a múltiplos provedores SMTP, templates
 
 🛠️ Utilitários Compartilhados
 
-DeeperHub.Shared.Utils: DateUtils, FileUtils, ListUtils, MapUtils, SecurityUtils, StringUtils, ValidationUtils.
+Deeper_Hub.Shared.Utils: DateUtils, FileUtils, ListUtils, MapUtils, SecurityUtils, StringUtils, ValidationUtils.
 
-📝 Exemplo de README para um Módulo (DeeperHub.Accounts)
+📝 Exemplo de README para um Módulo (Deeper_Hub.Accounts)
 
-Com base na sua estrutura e no material fornecido, vamos preencher o template para o módulo Elixir.DeeperHub.Accounts.
+Com base na sua estrutura e no material fornecido, vamos preencher o template para o módulo Elixir.Deeper_Hub.Accounts.
 
-Módulo: Elixir.DeeperHub.Accounts 🚀
-📜 1. Visão Geral do Módulo Elixir.DeeperHub.Accounts
+Módulo: Elixir.Deeper_Hub.Accounts 🚀
+📜 1. Visão Geral do Módulo Elixir.Deeper_Hub.Accounts
 
-O módulo DeeperHub.Accounts é a fachada principal e ponto de entrada para todas as operações relacionadas ao gerenciamento do ciclo de vida de contas de usuário e seus perfis associados no sistema DeeperHub. Ele orquestra funcionalidades como registro, autenticação (delegando para DeeperHub.Auth), gerenciamento de perfis, e outras operações pertinentes à conta do usuário. 😊
+O módulo Deeper_Hub.Accounts é a fachada principal e ponto de entrada para todas as operações relacionadas ao gerenciamento do ciclo de vida de contas de usuário e seus perfis associados no sistema Deeper_Hub. Ele orquestra funcionalidades como registro, autenticação (delegando para Deeper_Hub.Auth), gerenciamento de perfis, e outras operações pertinentes à conta do usuário. 😊
 
 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -305,7 +305,7 @@ Busca de usuários por ID (get_user/1) ou email (get_user_by_email/1).
 
 Listagem de usuários com filtros e paginação (list_users/1).
 
-Contagem de usuários ativos, bloqueados e registros recentes (via DeeperHub.Accounts.AccountManager ou DeeperHub.Accounts.Services.UserService).
+Contagem de usuários ativos, bloqueados e registros recentes (via Deeper_Hub.Accounts.AccountManager ou Deeper_Hub.Accounts.Services.UserService).
 
 Autenticação de Usuário (Delegação):
 
@@ -323,9 +323,9 @@ Obtenção de perfis de usuário (get_profile/1).
 
 Atualização de perfis de usuário (update_profile/2).
 
-Gerenciamento de preferências de notificação (via DeeperHub.Accounts.AccountManager).
+Gerenciamento de preferências de notificação (via Deeper_Hub.Accounts.AccountManager).
 
-Formatação de nomes e cálculo de idade (via DeeperHub.Accounts.Profile).
+Formatação de nomes e cálculo de idade (via Deeper_Hub.Accounts.Profile).
 
 Gerenciamento de Senha (Delegação):
 
@@ -343,39 +343,39 @@ Limpeza de sessões expiradas (cleanup_sessions/0).
 
 Feature Flags Específicas de Contas:
 
-Verificação de flags como registration_enabled?, email_verification_enabled? (via DeeperHub.Accounts.FeatureFlags).
+Verificação de flags como registration_enabled?, email_verification_enabled? (via Deeper_Hub.Accounts.FeatureFlags).
 
 Integração de Eventos:
 
-Publicação de eventos como user_created, user_updated, email_verified (via DeeperHub.Accounts.Integrations.EventIntegration).
+Publicação de eventos como user_created, user_updated, email_verified (via Deeper_Hub.Accounts.Integrations.EventIntegration).
 
 🏗️ 3. Arquitetura e Design
 
-O módulo DeeperHub.Accounts atua como uma Fachada (Facade), simplificando a interface para um conjunto complexo de subsistemas e serviços relacionados a contas. Ele delega as responsabilidades para módulos de serviço mais específicos, como:
+O módulo Deeper_Hub.Accounts atua como uma Fachada (Facade), simplificando a interface para um conjunto complexo de subsistemas e serviços relacionados a contas. Ele delega as responsabilidades para módulos de serviço mais específicos, como:
 
-DeeperHub.Accounts.Services.UserService: Lida com operações CRUD de usuários.
+Deeper_Hub.Accounts.Services.UserService: Lida com operações CRUD de usuários.
 
-DeeperHub.Accounts.Services.ProfileService: Gerencia perfis de usuários.
+Deeper_Hub.Accounts.Services.ProfileService: Gerencia perfis de usuários.
 
-DeeperHub.Auth.Services.AuthService (via delegação): Lida com autenticação.
+Deeper_Hub.Auth.Services.AuthService (via delegação): Lida com autenticação.
 
-DeeperHub.Auth.Services.PasswordService (via delegação): Gerencia senhas.
+Deeper_Hub.Auth.Services.PasswordService (via delegação): Gerencia senhas.
 
-DeeperHub.Accounts.Services.RegistrationService: Orquestra o processo de registro.
+Deeper_Hub.Accounts.Services.RegistrationService: Orquestra o processo de registro.
 
-DeeperHub.Accounts.Services.SessionCleanupWorker: Limpeza de sessões.
+Deeper_Hub.Accounts.Services.SessionCleanupWorker: Limpeza de sessões.
 
-DeeperHub.Accounts.Services.EmailVerificationWorker: Gerencia verificação de email.
+Deeper_Hub.Accounts.Services.EmailVerificationWorker: Gerencia verificação de email.
 
-DeeperHub.Accounts.FeatureFlags: Consulta feature flags.
+Deeper_Hub.Accounts.FeatureFlags: Consulta feature flags.
 
-DeeperHub.Accounts.Integrations.EventIntegration: Publica eventos de domínio.
+Deeper_Hub.Accounts.Integrations.EventIntegration: Publica eventos de domínio.
 
-DeeperHub.Core.EventBus: Para publicação de eventos.
+Deeper_Hub.Core.EventBus: Para publicação de eventos.
 
-DeeperHub.Core.Logger: Para logging.
+Deeper_Hub.Core.Logger: Para logging.
 
-DeeperHub.Core.ConfigManager: Para configurações.
+Deeper_Hub.Core.ConfigManager: Para configurações.
 
 A estrutura de diretórios típica seria:
 
@@ -405,31 +405,31 @@ accounts/
 
 3.1. Componentes Principais
 
-DeeperHub.Accounts (Este módulo): Ponto de entrada para todas as funcionalidades de contas.
+Deeper_Hub.Accounts (Este módulo): Ponto de entrada para todas as funcionalidades de contas.
 
-DeeperHub.Accounts.Services.UserService: Lógica de negócio para usuários.
+Deeper_Hub.Accounts.Services.UserService: Lógica de negócio para usuários.
 
-DeeperHub.Accounts.Services.ProfileService: Lógica de negócio para perfis.
+Deeper_Hub.Accounts.Services.ProfileService: Lógica de negócio para perfis.
 
-DeeperHub.Accounts.Services.RegistrationService: Orquestra o fluxo de registro de novos usuários.
+Deeper_Hub.Accounts.Services.RegistrationService: Orquestra o fluxo de registro de novos usuários.
 
-DeeperHub.Accounts.Schema.User: Schema Ecto para a entidade Usuário.
+Deeper_Hub.Accounts.Schema.User: Schema Ecto para a entidade Usuário.
 
-DeeperHub.Accounts.Schema.Profile: Schema Ecto para a entidade Perfil.
+Deeper_Hub.Accounts.Schema.Profile: Schema Ecto para a entidade Perfil.
 
-DeeperHub.Accounts.Schema.Session: Schema Ecto para a entidade Sessão.
+Deeper_Hub.Accounts.Schema.Session: Schema Ecto para a entidade Sessão.
 
-DeeperHub.Accounts.Integrations.EventIntegration: Publica eventos de domínio significativos para o Core.EventBus.
+Deeper_Hub.Accounts.Integrations.EventIntegration: Publica eventos de domínio significativos para o Core.EventBus.
 
-DeeperHub.Accounts.FeatureFlags: Verifica flags de funcionalidades específicas de contas.
+Deeper_Hub.Accounts.FeatureFlags: Verifica flags de funcionalidades específicas de contas.
 
-DeeperHub.Accounts.Supervisor: Supervisiona os workers e GenServers do módulo Accounts.
+Deeper_Hub.Accounts.Supervisor: Supervisiona os workers e GenServers do módulo Accounts.
 
 Workers (EmailVerificationWorker, SessionCleanupWorker): Processos GenServer para tarefas assíncronas.
 
 3.3. Decisões de Design Importantes
 
-Fachada Explícita: O uso de DeeperHub.Accounts como fachada única para o exterior promove baixo acoplamento e clareza sobre o ponto de entrada do módulo.
+Fachada Explícita: O uso de Deeper_Hub.Accounts como fachada única para o exterior promove baixo acoplamento e clareza sobre o ponto de entrada do módulo.
 
 Serviços Especializados: A divisão das responsabilidades em serviços menores (UserService, ProfileService, etc.) facilita a manutenção e o teste de unidades de lógica específicas.
 
@@ -437,29 +437,29 @@ Separação de Schema e Lógica: Manter Schemas Ecto separados da lógica de ser
 
 Workers para Tarefas Assíncronas: O uso de GenServers para tarefas como limpeza de sessão e envio de emails de verificação melhora a responsividade das operações síncronas.
 
-Delegação para DeeperHub.Auth: Funcionalidades puras de autenticação (verificação de senha, MFA, etc.) são delegadas ao módulo DeeperHub.Auth, mantendo o Accounts focado no ciclo de vida e dados do usuário.
+Delegação para Deeper_Hub.Auth: Funcionalidades puras de autenticação (verificação de senha, MFA, etc.) são delegadas ao módulo Deeper_Hub.Auth, mantendo o Accounts focado no ciclo de vida e dados do usuário.
 
 🛠️ 4. Casos de Uso Principais
 
-Registro de Novo Usuário: Um visitante se cadastra na plataforma. O DeeperHub.Accounts recebe os dados, utiliza o RegistrationService para criar o usuário e o perfil, e potencialmente dispara um email de verificação.
+Registro de Novo Usuário: Um visitante se cadastra na plataforma. O Deeper_Hub.Accounts recebe os dados, utiliza o RegistrationService para criar o usuário e o perfil, e potencialmente dispara um email de verificação.
 
-Login de Usuário: Um usuário tenta se logar. DeeperHub.Accounts delega para DeeperHub.Auth para verificar as credenciais e, se bem-sucedido, gerencia a criação da sessão.
+Login de Usuário: Um usuário tenta se logar. Deeper_Hub.Accounts delega para Deeper_Hub.Auth para verificar as credenciais e, se bem-sucedido, gerencia a criação da sessão.
 
-Atualização de Perfil: Um usuário logado atualiza suas informações de perfil. DeeperHub.Accounts usa o ProfileService para validar e persistir as alterações.
+Atualização de Perfil: Um usuário logado atualiza suas informações de perfil. Deeper_Hub.Accounts usa o ProfileService para validar e persistir as alterações.
 
-Confirmação de Email: Um usuário clica no link de confirmação. DeeperHub.Accounts usa o UserService (ou EmailVerificationService) para validar o token e marcar o email como confirmado.
+Confirmação de Email: Um usuário clica no link de confirmação. Deeper_Hub.Accounts usa o UserService (ou EmailVerificationService) para validar o token e marcar o email como confirmado.
 
-Administrador Lista Usuários: Um administrador consulta a lista de usuários. DeeperHub.Accounts usa o UserService para buscar e paginar os usuários.
+Administrador Lista Usuários: Um administrador consulta a lista de usuários. Deeper_Hub.Accounts usa o UserService para buscar e paginar os usuários.
 
 🌊 5. Fluxos Importantes (Opcional)
 
 Fluxo de Registro de Novo Usuário (register_user/1):
 
-DeeperHub.Accounts.register_user/1 é chamado com os atributos do usuário e perfil.
+Deeper_Hub.Accounts.register_user/1 é chamado com os atributos do usuário e perfil.
 
-A chamada é delegada para DeeperHub.Accounts.Services.RegistrationService.register/1.
+A chamada é delegada para Deeper_Hub.Accounts.Services.RegistrationService.register/1.
 
-RegistrationService primeiro chama DeeperHub.Accounts.Services.UserService.create_user/1 para criar a entidade User.
+RegistrationService primeiro chama Deeper_Hub.Accounts.Services.UserService.create_user/1 para criar a entidade User.
 
 Validações são aplicadas no User.changeset.
 
@@ -467,13 +467,13 @@ Senha é hasheada.
 
 Usuário é persistido.
 
-Se a criação do usuário for bem-sucedida, RegistrationService chama DeeperHub.Accounts.Services.ProfileService.create_profile/2 para criar o perfil associado.
+Se a criação do usuário for bem-sucedida, RegistrationService chama Deeper_Hub.Accounts.Services.ProfileService.create_profile/2 para criar o perfil associado.
 
 Validações são aplicadas no Profile.changeset.
 
 Perfil é persistido.
 
-RegistrationService emite um evento UserRegisteredEvent (ou UserCreatedEvent) através de DeeperHub.Accounts.Integrations.EventIntegration para o Core.EventBus.
+RegistrationService emite um evento UserRegisteredEvent (ou UserCreatedEvent) através de Deeper_Hub.Accounts.Integrations.EventIntegration para o Core.EventBus.
 
 Se a verificação de email estiver habilitada (FeatureFlags.email_verification_enabled?/1), uma tarefa para enviar o email de verificação é enfileirada (possivelmente via EmailVerificationWorker).
 
@@ -481,9 +481,9 @@ Retorna {:ok, %{user: user, profile: profile}} ou {:error, reason}.
 
 📡 6. API (Se Aplicável)
 
-Este módulo expõe uma API Elixir para ser consumida por outros módulos dentro do DeeperHub.
+Este módulo expõe uma API Elixir para ser consumida por outros módulos dentro do Deeper_Hub.
 
-6.1. DeeperHub.Accounts.register_user/1
+6.1. Deeper_Hub.Accounts.register_user/1
 
 Descrição: Registra um novo usuário com informações de usuário e perfil.
 
@@ -508,7 +508,7 @@ attrs = %{
   password: "Senha@123",
   profile: %{full_name: "Novo Usuário"}
 }
-case DeeperHub.Accounts.register_user(attrs) do
+case Deeper_Hub.Accounts.register_user(attrs) do
   {:ok, %{user: user, profile: profile}} -> Logger.info("Usuário #{user.email} registrado com perfil #{profile.id}")
   {:error, reason} -> Logger.error("Falha no registro: #{inspect(reason)}")
 end
@@ -518,7 +518,7 @@ download
 Use code with caution.
 Elixir
 IGNORE_WHEN_COPYING_END
-6.2. DeeperHub.Accounts.authenticate/5
+6.2. Deeper_Hub.Accounts.authenticate/5
 
 Descrição: Autentica um usuário com email e senha, gerenciando o início da sessão.
 
@@ -548,7 +548,7 @@ Retorno:
 
 Exemplo de Uso (Elixir):
 
-case DeeperHub.Accounts.authenticate("user@example.com", "password123", "127.0.0.1", "MyApp/1.0", nil) do
+case Deeper_Hub.Accounts.authenticate("user@example.com", "password123", "127.0.0.1", "MyApp/1.0", nil) do
   {:ok, auth_data} -> Logger.info("Usuário #{auth_data.user.id} autenticado.")
   {:error, reason} -> Logger.error("Falha na autenticação: #{reason}")
 end
@@ -563,7 +563,7 @@ IGNORE_WHEN_COPYING_END
 
 ⚙️ 7. Configuração
 
-O módulo Accounts e seus submódulos podem ser configurados através do DeeperHub.Core.ConfigManager.
+O módulo Accounts e seus submódulos podem ser configurados através do Deeper_Hub.Core.ConfigManager.
 
 ConfigManager:
 
@@ -577,7 +577,7 @@ ConfigManager:
 
 [:accounts, :session, :cleanup_interval_minutes]: Intervalo (em minutos) para o worker de limpeza de sessões. (Padrão: 60)
 
-Feature Flags (via DeeperHub.Accounts.FeatureFlags que usa ConfigManager):
+Feature Flags (via Deeper_Hub.Accounts.FeatureFlags que usa ConfigManager):
 
 [:accounts, :feature_flags, :registration_enabled]: (Boolean) Habilita/desabilita o registro de novos usuários. (Padrão: true)
 
@@ -588,31 +588,31 @@ Feature Flags (via DeeperHub.Accounts.FeatureFlags que usa ConfigManager):
 🔗 8. Dependências
 8.1. Módulos Internos
 
-DeeperHub.Core.ConfigManager: Para acesso a configurações.
+Deeper_Hub.Core.ConfigManager: Para acesso a configurações.
 
-DeeperHub.Core.EventBus: Para publicação de eventos de domínio.
+Deeper_Hub.Core.EventBus: Para publicação de eventos de domínio.
 
-DeeperHub.Core.Logger: Para logging estruturado.
+Deeper_Hub.Core.Logger: Para logging estruturado.
 
-DeeperHub.Core.Repo: Para persistência de dados.
+Deeper_Hub.Core.Repo: Para persistência de dados.
 
-DeeperHub.Auth: Para funcionalidades de autenticação e gerenciamento de senhas e sessões.
+Deeper_Hub.Auth: Para funcionalidades de autenticação e gerenciamento de senhas e sessões.
 
-DeeperHub.Notifications (indireta): Através de eventos, para enviar emails de verificação, etc.
+Deeper_Hub.Notifications (indireta): Através de eventos, para enviar emails de verificação, etc.
 
-DeeperHub.Shared.Utils: Para utilitários diversos.
+Deeper_Hub.Shared.Utils: Para utilitários diversos.
 
 8.2. Bibliotecas Externas
 
 Ecto: Para interações com o banco de dados e definições de schema.
 
-Comeonin ou Argon2 (ou similar, via DeeperHub.Auth): Para hashing de senhas.
+Comeonin ou Argon2 (ou similar, via Deeper_Hub.Auth): Para hashing de senhas.
 
 Jason: Para serialização/deserialização JSON (se houver APIs REST diretas ou para metadados de eventos).
 
 🤝 9. Como Usar / Integração
 
-Outros módulos devem interagir com as funcionalidades de contas exclusivamente através da fachada DeeperHub.Accounts.
+Outros módulos devem interagir com as funcionalidades de contas exclusivamente através da fachada Deeper_Hub.Accounts.
 
 Exemplo de criação de um novo usuário:
 
@@ -621,7 +621,7 @@ attrs = %{
   password: "StrongPassword123!",
   profile: %{full_name: "Test User"}
 }
-case DeeperHub.Accounts.register_user(attrs) do
+case Deeper_Hub.Accounts.register_user(attrs) do
   {:ok, %{user: user, profile: _profile}} ->
     IO.puts("Usuário criado: #{user.id}")
   {:error, changeset} ->
@@ -638,7 +638,7 @@ IGNORE_WHEN_COPYING_END
 
 Exemplo de busca de perfil de usuário:
 
-case DeeperHub.Accounts.get_profile(user_id) do
+case Deeper_Hub.Accounts.get_profile(user_id) do
   {:ok, profile} ->
     IO.inspect(profile)
   {:error, :not_found} ->
@@ -667,7 +667,7 @@ Cobertura de testes pode ser gerada com: mix test --cover
 
 10.2. Métricas
 
-O módulo Accounts (e seus componentes) emite métricas para o DeeperHub.Core.Metrics para monitoramento:
+O módulo Accounts (e seus componentes) emite métricas para o Deeper_Hub.Core.Metrics para monitoramento:
 
 deeper_hub.accounts.user.created.count (Contador): Número de usuários criados.
 
@@ -685,19 +685,19 @@ deeper_hub.accounts.active_users.gauge (Gauge): Número total de usuários ativo
 
 10.3. Logs
 
-Logs gerados pelo módulo Accounts seguem o padrão do DeeperHub.Core.Logger e incluem automaticamente:
+Logs gerados pelo módulo Accounts seguem o padrão do Deeper_Hub.Core.Logger e incluem automaticamente:
 
-{module: DeeperHub.Accounts} ou o submódulo específico (ex: {module: DeeperHub.Accounts.Services.UserService}).
+{module: Deeper_Hub.Accounts} ou o submódulo específico (ex: {module: Deeper_Hub.Accounts.Services.UserService}).
 
 {function: "nome_da_funcao/aridade"}.
 
 Operações críticas incluem user_id e trace_id (se aplicável) para rastreamento.
-Ex: Logger.info("Usuário criado", module: DeeperHub.Accounts.Services.UserService, user_id: user.id)
-Ex: Logger.error("Falha ao atualizar perfil", module: DeeperHub.Accounts.Services.ProfileService, user_id: user.id, error: reason)
+Ex: Logger.info("Usuário criado", module: Deeper_Hub.Accounts.Services.UserService, user_id: user.id)
+Ex: Logger.error("Falha ao atualizar perfil", module: Deeper_Hub.Accounts.Services.ProfileService, user_id: user.id, error: reason)
 
 10.4. Telemetria
 
-O módulo Accounts emite eventos de telemetria através de DeeperHub.Accounts.Integrations.EventIntegration que são então manipulados pelo Core.EventBus. Eventos principais:
+O módulo Accounts emite eventos de telemetria através de Deeper_Hub.Accounts.Integrations.EventIntegration que são então manipulados pelo Core.EventBus. Eventos principais:
 
 [:deeper_hub, :accounts, :user, :created]: Emitido após um novo usuário ser criado. Payload: %{user: user_struct}.
 
@@ -721,7 +721,7 @@ Funções que podem falhar devido a dados inválidos geralmente retornam {:error
 
 Erros de "não encontrado" retornam {:error, :not_found}.
 
-Erros de permissão (embora mais comuns em DeeperHub.Auth) podem retornar {:error, :unauthorized}.
+Erros de permissão (embora mais comuns em Deeper_Hub.Auth) podem retornar {:error, :unauthorized}.
 
 Outros erros internos podem retornar {:error, term()} com uma descrição do erro.
 
@@ -729,23 +729,23 @@ Outros erros internos podem retornar {:error, term()} com uma descrição do err
 
 🛡️ 12. Considerações de Segurança
 
-Dados Sensíveis: Este módulo lida com dados pessoais (nome, email) e credenciais (senhas, via delegação para DeeperHub.Auth). As senhas nunca são armazenadas em texto plano.
+Dados Sensíveis: Este módulo lida com dados pessoais (nome, email) e credenciais (senhas, via delegação para Deeper_Hub.Auth). As senhas nunca são armazenadas em texto plano.
 
 Validação de Entrada: Todos os dados de entrada fornecidos pelo usuário são rigorosamente validados usando Ecto.Changeset para prevenir dados malformados e ataques comuns.
 
-Hashing de Senhas: O hashing de senhas é delegado para DeeperHub.Auth, que utiliza algoritmos fortes (ex: Argon2, bcrypt).
+Hashing de Senhas: O hashing de senhas é delegado para Deeper_Hub.Auth, que utiliza algoritmos fortes (ex: Argon2, bcrypt).
 
 Tokens de Verificação: Tokens de verificação de email são gerados com segurança, têm tempo de vida limitado e são de uso único.
 
-Controle de Acesso: A modificação de dados de um usuário (perfil, senha) é restrita ao próprio usuário ou a administradores com as devidas permissões (verificado por DeeperHub.Auth ou DeeperHub.RBAC).
+Controle de Acesso: A modificação de dados de um usuário (perfil, senha) é restrita ao próprio usuário ou a administradores com as devidas permissões (verificado por Deeper_Hub.Auth ou Deeper_Hub.RBAC).
 
 Prevenção de Enumeração de Usuários: Respostas a tentativas de login ou recuperação de senha não devem revelar se um email/usuário existe no sistema, para dificultar a enumeração.
 
 🧑‍💻 13. Contribuição
 
-Consulte as diretrizes gerais de contribuição do projeto DeeperHub.
+Consulte as diretrizes gerais de contribuição do projeto Deeper_Hub.
 
-Mantenha a separação entre a fachada DeeperHub.Accounts e os serviços internos.
+Mantenha a separação entre a fachada Deeper_Hub.Accounts e os serviços internos.
 
 Adicione testes para todas as novas funcionalidades e correções.
 
@@ -761,7 +761,7 @@ Adicionar opção para usuários solicitarem a exportação de seus dados.
 
 Integrar com um serviço de enriquecimento de perfil (ex: Clearbit) opcional.
 
-Permitir que usuários conectem múltiplas identidades sociais à mesma conta DeeperHub.
+Permitir que usuários conectem múltiplas identidades sociais à mesma conta Deeper_Hub.
 
 Refatorar AccountManager completamente para dentro dos novos serviços, se ainda houver resquícios.
 
@@ -771,4 +771,4 @@ Consultar TODO:s no código para tarefas pendentes.
 
 Isso é um exemplo para um módulo. O processo seria repetido para cada um dos módulos identificados na nova estrutura, detalhando ao máximo suas características.
 
-Espero que esta análise e o exemplo de README ajudem a estruturar a documentação do seu novo sistema DeeperHub! É um projeto ambicioso e com uma base já muito sólida.
+Espero que esta análise e o exemplo de README ajudem a estruturar a documentação do seu novo sistema Deeper_Hub! É um projeto ambicioso e com uma base já muito sólida.

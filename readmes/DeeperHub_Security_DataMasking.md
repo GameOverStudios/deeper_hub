@@ -1,12 +1,12 @@
-# Módulo: `DeeperHub.Security.DataMasking` 🚀
+# Módulo: `Deeper_Hub.Security.DataMasking` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Security.DataMasking`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Security.DataMasking`
 
-O módulo `DeeperHub.Security.DataMasking` é responsável por **mascarar (ou ofuscar) dados sensíveis** dentro do sistema DeeperHub. O objetivo é proteger informações confidenciais de serem expostas em logs, interfaces de usuário (especialmente para administradores ou suporte), relatórios ou qualquer outro local onde o dado completo não seja estritamente necessário.
+O módulo `Deeper_Hub.Security.DataMasking` é responsável por **mascarar (ou ofuscar) dados sensíveis** dentro do sistema Deeper_Hub. O objetivo é proteger informações confidenciais de serem expostas em logs, interfaces de usuário (especialmente para administradores ou suporte), relatórios ou qualquer outro local onde o dado completo não seja estritamente necessário.
 
 Ele fornece funcionalidades para mascarar diferentes tipos de dados, como CPFs, números de cartão de crédito, emails, telefones, e também permite mascarar campos específicos dentro de estruturas de dados maiores (mapas). Este módulo ajuda a cumprir com regulamentações de privacidade (como LGPD/GDPR) e a reduzir o risco de vazamento de dados. 😊
 
-*(Nota: A documentação original tinha `DeeperHub.Security.DataMasking.DataMaskingService` e `DataMaskingFacade`. Esta documentação consolida a fachada principal em `DeeperHub.Security.DataMasking` e a lógica no `DataMaskingService`.)*
+*(Nota: A documentação original tinha `Deeper_Hub.Security.DataMasking.DataMaskingService` e `DataMaskingFacade`. Esta documentação consolida a fachada principal em `Deeper_Hub.Security.DataMasking` e a lógica no `DataMaskingService`.)*
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -36,16 +36,16 @@ Ele fornece funcionalidades para mascarar diferentes tipos de dados, como CPFs, 
 
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.Security.DataMasking` (Fachada Pública):**
+1.  **`Deeper_Hub.Security.DataMasking` (Fachada Pública):**
     *   Ponto de entrada para todas as operações de mascaramento.
     *   Delega para o `DataMaskingService`.
-2.  **`DeeperHub.Security.DataMasking.Services.DataMaskingService` (Módulo Funcional):**
+2.  **`Deeper_Hub.Security.DataMasking.Services.DataMaskingService` (Módulo Funcional):**
     *   **Responsabilidade:** Contém a lógica principal para aplicar as diferentes técnicas de mascaramento.
     *   Não gerencia estado, as regras de mascaramento são obtidas do `Core.ConfigManager` ou passadas como opções.
     *   Utiliza regex e manipulação de strings para realizar o mascaramento.
     *   **Interações:**
-        *   `DeeperHub.Core.ConfigManager`: Para obter padrões de mascaramento padrão, caracteres de substituição, etc.
-3.  **Configurações (via `DeeperHub.Core.ConfigManager` e `DeeperHub.Security.Policy.SecurityPolicyManager`):**
+        *   `Deeper_Hub.Core.ConfigManager`: Para obter padrões de mascaramento padrão, caracteres de substituição, etc.
+3.  **Configurações (via `Deeper_Hub.Core.ConfigManager` e `Deeper_Hub.Security.Policy.SecurityPolicyManager`):**
     *   Padrões de regex para identificar dados a serem mascarados (ex: regex para CPF, Cartão).
     *   Formatos de mascaramento (ex: `cpf_mask: \"###.***.***-##\"`).
     *   Lista de chaves sensíveis padrão para `mask_sensitive_map/3` e `mask_for_log/2`.
@@ -100,7 +100,7 @@ security/data_masking/
 
 *(Baseado na documentação original, com alguns refinamentos e adições)*
 
-### 6.1. `DeeperHub.Security.DataMasking.mask_sensitive_data(text :: String.t(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}`
+### 6.1. `Deeper_Hub.Security.DataMasking.mask_sensitive_data(text :: String.t(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}`
 
 *   **Descrição:** Tenta identificar e mascarar automaticamente vários tipos de dados sensíveis (CPF, email, cartão, etc.) dentro de uma string de texto livre.
 *   **`opts`:**
@@ -114,7 +114,7 @@ security/data_masking/
     # masked poderia ser \"Contato: j***@e******.com, CPF: ***.***.***-00.\"
     ```
 
-### 6.2. `DeeperHub.Security.DataMasking.mask_sensitive_map(data_map :: map(), sensitive_keys :: list(atom() | String.t()), opts :: keyword()) :: {:ok, map()} | {:error, term()}`
+### 6.2. `Deeper_Hub.Security.DataMasking.mask_sensitive_map(data_map :: map(), sensitive_keys :: list(atom() | String.t()), opts :: keyword()) :: {:ok, map()} | {:error, term()}`
 
 *   **Descrição:** Mascara os valores das chaves especificadas em `sensitive_keys` dentro de `data_map`.
 *   **`opts`:**
@@ -124,20 +124,20 @@ security/data_masking/
 
 ### 6.3. Funções Específicas de Tipo:
 
-*   **`DeeperHub.Security.DataMasking.mask_email(email :: String.t(), opts :: keyword()) :: {:ok, String.t()}`**
+*   **`Deeper_Hub.Security.DataMasking.mask_email(email :: String.t(), opts :: keyword()) :: {:ok, String.t()}`**
     *   `opts`: `:visible_prefix_chars` (int, Padrão: 1), `:visible_domain_chars` (int, Padrão: 0), `:preserve_domain_extension` (bool, Padrão: true).
     *   Ex: `j***@e******.com`
-*   **`DeeperHub.Security.DataMasking.mask_cpf(cpf :: String.t(), opts :: keyword()) :: {:ok, String.t()}`**
+*   **`Deeper_Hub.Security.DataMasking.mask_cpf(cpf :: String.t(), opts :: keyword()) :: {:ok, String.t()}`**
     *   `opts`: `:visible_digits_start` (int, Padrão: 3), `:visible_digits_end` (int, Padrão: 2).
     *   Ex: `***.456.789-**` ou `123.***.***-00`.
-*   **`DeeperHub.Security.DataMasking.mask_credit_card(card_number :: String.t(), opts :: keyword()) :: {:ok, String.t()}`**
+*   **`Deeper_Hub.Security.DataMasking.mask_credit_card(card_number :: String.t(), opts :: keyword()) :: {:ok, String.t()}`**
     *   `opts`: `:visible_last_digits` (int, Padrão: 4), `:visible_first_digits` (int, Padrão: 0 ou 6 para preservar BIN).
     *   Ex: `****-****-****-3456`.
-*   **`DeeperHub.Security.DataMasking.mask_phone(phone :: String.t(), opts :: keyword()) :: {:ok, String.t()}`**
+*   **`Deeper_Hub.Security.DataMasking.mask_phone(phone :: String.t(), opts :: keyword()) :: {:ok, String.t()}`**
     *   `opts`: `:visible_last_digits` (int, Padrão: 4), `:preserve_prefix_chars` (int, Padrão: 0, mas pode ser usado para DDD + código país).
     *   Ex: `(11) *****-4321`.
 
-### 6.4. `DeeperHub.Security.DataMasking.mask_for_log(data :: String.t() | map(), opts :: keyword()) :: String.t() | map()`
+### 6.4. `Deeper_Hub.Security.DataMasking.mask_for_log(data :: String.t() | map(), opts :: keyword()) :: String.t() | map()`
 
 *   **Descrição:** Função de conveniência que aplica `mask_sensitive_data/2` se `data` for string, ou `mask_sensitive_map/3` se for mapa. Usa uma lista padrão de `sensitive_keys` configurada para mapas.
 *   **`opts`:** Pode encaminhar opções para as funções subjacentes.
@@ -145,7 +145,7 @@ security/data_masking/
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolicyManager`:
+Via `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPolicyManager`:
 
 *   **`[:security, :data_masking, :enabled]`** (Boolean): Habilita/desabilita o mascaramento. (Padrão: `true`)
 *   **`[:security, :data_masking, :default_mask_char]`** (String): Caractere padrão para mascaramento. (Padrão: `\"*\"`)
@@ -164,8 +164,8 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.ConfigManager`: Para obter configurações de mascaramento.
-*   `DeeperHub.Core.Logger`: Para logar se o mascaramento falhar ou se uma tentativa de logar dados não mascarados for detectada (se houver tal verificação).
+*   `Deeper_Hub.Core.ConfigManager`: Para obter configurações de mascaramento.
+*   `Deeper_Hub.Core.Logger`: Para logar se o mascaramento falhar ou se uma tentativa de logar dados não mascarados for detectada (se houver tal verificação).
 
 ### 8.2. Bibliotecas Externas
 
@@ -173,17 +173,17 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 ## 🤝 9. Como Usar / Integração
 
-*   **Em Módulos de Logging (`DeeperHub.Security.LogSanitizer`):**
+*   **Em Módulos de Logging (`Deeper_Hub.Security.LogSanitizer`):**
     *   O `LogSanitizer` chamaria `DataMasking.mask_for_log(metadata_map)` antes de passar os metadados para os backends de log.
-*   **Em Módulos de API (`DeeperHub.Security.ResponseSanitizer`):**
+*   **Em Módulos de API (`Deeper_Hub.Security.ResponseSanitizer`):**
     *   O `ResponseSanitizer` chamaria `DataMasking.mask_sensitive_map(api_response_body, configured_sensitive_keys_for_api)` antes de serializar para JSON.
 *   **Em Interfaces de Usuário (ex: painel de admin mostrando dados de usuário):**
     *   O controller ou view helper chamaria as funções de mascaramento específicas antes de renderizar os dados.
     ```elixir
     # Em um controller/view
     def show_user_details(user) do
-      masked_email = DeeperHub.Security.DataMasking.mask_email(user.email) |> elem(1)
-      masked_cpf = DeeperHub.Security.DataMasking.mask_cpf(user.cpf) |> elem(1)
+      masked_email = Deeper_Hub.Security.DataMasking.mask_email(user.email) |> elem(1)
+      masked_cpf = Deeper_Hub.Security.DataMasking.mask_cpf(user.cpf) |> elem(1)
       # ... renderizar com dados mascarados
     end
     ```
@@ -246,7 +246,7 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 O mascaramento de dados é um aspecto importante da proteção de dados e privacidade!
 
-Para o próximo, podemos abordar `DeeperHub.Security.ResponseSanitizer` que é um consumidor natural do `DataMasking`, ou mudar para um módulo de infraestrutura como `DeeperHub.Core.BackgroundTaskManager`?"""),
+Para o próximo, podemos abordar `Deeper_Hub.Security.ResponseSanitizer` que é um consumidor natural do `DataMasking`, ou mudar para um módulo de infraestrutura como `Deeper_Hub.Core.BackgroundTaskManager`?"""),
             ],
         ),
         types.Content(
@@ -258,7 +258,7 @@ Para o próximo, podemos abordar `DeeperHub.Security.ResponseSanitizer` que é u
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Perfeito! Vamos continuar com o `DeeperHub.Security.ResponseSanitizer`, que é um consumidor direto das funcionalidades do `DataMasking` e essencial para proteger dados em trânsito para o cliente.
+                types.Part.from_text(text="""Perfeito! Vamos continuar com o `Deeper_Hub.Security.ResponseSanitizer`, que é um consumidor direto das funcionalidades do `DataMasking` e essencial para proteger dados em trânsito para o cliente.
 
 ---
 

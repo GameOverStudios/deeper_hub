@@ -1,12 +1,12 @@
-# Módulo: `DeeperHub.Core.BackgroundTaskManager` 🚀
+# Módulo: `Deeper_Hub.Core.BackgroundTaskManager` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Core.BackgroundTaskManager`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Core.BackgroundTaskManager`
 
-O módulo `DeeperHub.Core.BackgroundTaskManager` é o sistema centralizado para **gerenciar e executar tarefas em segundo plano (background tasks)** no DeeperHub. Ele permite que a aplicação enfileire trabalhos para execução assíncrona, desacoplando operações demoradas ou não críticas do fluxo principal de interação do usuário.
+O módulo `Deeper_Hub.Core.BackgroundTaskManager` é o sistema centralizado para **gerenciar e executar tarefas em segundo plano (background tasks)** no Deeper_Hub. Ele permite que a aplicação enfileire trabalhos para execução assíncrona, desacoplando operações demoradas ou não críticas do fluxo principal de interação do usuário.
 
 Isso é crucial para manter a responsividade da aplicação, processar grandes volumes de dados, interagir com serviços externos lentos e agendar tarefas recorrentes. O BackgroundTaskManager abstrai a biblioteca ou o mecanismo de enfileiramento subjacente (ex: Oban, Exq, Broadway, ou um sistema customizado baseado em GenServer/ETS). 😊
 
-*(Nota: A documentação original tem `DeeperHub.BackgroundTasks` com vários submódulos como `BackgroundTasksFacade`, `Adapters.BackgroundTasksAdapter`, `Services.DefaultBackgroundTaskService`, etc. Esta documentação consolida a fachada em `DeeperHub.Core.BackgroundTaskManager` e assume que a lógica de serviço e adaptação pode residir em `DeeperHub.BackgroundTasks.*` como um submódulo do Core ou um contexto de domínio próprio, dependendo da complexidade desejada.)*
+*(Nota: A documentação original tem `Deeper_Hub.BackgroundTasks` com vários submódulos como `BackgroundTasksFacade`, `Adapters.BackgroundTasksAdapter`, `Services.DefaultBackgroundTaskService`, etc. Esta documentação consolida a fachada em `Deeper_Hub.Core.BackgroundTaskManager` e assume que a lógica de serviço e adaptação pode residir em `Deeper_Hub.BackgroundTasks.*` como um submódulo do Core ou um contexto de domínio próprio, dependendo da complexidade desejada.)*
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -45,10 +45,10 @@ Isso é crucial para manter a responsividade da aplicação, processar grandes v
 
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.Core.BackgroundTaskManager` (Fachada Pública):**
+1.  **`Deeper_Hub.Core.BackgroundTaskManager` (Fachada Pública):**
     *   Ponto de entrada para enfileirar, agendar e gerenciar tarefas.
     *   Delega para o `BackgroundTasksAdapter` configurado.
-2.  **`DeeperHub.BackgroundTasks.Adapters.BackgroundTasksAdapter` (Behaviour e Implementações):**
+2.  **`Deeper_Hub.BackgroundTasks.Adapters.BackgroundTasksAdapter` (Behaviour e Implementações):**
     *   **Responsabilidade:** Abstrair a biblioteca de enfileiramento subjacente.
     *   **Comportamento (`BackgroundTasksBehaviour`):** Define a interface.
     *   **Implementações:**
@@ -58,14 +58,14 @@ Isso é crucial para manter a responsividade da aplicação, processar grandes v
         *   `NoOpAdapter`: Não executa tarefas, útil para desabilitar em certos ambientes.
 3.  **Workers de Tarefas (Definidos pela Aplicação):**
     *   Módulos Elixir que implementam a lógica de uma tarefa específica. Eles geralmente seguem um comportamento esperado pelo backend de enfileiramento (ex: `Oban.Worker`).
-    *   Ex: `DeeperHub.Notifications.Workers.EmailWorker`, `DeeperHub.Audit.Workers.LogProcessingWorker`.
+    *   Ex: `Deeper_Hub.Notifications.Workers.EmailWorker`, `Deeper_Hub.Audit.Workers.LogProcessingWorker`.
 4.  **Backend de Enfileiramento (Externo ou Embutido):**
     *   O sistema real que armazena as filas e gerencia os workers (ex: PostgreSQL para Oban, Redis para Exq, ou ETS para uma solução simples).
-5.  **`DeeperHub.BackgroundTasks.Supervisor` (ou `UnifiedSupervisor`):**
+5.  **`Deeper_Hub.BackgroundTasks.Supervisor` (ou `UnifiedSupervisor`):**
     *   Supervisiona os processos do adaptador de tarefas (se for um GenServer) e quaisquer workers de gerenciamento interno (ex: `CleanupWorker`). O backend de enfileiramento (como Oban) geralmente tem seu próprio supervisor.
-6.  **`DeeperHub.BackgroundTasks.Integrations.AuditIntegration`, `EventIntegration`, `MetricsIntegration`, `NotificationIntegration`:**
+6.  **`Deeper_Hub.BackgroundTasks.Integrations.AuditIntegration`, `EventIntegration`, `MetricsIntegration`, `NotificationIntegration`:**
     *   Submódulos para integrar o sistema de tarefas com auditoria, eventos, métricas e notificações.
-7.  **Configurações (via `DeeperHub.Core.ConfigManager`):**
+7.  **Configurações (via `Deeper_Hub.Core.ConfigManager`):**
     *   Qual adaptador usar, configurações de conexão para o backend (Redis URL, DB Repo), configurações de fila, políticas de retry padrão, etc.
 
 ### 3.2. Estrutura de Diretórios (Proposta para `BackgroundTasks` como submódulo do Core ou contexto)
@@ -121,7 +121,7 @@ background_tasks/    # Lógica e adaptadores
 ## 🛠️ 4. Casos de Uso Principais
 
 *   **Envio de Email de Boas-Vindas:**
-    *   Após um usuário se registrar, `DeeperHub.Accounts` enfileira uma tarefa: `BackgroundTaskManager.enqueue_task(DeeperHub.Notifications.Workers.EmailWorker, :send_welcome_email, [user_id])`.
+    *   Após um usuário se registrar, `Deeper_Hub.Accounts` enfileira uma tarefa: `BackgroundTaskManager.enqueue_task(Deeper_Hub.Notifications.Workers.EmailWorker, :send_welcome_email, [user_id])`.
     *   O `EmailWorker` executa assincronamente, constrói e envia o email.
 *   **Processamento de Upload de Vídeo:**
     *   Usuário faz upload de um vídeo. O controller API salva o arquivo e enfileira uma tarefa: `BackgroundTaskManager.enqueue_task(MyApp.VideoProcessingWorker, :process_video, [video_id, %{target_formats: [\"mp4\", \"webm\"]}])`.
@@ -135,7 +135,7 @@ background_tasks/    # Lógica e adaptadores
 
 ### Fluxo de Enfileiramento e Execução de Tarefa (Exemplo com Oban-like)
 
-1.  **Módulo Chamador:** Chama `DeeperHub.Core.BackgroundTaskManager.enqueue_task(MyApp.MyWorker, :perform, [arg1, arg2], opts)`.
+1.  **Módulo Chamador:** Chama `Deeper_Hub.Core.BackgroundTaskManager.enqueue_task(MyApp.MyWorker, :perform, [arg1, arg2], opts)`.
 2.  **`Core.BackgroundTaskManager` (Fachada):** Delega para o `BackgroundTasksAdapter`.
 3.  **`BackgroundTasksAdapter` (ex: `ObanAdapter`):**
     *   Cria um novo job Oban (ou o formato do backend) com os argumentos serializados, nome do worker, opções de fila, retentativas, etc.
@@ -152,11 +152,11 @@ background_tasks/    # Lógica e adaptadores
     *   **Falha (Exceção):** O backend captura a exceção, marca o job como `retryable` (ou `discarded` se exceder retentativas), registra o erro, e agenda uma retentativa conforme a política.
     *   **Falha (Retorno `{:error, reason}`):** Similar à exceção.
 
-## 📡 6. API (Funções Públicas da Fachada `DeeperHub.Core.BackgroundTaskManager`)
+## 📡 6. API (Funções Públicas da Fachada `Deeper_Hub.Core.BackgroundTaskManager`)
 
 *(Baseado na documentação original, consolidando e clarificando)*
 
-### 6.1. `DeeperHub.Core.BackgroundTaskManager.enqueue_task(worker_module :: module(), function_atom :: atom(), args :: list(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}`
+### 6.1. `Deeper_Hub.Core.BackgroundTaskManager.enqueue_task(worker_module :: module(), function_atom :: atom(), args :: list(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}`
 
 *   **Descrição:** Enfileira uma tarefa para execução assíncrona o mais rápido possível.
 *   **`worker_module`:** O módulo do worker que contém a função a ser executada.
@@ -171,50 +171,50 @@ background_tasks/    # Lógica e adaptadores
     *   `:unique_for_seconds` (integer | nil): Se definido, garante que apenas uma tarefa com a mesma combinação worker/função/args seja enfileirada dentro deste período.
 *   **Retorno:** `{:ok, task_id}` (ID único da tarefa/job) ou `{:error, reason}`.
 
-### 6.2. `DeeperHub.Core.BackgroundTaskManager.schedule_task(worker_module :: module(), function_atom :: atom(), args :: list(), scheduled_at :: DateTime.t() | non_neg_integer(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}`
+### 6.2. `Deeper_Hub.Core.BackgroundTaskManager.schedule_task(worker_module :: module(), function_atom :: atom(), args :: list(), scheduled_at :: DateTime.t() | non_neg_integer(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}`
 
 *   **Descrição:** Agenda uma tarefa para ser executada em um momento específico no futuro ou após um atraso.
 *   **`scheduled_at`:** Um `DateTime.t()` para agendamento absoluto, ou um `non_neg_integer()` para segundos de atraso a partir de agora.
 *   *(Outros parâmetros e `opts` similares a `enqueue_task/4`)*
 
-### 6.3. `DeeperHub.Core.BackgroundTaskManager.schedule_recurring_task(task_name_id :: String.t(), worker_module :: module(), function_atom :: atom(), args :: list(), cron_expression :: String.t(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}`
+### 6.3. `Deeper_Hub.Core.BackgroundTaskManager.schedule_recurring_task(task_name_id :: String.t(), worker_module :: module(), function_atom :: atom(), args :: list(), cron_expression :: String.t(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}`
 
 *   **Descrição:** Agenda uma tarefa para execução recorrente usando uma expressão CRON.
 *   **`task_name_id`:** Um ID único para identificar esta tarefa recorrente (para atualizações/cancelamento).
 *   **`cron_expression`:** Ex: `\"0 * * * *\"` (a cada hora).
 *   *(Outros parâmetros e `opts` similares a `enqueue_task/4`, mais opções de timezone, etc.)*
 
-### 6.4. `DeeperHub.Core.BackgroundTaskManager.cancel_task(task_id :: String.t(), opts :: keyword()) :: :ok | {:error, :not_found | term()}`
+### 6.4. `Deeper_Hub.Core.BackgroundTaskManager.cancel_task(task_id :: String.t(), opts :: keyword()) :: :ok | {:error, :not_found | term()}`
 
 *   **Descrição:** Tenta cancelar uma tarefa pendente ou agendada. Não garante o cancelamento se a tarefa já estiver em execução.
 *   **`opts`:** `:reason` (String.t).
 
-### 6.5. `DeeperHub.Core.BackgroundTaskManager.cancel_recurring_task(task_name_id :: String.t(), opts :: keyword()) :: :ok | {:error, :not_found | term()}`
+### 6.5. `Deeper_Hub.Core.BackgroundTaskManager.cancel_recurring_task(task_name_id :: String.t(), opts :: keyword()) :: :ok | {:error, :not_found | term()}`
 
 *   **Descrição:** Cancela/desabilita uma tarefa recorrente.
 
-### 6.6. `DeeperHub.Core.BackgroundTaskManager.get_task_status(task_id :: String.t(), opts :: keyword()) :: {:ok, TaskStatus.t()} | {:error, :not_found | term()}`
+### 6.6. `Deeper_Hub.Core.BackgroundTaskManager.get_task_status(task_id :: String.t(), opts :: keyword()) :: {:ok, TaskStatus.t()} | {:error, :not_found | term()}`
 
 *   **Descrição:** Obtém o status atual de uma tarefa.
 *   **`TaskStatus.t()`:** `%{id: String.t(), status: :pending | :running | :completed | :failed | :retryable | :discarded, queue: String.t, worker: module(), attempts: integer(), last_error: String.t() | nil, inserted_at: DateTime.t(), scheduled_at: DateTime.t() | nil}`.
 
-### 6.7. `DeeperHub.Core.BackgroundTaskManager.list_tasks(opts :: keyword()) :: {:ok, list(TaskStatus.t()), Pagination.t()} | {:error, term()}`
+### 6.7. `Deeper_Hub.Core.BackgroundTaskManager.list_tasks(opts :: keyword()) :: {:ok, list(TaskStatus.t()), Pagination.t()} | {:error, term()}`
 
 *   **Descrição:** Lista tarefas com filtros e paginação.
 *   **`opts`:** `:status`, `:queue`, `:worker_module`, `:page`, `:per_page`, `:sort_by`.
 *   **`Pagination.t()`:** `%{total_entries: integer(), total_pages: integer(), page_number: integer(), page_size: integer()}`.
 
-### 6.8. `DeeperHub.Core.BackgroundTaskManager.get_statistics(opts :: keyword()) :: {:ok, map()}`
+### 6.8. `Deeper_Hub.Core.BackgroundTaskManager.get_statistics(opts :: keyword()) :: {:ok, map()}`
 
 *   **Descrição:** Retorna estatísticas sobre as filas e workers.
 *   **Exemplo de Retorno:** `%{queues: %{\"default\" => %{pending: 100, running: 5, failed_today: 2}, ...}, workers_summary: %{total_busy: 5, total_idle: 15}}`.
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager`:
+Via `Deeper_Hub.Core.ConfigManager`:
 
 *   **`[:core, :background_tasks, :enabled]`** (Boolean): Habilita/desabilita o sistema. (Padrão: `true`)
-*   **`[:core, :background_tasks, :adapter]`** (Module): Módulo adaptador a ser usado (ex: `DeeperHub.BackgroundTasks.Adapters.ObanAdapter`). (Obrigatório se enabled)
+*   **`[:core, :background_tasks, :adapter]`** (Module): Módulo adaptador a ser usado (ex: `Deeper_Hub.BackgroundTasks.Adapters.ObanAdapter`). (Obrigatório se enabled)
 *   **`[:core, :background_tasks, :default_queue_name]`** (String): Nome da fila padrão. (Padrão: `\"default\"`)
 *   **`[:core, :background_tasks, :default_max_attempts]`** (Integer): Número máximo de tentativas padrão para tarefas. (Padrão: `5`)
 *   **`[:core, :background_tasks, :default_retry_delay_seconds]`** (Integer): Atraso base para retentativas.
@@ -229,11 +229,11 @@ Via `DeeperHub.Core.ConfigManager`:
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.ConfigManager`: Para configurações.
-*   `DeeperHub.Core.Logger`: Para logging.
-*   `DeeperHub.Core.Metrics`: Para métricas.
-*   `DeeperHub.Core.Supervisor` (indireta): Para supervisionar o adaptador e workers.
-*   `DeeperHub.BackgroundTasks.Integrations.*`: Para auditoria, eventos, etc.
+*   `Deeper_Hub.Core.ConfigManager`: Para configurações.
+*   `Deeper_Hub.Core.Logger`: Para logging.
+*   `Deeper_Hub.Core.Metrics`: Para métricas.
+*   `Deeper_Hub.Core.Supervisor` (indireta): Para supervisionar o adaptador e workers.
+*   `Deeper_Hub.BackgroundTasks.Integrations.*`: Para auditoria, eventos, etc.
 
 ### 8.2. Bibliotecas Externas
 
@@ -245,7 +245,7 @@ Via `DeeperHub.Core.ConfigManager`:
 **Enfileirando uma Tarefa Simples:**
 ```elixir
 defmodule MyApp.EmailService do
-  alias DeeperHub.Core.BackgroundTaskManager
+  alias Deeper_Hub.Core.BackgroundTaskManager
 
   def send_welcome_email_async(user_id) do
     BackgroundTaskManager.enqueue_task(
@@ -337,7 +337,7 @@ As bibliotecas como Oban já emitem muitos eventos Telemetry. Se for uma impleme
 
 Este módulo é um burro de carga para a aplicação, permitindo muita flexibilidade e resiliência.
 
-O que gostaria de documentar a seguir? Talvez `DeeperHub.Shared.Utils` para cobrir os utilitários gerais, ou podemos começar com um módulo de domínio como `DeeperHub.Servers`?"""),
+O que gostaria de documentar a seguir? Talvez `Deeper_Hub.Shared.Utils` para cobrir os utilitários gerais, ou podemos começar com um módulo de domínio como `Deeper_Hub.Servers`?"""),
             ],
         ),
         types.Content(
@@ -349,7 +349,7 @@ O que gostaria de documentar a seguir? Talvez `DeeperHub.Shared.Utils` para cobr
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ok! Vamos para `DeeperHub.Servers`. Este será o nosso primeiro módulo de domínio \"principal\" a ser detalhado, e ele provavelmente usará muitos dos módulos Core e Security que já documentamos.
+                types.Part.from_text(text="""Ok! Vamos para `Deeper_Hub.Servers`. Este será o nosso primeiro módulo de domínio \"principal\" a ser detalhado, e ele provavelmente usará muitos dos módulos Core e Security que já documentamos.
 
 ---
 

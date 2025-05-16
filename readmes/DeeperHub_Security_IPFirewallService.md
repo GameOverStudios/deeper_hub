@@ -1,12 +1,12 @@
-# Módulo: `DeeperHub.Security.IPFirewallService` 🚀
+# Módulo: `Deeper_Hub.Security.IPFirewallService` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Security.IPFirewallService`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Security.IPFirewallService`
 
-O módulo `DeeperHub.Security.IPFirewallService` é responsável por gerenciar e aplicar regras de firewall baseadas em endereços IP para o sistema DeeperHub. Ele permite a criação de listas de permissão (allowlists) e listas de bloqueio (blocklists) de IPs, controlando quais endereços podem ou não acessar a aplicação ou partes dela.
+O módulo `Deeper_Hub.Security.IPFirewallService` é responsável por gerenciar e aplicar regras de firewall baseadas em endereços IP para o sistema Deeper_Hub. Ele permite a criação de listas de permissão (allowlists) e listas de bloqueio (blocklists) de IPs, controlando quais endereços podem ou não acessar a aplicação ou partes dela.
 
-Este serviço é crucial para mitigar ameaças como tráfego malicioso conhecido, ataques de bots, e para restringir o acesso a recursos sensíveis apenas a redes confiáveis. Ele trabalha em conjunto com o `DeeperHub.Security.Cache.SecurityCache` para performance e com o `DeeperHub.Security.Policy.SecurityPolicyManager` para configurações. 😊
+Este serviço é crucial para mitigar ameaças como tráfego malicioso conhecido, ataques de bots, e para restringir o acesso a recursos sensíveis apenas a redes confiáveis. Ele trabalha em conjunto com o `Deeper_Hub.Security.Cache.SecurityCache` para performance e com o `Deeper_Hub.Security.Policy.SecurityPolicyManager` para configurações. 😊
 
-*(Nota: A documentação original mencionava `DeeperHub.Security.Config.IPFirewallConfig` e `DeeperHub.Security.Services.IpFirewallService` e `DeeperHub.Security.Plugs.IPFirewallPlug`. Esta documentação consolida a lógica de serviço em `IPFirewallService` e a configuração via `SecurityPolicyManager` ou `Core.ConfigManager`.)*
+*(Nota: A documentação original mencionava `Deeper_Hub.Security.Config.IPFirewallConfig` e `Deeper_Hub.Security.Services.IpFirewallService` e `Deeper_Hub.Security.Plugs.IPFirewallPlug`. Esta documentação consolida a lógica de serviço em `IPFirewallService` e a configuração via `SecurityPolicyManager` ou `Core.ConfigManager`.)*
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -26,7 +26,7 @@ Este serviço é crucial para mitigar ameaças como tráfego malicioso conhecido
 *   **Limpeza de Entradas Expiradas:**
     *   Remover automaticamente bloqueios e permissões temporárias que expiraram (pode ser via TTL do cache ou um worker de limpeza).
 *   **Integração com Cache:**
-    *   Utilizar `DeeperHub.Security.Cache.SecurityCache` para armazenar listas de bloqueio/permissão para acesso rápido e eficiente.
+    *   Utilizar `Deeper_Hub.Security.Cache.SecurityCache` para armazenar listas de bloqueio/permissão para acesso rápido e eficiente.
 *   **Configurabilidade:**
     *   Carregar listas iniciais de IPs bloqueados/permitidos de arquivos de configuração ou do `SecurityPolicyManager`.
     *   Configurar durações padrão para bloqueios/permissões temporárias.
@@ -34,25 +34,25 @@ Este serviço é crucial para mitigar ameaças como tráfego malicioso conhecido
     *   Registrar métricas sobre o número de IPs bloqueados/permitidos, e o número de requisições bloqueadas/permitidas pelo firewall.
     *   Logar ações de bloqueio, permissão e verificações significativas.
 *   **Auditoria:**
-    *   Integrar com `DeeperHub.Audit` para registrar quem adicionou/removeu IPs das listas e por quê.
+    *   Integrar com `Deeper_Hub.Audit` para registrar quem adicionou/removeu IPs das listas e por quê.
 
 ## 🏗️ 3. Arquitetura e Design
 
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.Security.IPFirewallService` (Fachada/Serviço Principal):**
+1.  **`Deeper_Hub.Security.IPFirewallService` (Fachada/Serviço Principal):**
     *   **Responsabilidade:** Ponto de entrada para todas as operações de gerenciamento de firewall de IP. Contém a lógica de negócio principal.
     *   **Interações:**
-        *   `DeeperHub.Security.Cache.SecurityCache`: Para ler e escrever o status de bloqueio/permissão de IPs.
-        *   `DeeperHub.Core.Repo` (via `DeeperHub.Security.Schema.IPBlock` e `IPAllow`): Para persistir bloqueios/permissões permanentes ou para recuperação do cache após reinício.
-        *   `DeeperHub.Security.Policy.SecurityPolicyManager` ou `Core.ConfigManager`: Para obter configurações como durações padrão, listas iniciais.
-        *   `DeeperHub.Audit`: Para registrar modificações nas listas.
-        *   `DeeperHub.Core.EventBus` (opcional): Para publicar eventos sobre IPs bloqueados/desbloqueados.
-2.  **`DeeperHub.Security.Cache.SecurityCache`:**
+        *   `Deeper_Hub.Security.Cache.SecurityCache`: Para ler e escrever o status de bloqueio/permissão de IPs.
+        *   `Deeper_Hub.Core.Repo` (via `Deeper_Hub.Security.Schema.IPBlock` e `IPAllow`): Para persistir bloqueios/permissões permanentes ou para recuperação do cache após reinício.
+        *   `Deeper_Hub.Security.Policy.SecurityPolicyManager` ou `Core.ConfigManager`: Para obter configurações como durações padrão, listas iniciais.
+        *   `Deeper_Hub.Audit`: Para registrar modificações nas listas.
+        *   `Deeper_Hub.Core.EventBus` (opcional): Para publicar eventos sobre IPs bloqueados/desbloqueados.
+2.  **`Deeper_Hub.Security.Cache.SecurityCache`:**
     *   **Responsabilidade:** Armazenar em cache (provavelmente ETS) os IPs bloqueados e permitidos com seus TTLs para verificação de alta performance. As chaves podem ser prefixadas (ex: `\"ip_firewall:blocked:<ip_address>\"`).
-3.  **`DeeperHub.Security.Schema.IPBlock` e `DeeperHub.Security.Schema.IPAllow` (Ecto Schemas):**
+3.  **`Deeper_Hub.Security.Schema.IPBlock` e `Deeper_Hub.Security.Schema.IPAllow` (Ecto Schemas):**
     *   **Responsabilidade:** Definem a estrutura para persistir bloqueios e permissões permanentes ou de longa duração no banco de dados.
-4.  **`DeeperHub.Security.Plugs.IPFirewallPlug` (Phoenix Plug):**
+4.  **`Deeper_Hub.Security.Plugs.IPFirewallPlug` (Phoenix Plug):**
     *   **Responsabilidade:** Integrar com o pipeline de requisições web para verificar cada requisição recebida contra o `IPFirewallService`.
     *   **Interações:** Chama `IPFirewallService.is_blocked?/1` e `is_allowed?/1`.
 5.  **Configurações (via `Core.ConfigManager` / `SecurityPolicyManager`):**
@@ -95,11 +95,11 @@ O `SecurityCache` já está em `security/cache/`.
     *   Chama `IPFirewallService.is_blocked?(\"1.2.3.4\")`.
     *   Serviço verifica no cache. Se bloqueado, o Plug retorna uma resposta 403 Forbidden.
 *   **Administrador Bloqueia um IP Permanentemente:**
-    *   Admin usa o `DeeperHub.Console` ou UI para bloquear um IP.
+    *   Admin usa o `Deeper_Hub.Console` ou UI para bloquear um IP.
     *   Chama `IPFirewallService.block_ip(\"5.6.7.8\", \"Fonte de ataque conhecido\", nil, %{admin_id: \"admin1\"})`.
     *   Serviço persiste no DB, atualiza o cache e audita a ação.
 *   **Serviço de Detecção de Intrusão Bloqueia IP Temporariamente:**
-    *   `DeeperHub.Security.IntrusionDetection` detecta atividade suspeita.
+    *   `Deeper_Hub.Security.IntrusionDetection` detecta atividade suspeita.
     *   Chama `IPFirewallService.block_ip(\"9.10.11.12\", \"Múltiplas tentativas de SQLi\", 3600)`.
     *   Serviço adiciona ao cache com TTL de 1 hora.
 *   **Adicionar Rede Corporativa à Allowlist:**
@@ -113,9 +113,9 @@ O `SecurityCache` já está em `security/cache/`.
 1.  **Requisição Entra:** Chega uma nova requisição HTTP.
 2.  **`IPFirewallPlug.call/2`:**
     *   Extrai o IP do cliente da `conn`.
-    *   Chama `DeeperHub.Security.IPFirewallService.is_allowed?(client_ip)`.
+    *   Chama `Deeper_Hub.Security.IPFirewallService.is_allowed?(client_ip)`.
     *   **Se Permitido (`true`):** A requisição prossegue no pipeline.
-    *   **Se Não Permitido ou Erro:** Chama `DeeperHub.Security.IPFirewallService.is_blocked?(client_ip)`.
+    *   **Se Não Permitido ou Erro:** Chama `Deeper_Hub.Security.IPFirewallService.is_blocked?(client_ip)`.
         *   **Se Bloqueado (`true`):**
             *   Loga a tentativa de acesso bloqueada.
             *   Incrementa métrica `requests_blocked_by_firewall`.
@@ -131,54 +131,54 @@ O `SecurityCache` já está em `security/cache/`.
     *   Cria/Atualiza um registro `IPBlock` no banco de dados (via `Core.Repo`).
     *   Se a persistência for bem-sucedida:
         *   Atualiza o `SecurityCache` adicionando o IP à lista de bloqueados (sem TTL se o bloqueio for permanente).
-        *   Registra a ação no `DeeperHub.Audit`.
+        *   Registra a ação no `Deeper_Hub.Audit`.
         *   (Opcional) Publica um evento `ip_blocked` no `Core.EventBus`.
     *   Retorna `{:ok, block_info}` ou `{:error, reason}`.
 
 ## 📡 6. API (Funções Públicas do Módulo)
 
-### 6.1. `DeeperHub.Security.IPFirewallService.is_blocked?(ip_address :: String.t()) :: boolean()`
+### 6.1. `Deeper_Hub.Security.IPFirewallService.is_blocked?(ip_address :: String.t()) :: boolean()`
 
 *   **Descrição:** Verifica se um IP está atualmente na blocklist (considerando TTLs de bloqueios temporários).
 *   **Retorno:** `true` se bloqueado, `false` caso contrário.
 
-### 6.2. `DeeperHub.Security.IPFirewallService.is_allowed?(ip_address :: String.t()) :: boolean()`
+### 6.2. `Deeper_Hub.Security.IPFirewallService.is_allowed?(ip_address :: String.t()) :: boolean()`
 
 *   **Descrição:** Verifica se um IP está atualmente na allowlist (considerando TTLs).
 
-### 6.3. `DeeperHub.Security.IPFirewallService.block_ip(ip_address :: String.t(), reason :: String.t(), duration_seconds :: integer() | nil, metadata :: map() | nil) :: {:ok, IPBlock.t()} | {:error, Ecto.Changeset.t() | term()}`
+### 6.3. `Deeper_Hub.Security.IPFirewallService.block_ip(ip_address :: String.t(), reason :: String.t(), duration_seconds :: integer() | nil, metadata :: map() | nil) :: {:ok, IPBlock.t()} | {:error, Ecto.Changeset.t() | term()}`
 
 *   **Descrição:** Adiciona um IP à blocklist.
 *   **`duration_seconds`:** `nil` para permanente, ou número de segundos para bloqueio temporário.
 *   **`metadata`:** Ex: `%{blocked_by: \"admin_user_id\", ticket_ref: \"SUP-123\"}`.
 *   **Retorno:** Struct `IPBlock` salva ou erro.
 
-### 6.4. `DeeperHub.Security.IPFirewallService.allow_ip(ip_address :: String.t(), reason :: String.t(), duration_seconds :: integer() | nil, metadata :: map() | nil) :: {:ok, IPAllow.t()} | {:error, Ecto.Changeset.t() | term()}`
+### 6.4. `Deeper_Hub.Security.IPFirewallService.allow_ip(ip_address :: String.t(), reason :: String.t(), duration_seconds :: integer() | nil, metadata :: map() | nil) :: {:ok, IPAllow.t()} | {:error, Ecto.Changeset.t() | term()}`
 
 *   **Descrição:** Adiciona um IP à allowlist.
 *   **Retorno:** Struct `IPAllow` salva ou erro.
 
-### 6.5. `DeeperHub.Security.IPFirewallService.unblock_ip(ip_address :: String.t(), metadata :: map() | nil) :: :ok | {:error, :not_found | term()}`
+### 6.5. `Deeper_Hub.Security.IPFirewallService.unblock_ip(ip_address :: String.t(), metadata :: map() | nil) :: :ok | {:error, :not_found | term()}`
 
 *   **Descrição:** Remove um IP da blocklist (e do cache).
 *   **`metadata`:** Ex: `%{unblocked_by: \"admin_user_id\"}`.
 
-### 6.6. `DeeperHub.Security.IPFirewallService.disallow_ip(ip_address :: String.t(), metadata :: map() | nil) :: :ok | {:error, :not_found | term()}`
+### 6.6. `Deeper_Hub.Security.IPFirewallService.disallow_ip(ip_address :: String.t(), metadata :: map() | nil) :: :ok | {:error, :not_found | term()}`
 
 *   **Descrição:** Remove um IP da allowlist (e do cache).
 
-### 6.7. `DeeperHub.Security.IPFirewallService.list_blocked_ips(opts :: keyword()) :: {:ok, list(IPBlock.t())}`
+### 6.7. `Deeper_Hub.Security.IPFirewallService.list_blocked_ips(opts :: keyword()) :: {:ok, list(IPBlock.t())}`
 
 *   **Descrição:** Lista IPs bloqueados (primariamente do banco de dados para gerenciamento).
 *   **`opts`:** `:include_expired` (boolean), `:limit`, `:offset`.
 
-### 6.8. `DeeperHub.Security.IPFirewallService.list_allowed_ips(opts :: keyword()) :: {:ok, list(IPAllow.t())}`
+### 6.8. `Deeper_Hub.Security.IPFirewallService.list_allowed_ips(opts :: keyword()) :: {:ok, list(IPAllow.t())}`
 
 *   **Descrição:** Lista IPs permitidos.
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolicyManager`:
+Via `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPolicyManager`:
 
 *   **`[:security, :ip_firewall, :enabled]`** (Boolean): Habilita/desabilita o firewall de IP. (Padrão: `true`)
 *   **`[:security, :ip_firewall, :default_block_duration_seconds]`** (Integer): Duração padrão para bloqueios temporários. (Padrão: `3600` - 1 hora)
@@ -194,11 +194,11 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.ConfigManager`, `Core.Logger`, `Core.Metrics`, `Core.Repo`.
-*   `DeeperHub.Security.Cache.SecurityCache`: Para caching de IPs.
-*   `DeeperHub.Security.Policy.SecurityPolicyManager`: Para obter políticas.
-*   `DeeperHub.Audit`: Para registrar alterações.
-*   `DeeperHub.Shared.Utils.ValidationUtils` (ou similar): Para validar formatos de IP/CIDR.
+*   `Deeper_Hub.Core.ConfigManager`, `Core.Logger`, `Core.Metrics`, `Core.Repo`.
+*   `Deeper_Hub.Security.Cache.SecurityCache`: Para caching de IPs.
+*   `Deeper_Hub.Security.Policy.SecurityPolicyManager`: Para obter políticas.
+*   `Deeper_Hub.Audit`: Para registrar alterações.
+*   `Deeper_Hub.Shared.Utils.ValidationUtils` (ou similar): Para validar formatos de IP/CIDR.
 
 ### 8.2. Bibliotecas Externas
 
@@ -211,13 +211,13 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
     ```elixir
     # Em lib/deeper_hub_web/router.ex
     pipeline :api do
-      plug DeeperHub.Security.Plugs.IPFirewallPlug, mode: :enforce # ou :monitor
+      plug Deeper_Hub.Security.Plugs.IPFirewallPlug, mode: :enforce # ou :monitor
       # ... outros plugs ...
     end
     ```
 *   **Verificação Programática:**
     ```elixir
-    if DeeperHub.Security.IPFirewallService.is_blocked?(client_ip) do
+    if Deeper_Hub.Security.IPFirewallService.is_blocked?(client_ip) do
       # Lógica para lidar com IP bloqueado
     end
     ```
@@ -285,7 +285,7 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 ---
 
-Este cobre o Firewall de IP! Agora, o `DeeperHub.Security.Policy.SecurityPolicyManager` que acabamos de referenciar bastante seria um bom próximo passo para ver como essas configurações são gerenciadas, ou prefere focar em outro aspecto da segurança como `DDoSProtection` ou `CSRFProtection`?"""),
+Este cobre o Firewall de IP! Agora, o `Deeper_Hub.Security.Policy.SecurityPolicyManager` que acabamos de referenciar bastante seria um bom próximo passo para ver como essas configurações são gerenciadas, ou prefere focar em outro aspecto da segurança como `DDoSProtection` ou `CSRFProtection`?"""),
             ],
         ),
         types.Content(
@@ -297,11 +297,11 @@ Este cobre o Firewall de IP! Agora, o `DeeperHub.Security.Policy.SecurityPolicyM
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ok, já detalhamos o `DeeperHub.Security.Policy.SecurityPolicyManager`.
+                types.Part.from_text(text="""Ok, já detalhamos o `Deeper_Hub.Security.Policy.SecurityPolicyManager`.
 
 Dado que já cobrimos vários componentes de segurança importantes (`FraudDetection`, `BruteForceProtection`, `IPFirewallService`, `DeviceFingerprint`, `GeoLocationService`, `BehavioralAnalysis`, `RiskAssessment`, `SecurityPolicyManager`), podemos agora focar em outras camadas de proteção que são comuns em aplicações web.
 
-Vamos detalhar o `DeeperHub.Security.CsrfProtection`.
+Vamos detalhar o `Deeper_Hub.Security.CsrfProtection`.
 
 ---
 

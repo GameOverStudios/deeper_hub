@@ -1,8 +1,8 @@
-# Módulo: `DeeperHub.Security.BruteForceProtection` 🚀
+# Módulo: `Deeper_Hub.Security.BruteForceProtection` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Security.BruteForceProtection`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Security.BruteForceProtection`
 
-O módulo `DeeperHub.Security.BruteForceProtection` é responsável por detectar e mitigar ataques de força bruta contra o sistema DeeperHub. Ataques de força bruta ocorrem quando um invasor tenta adivinhar credenciais (como senhas) ou outros segredos através de um grande volume de tentativas.
+O módulo `Deeper_Hub.Security.BruteForceProtection` é responsável por detectar e mitigar ataques de força bruta contra o sistema Deeper_Hub. Ataques de força bruta ocorrem quando um invasor tenta adivinhar credenciais (como senhas) ou outros segredos através de um grande volume de tentativas.
 
 Este módulo monitora tentativas falhas de acesso para identificadores específicos (como endereços IP, nomes de usuário ou emails), aplicando contramedidas como bloqueios temporários ou a exigência de desafios CAPTCHA para dificultar esses ataques e proteger as contas dos usuários. 😊
 
@@ -26,31 +26,31 @@ Este módulo monitora tentativas falhas de acesso para identificadores específi
     *   Fornecer estatísticas sobre tentativas bloqueadas, CAPTCHAs exigidos e identificadores monitorados (`get_statistics/0`).
     *   Registrar logs e métricas para atividades de força bruta.
 *   **Integração:**
-    *   Integrar-se com módulos de autenticação (`DeeperHub.Auth`) e recuperação de conta (`DeeperHub.Recovery`) para registrar tentativas.
+    *   Integrar-se com módulos de autenticação (`Deeper_Hub.Auth`) e recuperação de conta (`Deeper_Hub.Recovery`) para registrar tentativas.
     *   Integrar-se com um serviço de CAPTCHA (se aplicável, pode ser um serviço externo ou um módulo interno simples).
 
 ## 🏗️ 3. Arquitetura e Design
 
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.Security.BruteForceProtection` (Fachada Pública):**
+1.  **`Deeper_Hub.Security.BruteForceProtection` (Fachada Pública):**
     *   Ponto de entrada para registrar tentativas e verificar o status de proteção.
     *   Delega chamadas para o `BruteForceProtectionService`.
-2.  **`DeeperHub.Security.BruteForceProtection.Services.BruteForceProtectionService` (GenServer):**
+2.  **`Deeper_Hub.Security.BruteForceProtection.Services.BruteForceProtectionService` (GenServer):**
     *   **Responsabilidade:** O coração do sistema, gerenciando o estado das tentativas e bloqueios.
     *   **Estado Interno (geralmente em ETS para performance):**
         *   Tabela de contadores de tentativas falhas (ex: `{identifier, operation_type} -> {count, last_attempt_timestamp}`).
         *   Tabela de identificadores bloqueados (ex: `{identifier} -> {blocked_until_timestamp, reason}`).
         *   Tabela de identificadores que requerem CAPTCHA (ex: `{identifier} -> captcha_required_until_timestamp`).
     *   **Interações:** Recebe chamadas da fachada, aplica lógicas de incremento de contador, bloqueio, verificação de CAPTCHA. Dispara a limpeza periódica.
-3.  **`DeeperHub.Security.BruteForceProtection.Workers.CleanupWorker` (GenServer):**
+3.  **`Deeper_Hub.Security.BruteForceProtection.Workers.CleanupWorker` (GenServer):**
     *   **Responsabilidade:** Executar periodicamente a limpeza de dados de tentativas antigas e bloqueios expirados nas tabelas ETS (ou outro storage).
-4.  **Configurações (via `DeeperHub.Core.ConfigManager` e `DeeperHub.Security.Policy.SecurityPolicyManager`):**
+4.  **Configurações (via `Deeper_Hub.Core.ConfigManager` e `Deeper_Hub.Security.Policy.SecurityPolicyManager`):**
     *   Limiares de tentativas.
     *   Janelas de tempo para contagem.
     *   Duração de bloqueios.
     *   Configurações de CAPTCHA.
-5.  **`DeeperHub.Security.BruteForceProtection.Telemetry` (ou `MetricsReporter`):**
+5.  **`Deeper_Hub.Security.BruteForceProtection.Telemetry` (ou `MetricsReporter`):**
     *   Para registrar métricas sobre a atividade de proteção.
 
 ### 3.2. Estrutura de Diretórios (Proposta)
@@ -80,12 +80,12 @@ security/brute_force_protection/
 ## 🛠️ 4. Casos de Uso Principais
 
 *   **Múltiplas Tentativas de Login Falhas por um IP:**
-    *   `DeeperHub.Auth` registra cada tentativa falha via `BruteForceProtection.record_failed_attempt(\"ip:1.2.3.4\", %{operation: :login})`.
+    *   `Deeper_Hub.Auth` registra cada tentativa falha via `BruteForceProtection.record_failed_attempt(\"ip:1.2.3.4\", %{operation: :login})`.
     *   Após `N` falhas, `BruteForceProtectionService` marca o IP como requerendo CAPTCHA.
     *   Após `M` falhas (com ou sem CAPTCHA), o IP é temporariamente bloqueado.
     *   Requisições subsequentes desse IP para o endpoint de login são rejeitadas com 429 ou 403.
 *   **Tentativas de Adivinhar Código de Reset de Senha:**
-    *   `DeeperHub.Recovery` registra cada tentativa falha de verificação de token de reset para um `user_id` ou `token_id`.
+    *   `Deeper_Hub.Recovery` registra cada tentativa falha de verificação de token de reset para um `user_id` ou `token_id`.
     *   Após algumas falhas, o `user_id` pode ser temporariamente impedido de tentar mais verificações de token.
 *   **Usuário Legítimo Esquece Senha e Excede Tentativas:**
     *   O usuário é informado sobre o bloqueio temporário e/ou a necessidade de CAPTCHA.
@@ -97,7 +97,7 @@ security/brute_force_protection/
 ### Fluxo de Registro de Tentativa Falha e Bloqueio
 
 1.  **Operação Falha:** Um módulo (ex: `AuthService`) detecta uma tentativa falha de uma operação sensível (ex: login).
-2.  **Registro:** O módulo chama `DeeperHub.Security.BruteForceProtection.record_failed_attempt(identifier, %{operation_type: :login, username_attempted: \"foo\"})`.
+2.  **Registro:** O módulo chama `Deeper_Hub.Security.BruteForceProtection.record_failed_attempt(identifier, %{operation_type: :login, username_attempted: \"foo\"})`.
     *   `identifier` pode ser `ip:<ip_address>`, `user:<user_id>`, `email:<email_address>`.
 3.  **`BruteForceProtectionService` (GenServer):**
     *   Recebe o registro.
@@ -110,7 +110,7 @@ security/brute_force_protection/
 
 ### Fluxo de Verificação de Tentativa (`check_attempt/2`)
 
-1.  **Antes da Operação:** Um módulo (ex: Plug de Autenticação) chama `DeeperHub.Security.BruteForceProtection.check_attempt(identifier, %{operation_type: :login})` antes de processar uma operação.
+1.  **Antes da Operação:** Um módulo (ex: Plug de Autenticação) chama `Deeper_Hub.Security.BruteForceProtection.check_attempt(identifier, %{operation_type: :login})` antes de processar uma operação.
 2.  **`BruteForceProtectionService` (GenServer):**
     *   Verifica se o `identifier` está na lista de bloqueados.
         *   Se sim, e o bloqueio ainda está ativo, retorna `{:ok, :blocked}`.
@@ -122,7 +122,7 @@ security/brute_force_protection/
 
 *(A documentação original já tem uma boa base para estas funções. Vamos refinar e adicionar.)*
 
-### 6.1. `DeeperHub.Security.BruteForceProtection.record_failed_attempt(identifier :: String.t(), context :: map()) :: :ok | {:error, term()}`
+### 6.1. `Deeper_Hub.Security.BruteForceProtection.record_failed_attempt(identifier :: String.t(), context :: map()) :: :ok | {:error, term()}`
 
 *   **Descrição:** Registra uma tentativa falha para um identificador. Incrementa contadores e aplica políticas de CAPTCHA/bloqueio.
 *   **`identifier`:** String que identifica a origem da tentativa (ex: `\"ip:1.2.3.4\"`, `\"user_id:abc\"`, `\"email:user@example.com\"`).
@@ -131,14 +131,14 @@ security/brute_force_protection/
     *   Outros dados relevantes (ex: `:username_attempted`).
 *   **Retorno:** `:ok`. Lança exceção em caso de erro interno grave.
 
-### 6.2. `DeeperHub.Security.BruteForceProtection.record_successful_attempt(identifier :: String.t(), context :: map()) :: :ok`
+### 6.2. `Deeper_Hub.Security.BruteForceProtection.record_successful_attempt(identifier :: String.t(), context :: map()) :: :ok`
 
 *   **Descrição:** Registra uma tentativa bem-sucedida, o que geralmente reseta os contadores de falha para o `identifier` e `operation_type` específicos.
 *   **`identifier`:** Mesmo formato de `record_failed_attempt/2`.
 *   **`context`:**
     *   `:operation_type` (atom, obrigatório): Tipo da operação bem-sucedida.
 
-### 6.3. `DeeperHub.Security.BruteForceProtection.check_attempt(identifier :: String.t(), context :: map()) :: {:ok, :allowed | :captcha_required | :blocked} | {:error, term()}`
+### 6.3. `Deeper_Hub.Security.BruteForceProtection.check_attempt(identifier :: String.t(), context :: map()) :: {:ok, :allowed | :captcha_required | :blocked} | {:error, term()}`
 
 *   **Descrição:** Verifica o status de proteção para um identificador antes de permitir uma operação.
 *   **Retorno:**
@@ -155,21 +155,21 @@ security/brute_force_protection/
     end
     ```
 
-### 6.4. `DeeperHub.Security.BruteForceProtection.is_blocked?(identifier :: String.t(), context :: map() | nil) :: boolean()`
+### 6.4. `Deeper_Hub.Security.BruteForceProtection.is_blocked?(identifier :: String.t(), context :: map() | nil) :: boolean()`
 
 *   **Descrição:** Retorna `true` se o identificador estiver atualmente bloqueado para o tipo de operação no contexto (se fornecido), `false` caso contrário.
 
-### 6.5. `DeeperHub.Security.BruteForceProtection.captcha_required?(identifier :: String.t(), context :: map() | nil) :: boolean()`
+### 6.5. `Deeper_Hub.Security.BruteForceProtection.captcha_required?(identifier :: String.t(), context :: map() | nil) :: boolean()`
 
 *   **Descrição:** Retorna `true` se um CAPTCHA for necessário para o identificador e tipo de operação.
 
-### 6.6. `DeeperHub.Security.BruteForceProtection.clear_attempts(identifier :: String.t(), context :: map() | nil) :: :ok`
+### 6.6. `Deeper_Hub.Security.BruteForceProtection.clear_attempts(identifier :: String.t(), context :: map() | nil) :: :ok`
 
 *   **Descrição:** Limpa manualmente todos os contadores de falha e status de CAPTCHA/bloqueio para um identificador (e tipo de operação, se `context` fornecido). Usado por administradores ou após recuperação de conta bem-sucedida.
 
 ## ⚙️ 7. Configuração
 
-Configurações gerenciadas pelo `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolicyManager`:
+Configurações gerenciadas pelo `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPolicyManager`:
 
 *   **`[:security, :brute_force, :enabled]`** (Boolean): Habilita/desabilita o módulo. (Padrão: `true`)
 *   **`[:security, :brute_force, :policies]`** (List de Maps): Lista de políticas. Cada política define:
@@ -190,11 +190,11 @@ Configurações gerenciadas pelo `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.ConfigManager`: Para obter políticas e configurações.
-*   `DeeperHub.Core.Logger`: Para logging.
-*   `DeeperHub.Core.Metrics`: Para registrar métricas.
-*   `DeeperHub.Core.EventBus` (opcional): Para publicar eventos de bloqueio ou atividade suspeita.
-*   `DeeperHub.Security.Policy.SecurityPolicyManager`: Para uma interface mais rica sobre as políticas.
+*   `Deeper_Hub.Core.ConfigManager`: Para obter políticas e configurações.
+*   `Deeper_Hub.Core.Logger`: Para logging.
+*   `Deeper_Hub.Core.Metrics`: Para registrar métricas.
+*   `Deeper_Hub.Core.EventBus` (opcional): Para publicar eventos de bloqueio ou atividade suspeita.
+*   `Deeper_Hub.Security.Policy.SecurityPolicyManager`: Para uma interface mais rica sobre as políticas.
 *   Um serviço de CAPTCHA (se integrado).
 
 ### 8.2. Bibliotecas Externas
@@ -203,7 +203,7 @@ Configurações gerenciadas pelo `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.
 
 ## 🤝 9. Como Usar / Integração
 
-**Integrando com o fluxo de login em `DeeperHub.Auth.Services.LoginService`:**
+**Integrando com o fluxo de login em `Deeper_Hub.Auth.Services.LoginService`:**
 ```elixir
 def authenticate(email, password, context_info) do
   ip_identifier = \"ip:#{context_info.ip_address}\"
@@ -300,7 +300,7 @@ end
 
 ---
 
-Próximo! Que tal `DeeperHub.Security.RiskAssessment` para vermos como os riscos são calculados?"""),
+Próximo! Que tal `Deeper_Hub.Security.RiskAssessment` para vermos como os riscos são calculados?"""),
             ],
         ),
         types.Content(
@@ -312,7 +312,7 @@ Próximo! Que tal `DeeperHub.Security.RiskAssessment` para vermos como os riscos
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ótimo! Vamos detalhar o `DeeperHub.Security.RiskAssessment`. Este módulo é fundamental para uma abordagem de segurança adaptativa e baseada em contexto.
+                types.Part.from_text(text="""Ótimo! Vamos detalhar o `Deeper_Hub.Security.RiskAssessment`. Este módulo é fundamental para uma abordagem de segurança adaptativa e baseada em contexto.
 
 ---
 

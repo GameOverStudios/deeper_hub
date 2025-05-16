@@ -1,6 +1,6 @@
 defmodule Deeper_Hub.Core.Data.DatabaseConfig do
   @moduledoc """
-  Configurações do banco de dados para o DeeperHub.
+  Configurações do banco de dados para o Deeper_Hub.
 
   Este módulo é responsável por fornecer as configurações necessárias para
   a conexão com o banco de dados SQLite através do Ecto.

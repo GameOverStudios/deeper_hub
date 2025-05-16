@@ -1,12 +1,12 @@
-# Módulo: `DeeperHub.Shared.Utils.FileUtils` 🚀
+# Módulo: `Deeper_Hub.Shared.Utils.FileUtils` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Shared.Utils.FileUtils`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Shared.Utils.FileUtils`
 
-O módulo `DeeperHub.Shared.Utils.FileUtils` fornece um conjunto de **funções utilitárias para interagir com o sistema de arquivos**. Ele encapsula operações comuns de manipulação de arquivos e diretórios, como leitura, escrita, verificação de existência, cópia, cálculo de hash de arquivos e obtenção de informações sobre arquivos.
+O módulo `Deeper_Hub.Shared.Utils.FileUtils` fornece um conjunto de **funções utilitárias para interagir com o sistema de arquivos**. Ele encapsula operações comuns de manipulação de arquivos e diretórios, como leitura, escrita, verificação de existência, cópia, cálculo de hash de arquivos e obtenção de informações sobre arquivos.
 
 Este módulo visa simplificar as interações com o sistema de arquivos, fornecer uma API consistente e lidar com erros comuns de forma previsível. Ele é útil para tarefas como gerenciamento de uploads, leitura de arquivos de configuração (que não estão no `ConfigManager`), escrita de logs em arquivos (se não usar um backend de logger mais avançado), ou qualquer outra operação que necessite acesso direto a arquivos. 😊
 
-**Importante:** O acesso direto ao sistema de arquivos deve ser feito com muito cuidado, especialmente se os caminhos dos arquivos forem influenciados por entrada do usuário. A integração com `DeeperHub.Security.PathTraversalProtection` é crucial nesses casos.
+**Importante:** O acesso direto ao sistema de arquivos deve ser feito com muito cuidado, especialmente se os caminhos dos arquivos forem influenciados por entrada do usuário. A integração com `Deeper_Hub.Security.PathTraversalProtection` é crucial nesses casos.
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -39,10 +39,10 @@ Este módulo visa simplificar as interações com o sistema de arquivos, fornece
 
 ### 3.1. Componentes Principais
 
-*   **`DeeperHub.Shared.Utils.FileUtils` (Módulo Funcional):**
+*   **`Deeper_Hub.Shared.Utils.FileUtils` (Módulo Funcional):**
     *   Contém todas as funções de utilidade para arquivos.
     *   Utiliza principalmente os módulos `File`, `Path`, e `:erlang.md5/:crypto` (para hashes) do Elixir/Erlang.
-    *   **Importante:** As funções que recebem caminhos como entrada devem ser projetadas para funcionar bem com caminhos normalizados e validados por `DeeperHub.Security.PathTraversalProtection` se a origem do caminho for externa.
+    *   **Importante:** As funções que recebem caminhos como entrada devem ser projetadas para funcionar bem com caminhos normalizados e validados por `Deeper_Hub.Security.PathTraversalProtection` se a origem do caminho for externa.
 
 ### 3.2. Estrutura de Diretórios
 
@@ -91,23 +91,23 @@ shared/utils/file_utils.ex
 
 *(Baseado na documentação original e expandindo)*
 
-### 6.1. `DeeperHub.Shared.Utils.FileUtils.file_exists?(path :: String.t()) :: boolean()`
+### 6.1. `Deeper_Hub.Shared.Utils.FileUtils.file_exists?(path :: String.t()) :: boolean()`
 
 *   **Descrição:** Verifica se um arquivo ou diretório existe no `path`. Usa `File.exists?/1`.
 
-### 6.2. `DeeperHub.Shared.Utils.FileUtils.read_text_file(path :: String.t(), opts :: keyword()) :: {:ok, String.t()} | {:error, atom()}`
+### 6.2. `Deeper_Hub.Shared.Utils.FileUtils.read_text_file(path :: String.t(), opts :: keyword()) :: {:ok, String.t()} | {:error, atom()}`
 
 *   **Descrição:** Lê o conteúdo de um arquivo de texto.
 *   **`opts`:** `:encoding` (Padrão: `:utf8`).
 *   **Retorno:** `{:ok, content}` ou `{:error, reason}` (ex: `:enoent`, `:eacces`). Usa `File.read/1`.
 
-### 6.3. `DeeperHub.Shared.Utils.FileUtils.read_binary_file(path :: String.t(), opts :: keyword()) :: {:ok, binary()} | {:error, atom()}` (Nova Sugestão)
+### 6.3. `Deeper_Hub.Shared.Utils.FileUtils.read_binary_file(path :: String.t(), opts :: keyword()) :: {:ok, binary()} | {:error, atom()}` (Nova Sugestão)
 
 *   **Descrição:** Lê o conteúdo de um arquivo como binário.
 *   **`opts`:** (Nenhuma específica por enquanto).
 *   **Retorno:** `{:ok, binary_content}` ou `{:error, reason}`. Usa `File.read/1`.
 
-### 6.4. `DeeperHub.Shared.Utils.FileUtils.write_text_file(path :: String.t(), content :: String.t() | list(String.t()), opts :: keyword()) :: :ok | {:error, atom()}`
+### 6.4. `Deeper_Hub.Shared.Utils.FileUtils.write_text_file(path :: String.t(), content :: String.t() | list(String.t()), opts :: keyword()) :: :ok | {:error, atom()}`
 
 *   **Descrição:** Escreve/sobrescreve `content` em `path`.
 *   **`opts`:**
@@ -116,13 +116,13 @@ shared/utils/file_utils.ex
     *   `:encoding` (Padrão: `:utf8`).
 *   Usa `File.write/3`.
 
-### 6.5. `DeeperHub.Shared.Utils.FileUtils.write_binary_file(path :: String.t(), binary_content :: binary(), opts :: keyword()) :: :ok | {:error, atom()}` (Nova Sugestão)
+### 6.5. `Deeper_Hub.Shared.Utils.FileUtils.write_binary_file(path :: String.t(), binary_content :: binary(), opts :: keyword()) :: :ok | {:error, atom()}` (Nova Sugestão)
 
 *   **Descrição:** Escreve/sobrescreve `binary_content` em `path`.
 *   **`opts`:** `:append`, `:ensure_dir`.
 *   Usa `File.write/3`.
 
-### 6.6. `DeeperHub.Shared.Utils.FileUtils.copy_file(source_path :: String.t(), dest_path :: String.t(), opts :: keyword()) :: :ok | {:error, atom()}`
+### 6.6. `Deeper_Hub.Shared.Utils.FileUtils.copy_file(source_path :: String.t(), dest_path :: String.t(), opts :: keyword()) :: :ok | {:error, atom()}`
 
 *   **Descrição:** Copia um arquivo de `source_path` para `dest_path`.
 *   **`opts`:**
@@ -130,35 +130,35 @@ shared/utils/file_utils.ex
     *   `:ensure_dest_dir` (boolean): Se `true`, cria o diretório pai de `dest_path`. (Padrão: `false`)
 *   Usa `File.copy/3`.
 
-### 6.7. `DeeperHub.Shared.Utils.FileUtils.get_file_info(path :: String.t()) :: {:ok, File.Stat.t()} | {:error, atom()}`
+### 6.7. `Deeper_Hub.Shared.Utils.FileUtils.get_file_info(path :: String.t()) :: {:ok, File.Stat.t()} | {:error, atom()}`
 
 *   **Descrição:** Retorna informações sobre o arquivo (tamanho, tipo, datas). Usa `File.stat/1`.
 
-### 6.8. `DeeperHub.Shared.Utils.FileUtils.get_mime_type(path :: String.t()) :: {:ok, String.t()} | {:error, :extension_not_found}`
+### 6.8. `Deeper_Hub.Shared.Utils.FileUtils.get_mime_type(path :: String.t()) :: {:ok, String.t()} | {:error, :extension_not_found}`
 
 *   **Descrição:** Tenta inferir o tipo MIME com base na extensão do arquivo. Pode usar um mapa interno de extensões para tipos MIME ou uma biblioteca.
 *   **Retorno:** Ex: `{:ok, \"image/png\"}`, `{:ok, \"application/octet-stream\"}` (como fallback), ou `{:error, :extension_not_found}`.
 
-### 6.9. `DeeperHub.Shared.Utils.FileUtils.calculate_file_hash(path :: String.t(), algorithm :: :md5 | :sha1 | :sha256 | :sha512) :: {:ok, String.t()} | {:error, atom()}`
+### 6.9. `Deeper_Hub.Shared.Utils.FileUtils.calculate_file_hash(path :: String.t(), algorithm :: :md5 | :sha1 | :sha256 | :sha512) :: {:ok, String.t()} | {:error, atom()}`
 
 *   **Descrição:** Calcula o hash do conteúdo do arquivo usando o `algorithm` especificado. Retorna o hash como uma string hexadecimal.
 *   Usa `:crypto.hash/2` ou `:erlang.md5/1`.
 
-### 6.10. `DeeperHub.Shared.Utils.FileUtils.ensure_dir_exists(dir_path :: String.t()) :: :ok | {:error, atom()}` (Nova Sugestão)
+### 6.10. `Deeper_Hub.Shared.Utils.FileUtils.ensure_dir_exists(dir_path :: String.t()) :: :ok | {:error, atom()}` (Nova Sugestão)
 
 *   **Descrição:** Garante que um diretório exista, criando-o (e seus pais) se necessário. Usa `File.mkdir_p/1`.
 
-### 6.11. `DeeperHub.Shared.Utils.FileUtils.list_dir(dir_path :: String.t(), opts :: keyword()) :: {:ok, list(String.t())} | {:error, atom()}` (Nova Sugestão)
+### 6.11. `Deeper_Hub.Shared.Utils.FileUtils.list_dir(dir_path :: String.t(), opts :: keyword()) :: {:ok, list(String.t())} | {:error, atom()}` (Nova Sugestão)
 
 *   **Descrição:** Lista o conteúdo (arquivos e subdiretórios) de um diretório.
 *   **`opts`:** `:include_hidden` (boolean).
 *   Usa `File.ls/1`.
 
-### 6.12. `DeeperHub.Shared.Utils.FileUtils.delete_file(path :: String.t()) :: :ok | {:error, atom()}` (Nova Sugestão)
+### 6.12. `Deeper_Hub.Shared.Utils.FileUtils.delete_file(path :: String.t()) :: :ok | {:error, atom()}` (Nova Sugestão)
 
 *   **Descrição:** Exclui um arquivo. Usa `File.rm/1`.
 
-### 6.13. `DeeperHub.Shared.Utils.FileUtils.delete_dir_recursive(dir_path :: String.t()) :: :ok | {:error, atom()}` (Nova Sugestão)
+### 6.13. `Deeper_Hub.Shared.Utils.FileUtils.delete_dir_recursive(dir_path :: String.t()) :: :ok | {:error, atom()}` (Nova Sugestão)
 
 *   **Descrição:** Exclui um diretório e todo o seu conteúdo recursivamente. Usa `File.rm_rf/1`. **Usar com extremo cuidado.**
 
@@ -172,8 +172,8 @@ Este módulo geralmente não tem muitas configurações próprias, mas pode ser 
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Security.PathTraversalProtection`: Crucial para ser usado pelos chamadores deste módulo se os caminhos vierem de fontes não confiáveis.
-*   `DeeperHub.Core.ConfigManager` (para configurações opcionais).
+*   `Deeper_Hub.Security.PathTraversalProtection`: Crucial para ser usado pelos chamadores deste módulo se os caminhos vierem de fontes não confiáveis.
+*   `Deeper_Hub.Core.ConfigManager` (para configurações opcionais).
 
 ### 8.2. Bibliotecas Externas
 
@@ -185,8 +185,8 @@ Este módulo geralmente não tem muitas configurações próprias, mas pode ser 
 Os chamadores devem primeiro garantir que os caminhos são seguros (usando `PathTraversalProtection`) antes de passar para `FileUtils`.
 
 ```elixir
-alias DeeperHub.Shared.Utils.FileUtils
-alias DeeperHub.Security.PathTraversalProtection
+alias Deeper_Hub.Shared.Utils.FileUtils
+alias Deeper_Hub.Security.PathTraversalProtection
 
 @secure_base_dir Application.compile_env!(:my_app, :secure_file_storage_path)
 
@@ -260,7 +260,7 @@ Geralmente não são emitidos diretamente por este módulo utilitário. Os chama
 
 ---
 
-Este cobre `FileUtils`. O próximo utilitário natural seria `DeeperHub.Shared.Utils.SecurityUtils` para fechar o ciclo dos utilitários mais comuns. Depois disso, poderíamos ir para `DeeperHub.OAuth` ou `DeeperHub.MFA`?"""),
+Este cobre `FileUtils`. O próximo utilitário natural seria `Deeper_Hub.Shared.Utils.SecurityUtils` para fechar o ciclo dos utilitários mais comuns. Depois disso, poderíamos ir para `Deeper_Hub.OAuth` ou `Deeper_Hub.MFA`?"""),
             ],
         ),
         types.Content(
@@ -272,7 +272,7 @@ Este cobre `FileUtils`. O próximo utilitário natural seria `DeeperHub.Shared.U
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Perfeito! Vamos finalizar a seção de utilitários detalhando `DeeperHub.Shared.Utils.SecurityUtils`. Este módulo é para helpers de segurança de baixo nível que são genéricos e não se encaixam em um módulo de segurança mais específico.
+                types.Part.from_text(text="""Perfeito! Vamos finalizar a seção de utilitários detalhando `Deeper_Hub.Shared.Utils.SecurityUtils`. Este módulo é para helpers de segurança de baixo nível que são genéricos e não se encaixam em um módulo de segurança mais específico.
 
 ---
 

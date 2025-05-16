@@ -3,47 +3,67 @@ defmodule Deeper_Hub.Core.Data.Repository do
   Repositório genérico para operações CRUD e outras interações com o banco de dados.
 
   Este módulo funciona como uma fachada (Facade) para os módulos específicos:
-  - RepositoryCore: Funções auxiliares e gerenciamento de processos.
   - RepositoryCrud: Operações CRUD básicas (insert, get, update, delete, list, find)
   - RepositoryJoins: Operações de join (inner, left, right)
+  
+  Também fornece funções auxiliares para manipulação de consultas.
   """
 
-  alias Deeper_Hub.Core.Data.RepositoryCore
   alias Deeper_Hub.Core.Data.RepositoryCrud
   alias Deeper_Hub.Core.Data.RepositoryJoins
+  alias Deeper_Hub.Core.Cache.CacheManager
 
+  # Delegação de funções de cache para CacheManager
+  
   @doc """
-  Define a especificação para o supervisor.
-
-  Esta função é chamada pelo supervisor para iniciar o processo
-  do repositório (gerenciado por RepositoryCore).
-  """
-  def child_spec(opts) do
-    %{
-      id: __MODULE__,
-      start: {RepositoryCore, :start_link, [opts]},
-      type: :worker,
-      restart: :permanent,
-      shutdown: 500
-    }
-  end
-
-  # Delegação de funções de gerenciamento de processo e auxiliares para RepositoryCore
-
-  @doc """
-  Inicia o processo GenServer do repositório (via RepositoryCore).
-
+  Busca um valor no cache.
+  
   ## Parâmetros
-
-  - `opts`: Opções para inicialização do processo
-
+  
+  - `schema`: O módulo do schema Ecto
+  - `id`: O ID do registro
+  
   ## Retorno
-
-  - `{:ok, pid}` se o processo for iniciado com sucesso
-  - `{:error, reason}` em caso de falha
+  
+  - `{:ok, value}` se o valor for encontrado
+  - `:not_found` se o valor não for encontrado
   """
-  @spec start_link(keyword()) :: {:ok, pid()} | {:error, term()}
-  defdelegate start_link(opts), to: RepositoryCore
+  @spec get_from_cache(module(), term()) :: {:ok, term()} | :not_found
+  defdelegate get_from_cache(schema, id), to: CacheManager
+  
+  @doc """
+  Armazena um valor no cache.
+  
+  ## Parâmetros
+  
+  - `schema`: O módulo do schema Ecto
+  - `id`: O ID do registro
+  - `value`: O valor a ser armazenado
+  - `ttl`: Tempo de vida em milissegundos (opcional)
+  
+  ## Retorno
+  
+  - `:ok` se o valor for armazenado com sucesso
+  - `:error` em caso de falha
+  """
+  @spec put_in_cache(module(), term(), term(), integer() | nil) :: :ok | :error
+  defdelegate put_in_cache(schema, id, value, ttl \\ nil), to: CacheManager
+  
+  @doc """
+  Invalida (remove) um valor do cache.
+  
+  ## Parâmetros
+  
+  - `schema`: O módulo do schema Ecto
+  - `id`: O ID do registro
+  
+  ## Retorno
+  
+  - `:ok` se o valor for removido com sucesso
+  - `:error` em caso de falha
+  """
+  @spec invalidate_cache(module(), term()) :: :ok | :error
+  defdelegate invalidate_cache(schema, id), to: CacheManager
 
   @doc """
   Aplica limitação e deslocamento a uma consulta Ecto.
@@ -58,7 +78,34 @@ defmodule Deeper_Hub.Core.Data.Repository do
   - A consulta Ecto modificada com limitação e deslocamento aplicados
   """
   @spec apply_limit_offset(Ecto.Query.t(), keyword()) :: Ecto.Query.t()
-  defdelegate apply_limit_offset(query, opts), to: RepositoryCore
+  def apply_limit_offset(query, opts) do
+    import Ecto.Query
+    
+    has_limit = Keyword.has_key?(opts, :limit)
+    has_offset = Keyword.has_key?(opts, :offset)
+
+    cond do
+      has_limit && has_offset ->
+        # Aplica ambos limit e offset
+        limit_value = Keyword.get(opts, :limit)
+        offset_value = Keyword.get(opts, :offset)
+        from(item in query, limit: ^limit_value, offset: ^offset_value)
+
+      has_limit && !has_offset ->
+        # Aplica apenas limit
+        limit_value = Keyword.get(opts, :limit)
+        from(item in query, limit: ^limit_value)
+
+      !has_limit && has_offset ->
+        # Se tem offset mas não tem limit, aplica um limit padrão alto (1000)
+        offset_value = Keyword.get(opts, :offset)
+        from(item in query, limit: 1000, offset: ^offset_value)
+
+      !has_limit && !has_offset ->
+        # Nem limit nem offset
+        query
+    end
+  end
 
   # Delegação de operações CRUD para RepositoryCrud
 

@@ -1,10 +1,10 @@
-# Módulo: `Elixir.DeeperHub.Tokens.Schema.ApiToken` 🔑
+# Módulo: `Elixir.Deeper_Hub.Tokens.Schema.ApiToken` 🔑
 
-## 📜 1. Visão Geral do Módulo `Elixir.DeeperHub.Tokens.Schema.ApiToken`
+## 📜 1. Visão Geral do Módulo `Elixir.Deeper_Hub.Tokens.Schema.ApiToken`
 
-O `DeeperHub.Tokens.Schema.ApiToken` é um schema Ecto que define a estrutura de dados para tokens de API persistentes dentro do módulo `DeeperHub.Tokens`. Estes tokens são gerados para usuários ou aplicações externas para permitir acesso programático à API do DeeperHub, com escopos de permissão definidos, limites de uso e datas de expiração. 😊
+O `Deeper_Hub.Tokens.Schema.ApiToken` é um schema Ecto que define a estrutura de dados para tokens de API persistentes dentro do módulo `Deeper_Hub.Tokens`. Estes tokens são gerados para usuários ou aplicações externas para permitir acesso programático à API do Deeper_Hub, com escopos de permissão definidos, limites de uso e datas de expiração. 😊
 
-Este schema é utilizado pelo `DeeperHub.Tokens.Services.DefaultTokenService` (ou um serviço mais específico como `ApiTokenService`) para criar, gerenciar e validar tokens de API armazenados no banco de dados.
+Este schema é utilizado pelo `Deeper_Hub.Tokens.Services.DefaultTokenService` (ou um serviço mais específico como `ApiTokenService`) para criar, gerenciar e validar tokens de API armazenados no banco de dados.
 
 ## 🎯 2. Responsabilidades e Campos Chave do Schema
 
@@ -41,13 +41,13 @@ Este schema é utilizado pelo `DeeperHub.Tokens.Services.DefaultTokenService` (o
     *   `revoke_changeset/1`: Para marcar um token como revogado.
     *   `usage_changeset/1`: Para incrementar `usage_count` e `last_used_at`.
 *   **Interações:**
-    *   Utilizado por serviços dentro de `DeeperHub.Tokens.Services.*` para operações de banco de dados via `DeeperHub.Core.Repo`.
+    *   Utilizado por serviços dentro de `Deeper_Hub.Tokens.Services.*` para operações de banco de dados via `Deeper_Hub.Core.Repo`.
     *   Pode ter funções auxiliares para, por exemplo, verificar se um token está expirado ou revogado.
 
 ### 3.1. Componentes Principais (dentro deste schema)
 
 *   Definição dos campos com `field/3`.
-*   Definição de associações (`belongs_to`, `has_many`, etc.) se aplicável (ex: `belongs_to :user, DeeperHub.Accounts.Schema.User`).
+*   Definição de associações (`belongs_to`, `has_many`, etc.) se aplicável (ex: `belongs_to :user, Deeper_Hub.Accounts.Schema.User`).
 *   Funções de changeset para validação.
 
 ### 3.3. Decisões de Design Importantes
@@ -65,7 +65,7 @@ Este schema é utilizado pelo `DeeperHub.Tokens.Services.DefaultTokenService` (o
 
 ## 📡 6. API (Funções de Changeset e Queries Comuns)
 
-### 6.1. `DeeperHub.Tokens.Schema.ApiToken.changeset/2`
+### 6.1. `Deeper_Hub.Tokens.Schema.ApiToken.changeset/2`
 
 *   **Descrição:** Cria um changeset para validar os atributos de um token de API.
 *   **`@spec`:** `changeset(token_struct :: struct() | Ecto.Changeset.t(), attrs :: map()) :: Ecto.Changeset.t()`
@@ -88,7 +88,7 @@ Este schema é utilizado pelo `DeeperHub.Tokens.Services.DefaultTokenService` (o
 
 **Módulos de Domínio \"Services\"**
 
-Agora, para os módulos que antes estavam sob `Elixir.DeeperHub.Services.*`. A ideia é que cada um se torne um contexto de domínio de nível superior. Vou fazer o `DeeperHub.Achievements` como exemplo.
+Agora, para os módulos que antes estavam sob `Elixir.Deeper_Hub.Services.*`. A ideia é que cada um se torne um contexto de domínio de nível superior. Vou fazer o `Deeper_Hub.Achievements` como exemplo.
 
 ---
 

@@ -1,8 +1,8 @@
-# Módulo: `DeeperHub.Security.DdosProtection` 🚀
+# Módulo: `Deeper_Hub.Security.DdosProtection` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Security.DdosProtection`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Security.DdosProtection`
 
-O módulo `DeeperHub.Security.DdosProtection` é projetado para proteger o sistema DeeperHub contra ataques de **Negação de Serviço Distribuída (DDoS)** e ataques de Negação de Serviço (DoS) mais simples. O objetivo desses ataques é sobrecarregar os recursos do servidor (CPU, memória, largura de banda, conexões de banco de dados) com um volume massivo de tráfego ilegítimo, tornando a aplicação indisponível para usuários legítimos.
+O módulo `Deeper_Hub.Security.DdosProtection` é projetado para proteger o sistema Deeper_Hub contra ataques de **Negação de Serviço Distribuída (DDoS)** e ataques de Negação de Serviço (DoS) mais simples. O objetivo desses ataques é sobrecarregar os recursos do servidor (CPU, memória, largura de banda, conexões de banco de dados) com um volume massivo de tráfego ilegítimo, tornando a aplicação indisponível para usuários legítimos.
 
 Este módulo implementa várias estratégias para mitigar esses ataques, incluindo:
 1.  **Limitação de Taxa (Rate Limiting) Agressiva:** Aplicar limites de taxa mais rigorosos baseados em IP e, potencialmente, em outros identificadores, para tráfego geral ou para endpoints específicos durante um ataque percebido.
@@ -11,7 +11,7 @@ Este módulo implementa várias estratégias para mitigar esses ataques, incluin
 4.  **Modos de Proteção Avançada:** Capacidade de alternar para um modo de proteção mais restritivo durante um ataque.
 5.  **Integração com Serviços Externos de Mitigação DDoS (Opcional):** Facilitar a integração com serviços como Cloudflare, AWS Shield, etc.
 
-O foco é manter a disponibilidade do DeeperHub mesmo sob condições de tráfego anormais ou maliciosas. 😊
+O foco é manter a disponibilidade do Deeper_Hub mesmo sob condições de tráfego anormais ou maliciosas. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -21,10 +21,10 @@ O foco é manter a disponibilidade do DeeperHub mesmo sob condições de tráfeg
 *   **Limitação de Taxa Dinâmica e Global:**
     *   Aplicar limites de taxa globais para IPs individuais para mitigar ataques de força bruta distribuídos em pequena escala ou abuso.
     *   Permitir a configuração de limites de taxa específicos para endpoints críticos ou frequentemente visados (`configure_rate_limit/3`).
-    *   Utilizar `DeeperHub.API.RateLimiterFacade` como mecanismo subjacente, mas aplicar políticas mais agressivas ou dinâmicas sob suspeita de DDoS.
+    *   Utilizar `Deeper_Hub.API.RateLimiterFacade` como mecanismo subjacente, mas aplicar políticas mais agressivas ou dinâmicas sob suspeita de DDoS.
 *   **Detecção e Bloqueio de IPs Atacantes:**
     *   Identificar endereços IP que excedem significativamente os limites de taxa estabelecidos ou que participam de padrões de ataque conhecidos.
-    *   Bloquear esses IPs temporária ou permanentemente, integrando-se com `DeeperHub.Security.IPFirewallService` (`block_ip/3`, `unblock_ip/1`).
+    *   Bloquear esses IPs temporária ou permanentemente, integrando-se com `Deeper_Hub.Security.IPFirewallService` (`block_ip/3`, `unblock_ip/1`).
 *   **Análise de Padrões de Ataque (via `PatternAnalyzer`):**
     *   Implementar (ou integrar com ferramentas que implementam) detecção para tipos comuns de ataques DDoS no nível da aplicação (ex: HTTP GET/POST floods, ataques a formulários de login/registro).
     *   Analisar User-Agents, referers, e outros cabeçalhos para identificar tráfego de bots.
@@ -40,33 +40,33 @@ O foco é manter a disponibilidade do DeeperHub mesmo sob condições de tráfeg
     *   API para reportar IPs atacantes a serviços como Cloudflare, Akamai, AWS Shield.
     *   API para receber e aplicar listas de bloqueio de IPs desses serviços.
 *   **Configurabilidade das Políticas:**
-    *   Políticas de limitação de taxa, limiares para detecção de ataque, duração e escalonamento de bloqueios devem ser configuráveis via `DeeperHub.Security.Policy.SecurityPolicyManager`.
+    *   Políticas de limitação de taxa, limiares para detecção de ataque, duração e escalonamento de bloqueios devem ser configuráveis via `Deeper_Hub.Security.Policy.SecurityPolicyManager`.
 
 ## 🏗️ 3. Arquitetura e Design
 
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.Security.DdosProtection` (Fachada Pública):**
+1.  **`Deeper_Hub.Security.DdosProtection` (Fachada Pública):**
     *   Ponto de entrada para funcionalidades de proteção DDoS.
     *   Delega para `DdosProtectionService`.
-2.  **`DeeperHub.Security.DdosProtection.Services.DdosProtectionService` (GenServer):**
+2.  **`Deeper_Hub.Security.DdosProtection.Services.DdosProtectionService` (GenServer):**
     *   **Responsabilidade:** Processo central que monitora o tráfego, gerencia o estado de \"sob ataque\", aplica políticas dinâmicas de rate limiting e coordena o bloqueio de IPs.
     *   **Estado Interno (pode usar ETS para contadores de alta performance):**
         *   Contadores de requisições agregados (global, por path, por IP em períodos curtos).
         *   Estado atual do modo de proteção (normal, avançado/sob ataque).
         *   Limiares dinâmicos que podem ser ajustados.
     *   **Interações:**
-        *   `DeeperHub.API.RateLimiterFacade` (ou um rate limiter interno específico para DDoS): Para a mecânica de contagem e limitação.
-        *   `DeeperHub.Security.IPFirewallService`: Para efetuar o bloqueio/desbloqueio de IPs.
-        *   `DeeperHub.Core.ConfigManager` / `SecurityPolicyManager`: Para obter políticas e limiares.
-        *   `DeeperHub.Security.Monitoring`: Para registrar alertas de DDoS.
-        *   `DeeperHub.Security.DdosProtection.PatternAnalyzer`: Para análises mais profundas.
-3.  **`DeeperHub.Security.Plugs.DdosProtectionPlug` (Phoenix Plug):**
+        *   `Deeper_Hub.API.RateLimiterFacade` (ou um rate limiter interno específico para DDoS): Para a mecânica de contagem e limitação.
+        *   `Deeper_Hub.Security.IPFirewallService`: Para efetuar o bloqueio/desbloqueio de IPs.
+        *   `Deeper_Hub.Core.ConfigManager` / `SecurityPolicyManager`: Para obter políticas e limiares.
+        *   `Deeper_Hub.Security.Monitoring`: Para registrar alertas de DDoS.
+        *   `Deeper_Hub.Security.DdosProtection.PatternAnalyzer`: Para análises mais profundas.
+3.  **`Deeper_Hub.Security.Plugs.DdosProtectionPlug` (Phoenix Plug):**
     *   **Responsabilidade:** Interceptar requisições HTTP muito cedo no pipeline.
     *   Registra a requisição (`DdosProtectionService.record_request/3`).
     *   Verifica se a requisição deve ser bloqueada ou limitada por taxa com base nas políticas de DDoS (`DdosProtectionService.check_request/3`).
     *   Deve ser posicionado após o `IPFirewallPlug` (para IPs já conhecidos como maus) mas antes de plugs mais custosos.
-4.  **`DeeperHub.Security.DdosProtection.PatternAnalyzer` (Worker GenServer ou Módulo Funcional):**
+4.  **`Deeper_Hub.Security.DdosProtection.PatternAnalyzer` (Worker GenServer ou Módulo Funcional):**
     *   **Responsabilidade:** Analisar logs de tráfego ou um stream de eventos de requisição em background para identificar padrões de ataque mais sutis que a simples contagem de requisições por IP (ex: distribuição anômala de User-Agents, targeting de endpoints específicos por múltiplos IPs de forma coordenada).
     *   Pode usar regras ou modelos simples de ML.
 5.  **Adaptadores para Serviços Externos de Mitigação (Opcional):**
@@ -115,7 +115,7 @@ security/ddos_protection/
     *   Isso pode disparar um alerta para `Security.Monitoring` ou ativar o modo de proteção avançada, que poderia impor um CAPTCHA global para login ou limites de taxa mais baixos por IP.
 *   **Administrador Ativa Modo \"Sob Ataque\":**
     *   Monitoramento externo indica um ataque DDoS volumétrico.
-    *   Administrador usa `DeeperHub.Console` para chamar `DdosProtection.set_advanced_protection(true, opts)`.
+    *   Administrador usa `Deeper_Hub.Console` para chamar `DdosProtection.set_advanced_protection(true, opts)`.
     *   Todas as novas requisições de IPs não reconhecidos passam por um desafio JavaScript ou são servidas com conteúdo estático de \"estamos sob ataque\", enquanto IPs conhecidos/autenticados podem ter acesso limitado.
 
 ## 🌊 5. Fluxos Importantes
@@ -131,43 +131,43 @@ security/ddos_protection/
     *   **Limite Excedido:**
         *   Loga o evento.
         *   Incrementa métrica `ddos.ip_rate_limited`.
-        *   Chama `DeeperHub.Security.IPFirewallService.block_ip(\"1.2.3.4\", \"DDoS rate limit exceeded on /api/v1/data\", 3600)`.
+        *   Chama `Deeper_Hub.Security.IPFirewallService.block_ip(\"1.2.3.4\", \"DDoS rate limit exceeded on /api/v1/data\", 3600)`.
         *   Retorna `{:block, :ip_rate_limit_exceeded}` para o Plug.
 4.  **`DdosProtectionPlug`:** Ao receber `{:block, ...}`, instrui a `conn` a retornar um `429 Too Many Requests` ou `403 Forbidden`.
 5.  **Requisições Subsequentes de `1.2.3.4`:** Serão bloqueadas mais cedo pelo `IPFirewallPlug`.
 
 ## 📡 6. API (Funções Públicas da Fachada)
 
-### 6.1. `DeeperHub.Security.DdosProtection.check_request_permitted?(ip_address :: String.t(), path :: String.t(), context :: map()) :: boolean()` (Nova Sugestão)
+### 6.1. `Deeper_Hub.Security.DdosProtection.check_request_permitted?(ip_address :: String.t(), path :: String.t(), context :: map()) :: boolean()` (Nova Sugestão)
 
 *   **Descrição:** Verifica se uma requisição deve ser permitida com base nas políticas de DDoS atuais. Retorna `true` se permitida, `false` se deve ser bloqueada ou limitada por taxa. Usado pelo Plug.
 *   **`context`:** `%{method: \"GET\", headers: %{...}}`.
 
-### 6.2. `DeeperHub.Security.DdosProtection.record_request_data(ip_address :: String.t(), path :: String.t(), context :: map(), response_status_code :: integer()) :: :ok` (Nova Sugestão)
+### 6.2. `Deeper_Hub.Security.DdosProtection.record_request_data(ip_address :: String.t(), path :: String.t(), context :: map(), response_status_code :: integer()) :: :ok` (Nova Sugestão)
 
 *   **Descrição:** Registra dados sobre uma requisição processada para análise de padrões e para a mecânica de rate limiting. Chamado pelo Plug *após* a requisição ser processada pelo controller (para ter o status code).
 
-### 6.3. `DeeperHub.Security.DdosProtection.report_suspicious_ip(ip_address :: String.t(), reason :: String.t(), evidence :: map() | nil) :: :ok`
+### 6.3. `Deeper_Hub.Security.DdosProtection.report_suspicious_ip(ip_address :: String.t(), reason :: String.t(), evidence :: map() | nil) :: :ok`
 
 *   **Descrição:** Permite que outros módulos (ex: `FraudDetection`, `IntrusionDetection`) reportem um IP como suspeito de atividade DDoS, podendo levar ao seu bloqueio.
 
-### 6.4. `DeeperHub.Security.DdosProtection.set_protection_level(level :: :normal | :high_alert | :under_attack, opts :: keyword()) :: :ok` (Renomeado de `set_advanced_protection`)
+### 6.4. `Deeper_Hub.Security.DdosProtection.set_protection_level(level :: :normal | :high_alert | :under_attack, opts :: keyword()) :: :ok` (Renomeado de `set_advanced_protection`)
 
 *   **Descrição:** Define o nível de proteção global do sistema.
 *   **`opts`:** Configurações específicas para o nível (ex: para `:under_attack`, `%{challenge_type: :js_challenge, global_ip_rate_limit: 5}`).
 
-### 6.5. `DeeperHub.Security.DdosProtection.get_current_protection_level() :: {:ok, %{level: atom(), active_policies: map()}}` (Nova Sugestão)
+### 6.5. `Deeper_Hub.Security.DdosProtection.get_current_protection_level() :: {:ok, %{level: atom(), active_policies: map()}}` (Nova Sugestão)
 
 *   **Descrição:** Retorna o nível de proteção atual e as políticas ativas.
 
-### 6.6. `DeeperHub.Security.DdosProtection.get_traffic_statistics(opts :: keyword()) :: {:ok, map()}` (Renomeado de `get_statistics`)
+### 6.6. `Deeper_Hub.Security.DdosProtection.get_traffic_statistics(opts :: keyword()) :: {:ok, map()}` (Renomeado de `get_statistics`)
 
 *   **Descrição:** Obtém estatísticas de tráfego e mitigação.
 *   **`opts`:** `:period` (`:last_minute`, `:last_hour`, `:last_day`), `:group_by` (`:ip`, `:path`).
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager` e `DeeperHub.Security.Policy.SecurityPolicyManager`:
+Via `Deeper_Hub.Core.ConfigManager` e `Deeper_Hub.Security.Policy.SecurityPolicyManager`:
 
 *   **`[:security, :ddos, :enabled]`** (Boolean): Habilita o módulo.
 *   **`[:security, :ddos, :default_policies, :normal_level]`** (Map): Configs de rate limit para IPs, paths, etc., em modo normal.
@@ -183,11 +183,11 @@ Via `DeeperHub.Core.ConfigManager` e `DeeperHub.Security.Policy.SecurityPolicyMa
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.ConfigManager`, `Core.Logger`, `Core.Metrics`, `Core.EventBus`.
-*   `DeeperHub.Security.IPFirewallService`: Para efetuar bloqueios de IP.
-*   `DeeperHub.API.RateLimiterFacade`: Como um dos mecanismos para implementar os limites de taxa.
-*   `DeeperHub.Security.Monitoring`: Para enviar alertas de DDoS.
-*   `DeeperHub.Security.CaptchaService` (ou um serviço de desafio genérico): Se desafios forem usados.
+*   `Deeper_Hub.Core.ConfigManager`, `Core.Logger`, `Core.Metrics`, `Core.EventBus`.
+*   `Deeper_Hub.Security.IPFirewallService`: Para efetuar bloqueios de IP.
+*   `Deeper_Hub.API.RateLimiterFacade`: Como um dos mecanismos para implementar os limites de taxa.
+*   `Deeper_Hub.Security.Monitoring`: Para enviar alertas de DDoS.
+*   `Deeper_Hub.Security.CaptchaService` (ou um serviço de desafio genérico): Se desafios forem usados.
 
 ### 8.2. Bibliotecas Externas
 
@@ -198,10 +198,10 @@ Via `DeeperHub.Core.ConfigManager` e `DeeperHub.Security.Policy.SecurityPolicyMa
 *   **`DdosProtectionPlug`:** Adicionar ao pipeline global do Phoenix Router, bem no início.
     ```elixir
     pipeline :protect_all_the_things do
-      plug DeeperHub.Security.Plugs.DdosProtectionPlug
+      plug Deeper_Hub.Security.Plugs.DdosProtectionPlug
       # ... outros plugs ...
     end
-    scope \"/\", DeeperHubWeb do
+    scope \"/\", Deeper_HubWeb do
       pipe_through [:browser, :protect_all_the_things] # ou apenas :protect_all_the_things
       # ...
     end
@@ -273,7 +273,7 @@ Via `DeeperHub.Core.ConfigManager` e `DeeperHub.Security.Policy.SecurityPolicyMa
 
 Proteção DDoS é uma batalha contínua!
 
-Agora que cobrimos várias camadas de segurança (`AdminAuth`, `CsrfProtection`, `SqlInjectionProtection`, `PathTraversalProtection`, `DdosProtection`), e também módulos Core (`EventBus`, `ConfigManager`, `Logger`, `Metrics`, `Cache`, `Repo`), talvez seja uma boa hora para um módulo de domínio, como `DeeperHub.Servers` ou `DeeperHub.Accounts` (que já começamos)? Ou prefere continuar com os módulos de segurança restantes, como `AtRestEncryptionService` ou `ResponseSanitizer`?"""),
+Agora que cobrimos várias camadas de segurança (`AdminAuth`, `CsrfProtection`, `SqlInjectionProtection`, `PathTraversalProtection`, `DdosProtection`), e também módulos Core (`EventBus`, `ConfigManager`, `Logger`, `Metrics`, `Cache`, `Repo`), talvez seja uma boa hora para um módulo de domínio, como `Deeper_Hub.Servers` ou `Deeper_Hub.Accounts` (que já começamos)? Ou prefere continuar com os módulos de segurança restantes, como `AtRestEncryptionService` ou `ResponseSanitizer`?"""),
             ],
         ),
         types.Content(
@@ -287,7 +287,7 @@ Agora que cobrimos várias camadas de segurança (`AdminAuth`, `CsrfProtection`,
             parts=[
                 types.Part.from_text(text="""Entendido! Vamos continuar com os módulos de segurança, pois são a espinha dorsal da proteção do sistema.
 
-Dado que já abordamos `AtRestEncryptionService` de forma implícita ao falar do `Core.EncryptionService` e `EncryptedType`, e `ResponseSanitizer` é conceitualmente similar ao `LogSanitizer` (focado em respostas HTTP), que tal detalharmos o `DeeperHub.Security.IntrusionDetection`? Este módulo atua como um sistema de alerta para atividades suspeitas que podem não ser fraude direta, mas indicam uma possível tentativa de comprometer o sistema.
+Dado que já abordamos `AtRestEncryptionService` de forma implícita ao falar do `Core.EncryptionService` e `EncryptedType`, e `ResponseSanitizer` é conceitualmente similar ao `LogSanitizer` (focado em respostas HTTP), que tal detalharmos o `Deeper_Hub.Security.IntrusionDetection`? Este módulo atua como um sistema de alerta para atividades suspeitas que podem não ser fraude direta, mas indicam uma possível tentativa de comprometer o sistema.
 
 ---
 

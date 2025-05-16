@@ -1,8 +1,8 @@
-# Módulo: `DeeperHub.WebAuthn` 🔑
+# Módulo: `Deeper_Hub.WebAuthn` 🔑
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.WebAuthn`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.WebAuthn`
 
-O módulo `DeeperHub.WebAuthn` é responsável por implementar a funcionalidade de autenticação usando o padrão WebAuthn (Web Authentication API). Ele permite que os usuários do DeeperHub se autentiquem de forma segura e sem senha, utilizando autenticadores de hardware (como chaves de segurança YubiKey), biometria integrada em dispositivos (como Touch ID ou Windows Hello), ou outros métodos FIDO2 compatíveis. O objetivo é oferecer uma alternativa mais segura e conveniente às senhas tradicionais. 😊
+O módulo `Deeper_Hub.WebAuthn` é responsável por implementar a funcionalidade de autenticação usando o padrão WebAuthn (Web Authentication API). Ele permite que os usuários do Deeper_Hub se autentiquem de forma segura e sem senha, utilizando autenticadores de hardware (como chaves de segurança YubiKey), biometria integrada em dispositivos (como Touch ID ou Windows Hello), ou outros métodos FIDO2 compatíveis. O objetivo é oferecer uma alternativa mais segura e conveniente às senhas tradicionais. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -33,22 +33,22 @@ O módulo `DeeperHub.WebAuthn` é responsável por implementar a funcionalidade 
 
 ## 🏗️ 3. Arquitetura e Design
 
-`DeeperHub.WebAuthn` será uma fachada que interage com um serviço de lógica de negócio WebAuthn e componentes de persistência e cache.
+`Deeper_Hub.WebAuthn` será uma fachada que interage com um serviço de lógica de negócio WebAuthn e componentes de persistência e cache.
 
-*   **Interface Pública (`DeeperHub.WebAuthn.WebAuthnFacade` ou `DeeperHub.WebAuthn`):** Funções como `begin_registration/3`, `complete_registration/2`, `begin_authentication/2`, `complete_authentication/2`.
-*   **Serviço WebAuthn (`DeeperHub.WebAuthn.Services.WebAuthnService`):**
+*   **Interface Pública (`Deeper_Hub.WebAuthn.WebAuthnFacade` ou `Deeper_Hub.WebAuthn`):** Funções como `begin_registration/3`, `complete_registration/2`, `begin_authentication/2`, `complete_authentication/2`.
+*   **Serviço WebAuthn (`Deeper_Hub.WebAuthn.Services.WebAuthnService`):**
     *   Contém a lógica principal para os fluxos de registro e autenticação WebAuthn.
     *   Interage com bibliotecas Elixir para WebAuthn (ex: `Wax`, `WebAuthn.Elixir`).
-*   **Schema Ecto (`DeeperHub.WebAuthn.Schema.Credential`):**
+*   **Schema Ecto (`Deeper_Hub.WebAuthn.Schema.Credential`):**
     *   Define a estrutura para armazenar informações das credenciais WebAuthn registradas.
-*   **Cache de Desafios (via `Core.Cache` ou `DeeperHub.WebAuthn.ChallengeCache`):**
+*   **Cache de Desafios (via `Core.Cache` ou `Deeper_Hub.WebAuthn.ChallengeCache`):**
     *   Armazena temporariamente os challenges para associar as respostas do cliente às solicitações originais.
 *   **Integrações:**
-    *   `DeeperHub.Core.Repo`: Para persistência de credenciais.
-    *   `DeeperHub.Core.Cache`: Para cache de desafios.
-    *   `DeeperHub.Core.ConfigManager`: Para configurações do Relying Party ID, nomes de exibição, etc.
-    *   `DeeperHub.Auth` ou `DeeperHub.MFA`: Para integrar o WebAuthn nos fluxos de autenticação.
-    *   `DeeperHub.Audit`: Para registrar eventos de registro e autenticação WebAuthn.
+    *   `Deeper_Hub.Core.Repo`: Para persistência de credenciais.
+    *   `Deeper_Hub.Core.Cache`: Para cache de desafios.
+    *   `Deeper_Hub.Core.ConfigManager`: Para configurações do Relying Party ID, nomes de exibição, etc.
+    *   `Deeper_Hub.Auth` ou `Deeper_Hub.MFA`: Para integrar o WebAuthn nos fluxos de autenticação.
+    *   `Deeper_Hub.Audit`: Para registrar eventos de registro e autenticação WebAuthn.
 
 **Padrões de Design:**
 
@@ -57,20 +57,20 @@ O módulo `DeeperHub.WebAuthn` é responsável por implementar a funcionalidade 
 
 ### 3.1. Componentes Principais
 
-*   **`DeeperHub.WebAuthn.WebAuthnFacade`:** Ponto de entrada.
-*   **`DeeperHub.WebAuthn.Services.WebAuthnService`:** Lógica de negócio principal.
-*   **`DeeperHub.WebAuthn.Schema.Credential`:** Schema Ecto para credenciais.
+*   **`Deeper_Hub.WebAuthn.WebAuthnFacade`:** Ponto de entrada.
+*   **`Deeper_Hub.WebAuthn.Services.WebAuthnService`:** Lógica de negócio principal.
+*   **`Deeper_Hub.WebAuthn.Schema.Credential`:** Schema Ecto para credenciais.
 *   **Biblioteca WebAuthn Elixir (ex: `Wax`):** Usada internamente pelo `WebAuthnService` para as operações criptográficas e de protocolo.
-*   **`DeeperHub.WebAuthn.Supervisor`:** Supervisiona processos (se houver, como um worker para limpar desafios expirados do cache).
+*   **`Deeper_Hub.WebAuthn.Supervisor`:** Supervisiona processos (se houver, como um worker para limpar desafios expirados do cache).
 
 ### 3.3. Decisões de Design Importantes
 
 *   **Escolha da Biblioteca WebAuthn:** Selecionar uma biblioteca Elixir robusta e bem mantida para lidar com as complexidades do protocolo WebAuthn.
-*   **Armazenamento de ChallengePerfeito! Vamos ao README do `DeeperHub.WebAuthn`. Este é um módulo de segurança bem moderno e interessante.
+*   **Armazenamento de ChallengePerfeito! Vamos ao README do `Deeper_Hub.WebAuthn`. Este é um módulo de segurança bem moderno e interessante.
 
 ---
 
-# Módulo: `DeeperHub.WebAuthn:** Decidir como os desafios são armazenados temporariamente e associados às sessões do usuário (ex: cache com TTL curto, cookies de sessão).
+# Módulo: `Deeper_Hub.WebAuthn:** Decidir como os desafios são armazenados temporariamente e associados às sessões do usuário (ex: cache com TTL curto, cookies de sessão).
 *   **User Verification (UV):** Definir a política para verificação do usuário (ex: exigir PIN ou biometria no autenticador).
 *   **Attestation:** Decidir o formato de atestação a ser solicitado e como validá-lo (pode ser complexo e muitas vezes é opcional ou \"none\" para simplicidade).
 
@@ -78,9 +78,9 @@ O módulo `DeeperHub.WebAuthn` é responsável por implementar a funcionalidade 
 
 *   **Usu` 🔑
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.WebAuthn`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.WebAuthn`
 
-O módulo `DeeperHub.WebAuthn` é responsável por implementar a funcionalidade de autenticação usando o padrão WebAuthn (Web Authentication API). Ele permite que os usuários se autentiquem no sistema DeeperHub de forma segura e sem senha, utilizando autenticadores como chaves de segurança FIDO2 (ex: YubiKey), biometria integrada em dispositivos (ex: Touch ID, Windows Hello) ou outros autenticadores compatíveis. O objetivo é oferecer uma alternativa mais segura e conveniente à autenticação baseada em senhas, além de poder servir como um forte segundo fator de autenticação (MFA). 😊
+O módulo `Deeper_Hub.WebAuthn` é responsável por implementar a funcionalidade de autenticação usando o padrão WebAuthn (Web Authentication API). Ele permite que os usuários se autentiquem no sistema Deeper_Hub de forma segura e sem senha, utilizando autenticadores como chaves de segurança FIDO2 (ex: YubiKey), biometria integrada em dispositivos (ex: Touch ID, Windows Hello) ou outros autenticadores compatíveis. O objetivo é oferecer uma alternativa mais segura e conveniente à autenticação baseada em senhas, além de poder servir como um forte segundo fator de autenticação (MFA). 😊
 
 ## 🎯ário Registra uma Chave de Segurança:** Um usuário acessa as configurações de segurança de sua conta e opta por adicionar uma chave de segurança física como método de login.
 *   **Usuário Faz Login com Impressão Digital:** Um usuário em um dispositivo com leitor de impressão digital opta por fazer login usando sua biometria registrada via WebAuthn.
@@ -109,7 +109,7 @@ O módulo `DeeperHub.WebAuthn` é responsável por implementar a funcionalidade 
     *   Permitir que usuários removam/desvinculem credenciais WebAuthn de suas contas.
 *   **Configuração do Relying Party (RP):**
     *   Configurar o ID do Relying Party (geralmente o domínio /api/webauthn/registration/begin`).
-3.  O controller da API chama `DeeperHub.WebAuthn.begin_registration(user_id, key_name, opts)`.
+3.  O controller da API chama `Deeper_Hub.WebAuthn.begin_registration(user_id, key_name, opts)`.
 4.  `WebAuthnService`:
     *   Gera um challenge criptograficamente seguro.
     *   Obtém o Relying Party ID e outras informações de configuração do `Core.ConfigManager`.
@@ -120,12 +120,12 @@ O módulo `DeeperHub.WebAuthn` é responsável por implementar a funcionalidade 
 6.  O navegador interage com o autenticador do usuário.
 7.  O autenticador cria um novo par de chaves e retorna uma resposta de atestação para o frontend.
 8.  Frontend envia a resposta de atestação para a API (ex: `POST /api/webauthn/registration/complete`).
-9.  O controller da API chama `DeeperHub.WebAuthn.complete_registration(user_id, attestation_response_from_client)`.
+9.  O controller da API chama `Deeper_Hub.WebAuthn.complete_registration(user_id, attestation_response_from_client)`.
 10. `WebAuthnService`:
     *   Recupera o `challenge` original do cache usando o `user_id` (ou um ID de sessão do desafio).
     *   Valida a resposta de atestação usando a biblioteca WebAuthn (verifica challenge, origem, assinatura, etc.).
     *   Se válida, extrai o ID da credencial, a chave pública e o contador de assinatura.
-    *   Cria um novo registro `DeeperHub.WebAuthn.Schema.Credential` e o persiste.
+    *   Cria um novo registro `Deeper_Hub.WebAuthn.Schema.Credential` e o persiste.
     *   Retorna `{:ok, credential_info_publica}`.
 11. Event da aplicação).
     *   Configurar o nome do Relying Party.
@@ -135,27 +135,27 @@ O módulo `DeeperHub.WebAuthn` é responsável por implementar a funcionalidade 
 *   **Desafios (Challenges):**
     *   Geração e validação de desafios criptograficamente seguros para cada operação de registro e autenticação.
     *   Armazenamento temporário e seguro de desafios pendentes (ex: em cache ou sessão).
-*   **Integração com `DeeperHub.Accounts` e `DeeperHub.MFA`:**
+*   **Integração com `Deeper_Hub.Accounts` e `Deeper_Hub.MFA`:**
     *   Associar credenciais WebAuthn a contas de usuário.
     *   Permitir que WebAuthn seja usado como um método primário de login (passwordless) ou como um segundo fator de autenticação.
 *   **Auditoria e Logging:**
-    *   Registrar todas as tentativas de registro e autenticação WebAuthn, sucessos e falhas (via `DeeperHub.Audit`).
+    *   Registrar todas as tentativas de registro e autenticação WebAuthn, sucessos e falhas (via `Deeper_Hub.Audit`).
 
 ## 🏗️ 3. Arquitetura e Design
 
-`DeeperHub.WebAuthn` atuará como uma fachada para um serviço que encapsula a lógica complexa do protocolo WebAuthn.
+`Deeper_Hub.WebAuthn` atuará como uma fachada para um serviço que encapsula a lógica complexa do protocolo WebAuthn.
 
-*   **Interface Pública (`DeeperHub.WebAuthn.WebAuthnFacade` ou `DeeperHub.WebAuthn`):** Funções como `begin_registration/3`, `complete_registration/2`, `begin_authentication/2`, `complete_authentication/2`.
-*   **Serviço WebAuthn (`DeeperHub.WebAuthn.Services.WebAuthnService`):**
+*   **Interface Pública (`Deeper_Hub.WebAuthn.WebAuthnFacade` ou `Deeper_Hub.WebAuthn`):** Funções como `begin_registration/3`, `complete_registration/2`, `begin_authentication/2`, `complete_authentication/2`.
+*   **Serviço WebAuthn (`Deeper_Hub.WebAuthn.Services.WebAuthnService`):**
     *   Contém a lógica principal para todas as fases do WebAuthn.
     *   Interage com bibliotecas Elixir especializadas em WebAuthn (ex: `Wax` ou `WebauthnEx`).
-*   **Schema Ecto (`DeeperHub.WebAuthn.Schema.Credential`):**
+*   **Schema Ecto (`Deeper_Hub.WebAuthn.Schema.Credential`):**
     *   Define como as informações da credencial WebAuthn são persistidas (public key, credential ID, user_handle, sign_count, transportes, etc.).
-*   **Cache de Desafios (`DeeperHub.WebAuthn.Challengeos de auditoria e notificação são disparados.
+*   **Cache de Desafios (`Deeper_Hub.WebAuthn.Challengeos de auditoria e notificação são disparados.
 
 ## 📡 6. API (Se Aplicável)
 
-### 6.1. `DeeperHub.WebAuthn.begin_registration/3`
+### 6.1. `Deeper_Hub.WebAuthn.begin_registration/3`
 
 *   **Descrição:** Inicia o processo de registro de uma nova credencial WebAuthn para um usuário.
 *   **`@spec`:** `begin_registration(user_id :: String.t(), key_name :: String.t() | nil, opts :: Keyword.t()) :: {:ok, creation_options :: map()} | {:error, reason}`
@@ -169,13 +169,13 @@ O módulo `DeeperHub.WebAuthn` é responsável por implementar a funcionalidade 
     *   `{:error, reason}`.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    case DeeperHub.WebAuthn.begin_registration(current_user.id, \"Chave de Segurança Principal\", username_for_rp: current_user.email) do
+    case Deeper_Hub.WebAuthn.begin_registration(current_user.id, \"Chave de Segurança Principal\", username_for_rp: current_user.email) do
       {:ok, options} -> # Enviar options para o frontend
       {:error, reason} -> Logger.error(\"Falha ao iniciar registro WebAuthn: #{reason}\")
     end
     ```
 
-### 6.2. `DeeperHub.WebAuthn.complete_registration/2`
+### 6.2. `Deeper_Hub.WebAuthn.complete_registration/2`
 
 *   **Descrição:** Completa o processo de registro de uma credencial WebAuthn, validando a resposta do autenticador.
 *   **`@spec`:** `complete_registration(user_id :: String.t(), attestation_response :: map()) :: {:ok, Credential.t()} | {:error, reason}`
@@ -188,7 +188,7 @@ O módulo `DeeperHub.WebAuthn` é responsável por implementar a funcionalidade 
 *   **Exemplo de Uso (Elixir):**
     ```elixir
     # attestation_data_from_client é o JSON.parse() da resposta do navegador
-    case DeeperHub.WebAuthn.complete_registration(current_user.id, attestation_data_from_client) do
+    case Deeper_Hub.WebAuthn.complete_registration(current_user.id, attestation_data_from_client) do
       {:ok, cred} -> Logger.info(\"Credencial WebAuthn #{cred.id} registrada para #{current_user.id}\")
       {:error, reason} -> Logger.error(\"Falha ao completar registro WebAuthn: #{reason}\")
     end
@@ -198,16 +198,16 @@ O módulo `DeeperHub.WebAuthn` é responsável por implementar a funcionalidade 
 
 ## ⚙️ 7. Configuração
 
-*   **ConfigManager (`DeeperHub.Core.ConfigManager`):**
-    *   `[:webauthn, :relying_party_id]`: O ID do Relying Party (geralmente o domínio da aplicação, ex: \"deeperhub.com\"). **Obrigatório.**
+*   **ConfigManager (`Deeper_Hub.Core.ConfigManager`):**
+    *   `[:webauthn, :relying_party_id]`: O ID do Relying Party (geralmente o domínio da aplicação, ex: \"Deeper_Hub.com\"). **Obrigatório.**
     *   `[:webauthn, :relying_party_name]`: NomeCache` ou via `Core.Cache`):**
     *   Armazena temporariamente os desafios gerados para as operações de registro e autenticação, associados a uma sessão ou usuário.
 *   **Integrações:**
-    *   `DeeperHub.Core.Repo`: Para persistência de credenciais.
-    *   `DeeperHub.Core.Cache`: Para desafios.
-    *   `DeeperHub.Core.ConfigManager`: Para configurações do Relying Party.
-    *   `DeeperHub.Accounts`: Para associar credenciais a usuários.
-    *   `DeeperHub.Audit`: Para logar operações.
+    *   `Deeper_Hub.Core.Repo`: Para persistência de credenciais.
+    *   `Deeper_Hub.Core.Cache`: Para desafios.
+    *   `Deeper_Hub.Core.ConfigManager`: Para configurações do Relying Party.
+    *   `Deeper_Hub.Accounts`: Para associar credenciais a usuários.
+    *   `Deeper_Hub.Audit`: Para logar operações.
 
 **Padrões de Design:**
 
@@ -216,17 +216,17 @@ O módulo `DeeperHub.WebAuthn` é responsável por implementar a funcionalidade 
 
 ### 3.1. Componentes Principais
 
-*   **`DeeperHub.WebAuthn.WebAuthnFacade`:** Ponto de entrada.
-*   **`DeeperHub.WebAuthn.Services.WebAuthnService`:** Lógica principal do protocolo.
-*   **`DeeperHub.WebAuthn.Schema.Credential`:** Schema Ecto para credenciais.
+*   **`Deeper_Hub.WebAuthn.WebAuthnFacade`:** Ponto de entrada.
+*   **`Deeper_Hub.WebAuthn.Services.WebAuthnService`:** Lógica principal do protocolo.
+*   **`Deeper_Hub.WebAuthn.Schema.Credential`:** Schema Ecto para credenciais.
 *   **Biblioteca WebAuthn Subjacente:** Uma dependência externa como `Wax` ou `WebauthnEx`.
-*   **`DeeperHub.WebAuthn.Supervisor`:** Supervisiona processos (se houver, como um worker para limpar desafios expirados do cache).
+*   **`Deeper_Hub.WebAuthn.Supervisor`:** Supervisiona processos (se houver, como um worker para limpar desafios expirados do cache).
 
 ### 3.3. Decisões de Design Importantes
 
 *   **Escolha da Biblioteca WebAuthn:** A seleção de uma biblioteca Elixir madura e bem mantida para WebAuthn é crucial, pois o protocolo é complexo.
 *   **Armazenamento de Desafios:** Onde e como os desafios (challenges) são armazenados temporariamente entre o início e a conclusão de uma operação. A sessão do usuário ou um cache com TTL são opções comuns.
-*   **User Handle:** Decidir qual identificador único do usuário (`user_id` do DeeperHub) será usado como `userHandle` no protocolo WebAuthn.
+*   **User Handle:** Decidir qual identificador único do usuário (`user_id` do Deeper_Hub) será usado como `userHandle` no protocolo WebAuthn.
 *   **Políticas de Autenticador:** Se haverá políticas sobre quais tipos de autenticadores são permitidos (ex: apenas chaves de segurança com certificação FIDO2, ou permitir autenticadores de plataforma).
 
 ## 🛠️ 4. Casos de Uso Principais
@@ -242,16 +242,16 @@ O módulo `DeeperHub.WebAuthn` é responsável por implementar a funcionalidade 
 
 1.  Usuário inicia o registro via UI.
 2.  Frontend envia uma requisição para a API (ex: `POST /api/webauthn/registration/begin`).
-3.  `DeeperHub.API` (Controller) chama `DeeperHub.WebAuthn.begin_registration(user_id, key_name, _opts)`.
+3.  `Deeper_Hub.API` (Controller) chama `Deeper_Hub.WebAuthn.begin_registration(user_id, key_name, _opts)`.
 4.  `WebAuthnService` gera as `PublicKeyCredentialCreationOptions`, incluindo um desafio (challenge) único.
 5.  O desafio é armazenado temporariamente (ex: na sessão do usuário ou no `Core.Cache` com o `user_id`).
 6.  As opções são retornadas ao frontend.
 7.  Frontend usa `navigator.credentials.create()` com as opções recebidas. O autenticador do usuário (ex: chave de segurança) gera um par de chaves e o atestado.
 8.  Frontend envia a `AuthenticatorAttestationResponse` para a API (ex: `POST /api/webauthn/registration/complete`).
-9.  `DeeperHub.API` chama `DeeperHub.WebAuthn.complete_registration(user_id, attestation_response)`.
+9.  `Deeper_Hub.API` chama `Deeper_Hub.WebAuthn.complete_registration(user_id, attestation_response)`.
 10. `WebAuthnService` recupera o desafio armazenado.
-11. Valida a `attestation_response` contra o desafio e as políticas de exibição do Relying Party (ex: \"DeeperHub\"). **Obrigatório.**
-    *   `[:webauthn, :relying_party_origin]`: A origem completa do Relying Party (ex: \"https://deeperhub.com\"). **Obrigatório.**
+11. Valida a `attestation_response` contra o desafio e as políticas de exibição do Relying Party (ex: \"Deeper_Hub\"). **Obrigatório.**
+    *   `[:webauthn, :relying_party_origin]`: A origem completa do Relying Party (ex: \"https://Deeper_Hub.com\"). **Obrigatório.**
     *   `[:webauthn, :challenge_ttl_seconds]`: TTL para os desafios de registro/autenticação no cache. (Padrão: `300` - 5 minutos)
     *   `[:webauthn, :default_attestation_type]`: Tipo de atestação padrão a ser solicitado (\"none\", \"indirect\", \"direct\"). (Padrão: `\"none\"`)
     *   `[:webauthn, :user_verification_requirement]`: Requisito de verificação do usuário (\"required\", \"preferred\", \"discouraged\"). (Padrão: `\"preferred\"`)
@@ -261,13 +261,13 @@ O módulo `DeeperHub.WebAuthn` é responsável por implementar a funcionalidade 
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.Repo`: Para persistir `Credential.t()`.
-*   `DeeperHub.Core.Cache`: Para armazenar desafios temporários.
-*   `DeeperHub.Core.ConfigManager`: Para configurações do Relying Party.
-*   `DeeperHub.Accounts`: Para associar credenciais a usuários.
-*   `DeeperHub.Auth` / `DeeperHub.MFA`: Para integrar WebAuthn como método de login ou 2FA.
-*   `DeeperHub.Audit`: Para registrar eventos de WebAuthn.
-*   `DeeperHub.Core.Logger`, `DeeperHub.Core.Metrics`.
+*   `Deeper_Hub.Core.Repo`: Para persistir `Credential.t()`.
+*   `Deeper_Hub.Core.Cache`: Para armazenar desafios temporários.
+*   `Deeper_Hub.Core.ConfigManager`: Para configurações do Relying Party.
+*   `Deeper_Hub.Accounts`: Para associar credenciais a usuários.
+*   `Deeper_Hub.Auth` / `Deeper_Hub.MFA`: Para integrar WebAuthn como método de login ou 2FA.
+*   `Deeper_Hub.Audit`: Para registrar eventos de WebAuthn.
+*   `Deeper_Hub.Core.Logger`, `Deeper_Hub.Core.Metrics`.
 
 ### 8.2. Bibliotecas Externas
 
@@ -277,7 +277,7 @@ O módulo `DeeperHub.WebAuthn` é responsável por implementar a funcionalidade 
 ## 🤝 9. Como Usar / Integração
 
 *   **Frontend:** A UI precisará de JavaScript para interagir com a API WebAuthn do navegador (`navigator.credentials.create()` e `navigator.credentials.get()`).
-*   **API Endpoints:** `DeeperHub.API` precisará de endpoints para `/webauthn/registration/begin`, `/webauthn/registration/complete`, `/webauthn/authentication/begin`, `/webauthn/authentication/complete`.
+*   **API Endpoints:** `Deeper_Hub.API` precisará de endpoints para `/webauthn/registration/begin`, `/webauthn/registration/complete`, `/webauthn/authentication/begin`, `/webauthn/authentication/complete`.
 *   **Módulo `Auth` ou `MFA`:**
     *   Para usar como login primário, o `Auth` chamaria `WebAuthn.begin_authentication` e `WebAuthn.complete_authentication`.
     *   Para usar como 2FA, o `MFA` chamaria as mesmas funções após a verificação do primeiro fator.
@@ -304,10 +304,10 @@ O módulo `DeeperHub.WebAuthn` é responsável por implementar a funcionalidade 
 
 ### 10.3. Logs
 
-*   `Logger.info(\"Iniciando registro WebAuthn para user_id: #{uid}, challenge: #{challenge}\", module: DeeperHub.WebAuthn.Services.WebAuthnService)`
-*   `Logger.info(\"Credencial WebAuthn registrada com ID: #{cred_id} para user_id: #{uid}\", module: DeeperHub.WebAuthn.Services.WebAuthnService)`
-*   `Logger.info(\"Autenticação WebAuthn bem-sucedida para user_id: #{uid} com credencial_id: #{cred_id}\", module: DeeperHub.WebAuthn.Services.WebAuthnService)`
-*   `Logger.error(\"Falha na validação WebAuthn: #{reason}\", module: DeeperHub.WebAuthn.Services.WebAuthnService)`
+*   `Logger.info(\"Iniciando registro WebAuthn para user_id: #{uid}, challenge: #{challenge}\", module: Deeper_Hub.WebAuthn.Services.WebAuthnService)`
+*   `Logger.info(\"Credencial WebAuthn registrada com ID: #{cred_id} para user_id: #{uid}\", module: Deeper_Hub.WebAuthn.Services.WebAuthnService)`
+*   `Logger.info(\"Autenticação WebAuthn bem-sucedida para user_id: #{uid} com credencial_id: #{cred_id}\", module: Deeper_Hub.WebAuthn.Services.WebAuthnService)`
+*   `Logger.error(\"Falha na validação WebAuthn: #{reason}\", module: Deeper_Hub.WebAuthn.Services.WebAuthnService)`
 
 ### 10.4. Telemetria
 
@@ -353,29 +353,29 @@ Recapitulando os READMEs que idealizamos e criamos o conteúdo:
 1.  `Core.HTTPClient`
 2.  `Core.Internationalization (I18n)`
 3.  `Core.InputValidator`
-4.  `DeeperHub.Audit`
-5.  `DeeperHub.FeatureFlags`
-6.  `DeeperHub.Console`
-7.  `DeeperHub.Biometrics`
-8.  `DeeperHub.ModuleInspector`
-9.  `DeeperHub.GeoIP`
-10. `DeeperHub.Mailer`
-11. `DeeperHub.Accounts` (Exemplo detalhado baseado no seu material)
-12. `Elixir.DeeperHub.Accounts.Services.UserService` (Exemplo de submódulo de Serviço)
-13. `Elixir.DeeperHub.Security.FraudDetection.Workers.AnalysisWorker` (Exemplo de submódulo Worker)
-14. `Elixir.DeeperHub.Tokens.Schema.ApiToken` (Exemplo de submódulo Schema)
-15. `DeeperHub.Achievements` (Exemplo de módulo de \"Services\")
-16. `DeeperHub.Challenges`
-17. `DeeperHub.Rewards`
-18. `DeeperHub.Support`
-19. `DeeperHub.UserInteractions`
-20. `DeeperHub.Lists`
-21. `DeeperHub.WebAuthn`
+4.  `Deeper_Hub.Audit`
+5.  `Deeper_Hub.FeatureFlags`
+6.  `Deeper_Hub.Console`
+7.  `Deeper_Hub.Biometrics`
+8.  `Deeper_Hub.ModuleInspector`
+9.  `Deeper_Hub.GeoIP`
+10. `Deeper_Hub.Mailer`
+11. `Deeper_Hub.Accounts` (Exemplo detalhado baseado no seu material)
+12. `Elixir.Deeper_Hub.Accounts.Services.UserService` (Exemplo de submódulo de Serviço)
+13. `Elixir.Deeper_Hub.Security.FraudDetection.Workers.AnalysisWorker` (Exemplo de submódulo Worker)
+14. `Elixir.Deeper_Hub.Tokens.Schema.ApiToken` (Exemplo de submódulo Schema)
+15. `Deeper_Hub.Achievements` (Exemplo de módulo de \"Services\")
+16. `Deeper_Hub.Challenges`
+17. `Deeper_Hub.Rewards`
+18. `Deeper_Hub.Support`
+19. `Deeper_Hub.UserInteractions`
+20. `Deeper_Hub.Lists`
+21. `Deeper_Hub.WebAuthn`
 
-Acredito que com estes, você tem uma base muito sólida para a documentação da arquitetura do seu novo sistema DeeperHub.
+Acredito que com estes, você tem uma base muito sólida para a documentação da arquitetura do seu novo sistema Deeper_Hub.
 
 O que você gostaria de fazer agora? Podemos:
-*   Escolher um módulo já existente na sua lista de `modules_documentation.txt` (como `DeeperHub.Auth` ou `DeeperHub.Security`) e detalhar seu README no novo formato.
+*   Escolher um módulo já existente na sua lista de `modules_documentation.txt` (como `Deeper_Hub.Auth` ou `Deeper_Hub.Security`) e detalhar seu README no novo formato.
 *   Discutir como seria a documentação para os submódulos menores de forma mais geral.
 *   Revisar algum dos READMEs que acabamos de criar.
 *   Ou qualquer outra coisa que você precise!"""),
@@ -396,23 +396,23 @@ Dado que já fizemos exemplos de submódulos (Serviço, Worker, Schema) e um exe
 
 Os que já fizemos daquela categoria:
 
-*   `DeeperHub.Achievements`
-*   `DeeperHub.Challenges`
-*   `DeeperHub.Rewards`
-*   `DeeperHub.Support`
-*   `DeeperHub.UserInteractions`
-*   `DeeperHub.Lists`
+*   `Deeper_Hub.Achievements`
+*   `Deeper_Hub.Challenges`
+*   `Deeper_Hub.Rewards`
+*   `Deeper_Hub.Support`
+*   `Deeper_Hub.UserInteractions`
+*   `Deeper_Hub.Lists`
 
 Os que faltam da lista original de \"Services\" que você me mostrou, e que seriam elevados a módulos de domínio de primeiro nível:
 
-1.  **`DeeperHub.ServerAdvertisements`**
-2.  **`DeeperHub.ServerEvents`**
-3.  **`DeeperHub.ServerPackages`**
-4.  **`DeeperHub.ServerAlerts`**
-5.  **`DeeperHub.ServerTags`** (Embora você já tenha um `DeeperHub_ServerTags.md`, podemos revisá-lo ou criar um novo com base na estrutura padrão).
-6.  **`DeeperHub.ServerReviews`** (Embora você já tenha um `DeeperHub_ServerReviews.md`, podemos revisá-lo ou criar um novo).
+1.  **`Deeper_Hub.ServerAdvertisements`**
+2.  **`Deeper_Hub.ServerEvents`**
+3.  **`Deeper_Hub.ServerPackages`**
+4.  **`Deeper_Hub.ServerAlerts`**
+5.  **`Deeper_Hub.ServerTags`** (Embora você já tenha um `Deeper_Hub_ServerTags.md`, podemos revisá-lo ou criar um novo com base na estrutura padrão).
+6.  **`Deeper_Hub.ServerReviews`** (Embora você já tenha um `Deeper_Hub_ServerReviews.md`, podemos revisá-lo ou criar um novo).
 
-Vamos começar com `DeeperHub.ServerAdvertisements`.
+Vamos começar com `Deeper_Hub.ServerAdvertisements`.
 
 ---
 

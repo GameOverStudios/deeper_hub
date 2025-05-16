@@ -1,8 +1,8 @@
-# Módulo: `DeeperHub.Shared.Utils` 🚀
+# Módulo: `Deeper_Hub.Shared.Utils` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Shared.Utils`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Shared.Utils`
 
-O módulo (ou namespace) `DeeperHub.Shared.Utils` agrupa um conjunto de **módulos utilitários genéricos** que fornecem funções auxiliares para tarefas comuns em todo o sistema DeeperHub. Essas funções não pertencem a um domínio de negócio específico, mas oferecem funcionalidades reutilizáveis para manipulação de strings, datas, listas, mapas, arquivos, validações básicas e operações de segurança comuns.
+O módulo (ou namespace) `Deeper_Hub.Shared.Utils` agrupa um conjunto de **módulos utilitários genéricos** que fornecem funções auxiliares para tarefas comuns em todo o sistema Deeper_Hub. Essas funções não pertencem a um domínio de negócio específico, mas oferecem funcionalidades reutilizáveis para manipulação de strings, datas, listas, mapas, arquivos, validações básicas e operações de segurança comuns.
 
 O objetivo é evitar a duplicação de código, promover a consistência e fornecer um local centralizado para funcionalidades de baixo nível que são amplamente utilizadas. 😊
 
@@ -10,21 +10,21 @@ O objetivo é evitar a duplicação de código, promover a consistência e forne
 
 Este namespace normalmente contém vários módulos menores, cada um com um foco específico:
 
-*   **`DeeperHub.Shared.Utils.StringUtils`:**
+*   **`Deeper_Hub.Shared.Utils.StringUtils`:**
     *   Manipulação de strings: conversão de case (camelCase, snake_case), truncamento, mascaramento de IDs, geração de IDs/tokens simples, formatação para logs.
-*   **`DeeperHub.Shared.Utils.DateUtils`:**
+*   **`Deeper_Hub.Shared.Utils.DateUtils`:**
     *   Manipulação de datas e horas: adição/subtração de tempo, cálculo de diferenças, formatação, verificação de intervalos.
-*   **`DeeperHub.Shared.Utils.ListUtils`:**
+*   **`Deeper_Hub.Shared.Utils.ListUtils`:**
     *   Operações em listas: chunking, diff, group_by, interleave, paginação em memória, particionamento, ordenação por múltiplas chaves, remoção de duplicatas.
-*   **`DeeperHub.Shared.Utils.MapUtils`:**
+*   **`Deeper_Hub.Shared.Utils.MapUtils`:**
     *   Operações em mapas: conversão de chaves (átomo/string), compactação (remoção de nils), mesclagem profunda, filtragem, acesso/atualização aninhada.
-*   **`DeeperHub.Shared.Utils.FileUtils` (se a aplicação lida diretamente com o sistema de arquivos):**
+*   **`Deeper_Hub.Shared.Utils.FileUtils` (se a aplicação lida diretamente com o sistema de arquivos):**
     *   Operações de arquivo: verificação de existência, leitura, escrita, cópia, cálculo de hash, obtenção de MIME type.
-*   **`DeeperHub.Shared.Utils.ValidationUtils`:**
+*   **`Deeper_Hub.Shared.Utils.ValidationUtils`:**
     *   Funções de validação de formato para dados comuns: email, telefone, URL, data, número de documento, JSON.
     *   Validação de complexidade de senha (básica), presença de campos obrigatórios.
     *(Nota: Validações mais complexas ou específicas de domínio residiriam nos respectivos módulos ou em `Core.InputValidator`)*
-*   **`DeeperHub.Shared.Utils.SecurityUtils`:**
+*   **`Deeper_Hub.Shared.Utils.SecurityUtils`:**
     *   Utilitários de segurança genéricos e agnósticos de contexto: geração de tokens/IDs aleatórios seguros, hashing de senhas (se não centralizado em `Auth` ou `Core.EncryptionService`), avaliação de risco simples baseada em fatores.
     *(Nota: Funções criptográficas mais robustas e gerenciamento de chaves devem estar em `Core.EncryptionService`)*
 
@@ -32,7 +32,7 @@ Este namespace normalmente contém vários módulos menores, cada um com um foco
 
 ### 3.1. Componentes Principais
 
-Cada submódulo dentro de `DeeperHub.Shared.Utils` é tipicamente um **módulo funcional puro**, contendo apenas funções que recebem entradas e produzem saídas sem efeitos colaterais (ou com efeitos colaterais bem definidos, como no caso de `FileUtils`). Eles geralmente não mantêm estado nem são GenServers.
+Cada submódulo dentro de `Deeper_Hub.Shared.Utils` é tipicamente um **módulo funcional puro**, contendo apenas funções que recebem entradas e produzem saídas sem efeitos colaterais (ou com efeitos colaterais bem definidos, como no caso de `FileUtils`). Eles geralmente não mantêm estado nem são GenServers.
 
 ### 3.2. Estrutura de Diretórios (Proposta)
 
@@ -52,7 +52,7 @@ O arquivo `shared/utils.ex` poderia ser um arquivo vazio ou um módulo que simpl
 
 *   **Sem Estado:** Os módulos utilitários devem ser, na medida do possível, stateless.
 *   **Funções Puras:** Preferir funções puras para facilitar o teste e o raciocínio sobre o código.
-*   **Sem Dependências de Domínio:** Utilitários não devem depender de módulos de domínio específicos (ex: `DeeperHub.Accounts`). Se uma função precisa de lógica de domínio, ela provavelmente pertence ao módulo de domínio.
+*   **Sem Dependências de Domínio:** Utilitários não devem depender de módulos de domínio específicos (ex: `Deeper_Hub.Accounts`). Se uma função precisa de lógica de domínio, ela provavelmente pertence ao módulo de domínio.
 *   **Generalidade:** As funções devem ser genéricas o suficiente para serem úteis em múltiplos contextos.
 *   **Clareza vs. Performance:** Embora a performance seja importante, a clareza e a correção das funções utilitárias são primordiais. Otimizações podem ser feitas se um utilitário específico se tornar um gargalo.
 
@@ -81,7 +81,7 @@ Geralmente, módulos utilitários puros não requerem muita configuração exter
 
 ### 8.1. Módulos Internos
 
-Idealmente, os módulos em `Shared.Utils` têm poucas ou nenhuma dependência de outros módulos `DeeperHub`, exceto talvez `Core.ConfigManager` para padrões configuráveis. Eles são blocos de construção.
+Idealmente, os módulos em `Shared.Utils` têm poucas ou nenhuma dependência de outros módulos `Deeper_Hub`, exceto talvez `Core.ConfigManager` para padrões configuráveis. Eles são blocos de construção.
 
 ### 8.2. Bibliotecas Externas
 
@@ -93,8 +93,8 @@ Os módulos utilitários são importados ou aliasados e suas funções são cham
 
 ```elixir
 defmodule MyApp.SomeService do
-  alias DeeperHub.Shared.Utils.StringUtils
-  alias DeeperHub.Shared.Utils.DateUtils
+  alias Deeper_Hub.Shared.Utils.StringUtils
+  alias Deeper_Hub.Shared.Utils.DateUtils
 
   def process_text(text) do
     truncated = StringUtils.truncate(text, 100)
@@ -145,7 +145,7 @@ Similar às métricas, funções utilitárias puras não emitem eventos Telemetr
 
 *   Ao adicionar uma nova função utilitária, certifique-se de que ela seja genérica e reutilizável.
 *   Adicione documentação clara (`@doc`, `@spec`) e testes unitários completos.
-*   Evite adicionar dependências desnecessárias a outros módulos do DeeperHub.
+*   Evite adicionar dependências desnecessárias a outros módulos do Deeper_Hub.
 
 ## 🔮 14. Melhorias Futuras e TODOs
 
@@ -159,7 +159,7 @@ Similar às métricas, funções utilitárias puras não emitem eventos Telemetr
 
 ---
 
-Agora, vamos detalhar um desses submódulos. Que tal o `DeeperHub.Shared.Utils.StringUtils`?
+Agora, vamos detalhar um desses submódulos. Que tal o `Deeper_Hub.Shared.Utils.StringUtils`?
 
 ---
 

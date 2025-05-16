@@ -1,8 +1,8 @@
-# Módulo: `DeeperHub.Shared.Utils.DateUtils` 🚀
+# Módulo: `Deeper_Hub.Shared.Utils.DateUtils` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Shared.Utils.DateUtils`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Shared.Utils.DateUtils`
 
-O módulo `DeeperHub.Shared.Utils.DateUtils` fornece um conjunto de funções utilitárias para **manipulação, cálculo e formatação de datas e horas** no sistema DeeperHub. Ele visa simplificar operações comuns relacionadas ao tempo, como adicionar ou subtrair intervalos, calcular diferenças entre datas, formatar datas para exibição e verificar se uma data está dentro de um determinado período.
+O módulo `Deeper_Hub.Shared.Utils.DateUtils` fornece um conjunto de funções utilitárias para **manipulação, cálculo e formatação de datas e horas** no sistema Deeper_Hub. Ele visa simplificar operações comuns relacionadas ao tempo, como adicionar ou subtrair intervalos, calcular diferenças entre datas, formatar datas para exibição e verificar se uma data está dentro de um determinado período.
 
 Este módulo utiliza as estruturas de data e hora nativas do Elixir (`Date`, `Time`, `NaiveDateTime`, `DateTime`) e bibliotecas de calendário para fornecer funcionalidades robustas e conscientes de fuso horário quando necessário. 😊
 
@@ -30,7 +30,7 @@ Este módulo utiliza as estruturas de data e hora nativas do Elixir (`Date`, `Ti
 
 ### 3.1. Componentes Principais
 
-*   **`DeeperHub.Shared.Utils.DateUtils` (Módulo Funcional):**
+*   **`Deeper_Hub.Shared.Utils.DateUtils` (Módulo Funcional):**
     *   Contém todas as funções de utilidade para datas e horas.
     *   Utiliza os módulos `Date`, `Time`, `NaiveDateTime`, `DateTime` do Elixir.
     *   Pode usar bibliotecas como `Calendar` ou `Timex` para funcionalidades mais avançadas de manipulação de calendário e fuso horário se as funções nativas não forem suficientes.
@@ -70,23 +70,23 @@ Não aplicável (módulo funcional).
 
 *(Baseado na documentação original e expandindo)*
 
-### 6.1. `DeeperHub.Shared.Utils.DateUtils.add(datetime :: Date.t() | NaiveDateTime.t() | DateTime.t(), amount :: integer(), unit :: :second | :minute | :hour | :day | :week | :month | :year) :: Date.t() | NaiveDateTime.t() | DateTime.t()`
+### 6.1. `Deeper_Hub.Shared.Utils.DateUtils.add(datetime :: Date.t() | NaiveDateTime.t() | DateTime.t(), amount :: integer(), unit :: :second | :minute | :hour | :day | :week | :month | :year) :: Date.t() | NaiveDateTime.t() | DateTime.t()`
 
 *   **Descrição:** Adiciona uma quantidade de `unit` a `datetime`. Retorna o mesmo tipo que foi passado.
 *   **Exemplo:** `DateUtils.add(DateTime.utc_now(), -3, :month)` (subtrai 3 meses).
 
-### 6.2. `DeeperHub.Shared.Utils.DateUtils.diff(start_datetime, end_datetime, unit :: :second | :minute | :hour | :day | :week | :month | :year) :: float() | integer()`
+### 6.2. `Deeper_Hub.Shared.Utils.DateUtils.diff(start_datetime, end_datetime, unit :: :second | :minute | :hour | :day | :week | :month | :year) :: float() | integer()`
 
 *   **Descrição:** Calcula a diferença entre `end_datetime` e `start_datetime` na `unit` especificada.
 *   Pode retornar float para unidades como `:hour` ou `:day` se houver frações.
 *   **Exemplo:** `DateUtils.diff(~N[2023-01-01 10:00:00], ~N[2023-01-01 11:30:00], :minute)` -> `90`.
 
-### 6.3. `DeeperHub.Shared.Utils.DateUtils.format_datetime(datetime, format_type :: :short | :medium | :long | :full | String.t(), locale :: String.t() \\\\ \"en\") :: String.t()`
+### 6.3. `Deeper_Hub.Shared.Utils.DateUtils.format_datetime(datetime, format_type :: :short | :medium | :long | :full | String.t(), locale :: String.t() \\\\ \"en\") :: String.t()`
 
 *   **Descrição:** Formata `datetime` para uma string. `locale` pode ser \"pt-BR\", \"en-US\", etc. Se `format_type` for uma string, ela é usada como um formato customizado (ex: `\"{YYYY}-{0M}-{0D} {h24}:{0m}:{0s}\"`).
 *   **Exemplo:** `DateUtils.format_datetime(DateTime.utc_now(), :long, \"pt-BR\")`.
 
-### 6.4. `DeeperHub.Shared.Utils.DateUtils.format_duration(duration_seconds :: non_neg_integer(), format_type :: :short | :medium | :long | :human) :: String.t()`
+### 6.4. `Deeper_Hub.Shared.Utils.DateUtils.format_duration(duration_seconds :: non_neg_integer(), format_type :: :short | :medium | :long | :human) :: String.t()`
 
 *   **Descrição:** Formata uma duração em segundos para uma string legível.
     *   `:short`: \"1d 2h 3m 4s\"
@@ -95,30 +95,30 @@ Não aplicável (módulo funcional).
     *   `:human`: \"há 5 minutos\", \"em 2 horas\" (requer um ponto de referência, ou assume \"atrás\").
 *   **Exemplo:** `DateUtils.format_duration(90061, :medium)` -> `\"1 day, 1 hour, 1 minute, 1 second\"` (aproximado).
 
-### 6.5. `DeeperHub.Shared.Utils.DateUtils.is_between?(datetime_to_check, start_datetime, end_datetime, inclusive_ends :: boolean() \\\\ true) :: boolean()`
+### 6.5. `Deeper_Hub.Shared.Utils.DateUtils.is_between?(datetime_to_check, start_datetime, end_datetime, inclusive_ends :: boolean() \\\\ true) :: boolean()`
 
 *   **Descrição:** Verifica se `datetime_to_check` está entre `start_datetime` e `end_datetime`.
 *   **`inclusive_ends`:** Se `true`, os limites são inclusivos (`<=`, `>=`). Se `false`, exclusivos (`<`, `>`).
 
-### 6.6. `DeeperHub.Shared.Utils.DateUtils.start_of(datetime, unit :: :day | :week | :month | :year) :: Date.t() | NaiveDateTime.t() | DateTime.t()` (Nova Sugestão)
+### 6.6. `Deeper_Hub.Shared.Utils.DateUtils.start_of(datetime, unit :: :day | :week | :month | :year) :: Date.t() | NaiveDateTime.t() | DateTime.t()` (Nova Sugestão)
 
 *   **Descrição:** Retorna o início da unidade de tempo para a data/hora fornecida.
 *   **Exemplo:** `DateUtils.start_of(~N[2023-05-12 15:30:00], :month)` -> `~N[2023-05-01 00:00:00]`.
 
-### 6.7. `DeeperHub.Shared.Utils.DateUtils.end_of(datetime, unit :: :day | :week | :month | :year) :: Date.t() | NaiveDateTime.t() | DateTime.t()` (Nova Sugestão)
+### 6.7. `Deeper_Hub.Shared.Utils.DateUtils.end_of(datetime, unit :: :day | :week | :month | :year) :: Date.t() | NaiveDateTime.t() | DateTime.t()` (Nova Sugestão)
 
 *   **Descrição:** Retorna o fim (último microssegundo) da unidade de tempo para a data/hora fornecida.
 *   **Exemplo:** `DateUtils.end_of(~N[2023-05-12 15:30:00], :day)` -> `~N[2023-05-12 23:59:59.999999]`.
 
-### 6.8. `DeeperHub.Shared.Utils.DateUtils.to_iso8601(datetime :: DateTime.t()) :: String.t()` (Nova Sugestão)
+### 6.8. `Deeper_Hub.Shared.Utils.DateUtils.to_iso8601(datetime :: DateTime.t()) :: String.t()` (Nova Sugestão)
 
 *   **Descrição:** Formata um `DateTime` para o padrão ISO8601 (ex: `\"2023-05-12T10:30:00.123Z\"`).
 
-### 6.9. `DeeperHub.Shared.Utils.DateUtils.from_iso8601(iso_string :: String.t()) :: {:ok, DateTime.t()} | {:error, term()}` (Nova Sugestão)
+### 6.9. `Deeper_Hub.Shared.Utils.DateUtils.from_iso8601(iso_string :: String.t()) :: {:ok, DateTime.t()} | {:error, term()}` (Nova Sugestão)
 
 *   **Descrição:** Parseia uma string ISO8601 para um `DateTime`.
 
-### 6.10. `DeeperHub.Shared.Utils.DateUtils.utc_now_trimmed_to_second() :: DateTime.t()` (Nova Sugestão)
+### 6.10. `Deeper_Hub.Shared.Utils.DateUtils.utc_now_trimmed_to_second() :: DateTime.t()` (Nova Sugestão)
 
 *   **Descrição:** Retorna `DateTime.utc_now()` com os microssegundos zerados, útil para comparações ou armazenamento.
 
@@ -132,7 +132,7 @@ Este módulo geralmente não tem configurações complexas, mas poderia obter do
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.ConfigManager` (opcional, para configurações padrão).
+*   `Deeper_Hub.Core.ConfigManager` (opcional, para configurações padrão).
 
 ### 8.2. Bibliotecas Externas
 
@@ -143,7 +143,7 @@ Este módulo geralmente não tem configurações complexas, mas poderia obter do
 
 Simplesmente chame as funções do módulo onde a manipulação de data/hora for necessária.
 ```elixir
-alias DeeperHub.Shared.Utils.DateUtils
+alias Deeper_Hub.Shared.Utils.DateUtils
 
 def token_expired?(token_created_at, ttl_days) do
   expiry_date = DateUtils.add(token_created_at, ttl_days, :day)
@@ -202,7 +202,7 @@ Geralmente não aplicável para um módulo de utilitários puros, a menos que um
 
 Os utilitários de data são sempre úteis!
 
-Próximo? `MapUtils` ou `ListUtils` para continuar nos utilitários, ou podemos voltar para um módulo Core mais complexo como `DeeperHub.Core.BackgroundTaskManager` (que já começamos) ou `DeeperHub.Notifications`?"""),
+Próximo? `MapUtils` ou `ListUtils` para continuar nos utilitários, ou podemos voltar para um módulo Core mais complexo como `Deeper_Hub.Core.BackgroundTaskManager` (que já começamos) ou `Deeper_Hub.Notifications`?"""),
             ],
         ),
         types.Content(
@@ -214,9 +214,9 @@ Próximo? `MapUtils` ou `ListUtils` para continuar nos utilitários, ou podemos 
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ok, já documentamos o `DeeperHub.Core.BackgroundTaskManager`.
+                types.Part.from_text(text="""Ok, já documentamos o `Deeper_Hub.Core.BackgroundTaskManager`.
 
-Vamos então para outro módulo Core essencial: `DeeperHub.Notifications`. Este módulo é responsável por toda a comunicação proativa do sistema com os usuários.
+Vamos então para outro módulo Core essencial: `Deeper_Hub.Notifications`. Este módulo é responsável por toda a comunicação proativa do sistema com os usuários.
 
 ---
 

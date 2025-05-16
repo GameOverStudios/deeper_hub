@@ -1,12 +1,12 @@
-# Módulo: `DeeperHub.Webhooks` 🚀
+# Módulo: `Deeper_Hub.Webhooks` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Webhooks`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Webhooks`
 
-O módulo `DeeperHub.Webhooks` é responsável por gerenciar e entregar **webhooks** para URLs de endpoints externos configurados por clientes ou outros sistemas. Webhooks são callbacks HTTP (geralmente POST) que o DeeperHub dispara automaticamente quando eventos específicos ocorrem na plataforma (ex: um novo usuário se registra, um pagamento é concluído, um servidor muda de status).
+O módulo `Deeper_Hub.Webhooks` é responsável por gerenciar e entregar **webhooks** para URLs de endpoints externos configurados por clientes ou outros sistemas. Webhooks são callbacks HTTP (geralmente POST) que o Deeper_Hub dispara automaticamente quando eventos específicos ocorrem na plataforma (ex: um novo usuário se registra, um pagamento é concluído, um servidor muda de status).
 
-Este sistema permite integrações em tempo real e fluxos de trabalho automatizados entre o DeeperHub e aplicações de terceiros, sem a necessidade de polling constante. Ele lida com o registro de webhooks, a formatação de payloads, o envio seguro, o tratamento de respostas, retentativas e o monitoramento da saúde dos endpoints. 😊
+Este sistema permite integrações em tempo real e fluxos de trabalho automatizados entre o Deeper_Hub e aplicações de terceiros, sem a necessidade de polling constante. Ele lida com o registro de webhooks, a formatação de payloads, o envio seguro, o tratamento de respostas, retentativas e o monitoramento da saúde dos endpoints. 😊
 
-*(Nota: A documentação original tem `DeeperHub.Webhooks` como módulo principal, e vários submódulos como `Dispatcher`, `Event`, `Integrations`, `Monitor`, `PayloadSigner`, `Scheduler`, `Schema`, `Services`, `Workers`. Esta documentação consolida a fachada principal em `DeeperHub.Webhooks` e organiza os componentes internos.)*
+*(Nota: A documentação original tem `Deeper_Hub.Webhooks` como módulo principal, e vários submódulos como `Dispatcher`, `Event`, `Integrations`, `Monitor`, `PayloadSigner`, `Scheduler`, `Schema`, `Services`, `Workers`. Esta documentação consolida a fachada principal em `Deeper_Hub.Webhooks` e organiza os componentes internos.)*
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -15,17 +15,17 @@ Este sistema permite integrações em tempo real e fluxos de trabalho automatiza
     *   Armazenar a URL, os tipos de eventos inscritos, um segredo opcional para assinatura de payload, e cabeçalhos customizados.
     *   Ativar/desativar webhooks.
 *   **Processamento de Eventos do Sistema:**
-    *   Escutar eventos do `DeeperHub.Core.EventBus` que podem disparar webhooks.
+    *   Escutar eventos do `Deeper_Hub.Core.EventBus` que podem disparar webhooks.
     *   Filtrar eventos para encontrar webhooks registrados para aquele tipo de evento.
 *   **Formatação de Payload (`Event` module):**
     *   Construir um payload JSON padronizado para cada evento de webhook, incluindo o tipo de evento, dados do evento e metadados (ID do evento, timestamp).
     *   Filtrar dados sensíveis do payload antes do envio.
 *   **Assinatura de Payload (`PayloadSigner`):**
-    *   Assinar o payload do webhook (ex: usando HMAC-SHA256 com o segredo do webhook) e incluir a assinatura em um header (ex: `X-DeeperHub-Signature`) para que o receptor possa verificar a autenticidade.
+    *   Assinar o payload do webhook (ex: usando HMAC-SHA256 com o segredo do webhook) e incluir a assinatura em um header (ex: `X-Deeper_Hub-Signature`) para que o receptor possa verificar a autenticidade.
 *   **Envio de Webhooks (`Dispatcher`, `DispatcherWithCircuitBreaker`):**
     *   Enviar o payload JSON como uma requisição HTTP POST para a URL do webhook registrado.
     *   Lidar com timeouts e erros de conexão.
-    *   Usar Circuit Breakers para proteger o DeeperHub de endpoints de webhook lentos ou que falham repetidamente.
+    *   Usar Circuit Breakers para proteger o Deeper_Hub de endpoints de webhook lentos ou que falham repetidamente.
 *   **Tratamento de Respostas e Retentativas (`Dispatcher`, `Scheduler`):**
     *   Registrar a resposta do endpoint do webhook (código de status, corpo).
     *   Implementar uma política de retentativa configurável (com backoff exponencial) para webhooks que falham (ex: retornam status 5xx ou timeout).
@@ -38,7 +38,7 @@ Este sistema permite integrações em tempo real e fluxos de trabalho automatiza
     *   Manter um histórico de todas as tentativas de entrega de webhooks, incluindo status, respostas e erros.
     *   Permitir que clientes visualizem o histórico de entregas para seus webhooks.
 *   **Segurança:**
-    *   Verificação de assinatura no lado do receptor (responsabilidade do cliente, mas o DeeperHub fornece a assinatura).
+    *   Verificação de assinatura no lado do receptor (responsabilidade do cliente, mas o Deeper_Hub fornece a assinatura).
     *   Proteção contra SSRF ao validar URLs de webhook.
     *   Envio apenas sobre HTTPS.
 *   **Observabilidade (`Telemetry`, `Integrations.AuditIntegration`):**
@@ -52,36 +52,36 @@ Este sistema permite integrações em tempo real e fluxos de trabalho automatiza
 
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.Webhooks` (Fachada Pública):**
+1.  **`Deeper_Hub.Webhooks` (Fachada Pública):**
     *   Ponto de entrada para registrar webhooks e, potencialmente, para disparar eventos manualmente para teste.
     *   Delega para o `WebhooksService`.
-2.  **`DeeperHub.Webhooks.Services.WebhookService`:**
+2.  **`Deeper_Hub.Webhooks.Services.WebhookService`:**
     *   **Responsabilidade:** Gerencia o CRUD de definições de `WebhookSchema`.
     *   Recebe eventos do `Core.EventBus` (via `EventListener` interno ou por ser um assinante direto).
     *   Para cada evento, encontra os `WebhookSchema`s correspondentes.
     *   Prepara o `WebhookEventSchema` (payload, assinatura).
     *   Enfileira o `WebhookEvent` para entrega pelo `Dispatcher` (ex: usando `Core.BackgroundTaskManager` ou uma fila interna).
-3.  **`DeeperHub.Webhooks.Schema.WebhookSchema`:**
+3.  **`Deeper_Hub.Webhooks.Schema.WebhookSchema`:**
     *   Armazena: `id`, `client_id` (ou `user_id` do proprietário), `url` (endpoint), `event_types` (lista de eventos inscritos), `secret` (criptografado), `custom_headers` (mapa), `is_active`, `failure_count`, `last_successful_delivery_at`, `last_failure_at`.
-4.  **`DeeperHub.Webhooks.Schema.WebhookEventSchema`:**
+4.  **`Deeper_Hub.Webhooks.Schema.WebhookEventSchema`:**
     *   Armazena: `id`, `webhook_id`, `event_type`, `payload_sent` (JSON), `status` (`:pending`, `:delivered`, `:failed_retryable`, `:failed_permanent`), `attempts`, `next_retry_at`, `last_response_code`, `last_response_body_sample`.
-5.  **`DeeperHub.Webhooks.Event` (Módulo Funcional):**
+5.  **`Deeper_Hub.Webhooks.Event` (Módulo Funcional):**
     *   Define os tipos de eventos suportados.
     *   Formata o payload do evento, incluindo filtragem de dados sensíveis.
-6.  **`DeeperHub.Webhooks.PayloadSigner` (Módulo Funcional):**
+6.  **`Deeper_Hub.Webhooks.PayloadSigner` (Módulo Funcional):**
     *   Gera a assinatura HMAC para o payload.
-7.  **`DeeperHub.Webhooks.Dispatcher` (GenServer ou Pool de Workers via `Core.BackgroundTaskManager`):**
+7.  **`Deeper_Hub.Webhooks.Dispatcher` (GenServer ou Pool de Workers via `Core.BackgroundTaskManager`):**
     *   **Responsabilidade:** Pega `WebhookEventSchema`s da fila e tenta enviá-los.
     *   Usa `DispatcherWithCircuitBreaker` para fazer a chamada HTTP.
     *   Atualiza o `WebhookEventSchema` com o resultado.
     *   Se falhar, e for `retryable`, atualiza `attempts` e `next_retry_at`.
     *   Se falhar permanentemente ou exceder tentativas, marca como `:failed_permanent`.
     *   Se sucesso, marca como `:delivered`.
-8.  **`DeeperHub.Webhooks.DispatcherWithCircuitBreaker`:**
+8.  **`Deeper_Hub.Webhooks.DispatcherWithCircuitBreaker`:**
     *   Encapsula a chamada HTTP para o endpoint do webhook usando `Core.HTTPClient` e `Core.CircuitBreaker`.
-9.  **`DeeperHub.Webhooks.Scheduler` (GenServer):**
+9.  **`Deeper_Hub.Webhooks.Scheduler` (GenServer):**
     *   Periodicamente verifica `WebhookEventSchema`s que estão prontos para retentativa e os re-enfileira para o `Dispatcher`.
-10. **`DeeperHub.Webhooks.Monitor` e `AutoHealing` (GenServers) / `HealthCheckWorker`:**
+10. **`Deeper_Hub.Webhooks.Monitor` e `AutoHealing` (GenServers) / `HealthCheckWorker`:**
     *   Monitoram a saúde dos endpoints de `WebhookSchema` (taxa de falha, timeouts).
     *   Podem desativar webhooks que falham consistentemente.
     *   `AutoHealing` pode tentar reativar webhooks desativados.
@@ -135,17 +135,17 @@ webhooks/
 ## 🛠️ 4. Casos de Uso Principais
 
 *   **Cliente Registra um Webhook para \"pagamento.concluido\":**
-    *   Cliente usa a UI/API para registrar `https://meuservico.com/webhook/deeperhub` para o evento `pagamento.concluido`, fornecendo um segredo.
+    *   Cliente usa a UI/API para registrar `https://meuservico.com/webhook/Deeper_Hub` para o evento `pagamento.concluido`, fornecendo um segredo.
     *   `Webhooks.register_webhook(...)` salva essa configuração.
-*   **Pagamento é Concluído no DeeperHub:**
-    *   `DeeperHub.Payments` publica `Core.EventBus.publish(\"pagamento.concluido\", payload_do_pagamento)`.
+*   **Pagamento é Concluído no Deeper_Hub:**
+    *   `Deeper_Hub.Payments` publica `Core.EventBus.publish(\"pagamento.concluido\", payload_do_pagamento)`.
     *   `WebhookService` (ou seu `EventListener`) recebe o evento.
     *   Encontra o webhook registrado para \"pagamento.concluido\".
     *   Formata o payload, assina-o com o segredo do cliente.
     *   Cria um `WebhookEventSchema` e o enfileira para o `Dispatcher`.
 *   **`Dispatcher` Envia o Webhook:**
     *   Pega o evento da fila.
-    *   Usa `DispatcherWithCircuitBreaker` para fazer POST para `https://meuservico.com/webhook/deeperhub`.
+    *   Usa `DispatcherWithCircuitBreaker` para fazer POST para `https://meuservico.com/webhook/Deeper_Hub`.
     *   Se sucesso (ex: 200 OK), marca `WebhookEventSchema` como `:delivered`.
     *   Se falha (ex: 503 Service Unavailable), marca como `:failed_retryable` e o `Scheduler` tentará novamente mais tarde.
 *   **Webhook Falha Repetidamente:**
@@ -162,14 +162,14 @@ webhooks/
     *   Consulta o `Core.Repo` (via `Storage`) por todos os `WebhookSchema`s ativos que estão inscritos no tipo de evento `\"user.created\"`.
 3.  **Para cada `WebhookSchema` correspondente:**
     *   **`WebhookService`:**
-        *   Chama `DeeperHub.Webhooks.Event.create_payload(event_type, original_payload)` para formatar e filtrar o payload.
-        *   Chama `DeeperHub.Webhooks.PayloadSigner.sign(formatted_payload, webhook.secret)` para gerar a assinatura.
+        *   Chama `Deeper_Hub.Webhooks.Event.create_payload(event_type, original_payload)` para formatar e filtrar o payload.
+        *   Chama `Deeper_Hub.Webhooks.PayloadSigner.sign(formatted_payload, webhook.secret)` para gerar a assinatura.
         *   Cria uma nova entrada `WebhookEventSchema` com status `:pending`, `webhook_id`, `event_type`, `payload_sent`, `signature_header_value`.
-        *   Enfileira o `webhook_event_id` para o `DeeperHub.Webhooks.Dispatcher` (ex: usando `Core.BackgroundTaskManager`).
+        *   Enfileira o `webhook_event_id` para o `Deeper_Hub.Webhooks.Dispatcher` (ex: usando `Core.BackgroundTaskManager`).
 4.  **`Dispatcher` (Worker):**
     *   Pega um `webhook_event_id` da fila.
     *   Busca o `WebhookEventSchema` e o `WebhookSchema` associado.
-    *   Chama `DispatcherWithCircuitBreaker.dispatch_webhook(webhook_schema.url, webhook_event.payload_sent, %{headers: %{\"X-DeeperHub-Signature\" => webhook_event.signature_header_value, ...}, method: \"POST\"})`.
+    *   Chama `DispatcherWithCircuitBreaker.dispatch_webhook(webhook_schema.url, webhook_event.payload_sent, %{headers: %{\"X-Deeper_Hub-Signature\" => webhook_event.signature_header_value, ...}, method: \"POST\"})`.
 5.  **`DispatcherWithCircuitBreaker`:**
     *   Verifica o estado do circuit breaker para a URL do webhook.
     *   Se fechado/meio-aberto, faz a chamada HTTP via `Core.HTTPClient`.
@@ -179,34 +179,34 @@ webhooks/
     *   **Falha Permanente (ex: 4xx, exceto 429):** `Dispatcher` atualiza `WebhookEventSchema` para `:failed_permanent`.
 7.  **`Scheduler`:** Periodicamente, busca `WebhookEventSchema`s com status `:failed_retryable` cujo `next_retry_at` já passou e os re-enfileira para o `Dispatcher`.
 
-## 📡 6. API (Funções Públicas da Fachada `DeeperHub.Webhooks`)
+## 📡 6. API (Funções Públicas da Fachada `Deeper_Hub.Webhooks`)
 
 ### 6.1. Gerenciamento de Webhooks
 
-*   **`DeeperHub.Webhooks.register_webhook(client_id :: String.t(), url :: String.t(), event_types :: list(String.t()), opts :: keyword()) :: {:ok, WebhookSchema.t()} | {:error, Ecto.Changeset.t() | term()}`**
+*   **`Deeper_Hub.Webhooks.register_webhook(client_id :: String.t(), url :: String.t(), event_types :: list(String.t()), opts :: keyword()) :: {:ok, WebhookSchema.t()} | {:error, Ecto.Changeset.t() | term()}`**
     *   `opts`: `:secret` (String.t, será criptografado), `:custom_headers` (map), `:description` (String.t).
-*   **`DeeperHub.Webhooks.update_webhook(webhook_id :: String.t(), client_id :: String.t(), attrs :: map()) :: {:ok, WebhookSchema.t()} | {:error, Ecto.Changeset.t() | :unauthorized}`**
+*   **`Deeper_Hub.Webhooks.update_webhook(webhook_id :: String.t(), client_id :: String.t(), attrs :: map()) :: {:ok, WebhookSchema.t()} | {:error, Ecto.Changeset.t() | :unauthorized}`**
     *   `attrs`: Pode atualizar `url`, `event_types`, `secret`, `custom_headers`, `is_active`.
-*   **`DeeperHub.Webhooks.delete_webhook(webhook_id :: String.t(), client_id :: String.t()) :: :ok | {:error, :unauthorized | :not_found}`**
-*   **`DeeperHub.Webhooks.get_webhook(webhook_id :: String.t(), client_id :: String.t()) :: {:ok, WebhookSchema.t() | nil}`**
-*   **`DeeperHub.Webhooks.list_webhooks_for_client(client_id :: String.t(), filters :: map(), opts :: keyword()) :: {:ok, list(WebhookSchema.t()), Pagination.t()}`**
+*   **`Deeper_Hub.Webhooks.delete_webhook(webhook_id :: String.t(), client_id :: String.t()) :: :ok | {:error, :unauthorized | :not_found}`**
+*   **`Deeper_Hub.Webhooks.get_webhook(webhook_id :: String.t(), client_id :: String.t()) :: {:ok, WebhookSchema.t() | nil}`**
+*   **`Deeper_Hub.Webhooks.list_webhooks_for_client(client_id :: String.t(), filters :: map(), opts :: keyword()) :: {:ok, list(WebhookSchema.t()), Pagination.t()}`**
     *   `filters`: `:is_active`, `:event_type`.
 
 ### 6.2. Histórico de Eventos e Diagnóstico
 
-*   **`DeeperHub.Webhooks.list_webhook_events(webhook_id :: String.t(), client_id :: String.t(), filters :: map(), opts :: keyword()) :: {:ok, list(WebhookEventSchema.t()), Pagination.t()}`**
+*   **`Deeper_Hub.Webhooks.list_webhook_events(webhook_id :: String.t(), client_id :: String.t(), filters :: map(), opts :: keyword()) :: {:ok, list(WebhookEventSchema.t()), Pagination.t()}`**
     *   `filters`: `:status` (`:pending`, `:delivered`, `:failed_retryable`, `:failed_permanent`), `:event_type`, `date_range`.
-*   **`DeeperHub.Webhooks.get_webhook_event_details(webhook_event_id :: String.t(), client_id :: String.t()) :: {:ok, WebhookEventSchema.t() | nil}`**
-*   **`DeeperHub.Webhooks.resend_webhook_event(webhook_event_id :: String.t(), client_id :: String.t()) :: {:ok, :enqueued} | {:error, :not_retryable | term()}`** (Nova Sugestão)
-*   **`DeeperHub.Webhooks.check_webhook_health(webhook_id :: String.t(), client_id :: String.t()) :: {:ok, %{status: atom(), last_success: DateTime.t() | nil, last_failure: DateTime.t() | nil, consecutive_failures: integer()}}`** (Envia um ping de teste).
+*   **`Deeper_Hub.Webhooks.get_webhook_event_details(webhook_event_id :: String.t(), client_id :: String.t()) :: {:ok, WebhookEventSchema.t() | nil}`**
+*   **`Deeper_Hub.Webhooks.resend_webhook_event(webhook_event_id :: String.t(), client_id :: String.t()) :: {:ok, :enqueued} | {:error, :not_retryable | term()}`** (Nova Sugestão)
+*   **`Deeper_Hub.Webhooks.check_webhook_health(webhook_id :: String.t(), client_id :: String.t()) :: {:ok, %{status: atom(), last_success: DateTime.t() | nil, last_failure: DateTime.t() | nil, consecutive_failures: integer()}}`** (Envia um ping de teste).
 
 ### 6.3. Disparo Manual (para Testes por Clientes)
 
-*   **`DeeperHub.Webhooks.trigger_test_event(webhook_id :: String.t(), client_id :: String.t(), event_type :: String.t() | nil, custom_payload :: map() | nil) :: {:ok, :event_enqueued} | {:error, term()}`**
+*   **`Deeper_Hub.Webhooks.trigger_test_event(webhook_id :: String.t(), client_id :: String.t(), event_type :: String.t() | nil, custom_payload :: map() | nil) :: {:ok, :event_enqueued} | {:error, term()}`**
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager`:
+Via `Deeper_Hub.Core.ConfigManager`:
 
 *   **`[:webhooks, :enabled]`** (Boolean): Habilita/desabilita o sistema de webhooks.
 *   **`[:webhooks, :default_signature_algorithm]`** (Atom): Ex: `:hmac_sha256`.
@@ -227,11 +227,11 @@ Via `DeeperHub.Core.ConfigManager`:
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.*`: Todos os módulos Core.
-*   `DeeperHub.Auth`/`RBAC`: Para autorizar quem pode registrar/gerenciar webhooks.
-*   `DeeperHub.Accounts`: Para associar webhooks a `client_id` (que pode ser um `user_id` ou um ID de aplicação cliente).
-*   `DeeperHub.Core.EncryptionService`: Para criptografar segredos de webhook.
-*   `DeeperHub.Security.SSRFProtection` (Implícito/Integrado): A validação de URL deve proteger contra Server-Side Request Forgery.
+*   `Deeper_Hub.Core.*`: Todos os módulos Core.
+*   `Deeper_Hub.Auth`/`RBAC`: Para autorizar quem pode registrar/gerenciar webhooks.
+*   `Deeper_Hub.Accounts`: Para associar webhooks a `client_id` (que pode ser um `user_id` ou um ID de aplicação cliente).
+*   `Deeper_Hub.Core.EncryptionService`: Para criptografar segredos de webhook.
+*   `Deeper_Hub.Security.SSRFProtection` (Implícito/Integrado): A validação de URL deve proteger contra Server-Side Request Forgery.
 
 ### 8.2. Bibliotecas Externas
 
@@ -286,9 +286,9 @@ Via `DeeperHub.Core.ConfigManager`:
 ## ❌ 11. Tratamento de Erros
 
 *   **Endpoints do Cliente Falhando:** A principal fonte de problemas. A lógica de retry, circuit breaker e desativação automática são para lidar com isso.
-*   **Payload Inválido para o Cliente:** O DeeperHub envia um payload JSON bem formado. Se o cliente não conseguir processá-lo, é um problema do lado do cliente (geralmente resulta em 4xx ou 5xx que o DeeperHub trata).
+*   **Payload Inválido para o Cliente:** O Deeper_Hub envia um payload JSON bem formado. Se o cliente não conseguir processá-lo, é um problema do lado do cliente (geralmente resulta em 4xx ou 5xx que o Deeper_Hub trata).
 *   **Segredo Incorreto:** Se o cliente não conseguir validar a assinatura, ele deve tratar o webhook como não autêntico.
-*   **Falhas Internas no DeeperHub:** Erros no `Dispatcher`, `Scheduler` devem ser logados criticamente e não devem perder eventos (se um sistema de filas persistente como Oban for usado).
+*   **Falhas Internas no Deeper_Hub:** Erros no `Dispatcher`, `Scheduler` devem ser logados criticamente e não devem perder eventos (se um sistema de filas persistente como Oban for usado).
 
 ## 🛡️ 12. Considerações de Segurança
 
@@ -296,12 +296,12 @@ Via `DeeperHub.Core.ConfigManager`:
 *   **Segredos:** Segredos de webhook devem ser gerados com alta entropia e armazenados criptografados. Fornecer uma maneira para o cliente visualizar o segredo apenas uma vez ou regenerá-lo.
 *   **Assinatura de Payload:** Sempre assinar payloads para permitir que o receptor verifique a autenticidade e integridade.
 *   **Replay Attacks:** Incluir um timestamp e um ID de evento único no payload e na assinatura pode ajudar o receptor a detectar e rejeitar ataques de replay.
-*   **Não Vazar Dados Sensíveis:** O componente `DeeperHub.Webhooks.Event` deve garantir que apenas dados apropriados e não sensíveis sejam incluídos nos payloads.
+*   **Não Vazar Dados Sensíveis:** O componente `Deeper_Hub.Webhooks.Event` deve garantir que apenas dados apropriados e não sensíveis sejam incluídos nos payloads.
 *   **Proteção do Endpoint de Registro:** A API para registrar webhooks deve ser protegida para evitar que atores maliciosos registrem endpoints para spam ou para exfiltrar dados.
 
 ## 🧑‍💻 13. Contribuição
 
-*   Ao adicionar suporte para novos tipos de eventos que podem disparar webhooks, certifique-se de que o `DeeperHub.Webhooks.Event` saiba como formatar o payload para eles.
+*   Ao adicionar suporte para novos tipos de eventos que podem disparar webhooks, certifique-se de que o `Deeper_Hub.Webhooks.Event` saiba como formatar o payload para eles.
 *   A lógica de retry e backoff deve ser cuidadosamente ajustada para não sobrecarregar endpoints que já estão com problemas.
 
 ## 🔮 14. Melhorias Futuras e TODOs
@@ -311,7 +311,7 @@ Via `DeeperHub.Core.ConfigManager`:
 *   [ ] Suporte para formatos de payload alternativos além de JSON (ex: XML, form-urlencoded).
 *   [ ] Permitir que clientes configurem suas próprias políticas de retry (dentro de limites).
 *   [ ] Testes de \"ping\" manuais para endpoints de webhook a partir da UI do cliente.
-*   [ ] Assinaturas de eventos mais avançadas, talvez usando GraphQL Subscriptions ou WebSockets mantidos pelo DeeperHub se a necessidade for de tempo real bidirecional.
+*   [ ] Assinaturas de eventos mais avançadas, talvez usando GraphQL Subscriptions ou WebSockets mantidos pelo Deeper_Hub se a necessidade for de tempo real bidirecional.
 
 ---
 
@@ -342,7 +342,7 @@ O que gostaria de explorar em seguida? Podemos focar em:
 
 Começaremos pelos \"Serviços\" restantes que parecem ser subdomínios ou funcionalidades associadas aos Servidores, e depois podemos ir para o `Lists` que parece mais genérico.
 
-Vamos detalhar o `DeeperHub.ServerAdvertisements`.
+Vamos detalhar o `Deeper_Hub.ServerAdvertisements`.
 
 ---
 

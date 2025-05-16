@@ -1,4 +1,4 @@
-defmodule DeeperHub.Inspector.Function do
+defmodule Deeper_Hub.Inspector.Function do
   @moduledoc """
   Schema Ecto para informações de uma função documentada. 🔧
   """
@@ -15,7 +15,7 @@ defmodule DeeperHub.Inspector.Function do
     field :doc, :string
     field :signature, :string
 
-    # belongs_to :module, DeeperHub.Inspector.Module, foreign_key: :module_name, references: :name, type: :string
+    # belongs_to :module, Deeper_Hub.Inspector.Module, foreign_key: :module_name, references: :name, type: :string
 
     timestamps(type: :utc_datetime)
   end

@@ -1,12 +1,12 @@
-# Módulo: `DeeperHub.Core.CircuitBreaker` 🚀
+# Módulo: `Deeper_Hub.Core.CircuitBreaker` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Core.CircuitBreaker`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Core.CircuitBreaker`
 
-O módulo `DeeperHub.Core.CircuitBreaker` implementa o padrão de design **Circuit Breaker**. Seu objetivo é aumentar a resiliência e a estabilidade do sistema DeeperHub ao interagir com serviços externos ou recursos internos que podem apresentar falhas ou latência.
+O módulo `Deeper_Hub.Core.CircuitBreaker` implementa o padrão de design **Circuit Breaker**. Seu objetivo é aumentar a resiliência e a estabilidade do sistema Deeper_Hub ao interagir com serviços externos ou recursos internos que podem apresentar falhas ou latência.
 
 Quando um serviço protegido por um circuit breaker começa a falhar repetidamente, o circuito \"abre\", fazendo com que as chamadas subsequentes para esse serviço falhem imediatamente (ou retornem um fallback) por um período, sem tentar realmente contatar o serviço problemático. Isso previne que a aplicação fique presa esperando por um serviço que não responde, evita o esgotamento de recursos (como threads ou conexões) e dá tempo para o serviço problemático se recuperar. Após um timeout, o circuito entra no estado \"meio-aberto\", permitindo um número limitado de chamadas de teste. Se bem-sucedidas, o circuito \"fecha\" e o tráfego normal é restaurado. Caso contrário, ele volta para o estado \"aberto\". 😊
 
-*(Nota: A documentação original tem `DeeperHub.Shared.CircuitBreaker`, `CircuitBreakerFacade`, `Registry`, `Config`. Esta documentação consolida a funcionalidade principal sob `DeeperHub.Core.CircuitBreaker`, que pode atuar como fachada e orquestrador para instâncias de circuit breakers gerenciadas talvez por um `Registry` interno ou pela biblioteca escolhida).*
+*(Nota: A documentação original tem `Deeper_Hub.Shared.CircuitBreaker`, `CircuitBreakerFacade`, `Registry`, `Config`. Esta documentação consolida a funcionalidade principal sob `Deeper_Hub.Core.CircuitBreaker`, que pode atuar como fachada e orquestrador para instâncias de circuit breakers gerenciadas talvez por um `Registry` interno ou pela biblioteca escolhida).*
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -47,18 +47,18 @@ Assumindo o uso de uma abordagem baseada em GenServer (seja de uma biblioteca ou
 
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.Core.CircuitBreaker` (Fachada Pública):**
+1.  **`Deeper_Hub.Core.CircuitBreaker` (Fachada Pública):**
     *   Ponto de entrada para registrar, executar chamadas e gerenciar circuit breakers.
     *   Delega para o `CircuitBreaker.Registry` ou diretamente para a biblioteca de circuit breaker configurada.
-2.  **`DeeperHub.Core.CircuitBreaker.Registry` (GenServer):**
+2.  **`Deeper_Hub.Core.CircuitBreaker.Registry` (GenServer):**
     *   **Responsabilidade:** Gerenciar e supervisionar as instâncias de GenServers de circuit breakers individuais.
     *   Mantém um mapa de `service_name` para `pid_do_breaker_genserver`.
     *   Lida com o registro (`register/2`) e consulta (`state/1`) de breakers.
-3.  **`DeeperHub.Core.CircuitBreaker.Instance` (GenServer - um por serviço protegido):**
+3.  **`Deeper_Hub.Core.CircuitBreaker.Instance` (GenServer - um por serviço protegido):**
     *   **Responsabilidade:** Implementa a lógica de máquina de estados do circuit breaker para um serviço específico.
     *   **Estado Interno:** `:state` (`:closed`, `:open`, `:half_open`), `failure_count`, `success_count`, `last_failure_timestamp`, `config` (limiares, timeouts).
     *   **Interações:** Recebe solicitações de execução (`run/4`), atualiza seu estado com base no sucesso/falha da chamada ao serviço real.
-4.  **Configurações (via `DeeperHub.Core.ConfigManager`):**
+4.  **Configurações (via `Deeper_Hub.Core.ConfigManager`):**
     *   Configurações padrão para novos circuit breakers.
     *   Configurações específicas por `service_name`.
 5.  **Módulos que usam o Circuit Breaker:**
@@ -131,11 +131,11 @@ Se uma biblioteca externa for usada, a estrutura pode ser mais simples, com `cir
             *   Se estado era `:closed`, incrementa `failure_count`. Se `failure_count >= failure_threshold`, muda para `:open`, agenda `reset_timeout`.
             *   Executa `fallback_fun` (se fornecida) ou retorna `{:error, reason_da_chamada_original}`.
 
-## 📡 6. API (Funções Públicas da Fachada `DeeperHub.Core.CircuitBreaker`)
+## 📡 6. API (Funções Públicas da Fachada `Deeper_Hub.Core.CircuitBreaker`)
 
 *(Baseado na documentação original e consolidando)*
 
-### 6.1. `DeeperHub.Core.CircuitBreaker.run(service_name :: atom(), func :: (() -> {:ok, term()} | {:error, term()}), fallback_func :: (() -> {:ok, term()} | {:error, term()}) | nil, opts :: keyword()) :: {:ok, term()} | {:error, :circuit_open | term()}`
+### 6.1. `Deeper_Hub.Core.CircuitBreaker.run(service_name :: atom(), func :: (() -> {:ok, term()} | {:error, term()}), fallback_func :: (() -> {:ok, term()} | {:error, term()}) | nil, opts :: keyword()) :: {:ok, term()} | {:error, :circuit_open | term()}`
 
 *   **Descrição:** Executa `func` protegida pelo circuit breaker nomeado `service_name`. Se o circuito estiver aberto ou `func` falhar e um `fallback_func` for fornecido, o resultado do fallback é retornado.
 *   **`opts`:**
@@ -143,30 +143,30 @@ Se uma biblioteca externa for usada, a estrutura pode ser mais simples, com `cir
     *   Outras opções podem ser passadas para a lógica de registro/configuração do breaker se ele não existir.
 *   **Retorno:** `{:ok, result_de_func_ou_fallback}` ou `{:error, :circuit_open}` (se sem fallback e aberto) ou `{:error, reason_de_func_ou_fallback}`.
 
-### 6.2. `DeeperHub.Core.CircuitBreaker.register(service_name :: atom(), config :: map()) :: :ok | {:error, :already_registered | term()}`
+### 6.2. `Deeper_Hub.Core.CircuitBreaker.register(service_name :: atom(), config :: map()) :: :ok | {:error, :already_registered | term()}`
 
 *   **Descrição:** Registra e configura um novo circuit breaker.
 *   **`config`:** Mapa com limiares e timeouts (ex: `%{failure_threshold: 5, reset_timeout_ms: 30000, success_threshold: 2, call_timeout_ms: 5000, half_open_calls: 3}`).
 
-### 6.3. `DeeperHub.Core.CircuitBreaker.state(service_name :: atom()) :: {:ok, :closed | :open | :half_open} | {:error, :not_found}`
+### 6.3. `Deeper_Hub.Core.CircuitBreaker.state(service_name :: atom()) :: {:ok, :closed | :open | :half_open} | {:error, :not_found}`
 
 *   **Descrição:** Retorna o estado atual do circuit breaker especificado.
 
-### 6.4. `DeeperHub.Core.CircuitBreaker.reset(service_name :: atom()) :: :ok | {:error, :not_found}`
+### 6.4. `Deeper_Hub.Core.CircuitBreaker.reset(service_name :: atom()) :: :ok | {:error, :not_found}`
 
 *   **Descrição:** Força o circuit breaker especificado para o estado `:closed`.
 
-### 6.5. `DeeperHub.Core.CircuitBreaker.list_all() :: {:ok, list(%{name: atom(), state: atom(), config: map(), stats: map()})}`
+### 6.5. `Deeper_Hub.Core.CircuitBreaker.list_all() :: {:ok, list(%{name: atom(), state: atom(), config: map(), stats: map()})}`
 
 *   **Descrição:** Lista todos os circuit breakers registrados, seus estados, configurações e estatísticas (contagem de falhas/sucessos recentes).
 
-### 6.6. `DeeperHub.Core.CircuitBreaker.update_config(service_name :: atom(), new_config :: map()) :: :ok | {:error, :not_found | term()}`
+### 6.6. `Deeper_Hub.Core.CircuitBreaker.update_config(service_name :: atom(), new_config :: map()) :: :ok | {:error, :not_found | term()}`
 
 *   **Descrição:** Atualiza a configuração de um circuit breaker existente em tempo de execução.
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager`:
+Via `Deeper_Hub.Core.ConfigManager`:
 
 *   **`[:core, :circuit_breaker, :enabled]`** (Boolean): Habilita/desabilita o sistema de Circuit Breaker globalmente. (Padrão: `true`)
 *   **`[:core, :circuit_breaker, :default_config]`** (Map): Configurações padrão para novos circuit breakers.
@@ -179,10 +179,10 @@ Via `DeeperHub.Core.ConfigManager`:
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.ConfigManager`: Para configurações.
-*   `DeeperHub.Core.Logger`: Para logar transições de estado e erros.
-*   `DeeperHub.Core.Metrics`: Para métricas de circuit breaker.
-*   `DeeperHub.Core.Supervisor` (indireta): Para supervisionar o `Registry` e as `Instance`s.
+*   `Deeper_Hub.Core.ConfigManager`: Para configurações.
+*   `Deeper_Hub.Core.Logger`: Para logar transições de estado e erros.
+*   `Deeper_Hub.Core.Metrics`: Para métricas de circuit breaker.
+*   `Deeper_Hub.Core.Supervisor` (indireta): Para supervisionar o `Registry` e as `Instance`s.
 
 ### 8.2. Bibliotecas Externas
 
@@ -195,8 +195,8 @@ Módulos que fazem chamadas a serviços externos ou internos que podem ser inst�
 **Exemplo em um adaptador de serviço externo:**
 ```elixir
 defmodule MyApp.ExternalGeoServiceAdapter do
-  alias DeeperHub.Core.CircuitBreaker
-  alias DeeperHub.Core.HTTPClient # Assumindo um HTTPClient
+  alias Deeper_Hub.Core.CircuitBreaker
+  alias Deeper_Hub.Core.HTTPClient # Assumindo um HTTPClient
 
   @service_name :external_geo_service
 
@@ -290,7 +290,7 @@ A chamada `init_breaker` seria feita uma vez na inicialização do módulo ou da
 
 Circuit breakers são uma ferramenta poderosa para construir sistemas resilientes!
 
-Onde vamos agora? Talvez `DeeperHub.Core.EncryptionService` para cobrir criptografia e gerenciamento de chaves, ou algum dos utilitários de `Shared.Utils` como `MapUtils` ou `ListUtils`?"""),
+Onde vamos agora? Talvez `Deeper_Hub.Core.EncryptionService` para cobrir criptografia e gerenciamento de chaves, ou algum dos utilitários de `Shared.Utils` como `MapUtils` ou `ListUtils`?"""),
             ],
         ),
         types.Content(
@@ -302,7 +302,7 @@ Onde vamos agora? Talvez `DeeperHub.Core.EncryptionService` para cobrir criptogr
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Excelente! Vamos então detalhar o `DeeperHub.Core.EncryptionService`. Este módulo é fundamental para proteger dados sensíveis em repouso e, potencialmente, em trânsito dentro de certos contextos.
+                types.Part.from_text(text="""Excelente! Vamos então detalhar o `Deeper_Hub.Core.EncryptionService`. Este módulo é fundamental para proteger dados sensíveis em repouso e, potencialmente, em trânsito dentro de certos contextos.
 
 ---
 

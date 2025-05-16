@@ -1,4 +1,4 @@
-defmodule DeeperHub.MixProject do
+defmodule Deeper_Hub.MixProject do
   use Mix.Project
 
   def project do
@@ -9,11 +9,11 @@ defmodule DeeperHub.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       # Configurações para ExDoc
-      name: "DeeperHub",
+      name: "Deeper_Hub",
       source_url: "https://github.com/yourusername/deeper_hub",
       homepage_url: "https://yourdomain.com",
       docs: [
-        main: "DeeperHub",
+        main: "Deeper_Hub",
         extras: [
           "README.md",
           {"../Coding.md", [title: "Diretrizes de Codificação"]}
@@ -40,15 +40,13 @@ defmodule DeeperHub.MixProject do
   def application do
     [
       extra_applications: [:logger, :mnesia],
-      mod: {DeeperHub.Application, []}
+      mod: {Deeper_Hub.Application, []}
     ]
   end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
       {:uuid, "~> 1.1"},       # Para geração de UUIDs
       {:jason, "~> 1.4"},      # Para codificação/decodificação JSON
 
@@ -60,6 +58,8 @@ defmodule DeeperHub.MixProject do
       {:ecto, "~> 3.12"},
       {:ecto_sqlite3, "~> 0.17"},
       {:db_connection, "~> 2.7"},
+      {:scrivener, "~> 2.7"},
+      {:scrivener_ecto, "~> 3.1"},
 
       # Telemetria e observabilidade
       {:telemetry, "~> 1.3"},
@@ -72,8 +72,16 @@ defmodule DeeperHub.MixProject do
       # Cache
       {:cachex, "~> 4.1"},
 
-      # Tests
-      {:ex_machina, "~> 2.8.0", only: :test},
+      # Circuit Break
+      {:ex_break, "~> 0.0"},
+
+      # Protocol Buffers
+      {:protobuf, "~> 0.14.1"},
+
+      # Phoenix para WebSocket
+      {:phoenix, "~> 1.7"},
+      {:phoenix_pubsub, "~> 2.1"},
+      {:plug_cowboy, "~> 2.7.3"},
     ]
   end
 end

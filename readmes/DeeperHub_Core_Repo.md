@@ -1,8 +1,8 @@
-# Módulo: `DeeperHub.Core.Repo` 🚀
+# Módulo: `Deeper_Hub.Core.Repo` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Core.Repo`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Core.Repo`
 
-O módulo `DeeperHub.Core.Repo` é a **implementação principal do Ecto.Repo** para o sistema DeeperHub. Ele serve como a interface de banco de dados para toda a aplicação, gerenciando conexões, transações e a execução de consultas Ecto.
+O módulo `Deeper_Hub.Core.Repo` é a **implementação principal do Ecto.Repo** para o sistema Deeper_Hub. Ele serve como a interface de banco de dados para toda a aplicação, gerenciando conexões, transações e a execução de consultas Ecto.
 
 Através deste módulo, todos os outros componentes do sistema interagem com o banco de dados (ou bancos de dados, se houver múltiplos repositórios configurados para diferentes propósitos) de forma consistente e segura. Ele encapsula a configuração do adaptador de banco de dados (PostgreSQL, MySQL, etc.) e fornece as funcionalidades padrão do Ecto para CRUD (Create, Read, Update, Delete) e consultas complexas. 😊
 
@@ -25,17 +25,17 @@ Através deste módulo, todos os outros componentes do sistema interagem com o b
 *   **Configuração do Adaptador de Banco de Dados:**
     *   Carregar a configuração do adaptador de banco de dados (PostgreSQL, MySQL, SQLite, etc.) a partir das configurações da aplicação.
 *   **Observabilidade (via Ecto.LogEntry e Telemetria):**
-    *   Ecto já emite eventos de telemetria para consultas (`[:my_app, :repo, :query]`). `DeeperHub.Core.Metrics` e `DeeperHub.Core.Logger` devem ter handlers para capturar esses eventos e registrar métricas de DB (latência, contagem de queries) e logs de queries (especialmente em dev ou para queries lentas).
+    *   Ecto já emite eventos de telemetria para consultas (`[:my_app, :repo, :query]`). `Deeper_Hub.Core.Metrics` e `Deeper_Hub.Core.Logger` devem ter handlers para capturar esses eventos e registrar métricas de DB (latência, contagem de queries) e logs de queries (especialmente em dev ou para queries lentas).
 *   **Suporte a Múltiplos Repositórios (Opcional, se necessário):**
     *   Se a aplicação usar múltiplos bancos de dados para diferentes propósitos, pode haver múltiplos módulos Repo (ex: `Core.Repo.Primary`, `Core.Repo.Analytics`). Este README focará no principal.
 *   **Integração com `QueryHelper` e `QueryOptimizer` (Opcional):**
-    *   As funções de serviço que usam o `Repo` podem utilizar os utilitários `DeeperHub.Shared.Database.QueryHelper` para aplicar filtros, paginação e ordenação de forma consistente, e `QueryOptimizer` para caching de queries.
+    *   As funções de serviço que usam o `Repo` podem utilizar os utilitários `Deeper_Hub.Shared.Database.QueryHelper` para aplicar filtros, paginação e ordenação de forma consistente, e `QueryOptimizer` para caching de queries.
 
 ## 🏗️ 3. Arquitetura e Design
 
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.Core.Repo` (Módulo Ecto.Repo):**
+1.  **`Deeper_Hub.Core.Repo` (Módulo Ecto.Repo):**
     *   **Responsabilidade:** É a própria implementação do repositório.
     *   **Configuração:** `use Ecto.Repo, otp_app: :deeper_hub, adapter: Ecto.Adapters.Postgres` (ou outro adaptador).
     *   A configuração detalhada (hostname, username, password, database, pool_size) é geralmente carregada de `config/config.exs`, `config/runtime.exs` ou variáveis de ambiente.
@@ -44,9 +44,9 @@ Através deste módulo, todos os outros componentes do sistema interagem com o b
 3.  **Pool de Conexões (ex: `DBConnection` ou `Postgrex` pool):**
     *   Gerenciado pelo Ecto/adaptador para reutilizar conexões de banco de dados eficientemente.
 4.  **Schemas Ecto (Definidos nos módulos de domínio):**
-    *   Ex: `DeeperHub.Accounts.Schema.User`, `DeeperHub.Servers.Schema.Server`.
+    *   Ex: `Deeper_Hub.Accounts.Schema.User`, `Deeper_Hub.Servers.Schema.Server`.
     *   São usados pelo `Repo` para mapear dados de/para o banco de dados.
-5.  **`DeeperHub.Release` (ou `application.ex`):**
+5.  **`Deeper_Hub.Release` (ou `application.ex`):**
     *   Responsável por garantir que o `Repo` seja iniciado como parte da árvore de supervisão da aplicação e que as migrações sejam executadas durante o deploy.
 
 ### 3.2. Estrutura de Diretórios (Proposta)
@@ -71,35 +71,35 @@ priv/repo/
 ## 🛠️ 4. Casos de Uso Principais
 
 *   **Criar um Novo Usuário:**
-    *   `DeeperHub.Accounts.UserService` constrói um changeset para um novo usuário.
-    *   Chama `DeeperHub.Core.Repo.insert(changeset)`.
+    *   `Deeper_Hub.Accounts.UserService` constrói um changeset para um novo usuário.
+    *   Chama `Deeper_Hub.Core.Repo.insert(changeset)`.
 *   **Buscar um Servidor pelo ID:**
-    *   `DeeperHub.Servers.Storage` chama `DeeperHub.Core.Repo.get(DeeperHub.Servers.Schema.Server, server_id)`.
+    *   `Deeper_Hub.Servers.Storage` chama `Deeper_Hub.Core.Repo.get(Deeper_Hub.Servers.Schema.Server, server_id)`.
 *   **Listar Todas as Avaliações Ativas para um Servidor (com paginação e ordenação):**
-    *   `DeeperHub.ServerReviews.Storage` constrói uma `Ecto.Query`:
+    *   `Deeper_Hub.ServerReviews.Storage` constrói uma `Ecto.Query`:
         ```elixir
         from(r in Review,
           where: r.server_id == ^server_id and r.is_active == true,
           order_by: [desc: r.inserted_at],
           limit: ^limit,
           offset: ^offset
-        ) |> DeeperHub.Core.Repo.all()
+        ) |> Deeper_Hub.Core.Repo.all()
         ```
 *   **Registrar um Usuário e seu Perfil Atomicamente:**
-    *   `DeeperHub.Accounts.RegistrationService` usa `DeeperHub.Core.Repo.transaction(fn -> ... end)` para garantir que tanto o usuário quanto o perfil sejam criados, ou nenhum deles se ocorrer um erro.
+    *   `Deeper_Hub.Accounts.RegistrationService` usa `Deeper_Hub.Core.Repo.transaction(fn -> ... end)` para garantir que tanto o usuário quanto o perfil sejam criados, ou nenhum deles se ocorrer um erro.
 
 ## 🌊 5. Fluxos Importantes
 
 ### Fluxo de uma Consulta `Repo.all/2`
 
 1.  **Módulo de Serviço/Storage:** Constrói uma `Ecto.Query.t()` (ex: `query = from(u in User, where: u.active == true)`).
-2.  **Chamada ao Repo:** Chama `DeeperHub.Core.Repo.all(query)`.
-3.  **`DeeperHub.Core.Repo`:**
+2.  **Chamada ao Repo:** Chama `Deeper_Hub.Core.Repo.all(query)`.
+3.  **`Deeper_Hub.Core.Repo`:**
     *   Obtém uma conexão do pool de conexões.
     *   O adaptador Ecto (ex: `Postgrex`) traduz a `Ecto.Query` para uma consulta SQL parametrizada.
     *   Envia a consulta SQL para o servidor de banco de dados.
 4.  **Banco de Dados:** Executa a consulta e retorna os resultados.
-5.  **`DeeperHub.Core.Repo`:**
+5.  **`Deeper_Hub.Core.Repo`:**
     *   O adaptador Ecto recebe os resultados brutos.
     *   Converte os resultados em uma lista de structs Ecto (ex: `[%User{}, %User{}, ...]`).
     *   Libera a conexão de volta para o pool.
@@ -108,8 +108,8 @@ priv/repo/
 
 ### Fluxo de uma `Repo.transaction/2`
 
-1.  **Módulo de Serviço:** Chama `DeeperHub.Core.Repo.transaction(fn repo_inside_transaction -> ... end)`.
-2.  **`DeeperHub.Core.Repo`:**
+1.  **Módulo de Serviço:** Chama `Deeper_Hub.Core.Repo.transaction(fn repo_inside_transaction -> ... end)`.
+2.  **`Deeper_Hub.Core.Repo`:**
     *   Obtém uma conexão do pool e a marca como estando em uma transação.
     *   Inicia uma transação no banco de dados (ex: `BEGIN`).
     *   Executa a função anônima passada, fornecendo uma instância do `Repo` que opera dentro dessa transação (`repo_inside_transaction`).
@@ -117,7 +117,7 @@ priv/repo/
     *   Executa múltiplas operações de banco de dados usando `repo_inside_transaction` (ex: `repo_inside_transaction.insert(cs1)`, `repo_inside_transaction.update(cs2)`).
     *   Se todas as operações forem bem-sucedidas, a função retorna `{:ok, result_value}`.
     *   Se qualquer operação falhar (ex: changeset inválido, erro do DB), a função pode retornar `{:error, reason}` ou o `Repo` pode levantar uma exceção. É comum usar `Repo.insert!/update!/delete!` dentro de transações para que um erro cause um rollback automático.
-4.  **`DeeperHub.Core.Repo` (Conclusão da Transação):**
+4.  **`Deeper_Hub.Core.Repo` (Conclusão da Transação):**
     *   Se a função retornou `{:ok, result_value}`:
         *   Confirma a transação no banco de dados (ex: `COMMIT`).
         *   Retorna `{:ok, result_value}` para o chamador original.
@@ -129,7 +129,7 @@ priv/repo/
 
 ## 📡 6. API (Funções Ecto.Repo Padrão)
 
-O `DeeperHub.Core.Repo` expõe todas as funções padrão do `Ecto.Repo`. As mais comuns incluem:
+O `Deeper_Hub.Core.Repo` expõe todas as funções padrão do `Ecto.Repo`. As mais comuns incluem:
 
 *   `insert(changeset_or_struct, opts \\\\ [])`
 *   `insert!(changeset_or_struct, opts \\\\ [])`
@@ -153,7 +153,7 @@ O `DeeperHub.Core.Repo` expõe todas as funções padrão do `Ecto.Repo`. As mai
 
 ## ⚙️ 7. Configuração
 
-A configuração do `DeeperHub.Core.Repo` é feita principalmente através dos arquivos de configuração do Elixir (`config/config.exs`, `config/dev.exs`, `config/prod.exs`, `config/runtime.exs`) e variáveis de ambiente.
+A configuração do `Deeper_Hub.Core.Repo` é feita principalmente através dos arquivos de configuração do Elixir (`config/config.exs`, `config/dev.exs`, `config/prod.exs`, `config/runtime.exs`) e variáveis de ambiente.
 
 **Exemplo (`config/runtime.exs` para produção):**
 ```elixir
@@ -167,7 +167,7 @@ if config_env() == :prod do
       For example: ecto://USER:PASS@HOST/DATABASE
       \"\"\"
 
-  config :deeper_hub, DeeperHub.Core.Repo,
+  config :deeper_hub, Deeper_Hub.Core.Repo,
     url: database_url,
     pool_size: String.to_integer(System.get_env(\"POOL_SIZE\") || \"10\"),
     ssl: String.to_atom(System.get_env(\"DATABASE_SSL\") || \"false\"), # ex: true, ou [certfile: \"path/to/cert.pem\"]
@@ -195,7 +195,7 @@ end
 
 *   Todos os módulos que definem `Ecto.Schema`.
 *   Todos os módulos de serviço/storage que executam operações de banco de dados.
-*   `DeeperHub.Core.ConfigManager`: Para obter a string de conexão e outras configurações do Repo em tempo de execução (se usando `Config.Provider`).
+*   `Deeper_Hub.Core.ConfigManager`: Para obter a string de conexão e outras configurações do Repo em tempo de execução (se usando `Config.Provider`).
 
 ### 8.2. Bibliotecas Externas
 
@@ -205,13 +205,13 @@ end
 
 ## 🤝 9. Como Usar / Integração
 
-O `DeeperHub.Core.Repo` é usado em toda a aplicação onde a persistência de dados é necessária.
+O `Deeper_Hub.Core.Repo` é usado em toda a aplicação onde a persistência de dados é necessária.
 
 **Exemplo em um módulo de serviço:**
 ```elixir
-defmodule DeeperHub.Accounts.UserService do
-  alias DeeperHub.Core.Repo
-  alias DeeperHub.Accounts.Schema.User
+defmodule Deeper_Hub.Accounts.UserService do
+  alias Deeper_Hub.Core.Repo
+  alias Deeper_Hub.Accounts.Schema.User
   import Ecto.Query
 
   def get_user_by_id(user_id) do
@@ -242,7 +242,7 @@ end
 
 ### 10.2. Métricas
 
-Ecto emite eventos Telemetry que podem ser usados para derivar métricas (via `DeeperHub.Core.Metrics` com handlers apropriados):
+Ecto emite eventos Telemetry que podem ser usados para derivar métricas (via `Deeper_Hub.Core.Metrics` com handlers apropriados):
 *   `deeper_hub.core.repo.query.total.count` (tags: `source` (nome da tabela/schema), `action` (`select`, `insert`, `update`, `delete`))
 *   `deeper_hub.core.repo.query.duration_ms` (Histograma, tags: `source`, `action`)
 *   `deeper_hub.core.repo.query.idle_time_ms` (Histograma): Tempo que uma conexão ficou ociosa antes de ser usada.
@@ -279,7 +279,7 @@ Ecto emite eventos Telemetry padrão para operações de banco de dados. Os prin
 *   **Prevenção de Injeção de SQL:** A principal responsabilidade de segurança do `Repo` é facilitar o uso de consultas parametrizadas. **Nunca interpolar dados de entrada do usuário diretamente em strings de consulta SQL.** Use `^` para interpolar variáveis em queries Ecto ou passe parâmetros para `Ecto.Adapters.SQL.query/4`.
 *   **Credenciais de Acesso:** As credenciais do banco de dados devem ser gerenciadas de forma segura (ex: variáveis de ambiente, cofres de segredos) e não hardcoded.
 *   **Permissões do Usuário do Banco de Dados:** O usuário do banco de dados configurado para a aplicação deve ter apenas as permissões necessárias (princípio do menor privilégio).
-*   **Dados Sensíveis:** Se o banco de dados armazenar dados sensíveis, considere criptografia em nível de coluna (usando tipos Ecto customizados como `DeeperHub.Shared.Encryption.EncryptedType`) ou criptografia em nível de banco de dados (TDE).
+*   **Dados Sensíveis:** Se o banco de dados armazenar dados sensíveis, considere criptografia em nível de coluna (usando tipos Ecto customizados como `Deeper_Hub.Shared.Encryption.EncryptedType`) ou criptografia em nível de banco de dados (TDE).
 
 ## 🧑‍💻 13. Contribuição
 
@@ -304,7 +304,7 @@ Ecto emite eventos Telemetry padrão para operações de banco de dados. Os prin
 
 Com o `Core.Repo` documentado, cobrimos a principal interface de persistência.
 
-Para o próximo, podemos voltar para a camada de segurança e abordar `DeeperHub.Security.DataMasking` ou `ResponseSanitizer`, ou talvez começar a detalhar um módulo de domínio como `DeeperHub.Servers`?"""),
+Para o próximo, podemos voltar para a camada de segurança e abordar `Deeper_Hub.Security.DataMasking` ou `ResponseSanitizer`, ou talvez começar a detalhar um módulo de domínio como `Deeper_Hub.Servers`?"""),
             ],
         ),
         types.Content(
@@ -317,7 +317,7 @@ Para o próximo, podemos voltar para a camada de segurança e abordar `DeeperHub
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ok, vamos seguir com `DeeperHub.Security.DataMasking`. Este módulo é crucial para proteger dados sensíveis quando eles precisam ser exibidos ou logados.
+                types.Part.from_text(text="""Ok, vamos seguir com `Deeper_Hub.Security.DataMasking`. Este módulo é crucial para proteger dados sensíveis quando eles precisam ser exibidos ou logados.
 
 ---
 

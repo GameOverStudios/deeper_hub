@@ -5,16 +5,15 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
   Este módulo fornece funções para realizar diferentes tipos de joins entre tabelas,
   como inner join, left join e right join, permitindo consultas mais complexas
   com seleção de campos específicos e condições personalizadas.
-  
-  Utiliza o pool de conexões gerenciado pela biblioteca DBConnection para otimizar
-  o uso de recursos e melhorar o desempenho das operações de banco de dados.
   """
 
   import Ecto.Query
   alias Deeper_Hub.Core.Data.Repo
   alias Deeper_Hub.Core.Logger
-  alias Deeper_Hub.Core.Data.RepositoryCore
+  alias Deeper_Hub.Core.Data.Repository
   alias Deeper_Hub.Core.Data.DBConnection.DBConnectionFacade, as: DBConn
+  alias Deeper_Hub.Core.Telemetry.TelemetryEvents
+  alias Deeper_Hub.Core.EventBus.EventDefinitions
 
   @doc """
   Realiza uma operação de INNER JOIN entre duas tabelas.
@@ -110,7 +109,7 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
         query = apply_where_conditions(query, actual_filters)
 
         # Aplica limit e offset se fornecidos (using processed_opts)
-        query = RepositoryCore.apply_limit_offset(query, processed_opts)
+        query = Repository.apply_limit_offset(query, processed_opts)
 
         # Executa a query usando a conexão do pool
         records = Repo.all(query)
@@ -272,7 +271,7 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
         query = apply_where_conditions(query, actual_filters)
 
         # Aplica limit e offset se fornecidos (using processed_opts)
-        query = RepositoryCore.apply_limit_offset(query, processed_opts)
+        query = Repository.apply_limit_offset(query, processed_opts)
 
         # Executa a query usando a conexão do pool
         records = Repo.all(query)
@@ -320,12 +319,39 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
           duration_ms: duration_ms
         })
 
+        # Emite evento de telemetria para consulta bem-sucedida
+        TelemetryEvents.execute_db_query(
+          %{duration: duration, rows: length(records)},
+          %{status: :success, operation: :join_left, module: __MODULE__}
+        )
+        
+        # Emite evento para o EventBus
+        EventDefinitions.emit(
+          EventDefinitions.db_query(),
+          %{duration: duration, rows: length(records), status: :success, operation: :join_left},
+          source: "#{__MODULE__}"
+        )
+        
+        {:ok, records}
       {:error, e} ->
+        # Emite evento de telemetria para consulta com erro
+        TelemetryEvents.execute_db_query(
+          %{duration: duration, rows: 0},
+          %{status: :error, operation: :join_left, module: __MODULE__, reason: inspect(e)}
+        )
+        
+        # Emite evento de erro para o EventBus
+        EventDefinitions.emit(
+          EventDefinitions.db_error(),
+          %{duration: duration, status: :error, operation: :join_left, error: e},
+          source: "#{__MODULE__}"
+        )
+        
         Logger.error("Erro ao realizar LEFT JOIN", %{
           module: __MODULE__,
-          schema1: schema1,
-          schema2: schema2,
-          error: e
+          error: inspect(e),
+          schema1: inspect(schema1),
+          schema2: inspect(schema2)
         })
         {:error, e}
     end
@@ -423,7 +449,7 @@ defmodule Deeper_Hub.Core.Data.RepositoryJoins do
       query = apply_where_conditions(query, actual_filters)
 
       # Aplica limit e offset se fornecidos (using processed_opts)
-      query = RepositoryCore.apply_limit_offset(query, processed_opts)
+      query = Repository.apply_limit_offset(query, processed_opts)
 
       # Executa a query
       records = Repo.all(query)

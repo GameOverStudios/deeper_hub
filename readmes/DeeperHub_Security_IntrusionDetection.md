@@ -1,8 +1,8 @@
-# Módulo: `DeeperHub.Security.IntrusionDetection` 🚀
+# Módulo: `Deeper_Hub.Security.IntrusionDetection` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Security.IntrusionDetection`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Security.IntrusionDetection`
 
-O módulo `DeeperHub.Security.IntrusionDetection` (IDS) funciona como um sistema de vigilância para o DeeperHub, monitorando atividades e eventos em busca de padrões que possam indicar uma tentativa de intrusão ou exploração de vulnerabilidades. Diferente da detecção de fraude (que foca em abuso de funcionalidades legítimas para ganho ilícito) ou da proteção contra força bruta (que foca em adivinhação de credenciais), o IDS procura por sinais de reconhecimento, exploração de falhas de segurança conhecidas, ou comportamento anômalo que sugira um ator malicioso tentando obter acesso não autorizado ou escalar privilégios.
+O módulo `Deeper_Hub.Security.IntrusionDetection` (IDS) funciona como um sistema de vigilância para o Deeper_Hub, monitorando atividades e eventos em busca de padrões que possam indicar uma tentativa de intrusão ou exploração de vulnerabilidades. Diferente da detecção de fraude (que foca em abuso de funcionalidades legítimas para ganho ilícito) ou da proteção contra força bruta (que foca em adivinhação de credenciais), o IDS procura por sinais de reconhecimento, exploração de falhas de segurança conhecidas, ou comportamento anômalo que sugira um ator malicioso tentando obter acesso não autorizado ou escalar privilégios.
 
 Ele analisa logs, eventos de rede (se aplicável no nível da aplicação), e atividades de usuário, comparando-os com um conjunto de regras, assinaturas de ataques conhecidos e, potencialmente, com desvios de comportamento normal estabelecido. 😊
 
@@ -14,7 +14,7 @@ Ele analisa logs, eventos de rede (se aplicável no nível da aplicação), e at
     *   Comparar atividades com um conjunto de regras e assinaturas de ataques conhecidos (ex: tentativas de SQL Injection, XSS, Path Traversal, varredura de diretórios, uso de comandos suspeitos em entradas).
     *   Identificar o uso de ferramentas de hacking comuns através de padrões em User-Agents ou parâmetros.
 *   **Detecção Baseada em Anomalias (Integração):**
-    *   Integrar-se com `DeeperHub.Security.BehavioralAnalysis` para identificar desvios significativos do comportamento normal de um usuário que possam indicar comprometimento de conta.
+    *   Integrar-se com `Deeper_Hub.Security.BehavioralAnalysis` para identificar desvios significativos do comportamento normal de um usuário que possam indicar comprometimento de conta.
     *   Monitorar sequências de ações incomuns.
 *   **Análise de Logs:**
     *   Processar logs da aplicação e do sistema (se acessíveis) para encontrar padrões suspeitos ou mensagens de erro indicativas de uma tentativa de exploração.
@@ -35,10 +35,10 @@ Ele analisa logs, eventos de rede (se aplicável no nível da aplicação), e at
 
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.Security.IntrusionDetection` (Fachada Pública):**
+1.  **`Deeper_Hub.Security.IntrusionDetection` (Fachada Pública):**
     *   Ponto de entrada para registrar atividades e consultar o status do IDS.
     *   Delega para o `IntrusionDetectionService`.
-2.  **`DeeperHub.Security.IntrusionDetection.Services.IntrusionDetectionService` (GenServer):**
+2.  **`Deeper_Hub.Security.IntrusionDetection.Services.IntrusionDetectionService` (GenServer):**
     *   **Responsabilidade:** Processo central que recebe eventos de atividade, aplica regras de detecção, gerencia o estado das ameaças percebidas e coordena respostas.
     *   **Estado Interno:**
         *   Conjunto de regras/assinaturas ativas.
@@ -47,19 +47,19 @@ Ele analisa logs, eventos de rede (se aplicável no nível da aplicação), e at
     *   **Interações:**
         *   `RuleEngine`: Para aplicar regras de detecção.
         *   `AnomalyDetector` (pode ser parte de `BehavioralAnalysis`): Para detecção baseada em anomalias.
-        *   `DeeperHub.Security.IPFirewallService`: Para bloquear IPs.
-        *   `DeeperHub.Auth.SessionManager`: Para invalidar sessões.
-        *   `DeeperHub.Security.Monitoring`: Para gerar alertas.
-        *   `DeeperHub.Audit`: Para registrar intrusões e ações.
-        *   `DeeperHub.Core.ConfigManager` / `SecurityPolicyManager`: Para obter regras e configurações.
-3.  **`DeeperHub.Security.IntrusionDetection.RuleEngine` (Módulo Funcional):**
+        *   `Deeper_Hub.Security.IPFirewallService`: Para bloquear IPs.
+        *   `Deeper_Hub.Auth.SessionManager`: Para invalidar sessões.
+        *   `Deeper_Hub.Security.Monitoring`: Para gerar alertas.
+        *   `Deeper_Hub.Audit`: Para registrar intrusões e ações.
+        *   `Deeper_Hub.Core.ConfigManager` / `SecurityPolicyManager`: Para obter regras e configurações.
+3.  **`Deeper_Hub.Security.IntrusionDetection.RuleEngine` (Módulo Funcional):**
     *   **Responsabilidade:** Aplicar o conjunto de regras e assinaturas aos eventos de atividade recebidos.
     *   Pode usar regex, correspondência de padrões, ou lógica mais complexa.
-4.  **`DeeperHub.Security.IntrusionDetection.SignatureDatabase` (Módulo/ETS/Arquivo):**
+4.  **`Deeper_Hub.Security.IntrusionDetection.SignatureDatabase` (Módulo/ETS/Arquivo):**
     *   **Responsabilidade:** Armazenar as assinaturas de ataques conhecidos e regras de detecção. Pode ser atualizável.
 5.  **Fontes de Eventos (Módulos da Aplicação):**
     *   Diversos módulos (`API`, `Auth`, `FileHandler`, etc.) enviam eventos de atividade para o `IntrusionDetectionService` através de `record_activity/2`.
-6.  **`DeeperHub.Security.IntrusionDetection.Supervisor`:**
+6.  **`Deeper_Hub.Security.IntrusionDetection.Supervisor`:**
     *   Supervisiona o `IntrusionDetectionService` e quaisquer workers associados.
 
 ### 3.2. Estrutura de Diretórios (Proposta)
@@ -92,7 +92,7 @@ security/intrusion_detection/
 ## 🛠️ 4. Casos de Uso Principais
 
 *   **Detecção de Tentativa de SQL Injection na API:**
-    *   O `DeeperHub.API` (ou um plug de validação) envia um parâmetro de requisição suspeito para `IntrusionDetection.record_activity(%{type: :api_param, value: \" ' OR 1=1 --\", ...}, context)`.
+    *   O `Deeper_Hub.API` (ou um plug de validação) envia um parâmetro de requisição suspeito para `IntrusionDetection.record_activity(%{type: :api_param, value: \" ' OR 1=1 --\", ...}, context)`.
     *   `IntrusionDetectionService` usa `RuleEngine` que identifica a assinatura de SQLi.
     *   Uma intrusão é registrada, um alerta é gerado para `Security.Monitoring`, e o IP pode ser enviado para `IPFirewallService` para bloqueio.
 *   **Múltiplas Tentativas de Acesso a Arquivos Inexistentes (Varredura):**
@@ -109,7 +109,7 @@ security/intrusion_detection/
 
 ### Fluxo de Análise de Atividade Suspeita
 
-1.  **Registro de Atividade:** Um módulo da aplicação (ex: um plug de firewall de aplicação web no nível da API) observa uma atividade (ex: uma requisição HTTP com parâmetros suspeitos) e chama `DeeperHub.Security.IntrusionDetection.record_activity(activity_details, context)`.
+1.  **Registro de Atividade:** Um módulo da aplicação (ex: um plug de firewall de aplicação web no nível da API) observa uma atividade (ex: uma requisição HTTP com parâmetros suspeitos) e chama `Deeper_Hub.Security.IntrusionDetection.record_activity(activity_details, context)`.
 2.  **`IntrusionDetectionService` (GenServer):**
     *   Recebe a atividade.
     *   (Opcional) Persiste a atividade bruta para análise forense ou em lote.
@@ -122,16 +122,16 @@ security/intrusion_detection/
 4.  **`IntrusionDetectionService` (Continuação):**
     *   **Se Ameaça Detectada:**
         *   Registra a intrusão (`record_intrusion/2`).
-        *   Gera um alerta para `DeeperHub.Security.Monitoring` com a severidade e detalhes.
+        *   Gera um alerta para `Deeper_Hub.Security.Monitoring` com a severidade e detalhes.
         *   Com base na severidade e na política configurada, toma ações de resposta:
-            *   Chama `DeeperHub.Security.IPFirewallService.block_ip(...)`.
-            *   Chama `DeeperHub.Auth.SessionManager.invalidate_session_for_user(...)`.
+            *   Chama `Deeper_Hub.Security.IPFirewallService.block_ip(...)`.
+            *   Chama `Deeper_Hub.Auth.SessionManager.invalidate_session_for_user(...)`.
     *   (Opcional) Se nenhuma ameaça baseada em assinatura, mas a atividade for de um tipo que `BehavioralAnalysis` monitora, pode encaminhar para lá.
 5.  **Resposta (Assíncrona):** A função `record_activity` geralmente retorna `:ok` rapidamente para não bloquear o chamador. As análises e respostas são tratadas em background.
 
 ## 📡 6. API (Funções Públicas da Fachada)
 
-### 6.1. `DeeperHub.Security.IntrusionDetection.record_activity(activity_data :: map(), context :: map() | nil) :: :ok`
+### 6.1. `Deeper_Hub.Security.IntrusionDetection.record_activity(activity_data :: map(), context :: map() | nil) :: :ok`
 
 *   **Descrição:** Registra uma atividade do sistema para análise pelo IDS. Esta é a principal forma de alimentar o IDS com dados.
 *   **`activity_data`:** Mapa descrevendo a atividade. Deve incluir:
@@ -142,29 +142,29 @@ security/intrusion_detection/
     *   Outros campos específicos do tipo (ex: para `:http_request`, `%{path: \"/\", params: %{...}, headers: %{...}}`).
 *   **`context`:** Metadados adicionais.
 
-### 6.2. `DeeperHub.Security.IntrusionDetection.analyze_activity(activity_data :: map(), context :: map() | nil) :: {:ok, :normal | :suspicious | :intrusion_detected, details :: map() | nil}`
+### 6.2. `Deeper_Hub.Security.IntrusionDetection.analyze_activity(activity_data :: map(), context :: map() | nil) :: {:ok, :normal | :suspicious | :intrusion_detected, details :: map() | nil}`
 
 *   **Descrição:** Realiza uma análise síncrona de uma atividade específica. Usado quando uma decisão imediata é necessária.
 *   **Retorno:** O nível de ameaça percebido e detalhes (ex: regras acionadas).
 
-### 6.3. `DeeperHub.Security.IntrusionDetection.check_ip_reputation(ip_address :: String.t()) :: {:ok, %{risk_score: float(), known_threats: list(atom())}}` (Nova Sugestão)
+### 6.3. `Deeper_Hub.Security.IntrusionDetection.check_ip_reputation(ip_address :: String.t()) :: {:ok, %{risk_score: float(), known_threats: list(atom())}}` (Nova Sugestão)
 
 *   **Descrição:** Consulta a base de dados interna do IDS (e potencialmente feeds externos) sobre a reputação de um IP.
 *   **Retorno:** Score de risco e ameaças conhecidas associadas ao IP.
 
-### 6.4. `DeeperHub.Security.IntrusionDetection.get_alerts(opts :: keyword()) :: {:ok, list(Alert.t())}`
+### 6.4. `Deeper_Hub.Security.IntrusionDetection.get_alerts(opts :: keyword()) :: {:ok, list(Alert.t())}`
 
 *   **Descrição:** Lista os alertas de intrusão ativos ou recentes.
 *   **`opts`:** `:severity_threshold` (atom), `:since` (DateTime.t), `:limit`.
 *   **`Alert.t()`:** `%{id: String.t(), timestamp: DateTime.t(), type: atom(), severity: atom(), source_ip: String.t(), user_id: String.t(), description: String.t(), details: map(), status: :new | :acknowledged | :resolved}`.
 
-### 6.5. `DeeperHub.Security.IntrusionDetection.configure_rules(rules_list :: list(map())) :: :ok | {:error, term()}`
+### 6.5. `Deeper_Hub.Security.IntrusionDetection.configure_rules(rules_list :: list(map())) :: :ok | {:error, term()}`
 
 *   **Descrição:** Atualiza ou substitui o conjunto de regras de detecção. Requer permissão de administrador.
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolicyManager`:
+Via `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPolicyManager`:
 
 *   **`[:security, :intrusion_detection, :enabled]`** (Boolean): Habilita/desabilita o IDS. (Padrão: `true`)
 *   **`[:security, :intrusion_detection, :rules_source]`** (String | Module): Fonte das regras/assinaturas (ex: path de arquivo, módulo Elixir, tabela de DB).
@@ -178,13 +178,13 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.ConfigManager`, `Core.Logger`, `Core.Metrics`, `Core.EventBus`.
-*   `DeeperHub.Security.IPFirewallService`: Para bloquear IPs.
-*   `DeeperHub.Auth.SessionManager`: Para invalidar sessões.
-*   `DeeperHub.Security.Monitoring`: Para gerar e encaminhar alertas.
-*   `DeeperHub.Audit`: Para registrar intrusões confirmadas.
-*   `DeeperHub.Security.BehavioralAnalysis`: Como uma fonte de eventos de anomalia.
-*   `DeeperHub.Security.SqlInjectionProtection`, `XssProtection`, `PathTraversalProtection`: Podem alimentar o IDS com suas detecções.
+*   `Deeper_Hub.Core.ConfigManager`, `Core.Logger`, `Core.Metrics`, `Core.EventBus`.
+*   `Deeper_Hub.Security.IPFirewallService`: Para bloquear IPs.
+*   `Deeper_Hub.Auth.SessionManager`: Para invalidar sessões.
+*   `Deeper_Hub.Security.Monitoring`: Para gerar e encaminhar alertas.
+*   `Deeper_Hub.Audit`: Para registrar intrusões confirmadas.
+*   `Deeper_Hub.Security.BehavioralAnalysis`: Como uma fonte de eventos de anomalia.
+*   `Deeper_Hub.Security.SqlInjectionProtection`, `XssProtection`, `PathTraversalProtection`: Podem alimentar o IDS com suas detecções.
 
 ### 8.2. Bibliotecas Externas
 
@@ -207,12 +207,12 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
       }
       user_id = conn.assigns.current_user_id # Se já autenticado
       context = %{user_id: user_id, session_id: Plug.Conn.get_session(conn, :session_id)}
-      DeeperHub.Security.IntrusionDetection.record_activity(activity, context)
+      Deeper_Hub.Security.IntrusionDetection.record_activity(activity, context)
       conn
     end
     ```
 *   **Módulos de Serviço:** Qualquer serviço que lide com operações sensíveis ou entradas do usuário deve registrar atividades relevantes.
-    *   Ex: `DeeperHub.Accounts` pode registrar `:auth_attempt_failed`.
+    *   Ex: `Deeper_Hub.Accounts` pode registrar `:auth_attempt_failed`.
     *   Serviços de upload de arquivos podem registrar `:file_access_attempt`.
 
 ## ✅ 10. Testes e Observabilidade
@@ -280,7 +280,7 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 Este módulo IDS é um componente de defesa bastante ativo!
 
-Para o próximo, podemos ir para `DeeperHub.Core.Repo` como sugerido anteriormente, ou talvez outro módulo de segurança como o `DeeperHub.Security.DataMasking` para ver como os dados são protegidos em logs e UI?"""),
+Para o próximo, podemos ir para `Deeper_Hub.Core.Repo` como sugerido anteriormente, ou talvez outro módulo de segurança como o `Deeper_Hub.Security.DataMasking` para ver como os dados são protegidos em logs e UI?"""),
             ],
         ),
         types.Content(
@@ -292,7 +292,7 @@ Para o próximo, podemos ir para `DeeperHub.Core.Repo` como sugerido anteriormen
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Perfeito! Dado que já documentamos o `DeeperHub.Core.Repo`, e ele é uma dependência fundamental para quase todos os outros módulos, vamos prosseguir com ele.
+                types.Part.from_text(text="""Perfeito! Dado que já documentamos o `Deeper_Hub.Core.Repo`, e ele é uma dependência fundamental para quase todos os outros módulos, vamos prosseguir com ele.
 
 ---
 

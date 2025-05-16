@@ -1,0 +1,1 @@
+cls & mix phx.server

@@ -1,8 +1,8 @@
-# Módulo: `DeeperHub.ServerPackages` 📦
+# Módulo: `Deeper_Hub.ServerPackages` 📦
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.ServerPackages`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.ServerPackages`
 
-O módulo `DeeperHub.ServerPackages` é responsável por gerenciar os diferentes pacotes, planos ou itens que podem ser oferecidos por um servidor dentro da plataforma DeeperHub. Isso pode incluir pacotes de assinatura, itens virtuais, benefícios VIP, ou qualquer outro produto ou serviço que os proprietários de servidores queiram disponibilizar para seus usuários, seja de forma gratuita ou paga. O módulo lida com a definição, listagem e associação desses pacotes aos servidores. 😊
+O módulo `Deeper_Hub.ServerPackages` é responsável por gerenciar os diferentes pacotes, planos ou itens que podem ser oferecidos por um servidor dentro da plataforma Deeper_Hub. Isso pode incluir pacotes de assinatura, itens virtuais, benefícios VIP, ou qualquer outro produto ou serviço que os proprietários de servidores queiram disponibilizar para seus usuários, seja de forma gratuita ou paga. O módulo lida com a definição, listagem e associação desses pacotes aos servidores. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -20,28 +20,28 @@ O módulo `DeeperHub.ServerPackages` é responsável por gerenciar os diferentes
     *   Habilitar ou desabilitar pacotes.
     *   (Opcional) Gerenciar estoque para pacotes com quantidade limitada.
 *   **Integração com Compras/Assinaturas (Delegação):**
-    *   Embora este módulo defina os pacotes, a lógica de processamento de compra ou gerenciamento de assinaturas ativas seria provavelmente delegada a um módulo `DeeperHub.Billing` ou `DeeperHub.Subscriptions`. Este módulo apenas informa o que está disponível para compra/assinatura.
+    *   Embora este módulo defina os pacotes, a lógica de processamento de compra ou gerenciamento de assinaturas ativas seria provavelmente delegada a um módulo `Deeper_Hub.Billing` ou `Deeper_Hub.Subscriptions`. Este módulo apenas informa o que está disponível para compra/assinatura.
 *   **Administração de Pacotes:**
     *   Interface para proprietários de servidores criarem e gerenciarem os pacotes de seus servidores.
     *   Interface para administradores da plataforma moderarem ou destacarem pacotes.
 
 ## 🏗️ 3. Arquitetura e Design
 
-`DeeperHub.ServerPackages` atuará como uma fachada para um serviço de lógica de negócio e componentes de persistência.
+`Deeper_Hub.ServerPackages` atuará como uma fachada para um serviço de lógica de negócio e componentes de persistência.
 
-*   **Interface Pública (`DeeperHub.ServerPackages.ServerPackagesFacade` ou `DeeperHub.ServerPackages`):** Funções como `create_server_package/1`, `list_packages_for_server/2`, `get_package_details/1`.
-*   **Serviço de Pacotes de Servidor (`DeeperHub.ServerPackages.Services.PackageService`):**
+*   **Interface Pública (`Deeper_Hub.ServerPackages.ServerPackagesFacade` ou `Deeper_Hub.ServerPackages`):** Funções como `create_server_package/1`, `list_packages_for_server/2`, `get_package_details/1`.
+*   **Serviço de Pacotes de Servidor (`Deeper_Hub.ServerPackages.Services.PackageService`):**
     *   Contém a lógica de negócio principal para definir e gerenciar pacotes.
 *   **Schemas Ecto:**
-    *   `DeeperHub.ServerPackages.Schema.ServerPackage`: Define um pacote de servidor.
-    *   `DeeperHub.ServerPackages.Schema.PackageFeature` (Opcional): Para detalhar os benefícios de um pacote.
-*   **Cache (`DeeperHub.ServerPackages.Cache` ou via `Core.Cache`):**
+    *   `Deeper_Hub.ServerPackages.Schema.ServerPackage`: Define um pacote de servidor.
+    *   `Deeper_Hub.ServerPackages.Schema.PackageFeature` (Opcional): Para detalhar os benefícios de um pacote.
+*   **Cache (`Deeper_Hub.ServerPackages.Cache` ou via `Core.Cache`):**
     *   Cache para definições de pacotes frequentemente acessadas, especialmente para listagens em páginas de servidores.
 *   **Integrações:**
-    *   `DeeperHub.Core.Repo`: Para persistência.
-    *   `DeeperHub.Servers`: Para associar pacotes a servidores.
-    *   `DeeperHub.Billing` / `DeeperHub.Subscriptions` (Potencial): Para a lógica de compra/assinatura.
-    *   `DeeperHub.Core.Internationalization (I18n)`: Para descrições de pacotes localizadas.
+    *   `Deeper_Hub.Core.Repo`: Para persistência.
+    *   `Deeper_Hub.Servers`: Para associar pacotes a servidores.
+    *   `Deeper_Hub.Billing` / `Deeper_Hub.Subscriptions` (Potencial): Para a lógica de compra/assinatura.
+    *   `Deeper_Hub.Core.Internationalization (I18n)`: Para descrições de pacotes localizadas.
 
 **Padrões de Design:**
 
@@ -50,10 +50,10 @@ O módulo `DeeperHub.ServerPackages` é responsável por gerenciar os diferentes
 
 ### 3.1. Componentes Principais
 
-*   **`DeeperHub.ServerPackages.ServerPackagesFacade`:** Ponto de entrada.
-*   **`DeeperHub.ServerPackages.Services.PackageService`:** Lógica de negócio.
-*   **`DeeperHub.ServerPackages.Schema.ServerPackage`:** Schema principal.
-*   **`DeeperHub.ServerPackages.Supervisor`:** Supervisiona processos.
+*   **`Deeper_Hub.ServerPackages.ServerPackagesFacade`:** Ponto de entrada.
+*   **`Deeper_Hub.ServerPackages.Services.PackageService`:** Lógica de negócio.
+*   **`Deeper_Hub.ServerPackages.Schema.ServerPackage`:** Schema principal.
+*   **`Deeper_Hub.ServerPackages.Supervisor`:** Supervisiona processos.
 
 ### 3.3. Decisões de Design Importantes
 
@@ -72,8 +72,8 @@ O módulo `DeeperHub.ServerPackages` é responsável por gerenciar os diferentes
 **Fluxo de Criação de um Novo Pacote de Servidor:**
 
 1.  Proprietário do servidor (via UI/API) submete os dados para um novo pacote.
-2.  `DeeperHub.API` (Controller) chama `DeeperHub.ServerPackages.create_server_package(params)`.
-3.  `ServerPackagesFacade` delega para `DeeperHub.ServerPackages.Services.PackageService.create_package(params)`.
+2.  `Deeper_Hub.API` (Controller) chama `Deeper_Hub.ServerPackages.create_server_package(params)`.
+3.  `ServerPackagesFacade` delega para `Deeper_Hub.ServerPackages.Services.PackageService.create_package(params)`.
 4.  `PackageService`:
     *   Valida os `params` usando `ServerPackage.changeset/2`.
     *   Verifica se o `user_id` (dos `params` ou do contexto da sessão) é o proprietário do `server_id` associado.
@@ -85,7 +85,7 @@ O módulo `DeeperHub.ServerPackages` é responsável por gerenciar os diferentes
 
 ## 📡 6. API (Se Aplicável)
 
-### 6.1. `DeeperHub.ServerPackages.create_server_package/1`
+### 6.1. `Deeper_Hub.ServerPackages.create_server_package/1`
 
 *   **Descrição:** Cria um novo pacote de itens ou serviços para um servidor.
 *   **`@spec`:** `create_server_package(attrs :: map()) :: {:ok, ServerPackage.t()} | {:error, Ecto.Changeset.t() | reason}`
@@ -116,13 +116,13 @@ O módulo `DeeperHub.ServerPackages` é responsável por gerenciar os diferentes
       features: [\"Espada Básica\", \"10x Poção de Cura\", \"100x Moedas de Ouro\"],
       is_active: true
     }
-    case DeeperHub.ServerPackages.create_server_package(package_attrs) do
+    case Deeper_Hub.ServerPackages.create_server_package(package_attrs) do
       {:ok, package} -> Logger.info(\"Pacote #{package.id} - '#{package.name}' criado.\")
       {:error, reason} -> Logger.error(\"Falha ao criar pacote: #{inspect(reason)}\")
     end
     ```
 
-### 6.2. `DeeperHub.ServerPackages.list_packages_for_server/2`
+### 6.2. `Deeper_Hub.ServerPackages.list_packages_for_server/2`
 
 *   **Descrição:** Lista todos os pacotes disponíveis para um servidor específico.
 *   **`@spec`:** `list_packages_for_server(server_id :: String.t(), opts :: Keyword.t()) :: {:ok, list(ServerPackage.t())} | {:error, reason}`
@@ -135,14 +135,14 @@ O módulo `DeeperHub.ServerPackages` é responsável por gerenciar os diferentes
 *   **Retorno:** Lista de pacotes do servidor.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    {:ok, active_packages} = DeeperHub.ServerPackages.list_packages_for_server(\"server_123\", is_active: true)
+    {:ok, active_packages} = Deeper_Hub.ServerPackages.list_packages_for_server(\"server_123\", is_active: true)
     ```
 
 *(Outras funções como `get_package_details/1`, `update_server_package/2`, `delete_server_package/1` seriam documentadas aqui).*
 
 ## ⚙️ 7. Configuração
 
-*   **ConfigManager (`DeeperHub.Core.ConfigManager`):**
+*   **ConfigManager (`Deeper_Hub.Core.ConfigManager`):**
     *   `[:server_packages, :default_currency]`: Moeda padrão para preços se não especificada. (Padrão: `\"USD\"`)
     *   `[:server_packages, :max_features_per_package]`: Número máximo de features listadas por pacote.
     *   `[:server_packages, :allow_free_packages]`: (Boolean) Se permite a criação de pacotes com preço zero. (Padrão: `true`)
@@ -152,14 +152,14 @@ O módulo `DeeperHub.ServerPackages` é responsável por gerenciar os diferentes
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.Repo`
-*   `DeeperHub.Core.ConfigManager`
-*   `DeeperHub.Core.Cache`
-*   `DeeperHub.Servers` (para associação `server_id`)
-*   `DeeperHub.Accounts` (para `created_by_user_id`)
-*   `DeeperHub.Core.Internationalization (I18n)` (para descrições localizadas)
-*   `DeeperHub.Billing` ou `DeeperHub.Subscriptions` (Potencial, para processar a compra)
-*   `DeeperHub.Core.Logger`, `DeeperHub.Core.Metrics`
+*   `Deeper_Hub.Core.Repo`
+*   `Deeper_Hub.Core.ConfigManager`
+*   `Deeper_Hub.Core.Cache`
+*   `Deeper_Hub.Servers` (para associação `server_id`)
+*   `Deeper_Hub.Accounts` (para `created_by_user_id`)
+*   `Deeper_Hub.Core.Internationalization (I18n)` (para descrições localizadas)
+*   `Deeper_Hub.Billing` ou `Deeper_Hub.Subscriptions` (Potencial, para processar a compra)
+*   `Deeper_Hub.Core.Logger`, `Deeper_Hub.Core.Metrics`
 
 ### 8.2. Bibliotecas Externas
 
@@ -191,8 +191,8 @@ O módulo `DeeperHub.ServerPackages` é responsável por gerenciar os diferentes
 
 ### 10.3. Logs
 
-*   `Logger.info(\"Pacote '#{name}' (ID: #{id}) criado para o servidor #{server_id}\", module: DeeperHub.ServerPackages.Services.PackageService)`
-*   `Logger.info(\"Pacote #{id} atualizado.\", module: DeeperHub.ServerPackages.Services.PackageService)`
+*   `Logger.info(\"Pacote '#{name}' (ID: #{id}) criado para o servidor #{server_id}\", module: Deeper_Hub.ServerPackages.Services.PackageService)`
+*   `Logger.info(\"Pacote #{id} atualizado.\", module: Deeper_Hub.ServerPackages.Services.PackageService)`
 
 ### 10.4. Telemetria
 
@@ -230,7 +230,7 @@ O módulo `DeeperHub.ServerPackages` é responsável por gerenciar os diferentes
 
 ---
 
-O próximo seria `DeeperHub.ServerAlerts`. Prontos?"""),
+O próximo seria `Deeper_Hub.ServerAlerts`. Prontos?"""),
             ],
         ),
         types.Content(
@@ -242,7 +242,7 @@ O próximo seria `DeeperHub.ServerAlerts`. Prontos?"""),
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Perfeito! Vamos ao README do `DeeperHub.ServerAlerts`.
+                types.Part.from_text(text="""Perfeito! Vamos ao README do `Deeper_Hub.ServerAlerts`.
 
 ---
 
