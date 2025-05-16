@@ -1,0 +1,17 @@
+{
+    "server": {
+        "url": "ws://localhost:4000/socket/websocket",
+        "auth_token": "test_token"
+    },
+    "connection": {
+        "reconnect_attempts": 5,
+        "reconnect_delay_ms": 3000,
+        "heartbeat_interval_ms": 30000
+    },
+    "logging": {
+        "level": "info",
+        "console_output": true,
+        "file_output": true,
+        "file_path": "logs/client.log"
+    }
+}
