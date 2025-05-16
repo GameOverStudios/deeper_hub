@@ -1,4 +1,4 @@
-defmodule DeeperHub.Core.Websocket.Channel do
+defmodule Deeper_Hub.Core.Websocket.Channel do
   @moduledoc """
   Canal WebSocket para comunicação com o client C++.
 
@@ -11,8 +11,8 @@ defmodule DeeperHub.Core.Websocket.Channel do
 
   use Phoenix.Channel
   require Logger
-  alias DeeperHub.Core.Websocket.Messages
-  alias DeeperHub.Core.Websocket.DatabaseHandler
+  alias Deeper_Hub.Core.Websocket.Messages
+  alias Deeper_Hub.Core.Websocket.DatabaseHandler
   alias Deeper_Hub.Core.EventBus.EventDefinitions
   alias Deeper_Hub.Core.Telemetry.TelemetryEvents
 
@@ -33,7 +33,7 @@ defmodule DeeperHub.Core.Websocket.Channel do
   def handle_in("message", payload, socket) do
     # Log da mensagem recebida para depuração
     Logger.debug("Mensagem recebida no canal: #{inspect(payload)}")
-    
+
     # Processa mensagens recebidas
     try do
       # Verifica se o payload é uma string JSON
@@ -41,20 +41,20 @@ defmodule DeeperHub.Core.Websocket.Channel do
         {:ok, json_payload} ->
           # Processa diretamente a mensagem JSON
           process_json_message(json_payload, socket)
-          
+
         {:error, _} ->
           # Se não for JSON, tenta decodificar como Protocol Buffers
           with {:ok, message} <- Messages.decode_client_message(payload) do
             # Log da mensagem decodificada
             Logger.debug("Mensagem decodificada: #{inspect(message)}")
-            
+
             case message do
               %{message_type: {:database_operation, operation}} ->
                 # Log da operação de banco de dados
                 Logger.info("Operação de banco de dados recebida: #{inspect(operation)}")
                 # Processa operação de banco de dados
                 DatabaseHandler.process_operation(operation, socket)
-                
+
               _ ->
                 # Log do tipo de mensagem não suportada
                 Logger.warning("Tipo de mensagem não suportada: #{inspect(message.message_type)}")
@@ -63,7 +63,7 @@ defmodule DeeperHub.Core.Websocket.Channel do
                 {:reply, {:error, %{reason: "Tipo de mensagem não suportada"}}, socket}
             end
           else
-            {:error, reason} -> 
+            {:error, reason} ->
               Logger.warning("Erro ao decodificar mensagem", %{
                 socket_id: socket.id,
                 reason: reason,
@@ -73,12 +73,12 @@ defmodule DeeperHub.Core.Websocket.Channel do
           end
       end
     rescue
-      e -> 
+      e ->
         Logger.error("Erro inesperado ao processar mensagem: #{inspect(e)}\n#{Exception.format_stacktrace()}")
         {:reply, {:error, %{reason: "Erro interno do servidor"}}, socket}
     end
   end
-  
+
   # Processa mensagens JSON recebidas diretamente
   defp process_json_message(%{"payload" => payload} = message, socket) when is_binary(payload) do
     # Tenta decodificar o payload JSON
@@ -91,29 +91,29 @@ defmodule DeeperHub.Core.Websocket.Channel do
         {:reply, {:error, %{reason: "Erro ao decodificar payload JSON"}}, socket}
     end
   end
-  
+
   defp process_json_message(%{"payload" => payload} = message, socket) when is_map(payload) do
     # O payload já é um mapa, processa diretamente
     process_json_payload(payload, message["ref"], socket)
   end
-  
+
   # Processa mensagens no formato que o cliente Python está enviando
   defp process_json_message(%{"database_operation" => _} = payload, socket) do
     # Mensagem de operação de banco de dados direta
     Logger.debug("Processando operação de banco de dados direta: #{inspect(payload)}")
     process_database_operation(payload, socket)
   end
-  
+
   defp process_json_message(message, socket) do
     Logger.warning("Formato de mensagem JSON inválido: #{inspect(message)}")
     {:reply, {:error, %{reason: "Formato de mensagem JSON inválido"}}, socket}
   end
-  
+
   # Processa o payload JSON decodificado
   defp process_json_payload(%{"database_operation" => db_op}, ref, socket) when is_map(db_op) do
     # Log para depurar o conteúdo da operação de banco de dados
     Logger.debug("Processando operação de banco de dados: #{inspect(db_op)}")
-    
+
     # Converte a operação de banco de dados para o formato esperado
     operation = %Messages.DatabaseOperation{
       operation: Map.get(db_op, "operation"),
@@ -123,24 +123,24 @@ defmodule DeeperHub.Core.Websocket.Channel do
       request_id: Map.get(db_op, "request_id", ref),
       timestamp: Map.get(db_op, "timestamp", System.system_time(:millisecond))
     }
-    
+
     # Log da operação convertida
     Logger.debug("Operação convertida: #{inspect(operation)}")
-    
+
     # Processa a operação de banco de dados
     DatabaseHandler.process_operation(operation, socket)
   end
-  
+
   defp process_json_payload(payload, _ref, socket) do
     Logger.warning("Payload JSON não suportado: #{inspect(payload)}")
     {:reply, {:error, %{reason: "Tipo de mensagem não suportada"}}, socket}
   end
-  
+
   # Processa operações de banco de dados diretas
   defp process_database_operation(%{"database_operation" => db_op} = message, socket) when is_map(db_op) do
     # Log para depurar o conteúdo da operação de banco de dados
     Logger.info("Processando operação de banco de dados direta: #{inspect(db_op)}")
-    
+
     # Converte a operação de banco de dados para o formato esperado
     operation = %Messages.DatabaseOperation{
       operation: Map.get(db_op, "operation"),
@@ -150,10 +150,10 @@ defmodule DeeperHub.Core.Websocket.Channel do
       request_id: Map.get(db_op, "request_id", message["ref"]),
       timestamp: Map.get(db_op, "timestamp", System.system_time(:millisecond))
     }
-    
+
     # Log da operação convertida
     Logger.debug("Operação convertida: #{inspect(operation)}")
-    
+
     # Processa a operação de banco de dados
     DatabaseHandler.process_operation(operation, socket)
   end
@@ -172,26 +172,26 @@ defmodule DeeperHub.Core.Websocket.Channel do
       %{socket_id: socket.id, reason: reason},
       source: "#{__MODULE__}"
     )
-    
+
     # Emite métrica de desconexão
     TelemetryEvents.execute_websocket_disconnection(
       %{count: 1},
       %{socket_id: socket.id, reason: reason, module: __MODULE__}
     )
-    
+
     :ok
   end
-  
+
   @doc """
   Encerra uma conexão WebSocket pelo ID do socket.
-  
+
   ## Parâmetros
-  
+
     - `socket_id`: ID do socket a ser terminado
     - `reason`: Razão do término (e.g., :zombie, :normal, etc.)
-  
+
   ## Retorno
-  
+
     - `:ok` se a operação for bem-sucedida
   """
   @spec terminate_by_id(String.t(), atom()) :: :ok
@@ -202,13 +202,13 @@ defmodule DeeperHub.Core.Websocket.Channel do
       %{socket_id: socket_id, reason: reason},
       source: "#{__MODULE__}"
     )
-    
+
     # Emite métrica de desconexão
     TelemetryEvents.execute_websocket_disconnection(
       %{count: 1},
       %{socket_id: socket_id, reason: reason, module: __MODULE__}
     )
-    
+
     :ok
   end
 end

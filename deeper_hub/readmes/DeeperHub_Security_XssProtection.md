@@ -1,8 +1,8 @@
-# Módulo: `DeeperHub.Security.XssProtection` 🚀
+# Módulo: `Deeper_Hub.Security.XssProtection` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Security.XssProtection`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Security.XssProtection`
 
-O módulo `DeeperHub.Security.XssProtection` é dedicado a prevenir ataques de **Cross-Site Scripting (XSS)** no sistema DeeperHub. XSS é uma vulnerabilidade que permite a um invasor injetar scripts maliciosos (geralmente JavaScript) em páginas web visualizadas por outros usuários. Esses scripts podem então roubar informações da sessão do usuário, desfigurar sites, redirecionar usuários para sites maliciosos, ou realizar outras ações em nome do usuário.
+O módulo `Deeper_Hub.Security.XssProtection` é dedicado a prevenir ataques de **Cross-Site Scripting (XSS)** no sistema Deeper_Hub. XSS é uma vulnerabilidade que permite a um invasor injetar scripts maliciosos (geralmente JavaScript) em páginas web visualizadas por outros usuários. Esses scripts podem então roubar informações da sessão do usuário, desfigurar sites, redirecionar usuários para sites maliciosos, ou realizar outras ações em nome do usuário.
 
 Este módulo foca em duas estratégias principais:
 1.  **Sanitização de Entrada:** Limpar dados fornecidos pelo usuário antes que sejam armazenados ou processados, se eles forem destinados a serem exibidos como HTML.
@@ -41,18 +41,18 @@ O objetivo é garantir que o conteúdo gerado pelo usuário ou dados dinâmicos 
 
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.Security.XssProtection` (Fachada Pública):**
+1.  **`Deeper_Hub.Security.XssProtection` (Fachada Pública):**
     *   Ponto de entrada para as funcionalidades de proteção XSS.
     *   Delega para o `XssProtectionService`.
-2.  **`DeeperHub.Security.XssProtection.Services.XssProtectionService` (Módulo Funcional ou GenServer):**
+2.  **`Deeper_Hub.Security.XssProtection.Services.XssProtectionService` (Módulo Funcional ou GenServer):**
     *   **Responsabilidade:** Contém a lógica principal para sanitização, verificação e geração de cabeçalhos.
     *   **Interações:**
         *   Pode usar bibliotecas de sanitização HTML robustas e testadas.
-        *   Interage com `DeeperHub.Core.ConfigManager` para obter listas brancas de tags/atributos e políticas CSP.
-        *   Interage com `DeeperHub.Audit` ou `DeeperHub.Security.Monitoring` para registrar tentativas de XSS.
+        *   Interage com `Deeper_Hub.Core.ConfigManager` para obter listas brancas de tags/atributos e políticas CSP.
+        *   Interage com `Deeper_Hub.Audit` ou `Deeper_Hub.Security.Monitoring` para registrar tentativas de XSS.
 3.  **Bibliotecas de Sanitização/Escaping (Externas ou Internas):**
     *   O núcleo da sanitização e escaping. Se for uma biblioteca externa, este módulo atua como um wrapper configurado para ela. Phoenix Views, por exemplo, já fazem escaping por padrão em templates eex.
-4.  **`DeeperHub.Security.XssProtection.Plug.XssProtectionPlug` (Phoenix Plug, Opcional):**
+4.  **`Deeper_Hub.Security.XssProtection.Plug.XssProtectionPlug` (Phoenix Plug, Opcional):**
     *   **Responsabilidade:** Aplicar cabeçalhos de segurança XSS (como CSP) a todas as respostas relevantes.
     *   Pode realizar verificações básicas em parâmetros de entrada para todos os requests, se configurado de forma agressiva (geralmente a sanitização é mais direcionada).
 
@@ -96,7 +96,7 @@ security/xss_protection/
 
 1.  **Usuário Submete Dados:** Usuário envia um formulário com um campo \"descrição\".
 2.  **Controller/Serviço:** Recebe os dados. Antes de persistir:
-    `{:ok, sanitized_description} = DeeperHub.Security.XssProtection.sanitize_html(params[\"description\"], allow_safe_tags: true, safe_tags: [\"b\", \"i\", \"p\", \"a\"], safe_attributes: [\"href\"])`
+    `{:ok, sanitized_description} = Deeper_Hub.Security.XssProtection.sanitize_html(params[\"description\"], allow_safe_tags: true, safe_tags: [\"b\", \"i\", \"p\", \"a\"], safe_attributes: [\"href\"])`
 3.  **`XssProtectionService.sanitize_html/2`:**
     *   Usa uma biblioteca de sanitização HTML (ex: `HtmlSanitizeEx`).
     *   Configura a biblioteca com a lista branca de tags e atributos seguros.
@@ -106,7 +106,7 @@ security/xss_protection/
 
 ## 📡 6. API (Funções Públicas da Fachada)
 
-### 6.1. `DeeperHub.Security.XssProtection.sanitize_string(input :: String.t(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}`
+### 6.1. `Deeper_Hub.Security.XssProtection.sanitize_string(input :: String.t(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}`
 
 *   **Descrição:** Sanitiza uma string, geralmente escapando caracteres HTML especiais para torná-los seguros para exibição como texto. Esta é a abordagem padrão para a maioria das strings.
 *   **`opts`:**
@@ -117,7 +117,7 @@ security/xss_protection/
     # Resulta em: {:ok, \"&lt;script&gt;alert(1)&lt;/script&gt;\"}
     ```
 
-### 6.2. `DeeperHub.Security.XssProtection.sanitize_html(html_input :: String.t(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}`
+### 6.2. `Deeper_Hub.Security.XssProtection.sanitize_html(html_input :: String.t(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}`
 
 *   **Descrição:** Sanitiza uma string que se espera conter HTML, removendo tags e atributos perigosos com base em uma lista branca.
 *   **`opts`:**
@@ -134,17 +134,17 @@ security/xss_protection/
     # Resulta em: {:ok, \"<p>Hello <b>World</b> </p>\"}
     ```
 
-### 6.3. `DeeperHub.Security.XssProtection.check_string(input :: String.t(), context :: map() | nil) :: {:ok, :safe | :suspicious} | {:error, term()}`
+### 6.3. `Deeper_Hub.Security.XssProtection.check_string(input :: String.t(), context :: map() | nil) :: {:ok, :safe | :suspicious} | {:error, term()}`
 
 *   **Descrição:** Analisa uma string em busca de padrões XSS conhecidos. Não modifica a string.
 *   **Retorno:** `:safe` se nenhum padrão óbvio for encontrado, `:suspicious` se padrões XSS forem detectados.
 
-### 6.4. `DeeperHub.Security.XssProtection.record_xss_attempt(input :: String.t(), source_info :: map(), context :: map() | nil) :: :ok`
+### 6.4. `Deeper_Hub.Security.XssProtection.record_xss_attempt(input :: String.t(), source_info :: map(), context :: map() | nil) :: :ok`
 
 *   **Descrição:** Registra uma tentativa de XSS detectada para auditoria e monitoramento.
 *   **`source_info`:** Mapa com informações sobre a origem (ex: `%{ip_address: \"...\", user_id: \"...\", path: \"...\"}`).
 
-### 6.5. `DeeperHub.Security.XssProtection.security_headers(opts :: keyword()) :: list({String.t(), String.t()})`
+### 6.5. `Deeper_Hub.Security.XssProtection.security_headers(opts :: keyword()) :: list({String.t(), String.t()})`
 
 *   **Descrição:** Gera uma lista de tuplas de cabeçalhos HTTP recomendados para proteção XSS.
 *   **`opts`:**
@@ -160,7 +160,7 @@ security/xss_protection/
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolicyManager`:
+Via `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPolicyManager`:
 
 *   **`[:security, :xss_protection, :enabled]`** (Boolean): Habilita/desabilita as verificações e sanitizações XSS. (Padrão: `true`)
 *   **`[:security, :xss_protection, :default_safe_tags]`** (List de Strings): Lista padrão de tags HTML consideradas seguras.
@@ -174,10 +174,10 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.ConfigManager`: Para configurações.
-*   `DeeperHub.Core.Logger`: Para logging de tentativas e erros.
-*   `DeeperHub.Core.Metrics`: Para métricas de XSS.
-*   `DeeperHub.Audit`: Para registrar tentativas bloqueadas.
+*   `Deeper_Hub.Core.ConfigManager`: Para configurações.
+*   `Deeper_Hub.Core.Logger`: Para logging de tentativas e erros.
+*   `Deeper_Hub.Core.Metrics`: Para métricas de XSS.
+*   `Deeper_Hub.Audit`: Para registrar tentativas bloqueadas.
 
 ### 8.2. Bibliotecas Externas
 
@@ -192,9 +192,9 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 *   **Plug de CSP:** Adicionar um plug ao pipeline do Phoenix Router para injetar os headers CSP.
     ```elixir
     # lib/deeper_hub_web/plugs/csp_plug.ex
-    defmodule DeeperHubWeb.Plugs.CspPlug do
+    defmodule Deeper_HubWeb.Plugs.CspPlug do
       import Plug.Conn
-      alias DeeperHub.Security.XssProtection
+      alias Deeper_Hub.Security.XssProtection
 
       def init(opts), do: opts
 
@@ -209,13 +209,13 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
     # lib/deeper_hub_web/router.ex
     pipeline :browser do
       # ...
-      plug DeeperHubWeb.Plugs.CspPlug
+      plug Deeper_HubWeb.Plugs.CspPlug
     end
     ```
 *   **Sanitização de Entrada no Nível de Serviço:**
     ```elixir
     defmodule MyApp.CommentsService do
-      alias DeeperHub.Security.XssProtection
+      alias Deeper_Hub.Security.XssProtection
 
       def create_comment(user_id, params) do
         case XssProtection.sanitize_html(params[\"body\"], allow_safe_tags: true, ...) do
@@ -282,7 +282,7 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 *   [ ] Implementar um modo \"report-only\" para CSP para coletar violações sem bloquear o conteúdo, útil para testar novas políticas.
 *   [ ] Adicionar suporte para sanitização de JavaScript (DOMPurify no frontend, ou regras mais estritas no backend se o JS for construído dinamicamente).
 *   [ ] Desenvolver ou integrar uma biblioteca para escaping contextual mais granular se as capacidades padrão do framework não forem suficientes para todos os casos de uso.
-*   [ ] Criar um \"XSS Cheat Sheet\" interno para desenvolvedores com exemplos de vetores comuns e como se defender contra eles no contexto do DeeperHub.
+*   [ ] Criar um \"XSS Cheat Sheet\" interno para desenvolvedores com exemplos de vetores comuns e como se defender contra eles no contexto do Deeper_Hub.
 
 ---
 
@@ -302,7 +302,7 @@ Agora cobrimos CSRF e XSS. Outras áreas de segurança importantes incluem `SqlI
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Entendido! Vamos seguir com o `DeeperHub.Security.SqlInjectionProtection`. Proteger o banco de dados é absolutamente crítico.
+                types.Part.from_text(text="""Entendido! Vamos seguir com o `Deeper_Hub.Security.SqlInjectionProtection`. Proteger o banco de dados é absolutamente crítico.
 
 ---
 

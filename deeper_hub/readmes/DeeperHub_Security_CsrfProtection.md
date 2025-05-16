@@ -1,8 +1,8 @@
-# Módulo: `DeeperHub.Security.CsrfProtection` 🚀
+# Módulo: `Deeper_Hub.Security.CsrfProtection` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Security.CsrfProtection`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Security.CsrfProtection`
 
-O módulo `DeeperHub.Security.CsrfProtection` é responsável por proteger a aplicação DeeperHub contra ataques de **Cross-Site Request Forgery (CSRF)**. Um ataque CSRF ocorre quando um site malicioso, email, blog, mensagem instantânea ou programa faz com que o navegador de um usuário autenticado realize uma ação indesejada em um site confiável.
+O módulo `Deeper_Hub.Security.CsrfProtection` é responsável por proteger a aplicação Deeper_Hub contra ataques de **Cross-Site Request Forgery (CSRF)**. Um ataque CSRF ocorre quando um site malicioso, email, blog, mensagem instantânea ou programa faz com que o navegador de um usuário autenticado realize uma ação indesejada em um site confiável.
 
 Para mitigar isso, este módulo implementa o padrão de **token sincronizador (Synchronizer Token Pattern)**. Ele gera tokens únicos e imprevisíveis por sessão que são embutidos em formulários e verificados em requisições que modificam o estado (POST, PUT, DELETE, PATCH), garantindo que a requisição se originou da própria aplicação e não de uma fonte externa maliciosa. 😊
 
@@ -38,17 +38,17 @@ Para mitigar isso, este módulo implementa o padrão de **token sincronizador (S
 
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.Security.CsrfProtection` (Fachada Pública):**
+1.  **`Deeper_Hub.Security.CsrfProtection` (Fachada Pública):**
     *   Ponto de entrada para as funcionalidades de CSRF.
     *   Delega para o `CsrfProtectionService`.
-2.  **`DeeperHub.Security.CsrfProtection.Services.CsrfProtectionService` (GenServer ou Módulo Funcional):**
+2.  **`Deeper_Hub.Security.CsrfProtection.Services.CsrfProtectionService` (GenServer ou Módulo Funcional):**
     *   **Responsabilidade:** Lógica principal para geração, armazenamento (se não for puramente na sessão do cliente/cookie) e validação de tokens.
     *   **Estado (se GenServer, para tokens stateful ou estatísticas):** Pode manter um registro de tokens emitidos recentemente ou estatísticas de validação, embora o padrão mais comum seja stateless no backend e o token esperado seja armazenado na sessão do usuário.
     *   **Interações:**
-        *   `DeeperHub.Auth.SessionManager` ou `Plug.Session`: Para obter/definir o token CSRF esperado na sessão do usuário.
-        *   `DeeperHub.Shared.Utils.SecurityUtils`: Para gerar bytes aleatórios seguros para os tokens.
-        *   `DeeperHub.Core.ConfigManager`: Para obter configurações (nome do cookie, TTL, etc.).
-3.  **`DeeperHub.Security.CsrfProtection.Plug.CsrfProtectionPlug` (Phoenix Plug):**
+        *   `Deeper_Hub.Auth.SessionManager` ou `Plug.Session`: Para obter/definir o token CSRF esperado na sessão do usuário.
+        *   `Deeper_Hub.Shared.Utils.SecurityUtils`: Para gerar bytes aleatórios seguros para os tokens.
+        *   `Deeper_Hub.Core.ConfigManager`: Para obter configurações (nome do cookie, TTL, etc.).
+3.  **`Deeper_Hub.Security.CsrfProtection.Plug.CsrfProtectionPlug` (Phoenix Plug):**
     *   **Responsabilidade:** Middleware para ser adicionado aos pipelines do Phoenix Router.
     *   **No fluxo de entrada:** Para requisições que modificam estado (POST, PUT, etc.), extrai o token da requisição (header ou corpo) e o valida contra o token na sessão. Se inválido, rejeita a requisição (ex: retorna 403).
     *   **No fluxo de saída (opcional, para garantir que o token esteja sempre disponível):** Pode garantir que um token CSRF seja gerado e enviado ao cliente (ex: em um cookie) se ainda não existir na sessão.
@@ -84,7 +84,7 @@ security/csrf_protection/
 *   **Stateless vs. Stateful Tokens CSRF no Backend:**
     *   **Stateless (Double Submit Cookie):** O servidor não precisa armazenar o token CSRF. Ele envia um token em um cookie e espera o mesmo token de volta no corpo/header da requisição. Fácil de escalar.
     *   **Stateful (Token na Sessão):** O servidor armazena o token CSRF esperado na sessão do usuário no backend. Mais seguro contra algumas vulnerabilidades de subdomínio, mas requer gerenciamento de sessão no backend.
-    *   Para DeeperHub, que já tem um `SessionManager`, armazenar o token CSRF esperado na sessão do servidor parece uma abordagem robusta.
+    *   Para Deeper_Hub, que já tem um `SessionManager`, armazenar o token CSRF esperado na sessão do servidor parece uma abordagem robusta.
 *   **Tokens por Requisição vs. Por Sessão:**
     *   **Por Sessão (mais comum):** Um token CSRF é gerado por sessão e é válido para múltiplas requisições dentro dessa sessão.
     *   **Por Requisição (mais seguro, mas mais complexo):** Um novo token é gerado para cada formulário/requisição. Aumenta a complexidade no cliente.
@@ -110,7 +110,7 @@ security/csrf_protection/
     *   Usuário acessa uma página com um formulário.
     *   O servidor, ao renderizar a página, garante que um token CSRF (`expected_csrf_token`) está na sessão do usuário e também insere este token (ou um derivado) como um campo oculto no formulário.
 2.  **Submissão do Formulário:** Usuário submete o formulário (requisição POST). O navegador envia os cookies da sessão (que podem conter o `expected_csrf_token` se você usar a técnica de cookie também) e os dados do formulário (que incluem o `submitted_csrf_token`).
-3.  **`DeeperHub.Security.CsrfProtection.Plug.CsrfProtectionPlug` (Backend):**
+3.  **`Deeper_Hub.Security.CsrfProtection.Plug.CsrfProtectionPlug` (Backend):**
     *   Intercepta a requisição POST.
     *   Extrai o `expected_csrf_token` da sessão do usuário (via `SessionManager`).
     *   Extrai o `submitted_csrf_token` do corpo do formulário (ou de um header `X-CSRF-Token` para AJAX).
@@ -121,34 +121,34 @@ security/csrf_protection/
 
 ## 📡 6. API (Funções Públicas da Fachada)
 
-### 6.1. `DeeperHub.Security.CsrfProtection.generate_token(session_id :: String.t(), context :: map() | nil) :: {:ok, String.t()} | {:error, term()}`
+### 6.1. `Deeper_Hub.Security.CsrfProtection.generate_token(session_id :: String.t(), context :: map() | nil) :: {:ok, String.t()} | {:error, term()}`
 
 *   **Descrição:** Gera (ou recupera da sessão) um token CSRF para a sessão especificada. Se um token já existir na sessão e for válido, pode retorná-lo. Caso contrário, gera um novo, o armazena na sessão e o retorna.
 *   **`context`:** Pode ser usado para gerar tokens específicos para diferentes formulários/ações, embora um token por sessão seja mais comum.
 *   **Retorno:** O token CSRF como string.
 
-### 6.2. `DeeperHub.Security.CsrfProtection.validate_token(session_id :: String.t(), submitted_token :: String.t(), context :: map() | nil) :: :ok | :error`
+### 6.2. `Deeper_Hub.Security.CsrfProtection.validate_token(session_id :: String.t(), submitted_token :: String.t(), context :: map() | nil) :: :ok | :error`
 
 *   **Descrição:** Valida um token CSRF submetido contra o esperado para a sessão.
 *   **Retorno:** `:ok` se válido, `:error` (ou `{:error, :invalid_token}`) se inválido.
 
-### 6.3. `DeeperHub.Security.CsrfProtection.form_field(session_id :: String.t(), opts :: keyword()) :: {:ok, String.t()}`
+### 6.3. `Deeper_Hub.Security.CsrfProtection.form_field(session_id :: String.t(), opts :: keyword()) :: {:ok, String.t()}`
 
 *   **Descrição:** Gera a string HTML para um campo de formulário oculto contendo o token CSRF.
 *   **`opts`:** `:field_name` (Nome do campo, padrão: `\"_csrf_token\"`).
 *   **Exemplo de Retorno:** `{:ok, \"<input type=\\\"hidden\\\" name=\\\"_csrf_token\\\" value=\\\"random_token_string\\\" />\"}`
 
-### 6.4. `DeeperHub.Security.CsrfProtection.get_token_for_header(session_id :: String.t()) :: {:ok, String.t()}` (Nova Sugestão)
+### 6.4. `Deeper_Hub.Security.CsrfProtection.get_token_for_header(session_id :: String.t()) :: {:ok, String.t()}` (Nova Sugestão)
 
 *   **Descrição:** Obtém o token CSRF atual para ser usado em um cabeçalho HTTP (ex: `X-CSRF-Token`) por clientes AJAX. Similar a `generate_token/2` mas com a intenção clara de uso em header.
 
-### 6.5. `DeeperHub.Security.CsrfProtection.invalidate_tokens(session_id :: String.t()) :: :ok`
+### 6.5. `Deeper_Hub.Security.CsrfProtection.invalidate_tokens(session_id :: String.t()) :: :ok`
 
 *   **Descrição:** Invalida/remove o token CSRF da sessão do usuário (ex: no logout).
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolicyManager`:
+Via `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPolicyManager`:
 
 *   **`[:security, :csrf_protection, :enabled]`** (Boolean): Habilita/desabilita a proteção CSRF. (Padrão: `true`)
 *   **`[:security, :csrf_protection, :token_name_in_session]`** (String): Chave usada para armazenar o token CSRF na sessão do servidor. (Padrão: `\"_csrf_token_secret\"`)
@@ -162,12 +162,12 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.ConfigManager`: Para configurações.
-*   `DeeperHub.Core.Logger`: Para logging de falhas.
-*   `DeeperHub.Core.Metrics`: Para métricas de CSRF.
-*   `DeeperHub.Auth.SessionManager` (ou `Plug.Session`): Para armazenar/recuperar o token CSRF esperado da sessão do usuário.
-*   `DeeperHub.Shared.Utils.SecurityUtils`: Para geração de tokens aleatórios seguros.
-*   `DeeperHub.Audit`: Para registrar tentativas de CSRF bloqueadas.
+*   `Deeper_Hub.Core.ConfigManager`: Para configurações.
+*   `Deeper_Hub.Core.Logger`: Para logging de falhas.
+*   `Deeper_Hub.Core.Metrics`: Para métricas de CSRF.
+*   `Deeper_Hub.Auth.SessionManager` (ou `Plug.Session`): Para armazenar/recuperar o token CSRF esperado da sessão do usuário.
+*   `Deeper_Hub.Shared.Utils.SecurityUtils`: Para geração de tokens aleatórios seguros.
+*   `Deeper_Hub.Audit`: Para registrar tentativas de CSRF bloqueadas.
 
 ### 8.2. Bibliotecas Externas
 
@@ -175,18 +175,18 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 ## 🤝 9. Como Usar / Integração
 
-*   **Com Phoenix:** Adicionar `DeeperHub.Security.CsrfProtection.Plug.CsrfProtectionPlug` ao pipeline de rotas que manipulam o estado (tipicamente o pipeline `:browser` se houver formulários web, ou um pipeline `:api_session_protected` para SPAs que usam sessões).
+*   **Com Phoenix:** Adicionar `Deeper_Hub.Security.CsrfProtection.Plug.CsrfProtectionPlug` ao pipeline de rotas que manipulam o estado (tipicamente o pipeline `:browser` se houver formulários web, ou um pipeline `:api_session_protected` para SPAs que usam sessões).
     ```elixir
     # lib/deeper_hub_web/router.ex
     pipeline :browser_csrf do
       plug :accepts, [\"html\"]
       plug :fetch_session
       plug :fetch_live_flash
-      plug DeeperHub.Security.CsrfProtection.Plug.CsrfProtectionPlug # Adicionar aqui
+      plug Deeper_Hub.Security.CsrfProtection.Plug.CsrfProtectionPlug # Adicionar aqui
       plug :protect_from_forgery # Plug padrão do Phoenix, pode ser redundante ou complementar
     end
 
-    scope \"/\", DeeperHubWeb do
+    scope \"/\", Deeper_HubWeb do
       pipe_through [:browser, :browser_csrf] # Aplicar ao escopo apropriado
       # ... rotas ...
     end
@@ -194,9 +194,9 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 *   **Em Formulários HTML (Phoenix):**
     ```eex
     <%= form_for @changeset, @action, fn f -> %>
-      <%= DeeperHub.Security.CsrfProtection.form_field_tag(conn) %> # Helper para o plug padrão do Phoenix
+      <%= Deeper_Hub.Security.CsrfProtection.form_field_tag(conn) %> # Helper para o plug padrão do Phoenix
       <%# Ou se usando a API diretamente: %>
-      <%# {:ok, csrf_input} = DeeperHub.Security.CsrfProtection.form_field(conn.assigns.session_id) %>
+      <%# {:ok, csrf_input} = Deeper_Hub.Security.CsrfProtection.form_field(conn.assigns.session_id) %>
       <%# <%= raw csrf_input %> 
       ...
     <% end %>
@@ -267,7 +267,7 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 Proteção CSRF é essencial para aplicações web!
 
-O próximo poderia ser `DeeperHub.Security.XssProtection` para continuarmos com as defesas contra ataques web comuns, ou prefere outro?"""),
+O próximo poderia ser `Deeper_Hub.Security.XssProtection` para continuarmos com as defesas contra ataques web comuns, ou prefere outro?"""),
             ],
         ),
         types.Content(
@@ -279,7 +279,7 @@ O próximo poderia ser `DeeperHub.Security.XssProtection` para continuarmos com 
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Excelente! Vamos agora detalhar o `DeeperHub.Security.XssProtection`, que é fundamental para proteger os usuários contra ataques de Cross-Site Scripting.
+                types.Part.from_text(text="""Excelente! Vamos agora detalhar o `Deeper_Hub.Security.XssProtection`, que é fundamental para proteger os usuários contra ataques de Cross-Site Scripting.
 
 ---
 

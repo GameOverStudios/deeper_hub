@@ -1,11 +1,11 @@
 defmodule Mix.Tasks.Inspect.ToDb do
   @moduledoc """
-  Tarefa Mix para inspecionar módulos DeeperHub e salvar no banco de dados SQLite e em arquivo de texto. 💾🔍📝
+  Tarefa Mix para inspecionar módulos Deeper_Hub e salvar no banco de dados SQLite e em arquivo de texto. 💾🔍📝
 
   Executa os seguintes passos:
   1. Garante que o banco de dados do inspetor exista (`ecto.create`).
   2. Aplica as migrações pendentes (`ecto.migrate`).
-  3. Chama `DeeperHub.ModuleInspector.inspect_all_deeper_hub_modules()`.
+  3. Chama `Deeper_Hub.ModuleInspector.inspect_all_deeper_hub_modules()`.
   4. Insere/Atualiza as informações coletadas no banco de dados.
   5. Exporta as informações para um arquivo de texto (`modules_documentation.txt`).
 
@@ -16,12 +16,12 @@ defmodule Mix.Tasks.Inspect.ToDb do
   """
   use Mix.Task
 
-  alias DeeperHub.InspectorRepo
-  alias DeeperHub.Inspector.{Module, Function, TypeSpec, Behaviour}
-  alias DeeperHub.ModuleInspectorSimple, as: ModuleInspector
+  alias Deeper_Hub.InspectorRepo
+  alias Deeper_Hub.Inspector.{Module, Function, TypeSpec, Behaviour}
+  alias Deeper_Hub.ModuleInspectorSimple, as: ModuleInspector
   import Ecto.Query
 
-  @shortdoc "Inspeciona módulos DeeperHub e salva no banco de dados e em arquivo de texto."
+  @shortdoc "Inspeciona módulos Deeper_Hub e salva no banco de dados e em arquivo de texto."
   def run(_args) do
     # Garante que o Ecto e o Repo estejam disponíveis
     Mix.Task.run("app.start")
@@ -80,7 +80,7 @@ defmodule Mix.Tasks.Inspect.ToDb do
     Mix.shell().info("🔧 Configurando banco de dados do inspetor...")
 
     # Cria o banco se não existir (-r especifica o repo)
-    case Mix.Tasks.Ecto.Create.run(["-r", "DeeperHub.InspectorRepo", "--quiet"]) do
+    case Mix.Tasks.Ecto.Create.run(["-r", "Deeper_Hub.InspectorRepo", "--quiet"]) do
       :ok ->
         :ok
 
@@ -93,7 +93,7 @@ defmodule Mix.Tasks.Inspect.ToDb do
     end
 
     # Roda as migrações
-    case Mix.Tasks.Ecto.Migrate.run(["-r", "DeeperHub.InspectorRepo", "--quiet"]) do
+    case Mix.Tasks.Ecto.Migrate.run(["-r", "Deeper_Hub.InspectorRepo", "--quiet"]) do
       :ok ->
         Mix.shell().info("Migrações aplicadas com sucesso.")
 
@@ -130,7 +130,7 @@ defmodule Mix.Tasks.Inspect.ToDb do
     }
 
     # Upsert Módulo (insere ou atualiza)
-    case InspectorRepo.insert(Module.changeset(%DeeperHub.Inspector.Module{}, module_attrs),
+    case InspectorRepo.insert(Module.changeset(%Deeper_Hub.Inspector.Module{}, module_attrs),
            on_conflict: :replace_all,
            conflict_target: :name
          ) do
@@ -259,7 +259,7 @@ defmodule Mix.Tasks.Inspect.ToDb do
     {:ok, file} = File.open(file_path, [:write, :utf8])
 
     # Escreve um cabeçalho no arquivo
-    IO.write(file, "# Documentação dos Módulos DeeperHub\n")
+    IO.write(file, "# Documentação dos Módulos Deeper_Hub\n")
     IO.write(file, "Gerado em: #{DateTime.utc_now() |> DateTime.to_string()}\n\n")
 
     # Processa cada resultado da inspeção

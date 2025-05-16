@@ -1,6 +1,6 @@
 defmodule Deeper_Hub.Core.Cache.CacheFacade do
   @moduledoc """
-  Fachada para operações de cache no sistema DeeperHub.
+  Fachada para operações de cache no sistema Deeper_Hub.
 
   Este módulo fornece uma interface simplificada para todas as operações de cache,
   permitindo que outros módulos do sistema utilizem o cache sem conhecer os detalhes

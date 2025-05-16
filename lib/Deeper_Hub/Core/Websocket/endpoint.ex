@@ -1,6 +1,6 @@
-defmodule DeeperHub.Core.Websocket.Endpoint do
+defmodule Deeper_Hub.Core.Websocket.Endpoint do
   @moduledoc """
-  Endpoint WebSocket do DeeperHub.
+  Endpoint WebSocket do Deeper_Hub.
 
   Este endpoint:
   - Gerencia as conexões WebSocket
@@ -10,7 +10,7 @@ defmodule DeeperHub.Core.Websocket.Endpoint do
 
   use Phoenix.Endpoint, otp_app: :deeper_hub
 
-  socket "/socket", DeeperHub.Core.Websocket.Socket,
+  socket "/socket", Deeper_Hub.Core.Websocket.Socket,
     websocket: [timeout: 45_000, compress: true],
     longpoll: false
 
@@ -32,7 +32,7 @@ defmodule DeeperHub.Core.Websocket.Endpoint do
   # Configuração do endpoint gerenciada via config/runtime.exs
 
   def config_change(changed, _new, removed) do
-    DeeperHub.Core.Websocket.Endpoint.config_change(changed, removed)
+    Deeper_Hub.Core.Websocket.Endpoint.config_change(changed, removed)
     :ok
   end
 

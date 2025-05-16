@@ -1,4 +1,4 @@
-defmodule DeeperHub.MixProject do
+defmodule Deeper_Hub.MixProject do
   use Mix.Project
 
   def project do
@@ -9,11 +9,11 @@ defmodule DeeperHub.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       # Configurações para ExDoc
-      name: "DeeperHub",
+      name: "Deeper_Hub",
       source_url: "https://github.com/yourusername/deeper_hub",
       homepage_url: "https://yourdomain.com",
       docs: [
-        main: "DeeperHub",
+        main: "Deeper_Hub",
         extras: [
           "README.md",
           {"../Coding.md", [title: "Diretrizes de Codificação"]}
@@ -40,7 +40,7 @@ defmodule DeeperHub.MixProject do
   def application do
     [
       extra_applications: [:logger, :mnesia],
-      mod: {DeeperHub.Application, []}
+      mod: {Deeper_Hub.Application, []}
     ]
   end
 

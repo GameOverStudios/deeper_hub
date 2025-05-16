@@ -1,8 +1,8 @@
-# Módulo: `DeeperHub.Security.SqlInjectionProtection` 🚀
+# Módulo: `Deeper_Hub.Security.SqlInjectionProtection` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Security.SqlInjectionProtection`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Security.SqlInjectionProtection`
 
-O módulo `DeeperHub.Security.SqlInjectionProtection` é dedicado a prevenir ataques de **Injeção de SQL** no sistema DeeperHub. A Injeção de SQL é uma técnica de ataque onde um invasor insere ou \"injeta\" código SQL malicioso em campos de entrada que são subsequentemente usados para construir consultas ao banco de dados. Se bem-sucedido, isso pode permitir que o invasor visualize, modifique ou exclua dados, ou até mesmo execute comandos no sistema operacional do servidor de banco de dados.
+O módulo `Deeper_Hub.Security.SqlInjectionProtection` é dedicado a prevenir ataques de **Injeção de SQL** no sistema Deeper_Hub. A Injeção de SQL é uma técnica de ataque onde um invasor insere ou \"injeta\" código SQL malicioso em campos de entrada que são subsequentemente usados para construir consultas ao banco de dados. Se bem-sucedido, isso pode permitir que o invasor visualize, modifique ou exclua dados, ou até mesmo execute comandos no sistema operacional do servidor de banco de dados.
 
 Este módulo foca em:
 1.  **Uso de Consultas Parametrizadas (Prepared Statements):** A principal e mais eficaz defesa.
@@ -36,18 +36,18 @@ O objetivo é garantir que todas as interações com o banco de dados sejam segu
 
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.Security.SqlInjectionProtection` (Fachada Pública):**
+1.  **`Deeper_Hub.Security.SqlInjectionProtection` (Fachada Pública):**
     *   Ponto de entrada para as funcionalidades de proteção contra SQLi.
     *   Delega para o `SqlInjectionProtectionService`.
-2.  **`DeeperHub.Security.SqlInjectionProtection.Services.SqlInjectionProtectionService` (Módulo Funcional ou GenServer):**
+2.  **`Deeper_Hub.Security.SqlInjectionProtection.Services.SqlInjectionProtectionService` (Módulo Funcional ou GenServer):**
     *   **Responsabilidade:** Contém a lógica principal para verificação, sanitização e geração segura de fragmentos de consulta.
     *   **Interações:**
         *   Pode usar bibliotecas de parsing SQL (limitado) ou regex para detecção de padrões.
-        *   Interage com `DeeperHub.Core.ConfigManager` para obter listas brancas e padrões de detecção.
-        *   Interage com `DeeperHub.Audit` ou `DeeperHub.Security.Monitoring` para registrar tentativas.
-3.  **Ecto e `DeeperHub.Core.Repo` (Principal Mecanismo de Defesa):**
+        *   Interage com `Deeper_Hub.Core.ConfigManager` para obter listas brancas e padrões de detecção.
+        *   Interage com `Deeper_Hub.Audit` ou `Deeper_Hub.Security.Monitoring` para registrar tentativas.
+3.  **Ecto e `Deeper_Hub.Core.Repo` (Principal Mecanismo de Defesa):**
     *   A maior parte da proteção contra SQLi vem do uso correto do Ecto, que por padrão utiliza consultas parametrizadas. Este módulo `SqlInjectionProtection` serve mais como um conjunto de ferramentas para casos específicos e para análise de entradas que *poderiam* ser usadas em contextos SQL.
-4.  **`DeeperHub.Shared.Utils.ValidationUtils` (para validação de tipos de dados):**
+4.  **`Deeper_Hub.Shared.Utils.ValidationUtils` (para validação de tipos de dados):**
     *   Garantir que os dados passados para as queries Ecto tenham os tipos corretos antes de serem usados.
 
 ### 3.2. Estrutura de Diretórios (Proposta)
@@ -125,7 +125,7 @@ security/sql_injection_protection/
 
 ## 📡 6. API (Funções Públicas da Fachada)
 
-### 6.1. `DeeperHub.Security.SqlInjectionProtection.check_string(input :: String.t(), opts :: keyword()) :: {:ok, :safe | :suspicious} | {:error, term()}`
+### 6.1. `Deeper_Hub.Security.SqlInjectionProtection.check_string(input :: String.t(), opts :: keyword()) :: {:ok, :safe | :suspicious} | {:error, term()}`
 
 *   **Descrição:** Analisa uma string de entrada para detectar padrões comuns de SQL Injection. Não modifica a string.
 *   **`opts`:**
@@ -133,13 +133,13 @@ security/sql_injection_protection/
     *   `:sensitivity` (atom): Nível de sensibilidade da detecção (`:low`, `:medium`, `:high`). (Padrão: `:medium`)
 *   **Retorno:** `:safe` se nenhum padrão óbvio for encontrado, `:suspicious` se padrões forem detectados.
 
-### 6.2. `DeeperHub.Security.SqlInjectionProtection.check_query(query_string :: String.t(), opts :: keyword()) :: {:ok, :safe | :suspicious, list(String.t())} | {:error, term()}`
+### 6.2. `Deeper_Hub.Security.SqlInjectionProtection.check_query(query_string :: String.t(), opts :: keyword()) :: {:ok, :safe | :suspicious, list(String.t())} | {:error, term()}`
 
 *   **Descrição:** Analisa uma string de consulta SQL completa para detectar vulnerabilidades.
 *   **`opts`:** Similar a `check_string/2`.
 *   **Retorno:** `{:ok, :safe | :suspicious, threats_found :: list(String.t())}`. A lista `threats_found` detalha os tipos de ameaças.
 
-### 6.3. `DeeperHub.Security.SqlInjectionProtection.sanitize_string(input :: String.t(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}`
+### 6.3. `Deeper_Hub.Security.SqlInjectionProtection.sanitize_string(input :: String.t(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}`
 
 *   **Descrição:** Tenta sanitizar uma string escapando caracteres especiais relevantes para SQL. **Deve ser usado como último recurso quando a parametrização não é possível.**
 *   **`opts`:**
@@ -151,7 +151,7 @@ security/sql_injection_protection/
     # safe_name pode ser \"O''Reilly\" para PostgreSQL
     ```
 
-### 6.4. `DeeperHub.Security.SqlInjectionProtection.generate_safe_query(spec :: map(), opts :: keyword()) :: {:ok, Ecto.Query.t() | {String.t(), list()}} | {:error, term()}` (Mais Complexo)
+### 6.4. `Deeper_Hub.Security.SqlInjectionProtection.generate_safe_query(spec :: map(), opts :: keyword()) :: {:ok, Ecto.Query.t() | {String.t(), list()}} | {:error, term()}` (Mais Complexo)
 
 *   **Descrição:** (Funcionalidade avançada e potencialmente complexa de implementar de forma genérica e segura). Tenta gerar uma query Ecto ou uma string SQL parametrizada a partir de uma especificação de alto nível, validando todos os identificadores contra listas brancas.
 *   **`spec`:** Um mapa descrevendo a query (tabelas, colunas, joins, where, order by, limit).
@@ -160,7 +160,7 @@ security/sql_injection_protection/
     *   `:allowed_columns_for_table` (mapa `%{table_name => list(String.t)}`)
 *   **Retorno:** Uma query Ecto ou uma tupla `{sql_string, params}`.
 
-### 6.5. `DeeperHub.Security.SqlInjectionProtection.record_injection_attempt(input_string :: String.t(), source_info :: map(), context :: map() | nil) :: :ok`
+### 6.5. `Deeper_Hub.Security.SqlInjectionProtection.record_injection_attempt(input_string :: String.t(), source_info :: map(), context :: map() | nil) :: :ok`
 
 *   **Descrição:** Registra uma tentativa de SQL Injection detectada.
 *   **`source_info`:** `%{ip_address: \"...\", user_id: \"...\", path: \"...\"}`.
@@ -168,7 +168,7 @@ security/sql_injection_protection/
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolicyManager`:
+Via `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPolicyManager`:
 
 *   **`[:security, :sql_injection_protection, :enabled]`** (Boolean): Habilita/desabilita as verificações. (Padrão: `true`)
 *   **`[:security, :sql_injection_protection, :detection_patterns]`** (List de Regex): Lista de padrões regex usados por `check_string/2` e `check_query/2`.
@@ -180,10 +180,10 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.ConfigManager`: Para configurações.
-*   `DeeperHub.Core.Logger`: Para logging de tentativas e erros.
-*   `DeeperHub.Core.Metrics`: Para métricas.
-*   `DeeperHub.Audit`: Para registrar tentativas bloqueadas.
+*   `Deeper_Hub.Core.ConfigManager`: Para configurações.
+*   `Deeper_Hub.Core.Logger`: Para logging de tentativas e erros.
+*   `Deeper_Hub.Core.Metrics`: Para métricas.
+*   `Deeper_Hub.Audit`: Para registrar tentativas bloqueadas.
 *   `Ecto`: Indiretamente, pois o objetivo é proteger as queries Ecto.
 
 ### 8.2. Bibliotecas Externas
@@ -209,8 +209,8 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
       sort_order = if Enum.member?(valid_orders, String.to_atom(sort_order_param)), do: String.to_atom(sort_order_param), else: :asc
       
       # Adicionalmente, pode-se chamar check_string/2 para logar se a entrada original era suspeita
-      DeeperHub.Security.SqlInjectionProtection.check_string(sort_field_param)
-      DeeperHub.Security.SqlInjectionProtection.check_string(sort_order_param)
+      Deeper_Hub.Security.SqlInjectionProtection.check_string(sort_field_param)
+      Deeper_Hub.Security.SqlInjectionProtection.check_string(sort_order_param)
 
       from(p in Product, order_by: [{^sort_order, ^sort_field}]) |> Repo.all()
     end
@@ -220,9 +220,9 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
     # Plug para verificar todos os parâmetros de uma requisição
     Enum.each(conn.params, fn {key, value} ->
       if is_binary(value) do
-        case DeeperHub.Security.SqlInjectionProtection.check_string(value, %{source_field: key}) do
+        case Deeper_Hub.Security.SqlInjectionProtection.check_string(value, %{source_field: key}) do
           {:ok, :suspicious} ->
-            DeeperHub.Security.SqlInjectionProtection.record_injection_attempt(value, %{ip: ..., path: ...}, %{field: key})
+            Deeper_Hub.Security.SqlInjectionProtection.record_injection_attempt(value, %{ip: ..., path: ...}, %{field: key})
             # Pode-se decidir bloquear a requisição aqui se a política for agressiva
           _ -> :ok
         end
@@ -291,7 +291,7 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 Proteção contra SQL Injection é um clássico da segurança web!
 
-O próximo poderia ser `DeeperHub.Security.XssProtection` (que já documentamos) ou `DeeperHub.Security.PathTraversalProtection` ou `DeeperHub.Security.DdosProtection`. Qual prefere?"""),
+O próximo poderia ser `Deeper_Hub.Security.XssProtection` (que já documentamos) ou `Deeper_Hub.Security.PathTraversalProtection` ou `Deeper_Hub.Security.DdosProtection`. Qual prefere?"""),
             ],
         ),
         types.Content(
@@ -303,9 +303,9 @@ O próximo poderia ser `DeeperHub.Security.XssProtection` (que já documentamos)
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Já documentamos o `DeeperHub.Security.XssProtection`.
+                types.Part.from_text(text="""Já documentamos o `Deeper_Hub.Security.XssProtection`.
 
-Que tal seguirmos com o `DeeperHub.Security.PathTraversalProtection`? É outra vulnerabilidade comum relacionada ao acesso a arquivos.
+Que tal seguirmos com o `Deeper_Hub.Security.PathTraversalProtection`? É outra vulnerabilidade comum relacionada ao acesso a arquivos.
 
 ---
 

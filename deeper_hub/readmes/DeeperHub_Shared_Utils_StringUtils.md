@@ -1,8 +1,8 @@
-# Módulo: `DeeperHub.Shared.Utils.StringUtils` 🚀
+# Módulo: `Deeper_Hub.Shared.Utils.StringUtils` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Shared.Utils.StringUtils`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Shared.Utils.StringUtils`
 
-O módulo `DeeperHub.Shared.Utils.StringUtils` fornece um conjunto de funções utilitárias para **manipulação e formatação de strings**. Estas funções são genéricas e projetadas para serem usadas em várias partes do sistema DeeperHub para tarefas comuns como conversão de case, truncamento, mascaramento de IDs, e geração de identificadores simples. 😊
+O módulo `Deeper_Hub.Shared.Utils.StringUtils` fornece um conjunto de funções utilitárias para **manipulação e formatação de strings**. Estas funções são genéricas e projetadas para serem usadas em várias partes do sistema Deeper_Hub para tarefas comuns como conversão de case, truncamento, mascaramento de IDs, e geração de identificadores simples. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -13,7 +13,7 @@ O módulo `DeeperHub.Shared.Utils.StringUtils` fornece um conjunto de funções 
 *   **Mascaramento de IDs/Dados Sensíveis:**
     *   Ocultar parcialmente uma string (ex: um ID ou número), deixando apenas alguns caracteres visíveis (`mask_id/3`).
 *   **Geração de Identificadores Simples:**
-    *   Gerar strings de ID aleatórias, possivelmente com um prefixo (`generate_id/1`). (Nota: Para IDs criptograficamente seguros ou UUIDs, usar `DeeperHub.Shared.Utils.SecurityUtils` ou `UUID`).
+    *   Gerar strings de ID aleatórias, possivelmente com um prefixo (`generate_id/1`). (Nota: Para IDs criptograficamente seguros ou UUIDs, usar `Deeper_Hub.Shared.Utils.SecurityUtils` ou `UUID`).
 *   **Formatação para Logs:**
     *   Formatar/truncar texto para exibição segura e concisa em logs (`format_for_log/2`).
 *   **Outras Manipulações Comuns:**
@@ -27,7 +27,7 @@ Este é um módulo puramente funcional, não gerenciando estado.
 
 ### 3.1. Componentes Principais
 
-*   **`DeeperHub.Shared.Utils.StringUtils` (Módulo Funcional):** Contém todas as funções de utilidade para strings.
+*   **`Deeper_Hub.Shared.Utils.StringUtils` (Módulo Funcional):** Contém todas as funções de utilidade para strings.
 
 ### 3.2. Estrutura de Diretórios
 
@@ -54,42 +54,42 @@ Não aplicável (módulo funcional).
 
 ## 📡 6. API (Funções Públicas do Módulo)
 
-### 6.1. `DeeperHub.Shared.Utils.StringUtils.camel_to_snake(string :: String.t()) :: String.t()`
+### 6.1. `Deeper_Hub.Shared.Utils.StringUtils.camel_to_snake(string :: String.t()) :: String.t()`
 
 *   **Descrição:** Converte uma string em `camelCase` ou `PascalCase` para `snake_case`.
 *   **Exemplo:** `camel_to_snake(\"UserProfile\")` -> `\"user_profile\"`
 
-### 6.2. `DeeperHub.Shared.Utils.StringUtils.snake_to_camel(string :: String.t(), capitalize_first_letter :: boolean() \\\\ false) :: String.t()`
+### 6.2. `Deeper_Hub.Shared.Utils.StringUtils.snake_to_camel(string :: String.t(), capitalize_first_letter :: boolean() \\\\ false) :: String.t()`
 
 *   **Descrição:** Converte uma string em `snake_case` para `camelCase`. Se `capitalize_first_letter` for `true`, converte para `PascalCase`.
 *   **Exemplo:** `snake_to_camel(\"user_profile_id\")` -> `\"userProfileId\"`, `snake_to_camel(\"user_profile\", true)` -> `\"UserProfile\"`
 
-### 6.3. `DeeperHub.Shared.Utils.StringUtils.truncate(string :: String.t() | nil, max_length :: non_neg_integer(), suffix :: String.t() \\\\ \"...\") :: String.t() | nil`
+### 6.3. `Deeper_Hub.Shared.Utils.StringUtils.truncate(string :: String.t() | nil, max_length :: non_neg_integer(), suffix :: String.t() \\\\ \"...\") :: String.t() | nil`
 
 *   **Descrição:** Trunca `string` para `max_length` se for maior, anexando `suffix`. Retorna `nil` se a entrada for `nil`.
 *   **Exemplo:** `truncate(\"Texto muito longo\", 10)` -> `\"Texto m...\"`
 
-### 6.4. `DeeperHub.Shared.Utils.StringUtils.mask_id(id_string :: String.t() | nil, visible_end_chars :: non_neg_integer(), mask_char :: String.t() \\\\ \"*\") :: String.t() | nil`
+### 6.4. `Deeper_Hub.Shared.Utils.StringUtils.mask_id(id_string :: String.t() | nil, visible_end_chars :: non_neg_integer(), mask_char :: String.t() \\\\ \"*\") :: String.t() | nil`
 
 *   **Descrição:** Mascara o início de `id_string`, deixando `visible_end_chars` visíveis no final.
 *   **Exemplo:** `mask_id(\"abcdef123456\", 4)` -> `\"********3456\"`
 
-### 6.5. `DeeperHub.Shared.Utils.StringUtils.generate_id(prefix :: String.t() \\\\ \"\", length :: non_neg_integer() \\\\ 16) :: String.t()` (Nova Sugestão - para IDs não cripto)
+### 6.5. `Deeper_Hub.Shared.Utils.StringUtils.generate_id(prefix :: String.t() \\\\ \"\", length :: non_neg_integer() \\\\ 16) :: String.t()` (Nova Sugestão - para IDs não cripto)
 
 *   **Descrição:** Gera uma string alfanumérica aleatória de `length` caracteres, prefixada por `prefix`. *Não usar para segredos ou tokens de segurança.*
 *   **Exemplo:** `generate_id(\"ref_\", 8)` -> `\"ref_aB3x7pQk\"`
 
-### 6.6. `DeeperHub.Shared.Utils.StringUtils.format_for_log(text :: String.t() | nil, max_length :: non_neg_integer() \\\\ 200) :: String.t() | nil`
+### 6.6. `Deeper_Hub.Shared.Utils.StringUtils.format_for_log(text :: String.t() | nil, max_length :: non_neg_integer() \\\\ 200) :: String.t() | nil`
 
 *   **Descrição:** Trunca `text` para `max_length` (para logs) e substitui múltiplos espaços/novas linhas por um único espaço.
 *   **Exemplo:** `format_for_log(\"Log \\n com \\t muitas \\s\\s linhas\", 50)` -> `\"Log com muitas linhas\"`
 
-### 6.7. `DeeperHub.Shared.Utils.StringUtils.slugify(string :: String.t(), separator :: String.t() \\\\ \"-\") :: String.t()` (Nova Sugestão)
+### 6.7. `Deeper_Hub.Shared.Utils.StringUtils.slugify(string :: String.t(), separator :: String.t() \\\\ \"-\") :: String.t()` (Nova Sugestão)
 
 *   **Descrição:** Converte uma string em um \"slug\" amigável para URL (minúsculas, remove acentos, substitui espaços e caracteres especiais por `separator`).
 *   **Exemplo:** `slugify(\"Título do Meu Post!\")` -> `\"titulo-do-meu-post\"`
 
-### 6.8. `DeeperHub.Shared.Utils.StringUtils.humanize(string :: String.t()) :: String.t()` (Nova Sugestão)
+### 6.8. `Deeper_Hub.Shared.Utils.StringUtils.humanize(string :: String.t()) :: String.t()` (Nova Sugestão)
 
 *   **Descrição:** Converte uma string `snake_case` ou `camelCase` em uma frase legível por humanos (capitaliza a primeira letra, substitui `_` por espaço).
 *   **Exemplo:** `humanize(\"user_profile_updated\")` -> `\"User profile updated\"`
@@ -116,7 +116,7 @@ Este módulo geralmente não requer configurações externas, mas alguns padrõe
 
 Simplesmente chame as funções do módulo onde a manipulação de string for necessária.
 ```elixir
-alias DeeperHub.Shared.Utils.StringUtils
+alias Deeper_Hub.Shared.Utils.StringUtils
 
 short_desc = StringUtils.truncate(long_description, 150)
 api_key_masked = StringUtils.mask_id(api_key, 6)
@@ -174,7 +174,7 @@ Este detalha o `StringUtils`. Podemos seguir com outro módulo `Utils` como `Dat
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ótimo! Vamos continuar com os utilitários e detalhar o `DeeperHub.Shared.Utils.DateUtils`. A manipulação de datas e horas é uma necessidade comum em muitas partes de um sistema.
+                types.Part.from_text(text="""Ótimo! Vamos continuar com os utilitários e detalhar o `Deeper_Hub.Shared.Utils.DateUtils`. A manipulação de datas e horas é uma necessidade comum em muitas partes de um sistema.
 
 ---
 

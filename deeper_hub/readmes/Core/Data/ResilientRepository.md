@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-Este documento descreve como utilizar o módulo `ResilientRepository` do DeeperHub, que integra o CircuitBreaker e o Cache com o Repository para criar operações de banco de dados resilientes.
+Este documento descreve como utilizar o módulo `ResilientRepository` do Deeper_Hub, que integra o CircuitBreaker e o Cache com o Repository para criar operações de banco de dados resilientes.
 
 ## Funcionalidades
 

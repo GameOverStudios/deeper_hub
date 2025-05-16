@@ -1,7 +1,7 @@
-defmodule DeeperHub.Core.Websocket.ConnectionMonitor do
+defmodule Deeper_Hub.Core.Websocket.ConnectionMonitor do
   @moduledoc """
   Monitor de conexões WebSocket.
-  
+
   Este módulo:
   - Monitora conexões ativas
   - Detecta conexões zumbis
@@ -175,9 +175,9 @@ defmodule DeeperHub.Core.Websocket.ConnectionMonitor do
   @impl true
   def handle_info(:check_connections, state) do
     now = DateTime.utc_now()
-    
+
     # Identifica conexões zumbis
-    {active_connections, zombie_connections} = 
+    {active_connections, zombie_connections} =
       Enum.split_with(state.connections, fn {_id, conn} ->
         DateTime.diff(now, conn.last_activity, :millisecond) < @zombie_timeout
       end)
@@ -199,7 +199,7 @@ defmodule DeeperHub.Core.Websocket.ConnectionMonitor do
 
       # Tenta fechar a conexão
       try do
-        DeeperHub.Core.Websocket.Channel.terminate_by_id(socket_id, :zombie)
+        Deeper_Hub.Core.Websocket.Channel.terminate_by_id(socket_id, :zombie)
       rescue
         _ -> :ok
       end

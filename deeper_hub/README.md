@@ -1,6 +1,6 @@
-# DeeperHub
+# Deeper_Hub
 
-DeeperHub é uma plataforma de gerenciamento de dados em Elixir que fornece uma interface simplificada para operações de banco de dados, com suporte a cache e consultas otimizadas.
+Deeper_Hub é uma plataforma de gerenciamento de dados em Elixir que fornece uma interface simplificada para operações de banco de dados, com suporte a cache e consultas otimizadas.
 
 ## Características Principais
 
@@ -22,7 +22,7 @@ O módulo `Repository` funciona como uma fachada (Facade) que delega chamadas pa
 
 ## Exemplos de Uso no IEx
 
-Abaixo estão exemplos práticos de como utilizar o DeeperHub no console interativo do Elixir (IEx).
+Abaixo estão exemplos práticos de como utilizar o Deeper_Hub no console interativo do Elixir (IEx).
 
 ### Iniciar o IEx com a Aplicação
 
@@ -32,7 +32,7 @@ iex -S mix
 
 ### Operações CRUD Básicas
 
-> **Nota**: O projeto DeeperHub utiliza UUIDs (binary_id) como chaves primárias em vez de IDs numéricos sequenciais. Todos os exemplos abaixo usam UUIDs no formato string.
+> **Nota**: O projeto Deeper_Hub utiliza UUIDs (binary_id) como chaves primárias em vez de IDs numéricos sequenciais. Todos os exemplos abaixo usam UUIDs no formato string.
 
 #### Inserir um Registro
 
@@ -191,7 +191,7 @@ IO.inspect(stats, label: "Estatísticas de cache")
 
 ## Configuração
 
-O DeeperHub é configurado automaticamente na inicialização da aplicação. O cache é inicializado e gerenciado pelo módulo `RepositoryCore`, que é supervisionado pela árvore de supervisão principal.
+O Deeper_Hub é configurado automaticamente na inicialização da aplicação. O cache é inicializado e gerenciado pelo módulo `RepositoryCore`, que é supervisionado pela árvore de supervisão principal.
 
 ## Boas Práticas
 

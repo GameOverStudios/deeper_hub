@@ -1,8 +1,8 @@
-# Módulo: `DeeperHub.Audit` 📝
+# Módulo: `Deeper_Hub.Audit` 📝
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Audit`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Audit`
 
-O módulo `DeeperHub.Audit` é responsável por registrar e gerenciar uma trilha de auditoria compreensiva de todas as ações e eventos significativos que ocorrem dentro do sistema DeeperHub. Seu propósito principal é fornecer um registro imutável e detalhado para fins de segurança, conformidade, análise forense, monitoramento de atividades de usuários e depuração. 😊
+O módulo `Deeper_Hub.Audit` é responsável por registrar e gerenciar uma trilha de auditoria compreensiva de todas as ações e eventos significativos que ocorrem dentro do sistema Deeper_Hub. Seu propósito principal é fornecer um registro imutável e detalhado para fins de segurança, conformidade, análise forense, monitoramento de atividades de usuários e depuração. 😊
 
 Ele captura quem fez o quê, quando e com qual resultado, abrangendo desde ações de usuários até eventos de sistema e alterações de configuração.
 
@@ -14,7 +14,7 @@ Ele captura quem fez o quê, quando e com qual resultado, abrangendo desde açõ
     *   Suporte a diferentes níveis de severidade para eventos de auditoria.
 *   **Armazenamento de Logs de Auditoria:**
     *   Persistir logs de auditoria de forma segura e, idealmente, imutável ou com detecção de adulteração.
-    *   Utilizar o `DeeperHub.Core.Repo` para armazenamento, possivelmente em uma tabela dedicada (ou coleção, se NoSQL).
+    *   Utilizar o `Deeper_Hub.Core.Repo` para armazenamento, possivelmente em uma tabela dedicada (ou coleção, se NoSQL).
 *   **Consulta e Busca de Logs:**
     *   Fornecer uma API para buscar e filtrar logs de auditoria por diversos critérios (usuário, tipo de evento, data, recurso, severidade, etc.).
     *   Suporte a paginação e ordenação dos resultados da busca.
@@ -27,25 +27,25 @@ Ele captura quem fez o quê, quando e com qual resultado, abrangendo desde açõ
     *   Exportação de logs e relatórios em diferentes formatos (CSV, JSON, PDF).
 *   **Detecção de Anomalias (Básica ou Integração):**
     *   Análise de logs para identificar padrões suspeitos ou anormais (ex: múltiplas falhas de login, acesso de IPs incomuns).
-    *   Pode integrar-se com `DeeperHub.Security.FraudDetection` ou `DeeperHub.Security.BehavioralAnalysis` para análises mais complexas.
+    *   Pode integrar-se com `Deeper_Hub.Security.FraudDetection` ou `Deeper_Hub.Security.BehavioralAnalysis` para análises mais complexas.
 *   **Integridade e Segurança dos Logs:**
     *   Mecanismos para garantir a integridade dos logs (ex: hashing, assinaturas).
-    *   Controle de acesso para consulta e gerenciamento de logs de auditoria (via `DeeperHub.RBAC`).
+    *   Controle de acesso para consulta e gerenciamento de logs de auditoria (via `Deeper_Hub.RBAC`).
 *   **Interface de Auditoria (Opcional):**
-    *   Fornecer uma interface (possivelmente via `DeeperHub.Console` ou uma UI de admin) para administradores consultarem logs.
+    *   Fornecer uma interface (possivelmente via `Deeper_Hub.Console` ou uma UI de admin) para administradores consultarem logs.
 
 ## 🏗️ 3. Arquitetura e Design
 
-O módulo `DeeperHub.Audit` será uma fachada que coordena diferentes componentes para registro, armazenamento e consulta de logs.
+O módulo `Deeper_Hub.Audit` será uma fachada que coordena diferentes componentes para registro, armazenamento e consulta de logs.
 
-*   **Interface Pública (`DeeperHub.Audit.AuditFacade`):** Define as funções como `log_event/4`, `search_events/2`, `export_events/3`.
-*   **Serviço de Logging (`DeeperHub.Audit.Services.LoggingService`):** Responsável por receber eventos de diferentes partes da aplicação, enriquecê-los com metadados e formatá-los.
-*   **Serviço de Armazenamento (`DeeperHub.Audit.Services.AuditStorageService`):** Lida com a persistência dos logs de auditoria (via `Core.Repo`) e com a lógica de retenção e arquivamento.
-*   **Serviço de Consulta (`DeeperHub.Audit.Services.QueryService`):** Implementa a lógica para buscar e filtrar logs.
-*   **Serviço de Relatórios (`DeeperHub.Audit.Services.AuditReportingService`):** Gera relatórios e exporta dados.
-*   **Schema (`DeeperHub.Audit.AuditLog`):** Define a estrutura do log de auditoria no banco de dados.
-*   **Workers (ex: `DeeperHub.Audit.Workers.AuditLogWorker`, `DeeperHub.Audit.Scheduler.RetentionScheduler`):** Para processamento assíncrono de logs e execução de políticas de retenção.
-*   **Integrações (`DeeperHub.Audit.Integrations.*`):** Módulos específicos para logar eventos de outros contextos (ex: `Auth`, `Accounts`, `API`).
+*   **Interface Pública (`Deeper_Hub.Audit.AuditFacade`):** Define as funções como `log_event/4`, `search_events/2`, `export_events/3`.
+*   **Serviço de Logging (`Deeper_Hub.Audit.Services.LoggingService`):** Responsável por receber eventos de diferentes partes da aplicação, enriquecê-los com metadados e formatá-los.
+*   **Serviço de Armazenamento (`Deeper_Hub.Audit.Services.AuditStorageService`):** Lida com a persistência dos logs de auditoria (via `Core.Repo`) e com a lógica de retenção e arquivamento.
+*   **Serviço de Consulta (`Deeper_Hub.Audit.Services.QueryService`):** Implementa a lógica para buscar e filtrar logs.
+*   **Serviço de Relatórios (`Deeper_Hub.Audit.Services.AuditReportingService`):** Gera relatórios e exporta dados.
+*   **Schema (`Deeper_Hub.Audit.AuditLog`):** Define a estrutura do log de auditoria no banco de dados.
+*   **Workers (ex: `Deeper_Hub.Audit.Workers.AuditLogWorker`, `Deeper_Hub.Audit.Scheduler.RetentionScheduler`):** Para processamento assíncrono de logs e execução de políticas de retenção.
+*   **Integrações (`Deeper_Hub.Audit.Integrations.*`):** Módulos específicos para logar eventos de outros contextos (ex: `Auth`, `Accounts`, `API`).
 
 **Padrões de Design:**
 
@@ -55,13 +55,13 @@ O módulo `DeeperHub.Audit` será uma fachada que coordena diferentes componente
 
 ### 3.1. Componentes Principais
 
-*   **`DeeperHub.Audit.AuditFacade`:** Ponto de entrada para logar e consultar eventos.
-*   **`DeeperHub.Audit.Services.LoggingService`:** Orquestra o recebimento e formatação dos logs.
-*   **`DeeperHub.Audit.AuditLog` (Schema):** Estrutura de dados do log.
-*   **`DeeperHub.Audit.Workers.AuditLogWorker`:** Processa e persiste logs de forma assíncrona.
-*   **`DeeperHub.Audit.Scheduler.RetentionScheduler`:** Gerencia a aplicação de políticas de retenção.
-*   **`DeeperHub.Audit.Policies.RetentionPolicy`:** Define as regras de retenção.
-*   **`DeeperHub.Audit.Supervisor`:** Supervisiona os processos do módulo.
+*   **`Deeper_Hub.Audit.AuditFacade`:** Ponto de entrada para logar e consultar eventos.
+*   **`Deeper_Hub.Audit.Services.LoggingService`:** Orquestra o recebimento e formatação dos logs.
+*   **`Deeper_Hub.Audit.AuditLog` (Schema):** Estrutura de dados do log.
+*   **`Deeper_Hub.Audit.Workers.AuditLogWorker`:** Processa e persiste logs de forma assíncrona.
+*   **`Deeper_Hub.Audit.Scheduler.RetentionScheduler`:** Gerencia a aplicação de políticas de retenção.
+*   **`Deeper_Hub.Audit.Policies.RetentionPolicy`:** Define as regras de retenção.
+*   **`Deeper_Hub.Audit.Supervisor`:** Supervisiona os processos do módulo.
 
 ### 3.3. Decisões de Design Importantes
 
@@ -72,9 +72,9 @@ O módulo `DeeperHub.Audit` será uma fachada que coordena diferentes componente
 
 ## 🛠️ 4. Casos de Uso Principais
 
-*   **Usuário faz Login:** O módulo `DeeperHub.Auth` chama `AuditFacade.log_event/4` para registrar a tentativa de login (sucesso ou falha), incluindo `user_id`, `ip_address`, `timestamp`.
-*   **Administrador Altera Configuração Crítica:** O módulo `DeeperHub.Admin` chama `AuditFacade.log_event/4` para registrar a alteração, incluindo `admin_id`, chave da configuração, valor antigo e novo.
-*   **Sistema Detecta Atividade Suspeita:** O módulo `DeeperHub.Security.FraudDetection` chama `AuditFacade.log_event/4` para registrar a detecção, incluindo detalhes da atividade e nível de risco.
+*   **Usuário faz Login:** O módulo `Deeper_Hub.Auth` chama `AuditFacade.log_event/4` para registrar a tentativa de login (sucesso ou falha), incluindo `user_id`, `ip_address`, `timestamp`.
+*   **Administrador Altera Configuração Crítica:** O módulo `Deeper_Hub.Admin` chama `AuditFacade.log_event/4` para registrar a alteração, incluindo `admin_id`, chave da configuração, valor antigo e novo.
+*   **Sistema Detecta Atividade Suspeita:** O módulo `Deeper_Hub.Security.FraudDetection` chama `AuditFacade.log_event/4` para registrar a detecção, incluindo detalhes da atividade e nível de risco.
 *   **Analista de Segurança Investiga Incidente:** O analista usa uma interface (ou console) que chama `AuditFacade.search_events/2` para filtrar logs por usuário, período e tipo de evento.
 *   **Auditor Externo Solicita Relatório:** Um relatório de acesso a dados sensíveis é gerado via `AuditFacade.export_events/3`.
 
@@ -82,19 +82,19 @@ O módulo `DeeperHub.Audit` será uma fachada que coordena diferentes componente
 
 **Fluxo de Registro de um Evento de Auditoria:**
 
-1.  Um módulo (ex: `DeeperHub.Accounts`) precisa logar uma ação (ex: `user_updated`).
-2.  Ele chama `DeeperHub.Audit.AuditFacade.log_event(:user_action, \"user_updated\", %{user_id: \"123\", changes: ...}, %{performed_by: \"admin456\"})`.
-3.  `AuditFacade` delega para `DeeperHub.Audit.Services.LoggingService`.
+1.  Um módulo (ex: `Deeper_Hub.Accounts`) precisa logar uma ação (ex: `user_updated`).
+2.  Ele chama `Deeper_Hub.Audit.AuditFacade.log_event(:user_action, \"user_updated\", %{user_id: \"123\", changes: ...}, %{performed_by: \"admin456\"})`.
+3.  `AuditFacade` delega para `Deeper_Hub.Audit.Services.LoggingService`.
 4.  `LoggingService` enriquece o evento com metadados globais (timestamp, `trace_id` se disponível).
-5.  O evento formatado é enfileirado para processamento assíncrono (ex: enviado para `DeeperHub.Audit.Workers.AuditLogWorker`).
+5.  O evento formatado é enfileirado para processamento assíncrono (ex: enviado para `Deeper_Hub.Audit.Workers.AuditLogWorker`).
 6.  `AuditLogWorker` recebe o evento da fila.
-7.  Cria uma instância do schema `DeeperHub.Audit.AuditLog`.
-8.  Persiste o log no banco de dados usando `DeeperHub.Core.Repo`.
+7.  Cria uma instância do schema `Deeper_Hub.Audit.AuditLog`.
+8.  Persiste o log no banco de dados usando `Deeper_Hub.Core.Repo`.
 9.  Emite métricas sobre o evento logado (ex: `audit.event.logged.count`).
 
 ## 📡 6. API (Se Aplicável)
 
-### 6.1. `DeeperHub.Audit.AuditFacade.log_event/4`
+### 6.1. `Deeper_Hub.Audit.AuditFacade.log_event/4`
 
 *   **Descrição:** Registra um evento de auditoria no sistema.
 *   **`@spec`:** `log_event(category :: atom(), event_type :: String.t() | atom(), details :: map(), context :: map()) :: :ok | {:error, atom()}`
@@ -110,10 +110,10 @@ O módulo `DeeperHub.Audit` será uma fachada que coordena diferentes componente
     ```elixir
     details = %{target_user_id: \"user_xyz\", permission: \"admin_access\"}
     context = %{user_id: \"admin_abc\", ip_address: \"192.168.1.10\"}
-    DeeperHub.Audit.AuditFacade.log_event(:security, :permission_granted, details, context)
+    Deeper_Hub.Audit.AuditFacade.log_event(:security, :permission_granted, details, context)
     ```
 
-### 6.2. `DeeperHub.Audit.AuditFacade.search_events/2`
+### 6.2. `Deeper_Hub.Audit.AuditFacade.search_events/2`
 
 *   **Descrição:** Busca eventos de auditoria com base em critérios de filtro.
 *   **`@spec`:** `search_events(filters :: map(), opts :: Keyword.t()) :: {:ok, %{logs: list(AuditLog.t()), total_count: integer()}} | {:error, atom()}`
@@ -127,7 +127,7 @@ O módulo `DeeperHub.Audit` será uma fachada que coordena diferentes componente
     ```elixir
     filters = %{user_id: \"user123\", category: :security}
     opts = [limit: 10, order_by: [timestamp: :desc]]
-    case DeeperHub.Audit.AuditFacade.search_events(filters, opts) do
+    case Deeper_Hub.Audit.AuditFacade.search_events(filters, opts) do
       {:ok, result} -> IO.inspect(result.logs)
       {:error, reason} -> Logger.error(\"Falha ao buscar logs de auditoria: #{reason}\")
     end
@@ -149,12 +149,12 @@ O módulo `DeeperHub.Audit` será uma fachada que coordena diferentes componente
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.Repo`: Para persistência dos logs.
-*   `DeeperHub.Core.ConfigManager`: Para configurações de retenção, arquivamento, etc.
-*   `DeeperHub.Core.EventBus` (Indireta): Outros módulos publicam eventos que podem ser consumidos por integrações de auditoria.
-*   `DeeperHub.Core.BackgroundTaskManager`: Para agendar e executar tarefas de retenção/arquivamento.
-*   `DeeperHub.Core.Logger`: Para logging interno do módulo de auditoria.
-*   `DeeperHub.Core.Metrics`: Para métricas de desempenho do sistema de auditoria.
+*   `Deeper_Hub.Core.Repo`: Para persistência dos logs.
+*   `Deeper_Hub.Core.ConfigManager`: Para configurações de retenção, arquivamento, etc.
+*   `Deeper_Hub.Core.EventBus` (Indireta): Outros módulos publicam eventos que podem ser consumidos por integrações de auditoria.
+*   `Deeper_Hub.Core.BackgroundTaskManager`: Para agendar e executar tarefas de retenção/arquivamento.
+*   `Deeper_Hub.Core.Logger`: Para logging interno do módulo de auditoria.
+*   `Deeper_Hub.Core.Metrics`: Para métricas de desempenho do sistema de auditoria.
 
 ### 8.2. Bibliotecas Externas
 
@@ -169,8 +169,8 @@ Outros módulos devem usar a `AuditFacade.log_event/4` para registrar eventos.
 
 **Exemplo de módulo de `Auth` registrando um login falho:**
 ```elixir
-defmodule DeeperHub.Auth do
-  alias DeeperHub.Audit.AuditFacade
+defmodule Deeper_Hub.Auth do
+  alias Deeper_Hub.Audit.AuditFacade
 
   def login(email, _password, context_ip) do
     # ... lógica de autenticação ...
@@ -209,8 +209,8 @@ end
 
 ### 10.3. Logs
 
-*   Logs internos do módulo de auditoria devem usar `DeeperHub.Core.Logger` e incluir `{module: DeeperHub.Audit.<SubModule>}`.
-*   Ex: `Logger.info(\"Política de retenção executada, #{count} logs excluídos\", module: DeeperHub.Audit.Scheduler.RetentionScheduler)`
+*   Logs internos do módulo de auditoria devem usar `Deeper_Hub.Core.Logger` e incluir `{module: Deeper_Hub.Audit.<SubModule>}`.
+*   Ex: `Logger.info(\"Política de retenção executada, #{count} logs excluídos\", module: Deeper_Hub.Audit.Scheduler.RetentionScheduler)`
 
 ### 10.4. Telemetria
 
@@ -225,7 +225,7 @@ end
 
 ## 🛡️ 12. Considerações de Segurança
 
-*   **Sensibilidade dos Logs:** Logs de auditoria podem conter informações sensíveis. O acesso a eles deve ser estritamente controlado via `DeeperHub.RBAC`.
+*   **Sensibilidade dos Logs:** Logs de auditoria podem conter informações sensíveis. O acesso a eles deve ser estritamente controlado via `Deeper_Hub.RBAC`.
 *   **Performance:** Um volume muito alto de logs pode impactar a performance do banco de dados. O design do schema e as estratégias de indexação são cruciais.
 *   **Adulteração:** Considerar mecanismos para detectar ou prevenir adulteração dos logs (ex: logs apenas de acréscimo, checksums, blockchain).
 *   **Vazamento de Informação:** Ao exibir logs ou em relatórios, garantir que informações excessivamente sensíveis (ex: senhas brutas, tokens completos) não sejam expostas.
@@ -250,7 +250,7 @@ end
 
 ---
 
-Próximo da lista: `DeeperHub.FeatureFlags`. Vamos a ele?"""),
+Próximo da lista: `Deeper_Hub.FeatureFlags`. Vamos a ele?"""),
             ],
         ),
         types.Content(
@@ -263,7 +263,7 @@ Próximo da lista: `DeeperHub.FeatureFlags`. Vamos a ele?"""),
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Excelente! Vamos agora detalhar o README para o módulo `DeeperHub.FeatureFlags`.
+                types.Part.from_text(text="""Excelente! Vamos agora detalhar o README para o módulo `Deeper_Hub.FeatureFlags`.
 
 ---
 

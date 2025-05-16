@@ -1,8 +1,8 @@
-# Módulo: `DeeperHub.Lists` 🗂️
+# Módulo: `Deeper_Hub.Lists` 🗂️
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Lists`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Lists`
 
-O módulo `DeeperHub.Lists` (anteriormente `Elixir.DeeperHub.Services.Lists`) serve como um utilitário genérico ou um serviço de gerenciamento para diversas listas de \"tipos\" ou \"categorias\" usadas em todo o sistema DeeperHub. Ele fornece uma maneira padronizada de criar, consultar, atualizar e deletar itens que representam coleções de dados relativamente estáticos ou controlados administrativamente, como tipos de conquistas, categorias de conteúdo, tipos de feedback, plataformas, engines de jogos, idiomas, etc. O objetivo é centralizar o gerenciamento dessas listas simples, evitando duplicação de lógica CRUD básica em múltiplos módulos. 😊
+O módulo `Deeper_Hub.Lists` (anteriormente `Elixir.Deeper_Hub.Services.Lists`) serve como um utilitário genérico ou um serviço de gerenciamento para diversas listas de \"tipos\" ou \"categorias\" usadas em todo o sistema Deeper_Hub. Ele fornece uma maneira padronizada de criar, consultar, atualizar e deletar itens que representam coleções de dados relativamente estáticos ou controlados administrativamente, como tipos de conquistas, categorias de conteúdo, tipos de feedback, plataformas, engines de jogos, idiomas, etc. O objetivo é centralizar o gerenciamento dessas listas simples, evitando duplicação de lógica CRUD básica em múltiplos módulos. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -19,7 +19,7 @@ O módulo `DeeperHub.Lists` (anteriormente `Elixir.DeeperHub.Services.Lists`) se
 *   **Cache (Opcional):**
     *   Cachear listas frequentemente acessadas para melhorar o desempenho (via `Core.Cache`).
 *   **Administração:**
-    *   Fornecer uma interface (provavelmente via `DeeperHub.Console` ou UI de admin) para gerenciar esses tipos de lista.
+    *   Fornecer uma interface (provavelmente via `Deeper_Hub.Console` ou UI de admin) para gerenciar esses tipos de lista.
 
 **Exemplos de \"Tipos de Lista\" Gerenciados:**
 
@@ -36,19 +36,19 @@ O módulo `DeeperHub.Lists` (anteriormente `Elixir.DeeperHub.Services.Lists`) se
 
 ## 🏗️ 3. Arquitetura e Design
 
-`DeeperHub.Lists` atuará como uma fachada que delega para um serviço de armazenamento genérico ou para manipuladores específicos por tipo de lista se a lógica for mais complexa.
+`Deeper_Hub.Lists` atuará como uma fachada que delega para um serviço de armazenamento genérico ou para manipuladores específicos por tipo de lista se a lógica for mais complexa.
 
-*   **Interface Pública (`DeeperHub.Lists.ListsFacade` ou `DeeperHub.Lists`):** Funções como `list_items/2`, `create_item/2`, `get_item/2`.
-*   **Serviço de Armazenamento/Lógica (`DeeperHub.Lists.Storage` ou `DeeperHub.Lists.Services.ListManagementService`):**
+*   **Interface Pública (`Deeper_Hub.Lists.ListsFacade` ou `Deeper_Hub.Lists`):** Funções como `list_items/2`, `create_item/2`, `get_item/2`.
+*   **Serviço de Armazenamento/Lógica (`Deeper_Hub.Lists.Storage` ou `Deeper_Hub.Lists.Services.ListManagementService`):**
     *   Contém a lógica genérica para interagir com o `Core.Repo` usando o schema Ecto apropriado para o tipo de lista especificado.
-*   **Schemas Ecto (em `DeeperHub.Lists.Schema.*`):**
-    *   Cada tipo de lista terá seu próprio schema (ex: `DeeperHub.Lists.Schema.Category`, `DeeperHub.Lists.Schema.Platform`). Estes schemas são tipicamente simples, contendo campos como `id`, `name`, `description`, `slug`, `is_active`.
+*   **Schemas Ecto (em `Deeper_Hub.Lists.Schema.*`):**
+    *   Cada tipo de lista terá seu próprio schema (ex: `Deeper_Hub.Lists.Schema.Category`, `Deeper_Hub.Lists.Schema.Platform`). Estes schemas são tipicamente simples, contendo campos como `id`, `name`, `description`, `slug`, `is_active`.
 *   **Cache:**
-    *   Pode usar o `DeeperHub.Core.Cache` para armazenar listas completas de cada tipo, especialmente se elas não mudam com frequência.
+    *   Pode usar o `Deeper_Hub.Core.Cache` para armazenar listas completas de cada tipo, especialmente se elas não mudam com frequência.
 *   **Integrações:**
-    *   `DeeperHub.Core.Repo`: Para persistência.
-    *   `DeeperHub.Core.Cache`: Para cache.
-    *   `DeeperHub.Core.ConfigManager`: Para configurações relacionadas (ex: TTL do cache de listas).
+    *   `Deeper_Hub.Core.Repo`: Para persistência.
+    *   `Deeper_Hub.Core.Cache`: Para cache.
+    *   `Deeper_Hub.Core.ConfigManager`: Para configurações relacionadas (ex: TTL do cache de listas).
 
 **Padrões de Design:**
 
@@ -57,33 +57,33 @@ O módulo `DeeperHub.Lists` (anteriormente `Elixir.DeeperHub.Services.Lists`) se
 
 ### 3.1. Componentes Principais
 
-*   **`DeeperHub.Lists.ListsFacade`:** Ponto de entrada.
-*   **`DeeperHub.Lists.Storage` (ou `Services.ListManagementService`):** Lógica de negócio e persistência.
-*   **`DeeperHub.Lists.Schema.*`:** Módulos de schema Ecto para cada tipo de lista.
-*   **`DeeperHub.Lists.Supervisor`:** Supervisiona processos (se houver, ex: um worker para pré-carregar cache).
+*   **`Deeper_Hub.Lists.ListsFacade`:** Ponto de entrada.
+*   **`Deeper_Hub.Lists.Storage` (ou `Services.ListManagementService`):** Lógica de negócio e persistência.
+*   **`Deeper_Hub.Lists.Schema.*`:** Módulos de schema Ecto para cada tipo de lista.
+*   **`Deeper_Hub.Lists.Supervisor`:** Supervisiona processos (se houver, ex: um worker para pré-carregar cache).
 
 ### 3.3. Decisões de Design Importantes
 
 *   **Genericidade vs. Especificidade:** Encontrar o equilíbrio certo. Se um \"tipo de lista\" se torna muito complexo e com lógica de negócio própria, ele pode precisar evoluir para seu próprio módulo de domínio dedicado (como `ServerTags` provavelmente já é).
-*   **Nomenclatura de Schemas:** Decidir se os schemas ficam sob `DeeperHub.Lists.Schema.*` ou se cada um é um módulo de schema mais independente (ex: `DeeperHub.Schema.Category`). Manter sob `Lists.Schema` reforça que são gerenciados por este módulo.
+*   **Nomenclatura de Schemas:** Decidir se os schemas ficam sob `Deeper_Hub.Lists.Schema.*` ou se cada um é um módulo de schema mais independente (ex: `Deeper_Hub.Schema.Category`). Manter sob `Lists.Schema` reforça que são gerenciados por este módulo.
 
 ## 🛠️ 4. Casos de Uso Principais
 
 *   **Administrador Adiciona Nova Categoria de Jogo:** Um admin usa a interface de administração para adicionar \"Estratégia em Tempo Real\" à lista de categorias de jogos.
-*   **Sistema Exibe Dropdown de Plataformas:** Ao registrar um novo servidor, o formulário busca as plataformas disponíveis (`DeeperHub.Lists.list_items(:platform)`) para popular um dropdown.
-*   **Módulo de Achievements Valida Tipo de Conquista:** Ao criar uma nova conquista, o módulo `Achievements` valida se o `achievement_type` fornecido existe na lista de `AchievementType` gerenciada por `DeeperHub.Lists`.
-*   **Filtragem de Conteúdo por Idioma:** Um sistema de busca pode usar `DeeperHub.Lists.list_items(:language)` para permitir que usuários filtrem conteúdo pelo idioma.
+*   **Sistema Exibe Dropdown de Plataformas:** Ao registrar um novo servidor, o formulário busca as plataformas disponíveis (`Deeper_Hub.Lists.list_items(:platform)`) para popular um dropdown.
+*   **Módulo de Achievements Valida Tipo de Conquista:** Ao criar uma nova conquista, o módulo `Achievements` valida se o `achievement_type` fornecido existe na lista de `AchievementType` gerenciada por `Deeper_Hub.Lists`.
+*   **Filtragem de Conteúdo por Idioma:** Um sistema de busca pode usar `Deeper_Hub.Lists.list_items(:language)` para permitir que usuários filtrem conteúdo pelo idioma.
 
 ## 🌊 5. Fluxos Importantes (Opcional)
 
 **Fluxo de Listagem de Itens com Cache:**
 
-1.  Um módulo (ex: UI Helper) chama `DeeperHub.Lists.list_items(:category, [is_active: true])`.
-2.  `ListsFacade` delega para `DeeperHub.Lists.Storage.list_items/2` (ou serviço similar).
+1.  Um módulo (ex: UI Helper) chama `Deeper_Hub.Lists.list_items(:category, [is_active: true])`.
+2.  `ListsFacade` delega para `Deeper_Hub.Lists.Storage.list_items/2` (ou serviço similar).
 3.  O `Storage` primeiro verifica o `Core.Cache` por uma chave como `\"lists:category:active\"`.
 4.  **Cache Hit:** Se encontrado e válido, retorna a lista cacheada.
 5.  **Cache Miss:**
-    *   O `Storage` constrói uma query Ecto para `DeeperHub.Lists.Schema.Category` com o filtro `is_active: true`.
+    *   O `Storage` constrói uma query Ecto para `Deeper_Hub.Lists.Schema.Category` com o filtro `is_active: true`.
     *   Executa a query via `Core.Repo.all(query)`.
     *   Armazena o resultado no `Core.Cache` com um TTL apropriado.
     *   Retorna a lista de categorias.
@@ -91,7 +91,7 @@ O módulo `DeeperHub.Lists` (anteriormente `Elixir.DeeperHub.Services.Lists`) se
 
 ## 📡 6. API (Se Aplicável)
 
-### 6.1. `DeeperHub.Lists.list_items/2`
+### 6.1. `Deeper_Hub.Lists.list_items/2`
 
 *   **Descrição:** Lista todos os itens de um determinado tipo de lista, com opções de filtro.
 *   **`@spec`:** `list_items(list_type :: atom(), opts :: Keyword.t()) :: {:ok, list(map() | struct())} | {:error, reason}`
@@ -104,10 +104,10 @@ O módulo `DeeperHub.Lists` (anteriormente `Elixir.DeeperHub.Services.Lists`) se
 *   **Retorno:** Lista de itens (mapas ou structs Ecto) ou um erro.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    {:ok, gaming_categories} = DeeperHub.Lists.list_items(:category, filter_by: %{name_starts_with: \"Gaming\"}, order_by: [name: :asc])
+    {:ok, gaming_categories} = Deeper_Hub.Lists.list_items(:category, filter_by: %{name_starts_with: \"Gaming\"}, order_by: [name: :asc])
     ```
 
-### 6.2. `DeeperHub.Lists.create_item/2`
+### 6.2. `Deeper_Hub.Lists.create_item/2`
 
 *   **Descrição:** Cria um novo item em um tipo de lista especificado.
 *   **`@spec`:** `create_item(list_type :: atom(), attrs :: map()) :: {:ok, struct()} | {:error, Ecto.Changeset.t() | reason}`
@@ -117,7 +117,7 @@ O módulo `DeeperHub.Lists` (anteriormente `Elixir.DeeperHub.Services.Lists`) se
 *   **Retorno:** O item criado ou um changeset com erros.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    case DeeperHub.Lists.create_item(:platform, %{name: \"PlayStation 6\", slug: \"ps6\"}) do
+    case Deeper_Hub.Lists.create_item(:platform, %{name: \"PlayStation 6\", slug: \"ps6\"}) do
       {:ok, platform} -> Logger.info(\"Plataforma criada: #{platform.name}\")
       {:error, changeset} -> Logger.error(\"Erro ao criar plataforma: #{inspect(changeset.errors)}\")
     end
@@ -127,7 +127,7 @@ O módulo `DeeperHub.Lists` (anteriormente `Elixir.DeeperHub.Services.Lists`) se
 
 ## ⚙️ 7. Configuração
 
-*   **ConfigManager (`DeeperHub.Core.ConfigManager`):**
+*   **ConfigManager (`Deeper_Hub.Core.ConfigManager`):**
     *   `[:lists, :cache_ttl_seconds]`: TTL padrão para o cache de listas. (Padrão: `3600` - 1 hora)
     *   `[:lists, :supported_list_types]`: (Opcional) Uma lista dos tipos de lista que o sistema reconhece, para validação.
     *   Para cada tipo de lista, pode haver configurações específicas se necessário, mas geralmente as listas são definidas pelos seus schemas e dados no DB.
@@ -136,11 +136,11 @@ O módulo `DeeperHub.Lists` (anteriormente `Elixir.DeeperHub.Services.Lists`) se
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.Repo`: Para persistência.
-*   `DeeperHub.Core.Cache`: Para cache.
-*   `DeeperHub.Core.ConfigManager`: Para configurações.
-*   `DeeperHub.Core.Logger`, `DeeperHub.Core.Metrics`.
-*   Todos os schemas Ecto definidos em `DeeperHub.Lists.Schema.*`.
+*   `Deeper_Hub.Core.Repo`: Para persistência.
+*   `Deeper_Hub.Core.Cache`: Para cache.
+*   `Deeper_Hub.Core.ConfigManager`: Para configurações.
+*   `Deeper_Hub.Core.Logger`, `Deeper_Hub.Core.Metrics`.
+*   Todos os schemas Ecto definidos em `Deeper_Hub.Lists.Schema.*`.
 
 ### 8.2. Bibliotecas Externas
 
@@ -152,8 +152,8 @@ Este módulo é usado por várias partes do sistema que precisam de acesso a lis
 
 ```elixir
 # Exemplo em um módulo de gerenciamento de Servidores
-defmodule DeeperHub.Servers.ServerService do
-  alias DeeperHub.Lists
+defmodule Deeper_Hub.Servers.ServerService do
+  alias Deeper_Hub.Lists
 
   def get_available_platforms_for_form() do
     case Lists.list_items(:platform, filter_by: %{is_active: true}) do
@@ -182,8 +182,8 @@ end
 
 ### 10.3. Logs
 
-*   `Logger.info(\"Item '#{attrs.name}' criado para a lista '#{list_type}'\", module: DeeperHub.Lists.Storage)`
-*   `Logger.warning(\"Tentativa de acessar tipo de lista não suportado: #{list_type}\", module: DeeperHub.Lists.ListsFacade)`
+*   `Logger.info(\"Item '#{attrs.name}' criado para a lista '#{list_type}'\", module: Deeper_Hub.Lists.Storage)`
+*   `Logger.warning(\"Tentativa de acessar tipo de lista não suportado: #{list_type}\", module: Deeper_Hub.Lists.ListsFacade)`
 
 ### 10.4. Telemetria
 
@@ -221,7 +221,7 @@ end
 
 ---
 
-O próximo é `DeeperHub.WebAuthn`. Continuamos?"""),
+O próximo é `Deeper_Hub.WebAuthn`. Continuamos?"""),
             ],
         ),
         types.Content(
@@ -233,7 +233,7 @@ O próximo é `DeeperHub.WebAuthn`. Continuamos?"""),
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Combinado! Vamos para o README do `DeeperHub.WebAuthn`. Este é um módulo focado em um método de autenticação moderno e seguro.
+                types.Part.from_text(text="""Combinado! Vamos para o README do `Deeper_Hub.WebAuthn`. Este é um módulo focado em um método de autenticação moderno e seguro.
 
 ---
 

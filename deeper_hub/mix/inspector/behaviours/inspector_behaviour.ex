@@ -1,4 +1,4 @@
-defmodule DeeperHub.Inspector.Behaviours.InspectorBehaviour do
+defmodule Deeper_Hub.Inspector.Behaviours.InspectorBehaviour do
   @moduledoc """
   Define o comportamento padrão para inspetores do sistema 🔍
 

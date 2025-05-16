@@ -22,7 +22,7 @@ defmodule Deeper_Hub.Application do
 
     # Configuração do sistema de telemetria
     configure_telemetry()
-    
+
     # Configuração do sistema de eventos
     configure_event_bus()
 
@@ -65,15 +65,15 @@ defmodule Deeper_Hub.Application do
 
       # Adiciona o gerenciador de cache
       {CacheManager, []},
-      
+
       # Adiciona o servidor PubSub para WebSocket
-      {Phoenix.PubSub, name: DeeperHub.PubSub},
-      
+      {Phoenix.PubSub, name: Deeper_Hub.PubSub},
+
       # Adiciona o supervisor do WebSocket
-      DeeperHub.Core.Websocket.Supervisor,
-      
+      Deeper_Hub.Core.Websocket.Supervisor,
+
       # Adiciona o Telemetry Poller para coletar métricas periodicamente
-      {:telemetry_poller, 
+      {:telemetry_poller,
        measurements: [
          # Métricas de processo para o Repo
          {:process_info, name: Repo, event: [:deeper_hub, :repo], keys: [:memory, :message_queue_len]},
@@ -88,11 +88,11 @@ defmodule Deeper_Hub.Application do
     # Inicia a árvore de supervisão
     Supervisor.start_link(children, opts)
   end
-  
+
   # Configura os handlers de telemetria
   defp configure_telemetry do
     Logger.info("Configurando telemetria", %{module: __MODULE__})
-    
+
     # Registra handler para eventos de banco de dados
     :ok = :telemetry.attach(
       "deeper-hub-db-query-handler",
@@ -100,7 +100,7 @@ defmodule Deeper_Hub.Application do
       &TelemetryHandlers.handle_db_query_event/4,
       nil
     )
-    
+
     # Registra handler para eventos de transação
     :ok = :telemetry.attach(
       "deeper-hub-db-transaction-handler",
@@ -108,7 +108,7 @@ defmodule Deeper_Hub.Application do
       &TelemetryHandlers.handle_db_transaction_event/4,
       nil
     )
-    
+
     # Registra handler para eventos de cache
     :ok = :telemetry.attach(
       "deeper-hub-cache-hit-handler",
@@ -116,7 +116,7 @@ defmodule Deeper_Hub.Application do
       &TelemetryHandlers.handle_cache_hit_event/4,
       nil
     )
-    
+
     :ok = :telemetry.attach(
       "deeper-hub-cache-miss-handler",
       TelemetryEvents.cache_miss(),
@@ -124,21 +124,21 @@ defmodule Deeper_Hub.Application do
       nil
     )
   end
-  
+
   # Os handlers de telemetria foram movidos para o módulo TelemetryHandlers
-  
+
   # Configura o EventBus
   defp configure_event_bus do
     Logger.info("Configurando EventBus", %{module: __MODULE__})
-    
+
     # Registra todos os tópicos de eventos
     Enum.each(EventDefinitions.all_topics(), fn topic ->
       EventBus.register_topic(topic)
     end)
-    
+
     # Registra todos os subscribers
     EventSubscribers.register_subscribers()
-    
+
     :ok
   end
 end

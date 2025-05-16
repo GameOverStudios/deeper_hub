@@ -1,8 +1,8 @@
-# Módulo: `DeeperHub.Security.PathTraversalProtection` 🚀
+# Módulo: `Deeper_Hub.Security.PathTraversalProtection` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Security.PathTraversalProtection`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Security.PathTraversalProtection`
 
-O módulo `DeeperHub.Security.PathTraversalProtection` é dedicado a prevenir ataques de **Path Traversal (também conhecido como Directory Traversal)** no sistema DeeperHub. Este tipo de ataque ocorre quando um invasor manipula variáveis de entrada que são usadas para construir caminhos de arquivos, com o objetivo de acessar arquivos ou diretórios fora do diretório raiz pretendido pela aplicação. Sequências como `../` (ponto-ponto-barra) são comumente usadas para \"subir\" na hierarquia de diretórios.
+O módulo `Deeper_Hub.Security.PathTraversalProtection` é dedicado a prevenir ataques de **Path Traversal (também conhecido como Directory Traversal)** no sistema Deeper_Hub. Este tipo de ataque ocorre quando um invasor manipula variáveis de entrada que são usadas para construir caminhos de arquivos, com o objetivo de acessar arquivos ou diretórios fora do diretório raiz pretendido pela aplicação. Sequências como `../` (ponto-ponto-barra) são comumente usadas para \"subir\" na hierarquia de diretórios.
 
 Este módulo fornece funcionalidades para:
 1.  Verificar se um caminho fornecido pelo usuário contém sequências de path traversal.
@@ -36,16 +36,16 @@ O objetivo é garantir que o acesso a arquivos seja restrito aos diretórios des
 
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.Security.PathTraversalProtection` (Fachada Pública):**
+1.  **`Deeper_Hub.Security.PathTraversalProtection` (Fachada Pública):**
     *   Ponto de entrada para as funcionalidades de proteção.
     *   Delega para o `PathTraversalProtectionService`.
-2.  **`DeeperHub.Security.PathTraversalProtection.Services.PathTraversalProtectionService` (Módulo Funcional):**
+2.  **`Deeper_Hub.Security.PathTraversalProtection.Services.PathTraversalProtectionService` (Módulo Funcional):**
     *   **Responsabilidade:** Contém a lógica principal para `check_path`, `sanitize_path`, `normalize_path`, e `verify_path_in_base`.
     *   **Interações:**
         *   Utiliza funções do módulo `Path` do Elixir para manipulação de caminhos.
-        *   Interage com `DeeperHub.Core.ConfigManager` para obter a lista de diretórios base permitidos e outras configurações.
-        *   Interage com `DeeperHub.Audit` ou `DeeperHub.Security.Monitoring` para registrar tentativas.
-3.  **Configurações (via `DeeperHub.Core.ConfigManager` e `DeeperHub.Security.Policy.SecurityPolicyManager`):**
+        *   Interage com `Deeper_Hub.Core.ConfigManager` para obter a lista de diretórios base permitidos e outras configurações.
+        *   Interage com `Deeper_Hub.Audit` ou `Deeper_Hub.Security.Monitoring` para registrar tentativas.
+3.  **Configurações (via `Deeper_Hub.Core.ConfigManager` e `Deeper_Hub.Security.Policy.SecurityPolicyManager`):**
     *   Lista de diretórios base permitidos.
     *   Padrões de detecção (se usar regex mais avançadas).
     *   Política de ação ao detectar uma tentativa (logar, bloquear).
@@ -92,35 +92,35 @@ security/path_traversal_protection/
 
 1.  **Entrada do Usuário:** Aplicação recebe um nome de arquivo ou caminho parcial de uma fonte não confiável (ex: parâmetro de URL, formulário).
 2.  **Verificação Inicial (`check_path/2`):**
-    *   `DeeperHub.Security.PathTraversalProtection.check_path(user_input_path)`
+    *   `Deeper_Hub.Security.PathTraversalProtection.check_path(user_input_path)`
     *   Se retornar `{:ok, :unsafe}`, a operação é imediatamente interrompida, a tentativa é logada/auditada.
 3.  **Construção do Caminho Completo:**
     *   Juntar o `user_input_path` (que passou na verificação inicial ou foi sanitizado) com o diretório base esperado para a operação (ex: `Path.join(Config.get(:upload_directory), user_input_path)`).
 4.  **Normalização do Caminho (`normalize_path/2`):**
-    *   `{:ok, canonical_path} = DeeperHub.Security.PathTraversalProtection.normalize_path(full_path)`
+    *   `{:ok, canonical_path} = Deeper_Hub.Security.PathTraversalProtection.normalize_path(full_path)`
     *   Isso resolve quaisquer `.` ou `..` que possam ter restado ou sido formados pela junção.
 5.  **Verificação de Diretório Base (`verify_path_in_base/3`):**
-    *   `DeeperHub.Security.PathTraversalProtection.verify_path_in_base(canonical_path, Config.get(:upload_directory))`
+    *   `Deeper_Hub.Security.PathTraversalProtection.verify_path_in_base(canonical_path, Config.get(:upload_directory))`
     *   Se retornar `{:ok, :denied}`, a operação é interrompida, a tentativa é logada/auditada.
 6.  **Acesso ao Arquivo:** Se todas as verificações passarem, o `canonical_path` pode ser usado para acessar o arquivo.
 
 ## 📡 6. API (Funções Públicas da Fachada)
 
-### 6.1. `DeeperHub.Security.PathTraversalProtection.check_path(path :: String.t(), opts :: keyword()) :: {:ok, :safe | :unsafe} | {:error, term()}`
+### 6.1. `Deeper_Hub.Security.PathTraversalProtection.check_path(path :: String.t(), opts :: keyword()) :: {:ok, :safe | :unsafe} | {:error, term()}`
 
 *   **Descrição:** Verifica se uma string de caminho contém sequências de path traversal (ex: `../`). Não resolve ou normaliza o caminho.
 *   **`opts`:**
     *   `:patterns_to_check` (list(Regex.t()), opcional): Regexes adicionais para verificar.
 *   **Retorno:** `:safe` se nenhuma sequência perigosa for detectada, `:unsafe` caso contrário.
 
-### 6.2. `DeeperHub.Security.PathTraversalProtection.sanitize_path(path :: String.t(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}`
+### 6.2. `Deeper_Hub.Security.PathTraversalProtection.sanitize_path(path :: String.t(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}`
 
 *   **Descrição:** Tenta remover ou neutralizar sequências de path traversal de uma string de caminho.
 *   **`opts`:**
     *   `:replacement_strategy` (atom): Como lidar com `../` (ex: `:remove`, `:replace_with_underscore`). (Padrão: `:remove`)
 *   **Retorno:** A string de caminho sanitizada.
 
-### 6.3. `DeeperHub.Security.PathTraversalProtection.normalize_path(path :: String.t(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}`
+### 6.3. `Deeper_Hub.Security.PathTraversalProtection.normalize_path(path :: String.t(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}`
 
 *   **Descrição:** Converte um caminho para sua forma canônica e absoluta, resolvendo `.` , `..` e symlinks (via `Path.expand/1`).
 *   **`opts`:**
@@ -128,26 +128,26 @@ security/path_traversal_protection/
 *   **Retorno:** O caminho absoluto e normalizado.
 *   **Atenção:** O uso de `Path.expand/1` implica acesso ao sistema de arquivos.
 
-### 6.4. `DeeperHub.Security.PathTraversalProtection.verify_path_in_base(target_path :: String.t(), allowed_base_dir :: String.t() | list(String.t()), opts :: keyword()) :: {:ok, :allowed | :denied} | {:error, term()}`
+### 6.4. `Deeper_Hub.Security.PathTraversalProtection.verify_path_in_base(target_path :: String.t(), allowed_base_dir :: String.t() | list(String.t()), opts :: keyword()) :: {:ok, :allowed | :denied} | {:error, term()}`
 
 *   **Descrição:** Verifica se o `target_path` (que deve ser absoluto e normalizado) está contido dentro do `allowed_base_dir` (ou qualquer um na lista de diretórios base).
 *   **`opts`:**
     *   `:ensure_target_exists` (boolean): Se `true`, também verifica se `target_path` existe no sistema de arquivos. (Padrão: `false`)
 *   **Retorno:** `:allowed` se seguro, `:denied` se fora do diretório base.
 
-### 6.5. `DeeperHub.Security.PathTraversalProtection.configure_allowed_dirs(list_of_absolute_paths :: list(String.t())) :: :ok | {:error, term()}`
+### 6.5. `Deeper_Hub.Security.PathTraversalProtection.configure_allowed_dirs(list_of_absolute_paths :: list(String.t())) :: :ok | {:error, term()}`
 
 *   **Descrição:** Define a lista de diretórios base que são considerados seguros para a aplicação acessar diretamente. Essa configuração seria armazenada no `Core.ConfigManager`.
 *   **Nota:** É mais provável que essa configuração seja gerenciada pelo `SecurityPolicyManager`.
 
-### 6.6. `DeeperHub.Security.PathTraversalProtection.record_attempt(attempted_path :: String.t(), source_info :: map()) :: :ok`
+### 6.6. `Deeper_Hub.Security.PathTraversalProtection.record_attempt(attempted_path :: String.t(), source_info :: map()) :: :ok`
 
 *   **Descrição:** Registra uma tentativa de path traversal.
 *   **`source_info`:** `%{ip_address: \"...\", user_id: \"...\", request_path: \"...\"}`.
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolicyManager`:
+Via `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPolicyManager`:
 
 *   **`[:security, :path_traversal, :enabled]`** (Boolean): Habilita/desabilita as verificações. (Padrão: `true`)
 *   **`[:security, :path_traversal, :allowed_base_directories]`** (List de Strings): Lista de caminhos absolutos para os diretórios base permitidos (ex: `[\"/var/www/deeper_hub/uploads\", \"/var/www/deeper_hub/public_assets\"]`). Esta é uma configuração CRÍTICA.
@@ -159,9 +159,9 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.ConfigManager`: Para obter a lista de diretórios base permitidos e outras configurações.
-*   `DeeperHub.Core.Logger`: Para logging.
-*   `DeeperHub.Audit` ou `DeeperHub.Security.Monitoring`: Para registrar tentativas.
+*   `Deeper_Hub.Core.ConfigManager`: Para obter a lista de diretórios base permitidos e outras configurações.
+*   `Deeper_Hub.Core.Logger`: Para logging.
+*   `Deeper_Hub.Audit` ou `Deeper_Hub.Security.Monitoring`: Para registrar tentativas.
 
 ### 8.2. Bibliotecas Externas
 
@@ -183,8 +183,8 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
           # Verificar se final_path ainda está dentro do base_upload_dir (após Path.join, pode não ser necessário se base_upload_dir for absoluto e safe_filename não tiver barras)
           # Mas para ser extra seguro, especialmente se base_upload_dir puder ser relativo ou safe_filename puder ser manipulado:
-          {:ok, normalized_final_path} = DeeperHub.Security.PathTraversalProtection.normalize_path(final_path)
-          case DeeperHub.Security.PathTraversalProtection.verify_path_in_base(normalized_final_path, base_upload_dir) do
+          {:ok, normalized_final_path} = Deeper_Hub.Security.PathTraversalProtection.normalize_path(final_path)
+          case Deeper_Hub.Security.PathTraversalProtection.verify_path_in_base(normalized_final_path, base_upload_dir) do
             {:ok, :allowed} -> File.write(normalized_final_path, file_binary)
             _ -> {:error, :unsafe_path}
           end
@@ -195,16 +195,16 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
         def serve_file(conn, requested_file) do
           allowed_dirs = ConfigManager.get([:security, :path_traversal, :allowed_base_directories])
           
-          case DeeperHub.Security.PathTraversalProtection.check_path(requested_file) do
+          case Deeper_Hub.Security.PathTraversalProtection.check_path(requested_file) do
             {:ok, :unsafe} ->
-              DeeperHub.Security.PathTraversalProtection.record_attempt(requested_file, %{ip: ..., conn: conn})
+              Deeper_Hub.Security.PathTraversalProtection.record_attempt(requested_file, %{ip: ..., conn: conn})
               send_resp(conn, 403, \"Forbidden\")
             {:ok, :safe} ->
               # Tentar encontrar o arquivo em cada diretório base permitido
               found_path = Enum.find_value(allowed_dirs, fn base_dir ->
                 potential_path = Path.join(base_dir, requested_file)
-                {:ok, normalized_path} = DeeperHub.Security.PathTraversalProtection.normalize_path(potential_path)
-                case DeeperHub.Security.PathTraversalProtection.verify_path_in_base(normalized_path, base_dir) do
+                {:ok, normalized_path} = Deeper_Hub.Security.PathTraversalProtection.normalize_path(potential_path)
+                case Deeper_Hub.Security.PathTraversalProtection.verify_path_in_base(normalized_path, base_dir) do
                   {:ok, :allowed} when File.exists?(normalized_path) -> normalized_path
                   _ -> nil
                 end
@@ -280,7 +280,7 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 Proteção contra Path Traversal é crucial para qualquer aplicação que lida com arquivos.
 
-O que vem agora? Poderíamos cobrir `DeeperHub.Security.DdosProtection` ou talvez mudar para um módulo Core como `DeeperHub.Core.Cache` para variar um pouco?"""),
+O que vem agora? Poderíamos cobrir `Deeper_Hub.Security.DdosProtection` ou talvez mudar para um módulo Core como `Deeper_Hub.Core.Cache` para variar um pouco?"""),
             ],
         ),
         types.Content(
@@ -292,7 +292,7 @@ O que vem agora? Poderíamos cobrir `DeeperHub.Security.DdosProtection` ou talve
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ok, vamos continuar com a camada de segurança e detalhar o `DeeperHub.Security.DdosProtection`. Ataques de Negação de Serviço Distribuída são uma ameaça significativa para a disponibilidade de qualquer serviço online.
+                types.Part.from_text(text="""Ok, vamos continuar com a camada de segurança e detalhar o `Deeper_Hub.Security.DdosProtection`. Ataques de Negação de Serviço Distribuída são uma ameaça significativa para a disponibilidade de qualquer serviço online.
 
 ---
 

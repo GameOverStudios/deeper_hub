@@ -1,8 +1,8 @@
-# Módulo: `DeeperHub.ServerReviews` ⭐
+# Módulo: `Deeper_Hub.ServerReviews` ⭐
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.ServerReviews`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.ServerReviews`
 
-O módulo `DeeperHub.ServerReviews` é responsável por gerenciar as avaliações (reviews) e classificações que os usuários fornecem para os servidores listados na plataforma DeeperHub. Ele permite que os usuários compartilhem suas experiências, deem notas e escrevam comentários sobre os servidores, ajudando outros usuários a tomar decisões informadas e fornecendo feedback valioso aos proprietários dos servidores. O sistema também lida com o cálculo de médias de avaliação e pode incluir funcionalidades de moderação. 😊
+O módulo `Deeper_Hub.ServerReviews` é responsável por gerenciar as avaliações (reviews) e classificações que os usuários fornecem para os servidores listados na plataforma Deeper_Hub. Ele permite que os usuários compartilhem suas experiências, deem notas e escrevam comentários sobre os servidores, ajudando outros usuários a tomar decisões informadas e fornecendo feedback valioso aos proprietários dos servidores. O sistema também lida com o cálculo de médias de avaliação e pode incluir funcionalidades de moderação. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -21,42 +21,42 @@ O módulo `DeeperHub.ServerReviews` é responsável por gerenciar as avaliaçõe
     *   Calcular e manter a avaliação média para cada servidor com base nas notas das avaliações recebidas.
     *   Exibir o número total de avaliações.
 *   **Moderação de Avaliações:**
-    *   Sistema para reportar avaliações (integrado com `DeeperHub.UserInteractions.ReportService`).
+    *   Sistema para reportar avaliações (integrado com `Deeper_Hub.UserInteractions.ReportService`).
     *   Interface para administradores/moderadores revisarem avaliações reportadas e tomarem ações (ex: aprovar, editar, remover, banir usuário).
     *   (Opcional) Filtros automáticos para linguagem inadequada.
 *   **Interação com Avaliações (Opcional, pode ser parte de `UserInteractions`):**
     *   Permitir que usuários marquem avaliações como \"úteis\" ou \"não úteis\".
     *   Permitir que proprietários de servidores respondam publicamente às avaliações.
 *   **Notificações:**
-    *   Notificar proprietários de servidores sobre novas avaliações (via `DeeperHub.Notifications`).
+    *   Notificar proprietários de servidores sobre novas avaliações (via `Deeper_Hub.Notifications`).
     *   Notificar usuários se suas avaliações forem respondidas ou moderadas.
 *   **Validação e Sanitização de Conteúdo:**
     *   Validar o conteúdo das avaliações (ex: comprimento mínimo/máximo, nota dentro do range).
-    *   Sanitizar o texto para prevenir XSS (via `DeeperHub.Services.Shared.ContentValidation`).
+    *   Sanitizar o texto para prevenir XSS (via `Deeper_Hub.Services.Shared.ContentValidation`).
 *   **Rate Limiting:**
-    *   Limitar a frequência com que um usuário pode postar avaliações (via `DeeperHub.Services.ServerReviews.RateLimitIntegration`).
+    *   Limitar a frequência com que um usuário pode postar avaliações (via `Deeper_Hub.Services.ServerReviews.RateLimitIntegration`).
 
 ## 🏗️ 3. Arquitetura e Design
 
-`DeeperHub.ServerReviews` atuará como uma fachada para um serviço de lógica de negócio e componentes de persistência.
+`Deeper_Hub.ServerReviews` atuará como uma fachada para um serviço de lógica de negócio e componentes de persistência.
 
-*   **Interface Pública (`DeeperHub.ServerReviews.ServerReviewsFacade` ou `DeeperHub.ServerReviews`):** Funções como `create_review/1`, `list_reviews_for_server/2`, `get_average_rating_for_server/1`.
-*   **Serviço de Avaliações (`DeeperHub.ServerReviews.Services.ReviewService`):**
+*   **Interface Pública (`Deeper_Hub.ServerReviews.ServerReviewsFacade` ou `Deeper_Hub.ServerReviews`):** Funções como `create_review/1`, `list_reviews_for_server/2`, `get_average_rating_for_server/1`.
+*   **Serviço de Avaliações (`Deeper_Hub.ServerReviews.Services.ReviewService`):**
     *   Contém a lógica de negócio principal para criar, gerenciar, e agregar avaliações.
 *   **Schemas Ecto:**
-    *   `DeeperHub.ServerReviews.Schema.Review`: Define uma avaliação de servidor.
-    *   (Opcional) `DeeperHub.ServerReviews.Schema.ReviewVote`: Para votos de \"útil\".
-    *   (Opcional) `DeeperHub.ServerReviews.Schema.ReviewComment`: Para respostas a avaliações.
-*   **Cache (`DeeperHub.ServerReviews.Cache` ou via `Core.Cache`):**
+    *   `Deeper_Hub.ServerReviews.Schema.Review`: Define uma avaliação de servidor.
+    *   (Opcional) `Deeper_Hub.ServerReviews.Schema.ReviewVote`: Para votos de \"útil\".
+    *   (Opcional) `Deeper_Hub.ServerReviews.Schema.ReviewComment`: Para respostas a avaliações.
+*   **Cache (`Deeper_Hub.ServerReviews.Cache` ou via `Core.Cache`):**
     *   Cache para avaliações médias de servidores e listas de avaliações frequentemente acessadas.
 *   **Integrações:**
-    *   `DeeperHub.Core.Repo`: Para persistência.
-    *   `DeeperHub.Servers`: Para associar avaliações a servidores e atualizar a nota média do servidor.
-    *   `DeeperHub.Accounts`: Para associar avaliações a usuários.
-    *   `DeeperHub.Notifications`: Para enviar notificações.
-    *   `DeeperHub.UserInteractions.ReportService`: Para o sistema de denúncias.
-    *   `DeeperHub.Services.Shared.ContentValidation`: Para sanitizar o conteúdo das avaliações.
-    *   `DeeperHub.Services.ServerReviews.RateLimitIntegration`: Para controle de taxa.
+    *   `Deeper_Hub.Core.Repo`: Para persistência.
+    *   `Deeper_Hub.Servers`: Para associar avaliações a servidores e atualizar a nota média do servidor.
+    *   `Deeper_Hub.Accounts`: Para associar avaliações a usuários.
+    *   `Deeper_Hub.Notifications`: Para enviar notificações.
+    *   `Deeper_Hub.UserInteractions.ReportService`: Para o sistema de denúncias.
+    *   `Deeper_Hub.Services.Shared.ContentValidation`: Para sanitizar o conteúdo das avaliações.
+    *   `Deeper_Hub.Services.ServerReviews.RateLimitIntegration`: Para controle de taxa.
 
 **Padrões de Design:**
 
@@ -65,12 +65,12 @@ O módulo `DeeperHub.ServerReviews` é responsável por gerenciar as avaliaçõe
 
 ### 3.1. Componentes Principais
 
-*   **`DeeperHub.ServerReviews.ServerReviewsFacade`:** Ponto de entrada.
-*   **`DeeperHub.ServerReviews.Services.ReviewService`:** Lógica de negócio.
-*   **`DeeperHub.ServerReviews.Schema.Review`:** Schema principal da avaliação.
-*   **`DeeperHub.ServerReviews.RateLimitIntegration`:** Gerencia limites de taxa.
-*   **`DeeperHub.ServerReviews.SecurityIntegration`:** Focado em sanitização de conteúdo de reviews.
-*   **`DeeperHub.ServerReviews.Supervisor`:** Supervisiona processos.
+*   **`Deeper_Hub.ServerReviews.ServerReviewsFacade`:** Ponto de entrada.
+*   **`Deeper_Hub.ServerReviews.Services.ReviewService`:** Lógica de negócio.
+*   **`Deeper_Hub.ServerReviews.Schema.Review`:** Schema principal da avaliação.
+*   **`Deeper_Hub.ServerReviews.RateLimitIntegration`:** Gerencia limites de taxa.
+*   **`Deeper_Hub.ServerReviews.SecurityIntegration`:** Focado em sanitização de conteúdo de reviews.
+*   **`Deeper_Hub.ServerReviews.Supervisor`:** Supervisiona processos.
 
 ### 3.3. Decisões de Design Importantes
 
@@ -91,12 +91,12 @@ O módulo `DeeperHub.ServerReviews` é responsável por gerenciar as avaliaçõe
 **Fluxo de Criação de uma Nova Avaliação:**
 
 1.  Usuário autenticado submete o formulário de avaliação para um `server_id`.
-2.  `DeeperHub.API` (Controller) chama `DeeperHub.ServerReviews.create_review(params_com_user_id_e_server_id)`.
-3.  `ServerReviewsFacade` delega para `DeeperHub.ServerReviews.Services.ReviewService.create_review/1`.
+2.  `Deeper_Hub.API` (Controller) chama `Deeper_Hub.ServerReviews.create_review(params_com_user_id_e_server_id)`.
+3.  `ServerReviewsFacade` delega para `Deeper_Hub.ServerReviews.Services.ReviewService.create_review/1`.
 4.  `ReviewService`:
     *   Verifica se o usuário já avaliou este servidor (se a política for de uma review por usuário).
-    *   Chama `DeeperHub.Services.ServerReviews.RateLimitIntegration` para verificar se o usuário não está excedendo o limite de postagem de reviews.
-    *   Chama `DeeperHub.Services.Shared.ContentValidation` para validar e sanitizar o título e o comentário.
+    *   Chama `Deeper_Hub.Services.ServerReviews.RateLimitIntegration` para verificar se o usuário não está excedendo o limite de postagem de reviews.
+    *   Chama `Deeper_Hub.Services.Shared.ContentValidation` para validar e sanitizar o título e o comentário.
     *   Usa `Review.changeset/2` para validar os dados (nota, etc.).
     *   Se tudo válido, cria o registro `Review` via `Core.Repo`.
     *   Enfileira uma tarefa (ou chama diretamente um serviço) para recalcular a nota média do servidor associado.
@@ -106,7 +106,7 @@ O módulo `DeeperHub.ServerReviews` é responsável por gerenciar as avaliaçõe
 
 ## 📡 6. API (Se Aplicável)
 
-### 6.1. `DeeperHub.ServerReviews.create_review/1`
+### 6.1. `Deeper_Hub.ServerReviews.create_review/1`
 
 *   **Descrição:** Permite que um usuário crie uma nova avaliação para um servidor.
 *   **`@spec`:** `create_review(attrs :: map()) :: {:ok, Review.t()} | {:error, Ecto.Changeset.t() | reason}`
@@ -127,13 +127,13 @@ O módulo `DeeperHub.ServerReviews` é responsável por gerenciar as avaliaçõe
       title: \"Melhor servidor de todos!\",
       comments: \"A comunidade é incrível e os admins são muito atenciosos.\"
     }
-    case DeeperHub.ServerReviews.create_review(review_attrs) do
+    case Deeper_Hub.ServerReviews.create_review(review_attrs) do
       {:ok, review} -> Logger.info(\"Review #{review.id} criada.\")
       {:error, reason} -> Logger.error(\"Falha ao criar review: #{inspect(reason)}\")
     end
     ```
 
-### 6.2. `DeeperHub.ServerReviews.list_reviews_for_server/2`
+### 6.2. `Deeper_Hub.ServerReviews.list_reviews_for_server/2`
 
 *   **Descrição:** Lista todas as avaliações para um servidor específico.
 *   **`@spec`:** `list_reviews_for_server(server_id :: String.t(), opts :: Keyword.t()) :: {:ok, list(Review.t())} | {:error, reason}`
@@ -146,10 +146,10 @@ O módulo `DeeperHub.ServerReviews` é responsável por gerenciar as avaliaçõe
 *   **Retorno:** Lista de avaliações.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    {:ok, top_reviews} = DeeperHub.ServerReviews.list_reviews_for_server(\"server_xyz\", order_by: [rating: :desc], limit: 10)
+    {:ok, top_reviews} = Deeper_Hub.ServerReviews.list_reviews_for_server(\"server_xyz\", order_by: [rating: :desc], limit: 10)
     ```
 
-### 6.3. `DeeperHub.ServerReviews.get_average_rating_for_server/1`
+### 6.3. `Deeper_Hub.ServerReviews.get_average_rating_for_server/1`
 
 *   **Descrição:** Calcula e retorna a avaliação média e o número de avaliações para um servidor.
 *   **`@spec`:** `get_average_rating_for_server(server_id :: String.t()) :: {:ok, %{average: float() | nil, count: integer()}} | {:error, reason}`
@@ -158,7 +158,7 @@ O módulo `DeeperHub.ServerReviews` é responsável por gerenciar as avaliaçõe
 *   **Retorno:** Um mapa com a média (float ou nil se não houver reviews) e a contagem de reviews.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    {:ok, rating_info} = DeeperHub.ServerReviews.get_average_rating_for_server(\"server_xyz\")
+    {:ok, rating_info} = Deeper_Hub.ServerReviews.get_average_rating_for_server(\"server_xyz\")
     # rating_info => %{average: 4.7, count: 150}
     ```
 
@@ -166,7 +166,7 @@ O módulo `DeeperHub.ServerReviews` é responsável por gerenciar as avaliaçõe
 
 ## ⚙️ 7. Configuração
 
-*   **ConfigManager (`DeeperHub.Core.ConfigManager`):**
+*   **ConfigManager (`Deeper_Hub.Core.ConfigManager`):**
     *   `[:server_reviews, :min_rating_value]`: Valor mínimo para a nota. (Padrão: `1`)
     *   `[:server_reviews, :max_rating_value]`: Valor máximo para a nota. (Padrão: `5`)
     *   `[:server_reviews, :allow_anonymous_reviews]`: (Boolean) Se permite reviews anônimas (não recomendado). (Padrão: `false`)
@@ -179,17 +179,17 @@ O módulo `DeeperHub.ServerReviews` é responsável por gerenciar as avaliaçõe
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.Repo`
-*   `DeeperHub.Core.ConfigManager`
-*   `DeeperHub.Core.Cache`
-*   `DeeperHub.Core.EventBus`
-*   `DeeperHub.Notifications`
-*   `DeeperHub.Servers`
-*   `DeeperHub.Accounts`
-*   `DeeperHub.Services.Shared.ContentValidation`
-*   `DeeperHub.Services.ServerReviews.RateLimitIntegration`
-*   `DeeperHub.UserInteractions.ReportService` (para denúncias)
-*   `DeeperHub.Core.Logger`, `DeeperHub.Core.Metrics`
+*   `Deeper_Hub.Core.Repo`
+*   `Deeper_Hub.Core.ConfigManager`
+*   `Deeper_Hub.Core.Cache`
+*   `Deeper_Hub.Core.EventBus`
+*   `Deeper_Hub.Notifications`
+*   `Deeper_Hub.Servers`
+*   `Deeper_Hub.Accounts`
+*   `Deeper_Hub.Services.Shared.ContentValidation`
+*   `Deeper_Hub.Services.ServerReviews.RateLimitIntegration`
+*   `Deeper_Hub.UserInteractions.ReportService` (para denúncias)
+*   `Deeper_Hub.Core.Logger`, `Deeper_Hub.Core.Metrics`
 
 ### 8.2. Bibliotecas Externas
 
@@ -223,8 +223,8 @@ O módulo `DeeperHub.ServerReviews` é responsável por gerenciar as avaliaçõe
 
 ### 10.3. Logs
 
-*   `Logger.info(\"Review #{id} criada por user_id: #{uid} para server_id: #{sid}\", module: DeeperHub.ServerReviews.Services.ReviewService)`
-*   `Logger.warning(\"Review #{id} reportada por user_id: #{reporter_id}. Motivo: #{reason}\", module: DeeperHub.UserInteractions.ReportService)`
+*   `Logger.info(\"Review #{id} criada por user_id: #{uid} para server_id: #{sid}\", module: Deeper_Hub.ServerReviews.Services.ReviewService)`
+*   `Logger.warning(\"Review #{id} reportada por user_id: #{reporter_id}. Motivo: #{reason}\", module: Deeper_Hub.UserInteractions.ReportService)`
 
 ### 10.4. Telemetria
 
@@ -267,11 +267,11 @@ O módulo `DeeperHub.ServerReviews` é responsável por gerenciar as avaliaçõe
 
 ---
 
-Pronto! O último módulo que estava na sua lista original de \"Services\" e que precisava de um README principal era o `Elixir.DeeperHub.Services.ServerTags`, que já fizemos. E também fizemos `Elixir.DeeperHub.Services.ServerAlerts`, `ServerEvents`, e `ServerPackages`.
+Pronto! O último módulo que estava na sua lista original de \"Services\" e que precisava de um README principal era o `Elixir.Deeper_Hub.Services.ServerTags`, que já fizemos. E também fizemos `Elixir.Deeper_Hub.Services.ServerAlerts`, `ServerEvents`, e `ServerPackages`.
 
-Com isso, cobrimos todos os módulos que você identificou na sua pasta `c:\\New\\readmes\\` (os que estavam no nível `DeeperHub.*`), mais os que estavam sob `Services` e foram elevados, e os novos módulos `Core` que sugeri.
+Com isso, cobrimos todos os módulos que você identificou na sua pasta `c:\\New\\readmes\\` (os que estavam no nível `Deeper_Hub.*`), mais os que estavam sob `Services` e foram elevados, e os novos módulos `Core` que sugeri.
 
-Acredito que agora você tem um conjunto muito robusto de READMEs para a arquitetura de alto nível do DeeperHub!
+Acredito que agora você tem um conjunto muito robusto de READMEs para a arquitetura de alto nível do Deeper_Hub!
 
 O que gostaria de fazer a seguir? Há algum módulo específico que não cobrimos e você gostaria de ver, ou alguma seção de um dos READMEs que gostaria de aprofundar?"""),
             ],
@@ -290,9 +290,9 @@ O que gostaria de fazer a seguir? Há algum módulo específico que não cobrimo
 Você é excelente em categorizar, especificar e criar arquivos README dos Módulos do Sistema.
 Você organiza, especifica e categoria o máximo ***todas*** as características e itens de todos os módulos de sistemas. Sempre especifica TUDO!
 
-# Template: README para Módulos do DeeperHub
+# Template: README para Módulos do Deeper_Hub
 
-Este é um template para a criação de arquivos `README.md` para os módulos do projeto DeeperHub. O objetivo é padronizar a documentação, tornando-a mais clara, completa e consistente.
+Este é um template para a criação de arquivos `README.md` para os módulos do projeto Deeper_Hub. O objetivo é padronizar a documentação, tornando-a mais clara, completa e consistente.
 
 **Instruções:**
 - Substitua `[Nome do Módulo]` pelo nome real do módulo.

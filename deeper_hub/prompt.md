@@ -1,8 +1,8 @@
-# Diretrizes de Codificação para o Projeto DeeperHub 🚀
+# Diretrizes de Codificação para o Projeto Deeper_Hub 🚀
 
 ## Introdução
 
-Este documento estabelece as diretrizes e práticas recomendadas para o desenvolvimento do projeto DeeperHub. Seu objetivo é minimizar erros de desenvolvimento, garantir consistência no código e assegurar que todas as implementações sigam fielmente as especificações descritas nos arquivos README de cada módulo.
+Este documento estabelece as diretrizes e práticas recomendadas para o desenvolvimento do projeto Deeper_Hub. Seu objetivo é minimizar erros de desenvolvimento, garantir consistência no código e assegurar que todas as implementações sigam fielmente as especificações descritas nos arquivos README de cada módulo.
 
 ## 🔍 Conformidade com Especificações
 
@@ -145,6 +145,6 @@ Utilize esta checklist após cada implementação ou correção:
 
 ## Conclusão
 
-Seguir estas diretrizes rigorosamente ajudará a manter a qualidade do código, minimizar erros e garantir que o projeto DeeperHub seja desenvolvido de acordo com as especificações. A revisão pós-implementação é **EXTREMAMENTE IMPORTANTE** e deve ser realizada após cada desenvolvimento ou correção para evitar a acumulação de problemas técnicos e garantir um código limpo e funcional.
+Seguir estas diretrizes rigorosamente ajudará a manter a qualidade do código, minimizar erros e garantir que o projeto Deeper_Hub seja desenvolvido de acordo com as especificações. A revisão pós-implementação é **EXTREMAMENTE IMPORTANTE** e deve ser realizada após cada desenvolvimento ou correção para evitar a acumulação de problemas técnicos e garantir um código limpo e funcional.
 
 Lembre-se: Um código limpo e bem estruturado é mais fácil de manter, estender e depurar. Invista tempo na qualidade agora para economizar tempo no futuro.

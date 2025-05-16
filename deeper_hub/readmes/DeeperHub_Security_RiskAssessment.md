@@ -1,10 +1,10 @@
-# Módulo: `DeeperHub.Security.RiskAssessment` 🚀
+# Módulo: `Deeper_Hub.Security.RiskAssessment` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Security.RiskAssessment`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Security.RiskAssessment`
 
-O módulo `DeeperHub.Security.RiskAssessment` é o componente central do DeeperHub responsável por **avaliar e quantificar o nível de risco associado a diversas operações e interações dentro do sistema**. Ele agrega informações de múltiplos fatores e fontes – como comportamento do usuário, dados do dispositivo, localização geográfica, natureza da operação, e alertas de outros sistemas de segurança (ex: `FraudDetection`, `IntrusionDetection`) – para calcular uma pontuação de risco compreensiva.
+O módulo `Deeper_Hub.Security.RiskAssessment` é o componente central do Deeper_Hub responsável por **avaliar e quantificar o nível de risco associado a diversas operações e interações dentro do sistema**. Ele agrega informações de múltiplos fatores e fontes – como comportamento do usuário, dados do dispositivo, localização geográfica, natureza da operação, e alertas de outros sistemas de segurança (ex: `FraudDetection`, `IntrusionDetection`) – para calcular uma pontuação de risco compreensiva.
 
-O objetivo principal é permitir que o DeeperHub tome decisões de segurança adaptativas e contextuais. Com base na avaliação de risco, o sistema pode, por exemplo, permitir uma operação, exigir etapas adicionais de verificação (como MFA), impor limitações, ou até mesmo bloquear uma ação considerada de alto risco. Este módulo é crucial para uma postura de segurança proativa e dinâmica. 😊
+O objetivo principal é permitir que o Deeper_Hub tome decisões de segurança adaptativas e contextuais. Com base na avaliação de risco, o sistema pode, por exemplo, permitir uma operação, exigir etapas adicionais de verificação (como MFA), impor limitações, ou até mesmo bloquear uma ação considerada de alto risco. Este módulo é crucial para uma postura de segurança proativa e dinâmica. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -29,10 +29,10 @@ O objetivo principal é permitir que o DeeperHub tome decisões de segurança ad
     *   Construir e manter um perfil de risco dinâmico para cada usuário, refletindo seu histórico de risco e comportamento.
     *   Atualizar o perfil com base em novas avaliações.
 *   **Políticas de Risco Configuráveis:**
-    *   Permitir a definição e ajuste de pesos de fatores, limiares de nível de risco e regras para recomendação de ações através do `DeeperHub.Security.Policy.SecurityPolicyManager`.
+    *   Permitir a definição e ajuste de pesos de fatores, limiares de nível de risco e regras para recomendação de ações através do `Deeper_Hub.Security.Policy.SecurityPolicyManager`.
 *   **Histórico e Auditoria de Avaliações:**
     *   Manter um registro de todas as avaliações de risco realizadas, incluindo os fatores contribuintes e o resultado.
-    *   Integrar com `DeeperHub.Audit` para auditoria.
+    *   Integrar com `Deeper_Hub.Audit` para auditoria.
 *   **Calibração e Feedback (Opcional):**
     *   Permitir a calibração dos modelos de risco e pesos dos fatores com base em feedback manual (ex: análise de falsos positivos/negativos) ou aprendizado automático.
 *   **Observabilidade:**
@@ -42,14 +42,14 @@ O objetivo principal é permitir que o DeeperHub tome decisões de segurança ad
 
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.Security.RiskAssessment` (Fachada Pública):**
+1.  **`Deeper_Hub.Security.RiskAssessment` (Fachada Pública):**
     *   Ponto de entrada para todas as solicitações de avaliação de risco.
     *   Delega para o `DefaultRiskAssessmentService`.
-2.  **`DeeperHub.Security.RiskAssessment.Services.DefaultRiskAssessmentService` (GenServer ou Serviço Coordenador):**
+2.  **`Deeper_Hub.Security.RiskAssessment.Services.DefaultRiskAssessmentService` (GenServer ou Serviço Coordenador):**
     *   **Responsabilidade:** Orquestra todo o processo de avaliação.
     *   **Interações:**
         *   Coleta dados de contexto (IP, dispositivo, sessão).
-        *   Obtém dados do usuário (de `DeeperHub.Accounts`) e seu perfil de risco (do `ProfileStore` interno ou de `DefaultRiskAssessmentService` mesmo).
+        *   Obtém dados do usuário (de `Deeper_Hub.Accounts`) e seu perfil de risco (do `ProfileStore` interno ou de `DefaultRiskAssessmentService` mesmo).
         *   Chama `RiskFactorCalculator` para fatores de risco baseados em atributos.
         *   Chama `AdvancedRiskFactors` para fatores comportamentais e contextuais mais complexos (pode interagir com `BehavioralAnalysis`, `LoginLocation`).
         *   Envia os fatores e seus valores para `RiskCalculatorService`.
@@ -57,23 +57,23 @@ O objetivo principal é permitir que o DeeperHub tome decisões de segurança ad
         *   Chama `RiskActionRecommender` para obter ações sugeridas.
         *   Registra a avaliação (via `RiskAssessmentLogStore` ou similar).
         *   Atualiza o perfil de risco do usuário.
-3.  **`DeeperHub.Security.RiskAssessment.Services.RiskFactorCalculator`:**
+3.  **`Deeper_Hub.Security.RiskAssessment.Services.RiskFactorCalculator`:**
     *   Módulo funcional contendo funções para calcular valores de fatores de risco individuais (ex: `calculate_ip_risk(ip)`, `calculate_device_novelty_score(user_id, device_fingerprint)`).
-4.  **`DeeperHub.Security.RiskAssessment.Services.AdvancedRiskFactors`:**
+4.  **`Deeper_Hub.Security.RiskAssessment.Services.AdvancedRiskFactors`:**
     *   Módulo funcional ou GenServer para fatores que exigem mais estado ou análise (ex: `calculate_impossible_travel_score`, `get_behavioral_anomaly_score`).
-5.  **`DeeperHub.Security.RiskAssessment.Services.RiskCalculatorService`:**
+5.  **`Deeper_Hub.Security.RiskAssessment.Services.RiskCalculatorService`:**
     *   Módulo funcional que aplica pesos (obtidos de `SecurityPolicyManager`) aos fatores de risco e calcula a pontuação final.
     *   Determina o nível de risco com base em limiares configurados.
-6.  **`DeeperHub.Security.RiskAssessment.Services.RiskActionRecommender`:**
+6.  **`Deeper_Hub.Security.RiskAssessment.Services.RiskActionRecommender`:**
     *   Módulo funcional ou GenServer que, com base no nível de risco, tipo de operação e políticas, sugere um conjunto de ações (ex: `[:require_mfa, :notify_user]`).
-7.  **`DeeperHub.Security.RiskAssessment.Services.RiskWeightCalibrator` (Opcional):**
+7.  **`Deeper_Hub.Security.RiskAssessment.Services.RiskWeightCalibrator` (Opcional):**
     *   GenServer para gerenciar e potencialmente auto-ajustar os pesos dos fatores de risco.
-8.  **`DeeperHub.Security.RiskAssessment.Metrics.RiskMetricsCollector` (GenServer):**
+8.  **`Deeper_Hub.Security.RiskAssessment.Metrics.RiskMetricsCollector` (GenServer):**
     *   Coleta e agrega métricas sobre as avaliações de risco.
 9.  **Schemas (Persistência):**
-    *   `DeeperHub.Security.RiskAssessment.Schemas.RiskProfile`: Para armazenar o perfil de risco de cada usuário.
-    *   `DeeperHub.Security.RiskAssessment.Schemas.RiskAssessmentLog`: Para armazenar o histórico de avaliações de risco.
-10. **Configurações (via `DeeperHub.Core.ConfigManager` e `DeeperHub.Security.Policy.SecurityPolicyManager`):**
+    *   `Deeper_Hub.Security.RiskAssessment.Schemas.RiskProfile`: Para armazenar o perfil de risco de cada usuário.
+    *   `Deeper_Hub.Security.RiskAssessment.Schemas.RiskAssessmentLog`: Para armazenar o histórico de avaliações de risco.
+10. **Configurações (via `Deeper_Hub.Core.ConfigManager` e `Deeper_Hub.Security.Policy.SecurityPolicyManager`):**
     *   Define pesos, limiares, regras de ação, etc.
 
 ### 3.2. Estrutura de Diretórios (Consistente com a anterior)
@@ -111,11 +111,11 @@ security/risk_assessment/
 ## 🛠️ 4. Casos de Uso Principais
 
 *   **Avaliação de Risco de Login:**
-    *   `DeeperHub.Auth` solicita uma avaliação de risco para uma tentativa de login.
+    *   `Deeper_Hub.Auth` solicita uma avaliação de risco para uma tentativa de login.
     *   `RiskAssessment` considera: IP (novo, reputação), dispositivo (novo, confiável), localização (usual, viagem impossível), horário (usual), histórico de tentativas falhas, score de anomalia comportamental.
     *   Retorna um score e ações (ex: permitir, exigir MFA).
 *   **Avaliação de Risco de Mudança de Senha:**
-    *   `DeeperHub.Accounts` solicita avaliação antes de permitir a mudança de senha.
+    *   `Deeper_Hub.Accounts` solicita avaliação antes de permitir a mudança de senha.
     *   `RiskAssessment` considera: sessão atual (MFA verificado recentemente?), IP/dispositivo da solicitação, se a senha antiga foi fornecida corretamente.
     *   Pode recomendar notificação ao usuário em todos os casos, e MFA se o risco for médio/alto.
 *   **Avaliação de Risco de uma Transação de Alto Valor (Exemplo):**
@@ -127,7 +127,7 @@ security/risk_assessment/
 
 ### Fluxo de Avaliação de Risco Genérico (`assess_risk/4`)
 
-1.  **Solicitação:** Um módulo chama `DeeperHub.Security.RiskAssessment.assess_risk(user_id, operation_type, operation_data, context_data)`.
+1.  **Solicitação:** Um módulo chama `Deeper_Hub.Security.RiskAssessment.assess_risk(user_id, operation_type, operation_data, context_data)`.
 2.  **`DefaultRiskAssessmentService`:**
     *   **Coleta de Dados:**
         *   Obtém perfil de risco do `user_id` (se existir).
@@ -150,7 +150,7 @@ security/risk_assessment/
 
 *(Baseado no que já foi documentado e consolidado)*
 
-### 6.1. `DeeperHub.Security.RiskAssessment.assess_risk(user_id :: String.t() | nil, operation_type :: atom(), operation_data :: map(), context_data :: map(), opts :: keyword()) :: {:ok, RiskAssessmentResult.t()} | {:error, term()}`
+### 6.1. `Deeper_Hub.Security.RiskAssessment.assess_risk(user_id :: String.t() | nil, operation_type :: atom(), operation_data :: map(), context_data :: map(), opts :: keyword()) :: {:ok, RiskAssessmentResult.t()} | {:error, term()}`
 
 *   **Descrição:** Avalia o risco de uma operação, considerando o usuário, tipo de operação, dados específicos da operação e contexto.
 *   **`operation_type`:** Ex: `:login`, `:password_change`, `:email_update`, `:api_access_resource_x`, `:financial_transaction`.
@@ -159,18 +159,18 @@ security/risk_assessment/
 *   **`opts`:** Opções adicionais, como `:force_recalculation` (ignorar cache de perfil de risco).
 *   **`RiskAssessmentResult.t()`:** `%{risk_score: float(), risk_level: atom(), recommended_actions: list(atom()), contributing_factors: list(%{factor: atom(), value: term(), score_impact: float()}), assessment_id: String.t()}`.
 
-### 6.2. `DeeperHub.Security.RiskAssessment.get_user_risk_profile(user_id :: String.t(), opts :: keyword()) :: {:ok, UserRiskProfile.t()} | {:error, :not_found | term()}`
+### 6.2. `Deeper_Hub.Security.RiskAssessment.get_user_risk_profile(user_id :: String.t(), opts :: keyword()) :: {:ok, UserRiskProfile.t()} | {:error, :not_found | term()}`
 
 *   **Descrição:** Obtém o perfil de risco atual de um usuário.
 *   **`UserRiskProfile.t()`:** Mapa contendo dados como `%{average_login_risk: float(), last_high_risk_event_at: DateTime.t() | nil, typical_locations: list(map()), known_devices: list(String.t()), behavioral_baseline_summary: map()}`.
 
-### 6.3. `DeeperHub.Security.RiskAssessment.get_assessment_details(assessment_id :: String.t()) :: {:ok, RiskAssessmentLog.t()} | {:error, :not_found | term()}` (Nova Sugestão)
+### 6.3. `Deeper_Hub.Security.RiskAssessment.get_assessment_details(assessment_id :: String.t()) :: {:ok, RiskAssessmentLog.t()} | {:error, :not_found | term()}` (Nova Sugestão)
 
 *   **Descrição:** Recupera os detalhes completos de uma avaliação de risco específica pelo seu ID.
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager` e `DeeperHub.Security.Policy.SecurityPolicyManager`:
+Via `Deeper_Hub.Core.ConfigManager` e `Deeper_Hub.Security.Policy.SecurityPolicyManager`:
 
 *   **`[:security, :risk_assessment, :enabled]`** (Boolean): Habilita/desabilita o módulo.
 *   **`[:security, :risk_assessment, :default_weights, <factor_name>]`** (Float): Peso padrão para cada fator de risco.
@@ -187,13 +187,13 @@ Via `DeeperHub.Core.ConfigManager` e `DeeperHub.Security.Policy.SecurityPolicyMa
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.ConfigManager`, `Core.Logger`, `Core.Metrics`, `Core.Repo`.
-*   `DeeperHub.Security.Policy.SecurityPolicyManager`: Essencial para obter pesos, limiares e regras de ação.
-*   `DeeperHub.Security.LoginLocation`, `DeeperHub.Security.DeviceFingerprint`, `DeeperHub.Security.BehavioralAnalysis`: Fornecedores chave de fatores de risco.
-*   `DeeperHub.Security.FraudDetection`: Pode ser tanto um consumidor dos resultados do RiskAssessment quanto um provedor de um fator de risco (\"fraude detectada anteriormente\").
-*   `DeeperHub.Accounts`: Para dados de usuário.
-*   `DeeperHub.MFA`: Para executar ações como `:require_mfa`.
-*   `DeeperHub.Audit`: Para logar as avaliações.
+*   `Deeper_Hub.Core.ConfigManager`, `Core.Logger`, `Core.Metrics`, `Core.Repo`.
+*   `Deeper_Hub.Security.Policy.SecurityPolicyManager`: Essencial para obter pesos, limiares e regras de ação.
+*   `Deeper_Hub.Security.LoginLocation`, `Deeper_Hub.Security.DeviceFingerprint`, `Deeper_Hub.Security.BehavioralAnalysis`: Fornecedores chave de fatores de risco.
+*   `Deeper_Hub.Security.FraudDetection`: Pode ser tanto um consumidor dos resultados do RiskAssessment quanto um provedor de um fator de risco (\"fraude detectada anteriormente\").
+*   `Deeper_Hub.Accounts`: Para dados de usuário.
+*   `Deeper_Hub.MFA`: Para executar ações como `:require_mfa`.
+*   `Deeper_Hub.Audit`: Para logar as avaliações.
 
 ### 8.2. Bibliotecas Externas
 
@@ -203,11 +203,11 @@ Via `DeeperHub.Core.ConfigManager` e `DeeperHub.Security.Policy.SecurityPolicyMa
 
 O `RiskAssessment` é tipicamente chamado por outros módulos de segurança ou de domínio antes de permitir operações sensíveis.
 
-**Exemplo em `DeeperHub.Auth` durante o login:**
+**Exemplo em `Deeper_Hub.Auth` durante o login:**
 ```elixir
 # Dentro do fluxo de login, após a verificação primária da senha
 context_data = %{ip_address: ip, device_fingerprint: fp, user_agent: ua}
-case DeeperHub.Security.RiskAssessment.assess_risk(user.id, :login, %{}, context_data) do
+case Deeper_Hub.Security.RiskAssessment.assess_risk(user.id, :login, %{}, context_data) do
   {:ok, %{recommended_actions: actions}} ->
     if :block in actions do
       {:error, :login_blocked_high_risk}
@@ -291,7 +291,7 @@ end
 
 O `RiskAssessment` é um módulo integrador bem interessante!
 
-Qual o próximo? Talvez `DeeperHub.Security.DeviceFingerprint` e `DeeperHub.Security.GeoLocationService`, que são importantes provedores de fatores de risco? Ou prefere algo do Core, como `DeeperHub.Core.Cache`?"""),
+Qual o próximo? Talvez `Deeper_Hub.Security.DeviceFingerprint` e `Deeper_Hub.Security.GeoLocationService`, que são importantes provedores de fatores de risco? Ou prefere algo do Core, como `Deeper_Hub.Core.Cache`?"""),
             ],
         ),
         types.Content(
@@ -303,7 +303,7 @@ Qual o próximo? Talvez `DeeperHub.Security.DeviceFingerprint` e `DeeperHub.Secu
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Entendido! Vamos seguir com `DeeperHub.Security.DeviceFingerprint` e, em seguida, podemos abordar `DeeperHub.Security.GeoLocationService`, pois ambos são fontes importantes de informação para o `RiskAssessment`.
+                types.Part.from_text(text="""Entendido! Vamos seguir com `Deeper_Hub.Security.DeviceFingerprint` e, em seguida, podemos abordar `Deeper_Hub.Security.GeoLocationService`, pois ambos são fontes importantes de informação para o `RiskAssessment`.
 
 ---
 

@@ -1,4 +1,4 @@
-defmodule DeeperHub.Inspector.Module do
+defmodule Deeper_Hub.Inspector.Module do
   @moduledoc """
   Schema Ecto para informações de um módulo inspecionado. 📜
   """
@@ -13,9 +13,9 @@ defmodule DeeperHub.Inspector.Module do
     field :struct_definition, :string
 
     # Relacionamentos (definidos depois)
-    # has_many :functions, DeeperHub.Inspector.Function, foreign_key: :module_name, references: :name
-    # has_many :typespecs, DeeperHub.Inspector.TypeSpec, foreign_key: :module_name, references: :name
-    has_many :behaviours, DeeperHub.Inspector.Behaviour,
+    # has_many :functions, Deeper_Hub.Inspector.Function, foreign_key: :module_name, references: :name
+    # has_many :typespecs, Deeper_Hub.Inspector.TypeSpec, foreign_key: :module_name, references: :name
+    has_many :behaviours, Deeper_Hub.Inspector.Behaviour,
       foreign_key: :module_name,
       references: :name
 

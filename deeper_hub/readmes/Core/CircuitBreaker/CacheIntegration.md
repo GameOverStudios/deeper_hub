@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-Este documento descreve como utilizar a integração entre os módulos CircuitBreaker e Cache do DeeperHub para criar operações resilientes com fallback automático para dados em cache.
+Este documento descreve como utilizar a integração entre os módulos CircuitBreaker e Cache do Deeper_Hub para criar operações resilientes com fallback automático para dados em cache.
 
 ## Funcionalidades
 
@@ -14,7 +14,7 @@ Este documento descreve como utilizar a integração entre os módulos CircuitBr
 
 ## Instalação
 
-A integração entre CircuitBreaker e Cache já está disponível como parte do DeeperHub Core. Não é necessária nenhuma instalação adicional.
+A integração entre CircuitBreaker e Cache já está disponível como parte do Deeper_Hub Core. Não é necessária nenhuma instalação adicional.
 
 ## Uso Básico
 

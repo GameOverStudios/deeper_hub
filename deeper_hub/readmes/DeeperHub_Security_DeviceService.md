@@ -1,10 +1,10 @@
-# Módulo: `DeeperHub.Security.DeviceService` 🚀
+# Módulo: `Deeper_Hub.Security.DeviceService` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Security.DeviceService`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Security.DeviceService`
 
-O módulo `DeeperHub.Security.DeviceService` é responsável por gerenciar os dispositivos que os usuários utilizam para acessar o sistema DeeperHub. Ele permite registrar novos dispositivos, associá-los a usuários, marcar dispositivos como \"confiáveis\", bloquear dispositivos suspeitos e manter um histórico de acesso por dispositivo.
+O módulo `Deeper_Hub.Security.DeviceService` é responsável por gerenciar os dispositivos que os usuários utilizam para acessar o sistema Deeper_Hub. Ele permite registrar novos dispositivos, associá-los a usuários, marcar dispositivos como \"confiáveis\", bloquear dispositivos suspeitos e manter um histórico de acesso por dispositivo.
 
-Este serviço utiliza as \"fingerprints\" geradas pelo `DeeperHub.Security.DeviceFingerprint` para identificar dispositivos de forma quasi-única. As informações gerenciadas por este serviço são um componente vital para a avaliação de risco (`DeeperHub.Security.RiskAssessment`) e para a aplicação de políticas de autenticação adaptativas (ex: pular MFA para dispositivos confiáveis). 😊
+Este serviço utiliza as \"fingerprints\" geradas pelo `Deeper_Hub.Security.DeviceFingerprint` para identificar dispositivos de forma quasi-única. As informações gerenciadas por este serviço são um componente vital para a avaliação de risco (`Deeper_Hub.Security.RiskAssessment`) e para a aplicação de políticas de autenticação adaptativas (ex: pular MFA para dispositivos confiáveis). 😊
 
 *(Nota: Na documentação original, algumas dessas funcionalidades estavam dispersas ou implícitas no `SecurityManager` ou `SecurityAdapter`. Esta documentação propõe um serviço dedicado para maior clareza e coesão.)*
 
@@ -32,25 +32,25 @@ Este serviço utiliza as \"fingerprints\" geradas pelo `DeeperHub.Security.Devic
     *   Implementar uma lógica para remover registros de dispositivos muito antigos ou inativos.
 *   **Integração com Outros Módulos de Segurança:**
     *   Fornecer informações sobre dispositivos para `RiskAssessment` e `FraudDetection`.
-    *   Ser consultado por `DeeperHub.Auth` durante o fluxo de login para decisões sobre MFA.
+    *   Ser consultado por `Deeper_Hub.Auth` durante o fluxo de login para decisões sobre MFA.
 
 ## 🏗️ 3. Arquitetura e Design
 
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.Security.DeviceService` (Fachada/Serviço Principal):**
+1.  **`Deeper_Hub.Security.DeviceService` (Fachada/Serviço Principal):**
     *   **Responsabilidade:** Ponto de entrada para todas as operações relacionadas a dispositivos. Contém a lógica de negócio.
     *   **Interações:**
-        *   Utiliza `DeeperHub.Security.DeviceFingerprint.generate_fingerprint/1` ao registrar novos dispositivos.
-        *   Interage com `DeeperHub.Core.Repo` para persistir e consultar dados de dispositivos no schema `DeviceSchema`.
-        *   Pode interagir com `DeeperHub.Core.EventBus` para publicar eventos sobre mudanças de status de dispositivos.
-        *   Pode interagir com `DeeperHub.Core.Cache` para armazenar em cache informações de dispositivos frequentemente acessadas.
-2.  **`DeeperHub.Security.Schema.DeviceSchema` (Ecto Schema, ex-`DeeperHub.Security.Device`):**
+        *   Utiliza `Deeper_Hub.Security.DeviceFingerprint.generate_fingerprint/1` ao registrar novos dispositivos.
+        *   Interage com `Deeper_Hub.Core.Repo` para persistir e consultar dados de dispositivos no schema `DeviceSchema`.
+        *   Pode interagir com `Deeper_Hub.Core.EventBus` para publicar eventos sobre mudanças de status de dispositivos.
+        *   Pode interagir com `Deeper_Hub.Core.Cache` para armazenar em cache informações de dispositivos frequentemente acessadas.
+2.  **`Deeper_Hub.Security.Schema.DeviceSchema` (Ecto Schema, ex-`Deeper_Hub.Security.Device`):**
     *   **Responsabilidade:** Define a estrutura da tabela de dispositivos no banco de dados.
     *   **Campos:** `id`, `user_id`, `fingerprint` (hash), `name` (dado pelo usuário), `type` (ex: \"desktop\", \"mobile\", \"tablet\"), `os`, `browser`, `first_seen_at`, `last_seen_at`, `last_known_ip`, `is_trusted`, `trusted_until` (opcional), `is_blocked`, `blocked_reason`, `blocked_at`.
-3.  **`DeeperHub.Security.DeviceFingerprint` (Módulo Colaborador):**
+3.  **`Deeper_Hub.Security.DeviceFingerprint` (Módulo Colaborador):**
     *   Fornece a lógica para gerar e comparar fingerprints.
-4.  **Configurações (via `DeeperHub.Core.ConfigManager` e `DeeperHub.Security.Policy.SecurityPolicyManager`):**
+4.  **Configurações (via `Deeper_Hub.Core.ConfigManager` e `Deeper_Hub.Security.Policy.SecurityPolicyManager`):**
     *   Duração padrão da confiança de um dispositivo.
     *   Número máximo de dispositivos confiáveis por usuário.
     *   Políticas de limpeza de dispositivos inativos.
@@ -120,7 +120,7 @@ No entanto, muitas das funções do `DeviceService` são operações CRUD que po
 
 ## 📡 6. API (Funções Públicas do Módulo)
 
-### 6.1. `DeeperHub.Security.DeviceService.register_device(user_id :: String.t(), fingerprint :: String.t(), device_attributes :: map(), opts :: keyword()) :: {:ok, DeviceSchema.t()} | {:error, Ecto.Changeset.t() | term()}`
+### 6.1. `Deeper_Hub.Security.DeviceService.register_device(user_id :: String.t(), fingerprint :: String.t(), device_attributes :: map(), opts :: keyword()) :: {:ok, DeviceSchema.t()} | {:error, Ecto.Changeset.t() | term()}`
 
 *   **Descrição:** Registra um novo dispositivo para um usuário ou atualiza um existente com a mesma fingerprint.
 *   **`device_attributes`:** Mapa com dados como `%{name: \"Meu Laptop\", type: \"desktop\", os: \"Windows 10\", browser: \"Chrome\", first_seen_ip: \"...\"}`.
@@ -129,7 +129,7 @@ No entanto, muitas das funções do `DeviceService` são operações CRUD que po
     *   `:trust_duration_seconds` (integer | nil): Duração da confiança. `nil` para indefinido.
 *   **Retorno:** A struct do dispositivo criado/atualizado ou um erro.
 
-### 6.2. `DeeperHub.Security.DeviceService.list_devices(user_id :: String.t(), opts :: keyword()) :: {:ok, list(DeviceSchema.t())} | {:error, term()}`
+### 6.2. `Deeper_Hub.Security.DeviceService.list_devices(user_id :: String.t(), opts :: keyword()) :: {:ok, list(DeviceSchema.t())} | {:error, term()}`
 
 *   **Descrição:** Lista os dispositivos registrados para um usuário.
 *   **`opts`:**
@@ -137,43 +137,43 @@ No entanto, muitas das funções do `DeviceService` são operações CRUD que po
     *   `:sort_by` (atom): Campo para ordenação (ex: `:last_seen_at`). (Padrão: `:last_seen_at`)
     *   `:sort_order` (atom): `:asc` ou `:desc`. (Padrão: `:desc`)
 
-### 6.3. `DeeperHub.Security.DeviceService.get_device(device_id :: String.t()) :: {:ok, DeviceSchema.t()} | {:error, :not_found}`
+### 6.3. `Deeper_Hub.Security.DeviceService.get_device(device_id :: String.t()) :: {:ok, DeviceSchema.t()} | {:error, :not_found}`
 
 *   **Descrição:** Obtém um dispositivo pelo seu ID único de banco de dados.
 
-### 6.4. `DeeperHub.Security.DeviceService.get_device_by_fingerprint(user_id :: String.t(), fingerprint :: String.t()) :: {:ok, DeviceSchema.t()} | {:error, :not_found}`
+### 6.4. `Deeper_Hub.Security.DeviceService.get_device_by_fingerprint(user_id :: String.t(), fingerprint :: String.t()) :: {:ok, DeviceSchema.t()} | {:error, :not_found}`
 
 *   **Descrição:** Obtém um dispositivo pela fingerprint e ID do usuário.
 
-### 6.5. `DeeperHub.Security.DeviceService.trust_device(user_id :: String.t(), device_id_or_fp :: String.t(), opts :: keyword()) :: {:ok, DeviceSchema.t()} | {:error, term()}`
+### 6.5. `Deeper_Hub.Security.DeviceService.trust_device(user_id :: String.t(), device_id_or_fp :: String.t(), opts :: keyword()) :: {:ok, DeviceSchema.t()} | {:error, term()}`
 
 *   **Descrição:** Marca um dispositivo como confiável. `device_id_or_fp` pode ser o ID do dispositivo ou sua fingerprint.
 *   **`opts`:**
     *   `:duration_seconds` (integer | nil): Por quanto tempo o dispositivo será confiável.
 
-### 6.6. `DeeperHub.Security.DeviceService.untrust_device(user_id :: String.t(), device_id_or_fp :: String.t()) :: {:ok, DeviceSchema.t()} | {:error, term()}`
+### 6.6. `Deeper_Hub.Security.DeviceService.untrust_device(user_id :: String.t(), device_id_or_fp :: String.t()) :: {:ok, DeviceSchema.t()} | {:error, term()}`
 
 *   **Descrição:** Remove o status de confiável de um dispositivo.
 
-### 6.7. `DeeperHub.Security.DeviceService.block_device(user_id :: String.t(), device_id_or_fp :: String.t(), reason :: String.t()) :: {:ok, DeviceSchema.t()} | {:error, term()}`
+### 6.7. `Deeper_Hub.Security.DeviceService.block_device(user_id :: String.t(), device_id_or_fp :: String.t(), reason :: String.t()) :: {:ok, DeviceSchema.t()} | {:error, term()}`
 
 *   **Descrição:** Bloqueia um dispositivo.
 
-### 6.8. `DeeperHub.Security.DeviceService.unblock_device(user_id :: String.t(), device_id_or_fp :: String.t()) :: {:ok, DeviceSchema.t()} | {:error, term()}`
+### 6.8. `Deeper_Hub.Security.DeviceService.unblock_device(user_id :: String.t(), device_id_or_fp :: String.t()) :: {:ok, DeviceSchema.t()} | {:error, term()}`
 
 *   **Descrição:** Desbloqueia um dispositivo.
 
-### 6.9. `DeeperHub.Security.DeviceService.is_trusted_device?(user_id :: String.t(), fingerprint :: String.t()) :: boolean()`
+### 6.9. `Deeper_Hub.Security.DeviceService.is_trusted_device?(user_id :: String.t(), fingerprint :: String.t()) :: boolean()`
 
 *   **Descrição:** Verifica rapidamente se a fingerprint corresponde a um dispositivo confiável para o usuário.
 
-### 6.10. `DeeperHub.Security.DeviceService.update_last_used(user_id :: String.t(), fingerprint :: String.t(), ip_address :: String.t()) :: {:ok, DeviceSchema.t()} | {:error, term()}`
+### 6.10. `Deeper_Hub.Security.DeviceService.update_last_used(user_id :: String.t(), fingerprint :: String.t(), ip_address :: String.t()) :: {:ok, DeviceSchema.t()} | {:error, term()}`
 
 *   **Descrição:** Atualiza o timestamp de último uso e o último IP conhecido para um dispositivo identificado pela fingerprint. Registra o dispositivo se ele for novo.
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolicyManager`:
+Via `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPolicyManager`:
 
 *   **`[:security, :device_service, :default_trust_duration_days]`** (Integer): Duração padrão em dias para um dispositivo ser considerado confiável se nenhuma duração específica for fornecida. (Padrão: `30`)
 *   **`[:security, :device_service, :max_trusted_devices_per_user]`** (Integer): Número máximo de dispositivos que um usuário pode marcar como confiáveis. (Padrão: `5`)
@@ -184,10 +184,10 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.ConfigManager`, `Core.Logger`, `Core.Metrics`, `Core.Repo`, `Core.EventBus`.
-*   `DeeperHub.Security.DeviceFingerprint`: Para gerar fingerprints.
-*   `DeeperHub.Security.Policy.SecurityPolicyManager`: Para obter políticas relacionadas a dispositivos.
-*   `DeeperHub.Audit`: Para registrar ações de gerenciamento de dispositivos.
+*   `Deeper_Hub.Core.ConfigManager`, `Core.Logger`, `Core.Metrics`, `Core.Repo`, `Core.EventBus`.
+*   `Deeper_Hub.Security.DeviceFingerprint`: Para gerar fingerprints.
+*   `Deeper_Hub.Security.Policy.SecurityPolicyManager`: Para obter políticas relacionadas a dispositivos.
+*   `Deeper_Hub.Audit`: Para registrar ações de gerenciamento de dispositivos.
 
 ### 8.2. Bibliotecas Externas
 
@@ -195,7 +195,7 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 ## 🤝 9. Como Usar / Integração
 
-*   **Fluxo de Login (`DeeperHub.Auth`):**
+*   **Fluxo de Login (`Deeper_Hub.Auth`):**
     *   Após o login, obter a fingerprint do dispositivo atual.
     *   Chamar `DeviceService.update_last_used/3` para registrar a atividade do dispositivo.
     *   Verificar `DeviceService.is_trusted_device?/2`. Se não for confiável, e o risco for baixo, apresentar ao usuário a opção de confiar no dispositivo.
@@ -268,7 +268,7 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 ---
 
-Agora que cobrimos o gerenciamento de dispositivos, o `DeeperHub.Security.GeoLocationService` (que já documentamos parcialmente) seria o próximo passo natural para completar a contextualização de uma requisição/sessão. Depois dele, poderíamos ir para o `DeeperHub.Security.Policy.SecurityPolicyManager`. O que acha?"""),
+Agora que cobrimos o gerenciamento de dispositivos, o `Deeper_Hub.Security.GeoLocationService` (que já documentamos parcialmente) seria o próximo passo natural para completar a contextualização de uma requisição/sessão. Depois dele, poderíamos ir para o `Deeper_Hub.Security.Policy.SecurityPolicyManager`. O que acha?"""),
             ],
         ),
         types.Content(
@@ -280,7 +280,7 @@ Agora que cobrimos o gerenciamento de dispositivos, o `DeeperHub.Security.GeoLoc
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Perfeito! Já detalhamos o `DeeperHub.Security.GeoLocationService`. Então, vamos prosseguir para o `DeeperHub.Security.Policy.SecurityPolicyManager`. Este módulo é fundamental para a configurabilidade e adaptabilidade de toda a camada de segurança.
+                types.Part.from_text(text="""Perfeito! Já detalhamos o `Deeper_Hub.Security.GeoLocationService`. Então, vamos prosseguir para o `Deeper_Hub.Security.Policy.SecurityPolicyManager`. Este módulo é fundamental para a configurabilidade e adaptabilidade de toda a camada de segurança.
 
 ---
 

@@ -1,8 +1,8 @@
-# Módulo: `DeeperHub.Security.AdminAuth` 🚀
+# Módulo: `Deeper_Hub.Security.AdminAuth` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Security.AdminAuth`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Security.AdminAuth`
 
-O módulo `DeeperHub.Security.AdminAuth` é dedicado especificamente à **autenticação e autorização de usuários administradores** que acessam as interfaces de gerenciamento e administração do sistema DeeperHub. Ele fornece um conjunto de funcionalidades de segurança mais rigorosas e adaptadas às necessidades de contas com privilégios elevados.
+O módulo `Deeper_Hub.Security.AdminAuth` é dedicado especificamente à **autenticação e autorização de usuários administradores** que acessam as interfaces de gerenciamento e administração do sistema Deeper_Hub. Ele fornece um conjunto de funcionalidades de segurança mais rigorosas e adaptadas às necessidades de contas com privilégios elevados.
 
 Isso pode incluir:
 *   Autenticação de dois fatores (MFA/TOTP) obrigatória ou fortemente recomendada.
@@ -11,9 +11,9 @@ Isso pode incluir:
 *   Gerenciamento de sessões de administrador com timeouts mais curtos.
 *   Controle de acesso granular às diferentes funcionalidades administrativas baseado em papéis e permissões específicas de administração.
 
-O objetivo é proteger as áreas mais sensíveis do sistema DeeperHub contra acesso não autorizado e abuso de privilégios. 😊
+O objetivo é proteger as áreas mais sensíveis do sistema Deeper_Hub contra acesso não autorizado e abuso de privilégios. 😊
 
-*(Nota: Se a autenticação de administradores for gerenciada pelo mesmo sistema que usuários regulares (`DeeperHub.Auth`) mas com políticas diferentes, este módulo pode atuar como uma camada de especialização ou configuração sobre `DeeperHub.Auth`. Se for um sistema completamente separado, ele terá seus próprios componentes de login, sessão, etc.)*
+*(Nota: Se a autenticação de administradores for gerenciada pelo mesmo sistema que usuários regulares (`Deeper_Hub.Auth`) mas com políticas diferentes, este módulo pode atuar como uma camada de especialização ou configuração sobre `Deeper_Hub.Auth`. Se for um sistema completamente separado, ele terá seus próprios componentes de login, sessão, etc.)*
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -22,7 +22,7 @@ O objetivo é proteger as áreas mais sensíveis do sistema DeeperHub contra ace
     *   Forçar ou gerenciar a verificação de Autenticação Multifator (MFA), especialmente TOTP (via `AdminTOTPService`).
 *   **Gerenciamento de Contas de Administrador (`create_admin/1`, `update_admin/2`, etc.):**
     *   Criação, atualização, ativação/desativação de contas de administrador.
-    *   Atribuição de papéis e permissões administrativas específicas (integrando com `DeeperHub.RBAC`).
+    *   Atribuição de papéis e permissões administrativas específicas (integrando com `Deeper_Hub.RBAC`).
 *   **Políticas de Senha de Administrador:**
     *   Aplicar políticas de complexidade e expiração de senha mais rigorosas para administradores.
 *   **Gerenciamento de Sessões de Administrador:**
@@ -42,31 +42,31 @@ O objetivo é proteger as áreas mais sensíveis do sistema DeeperHub contra ace
 
 ## 🏗️ 3. Arquitetura e Design
 
-A arquitetura pode variar dependendo se é uma extensão do `DeeperHub.Auth` ou um subsistema mais independente. Assumindo uma especialização:
+A arquitetura pode variar dependendo se é uma extensão do `Deeper_Hub.Auth` ou um subsistema mais independente. Assumindo uma especialização:
 
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.Security.AdminAuth` (Fachada Pública):**
+1.  **`Deeper_Hub.Security.AdminAuth` (Fachada Pública):**
     *   Ponto de entrada para funcionalidades de autenticação e autorização de administradores.
     *   Delega para `AdminAuthService`.
-2.  **`DeeperHub.Security.AdminAuth.Services.AdminAuthService`:**
+2.  **`Deeper_Hub.Security.AdminAuth.Services.AdminAuthService`:**
     *   Serviço central que orquestra a autenticação, gerenciamento de contas e verificação de permissões de admin.
     *   Utiliza `AdminTOTPService`, `AdminTokenService`, `PermissionService` (específico para admin ou o RBAC geral), e `AdminActionAuthService`.
-3.  **`DeeperHub.Security.AdminAuth.Services.AdminTOTPService`:**
+3.  **`Deeper_Hub.Security.AdminAuth.Services.AdminTOTPService`:**
     *   Gerencia a configuração e verificação de TOTP para administradores.
-4.  **`DeeperHub.Security.AdminAuth.Services.AdminTokenService`:**
+4.  **`Deeper_Hub.Security.AdminAuth.Services.AdminTokenService`:**
     *   Gerencia o ciclo de vida de tokens de sessão para administradores.
-5.  **`DeeperHub.Security.AdminAuth.Services.AdminActionAuthService`:**
+5.  **`Deeper_Hub.Security.AdminAuth.Services.AdminActionAuthService`:**
     *   Verifica se um admin está autorizado a realizar uma ação específica, possivelmente exigindo \"step-up authentication\" com MFA.
-6.  **`DeeperHub.Security.AdminAuth.Services.PermissionService` (ou integração com `DeeperHub.RBAC`):**
+6.  **`Deeper_Hub.Security.AdminAuth.Services.PermissionService` (ou integração com `Deeper_Hub.RBAC`):**
     *   Define e verifica permissões granulares para o painel de administração (ex: \"gerenciar_usuarios\", \"ver_logs_auditoria\", \"configurar_sistema\").
 7.  **Schemas Ecto:**
-    *   `DeeperHub.Security.AdminAuth.Schema.AdminSchema`: Para dados da conta de administrador.
-    *   `DeeperHub.Security.AdminAuth.Schema.AdminToken`: Para tokens de sessão de admin.
-    *   `DeeperHub.Security.AdminAuth.Schema.AdminTOTP`: Para configurações TOTP de admin.
-    *   `DeeperHub.Security.AdminAuth.Schema.AdminActionLog`: Para auditoria de ações de admin.
-    *   `DeeperHub.Security.AdminAuth.Schema.AdminAction`, `AdminActionRisk`, `AdminActionVerification`: Para definir e controlar o risco de ações administrativas.
-8.  **Integração com `DeeperHub.Core.ConfigManager` / `SecurityPolicyManager`:**
+    *   `Deeper_Hub.Security.AdminAuth.Schema.AdminSchema`: Para dados da conta de administrador.
+    *   `Deeper_Hub.Security.AdminAuth.Schema.AdminToken`: Para tokens de sessão de admin.
+    *   `Deeper_Hub.Security.AdminAuth.Schema.AdminTOTP`: Para configurações TOTP de admin.
+    *   `Deeper_Hub.Security.AdminAuth.Schema.AdminActionLog`: Para auditoria de ações de admin.
+    *   `Deeper_Hub.Security.AdminAuth.Schema.AdminAction`, `AdminActionRisk`, `AdminActionVerification`: Para definir e controlar o risco de ações administrativas.
+8.  **Integração com `Deeper_Hub.Core.ConfigManager` / `SecurityPolicyManager`:**
     *   Para políticas de senha de admin, duração de sessão de admin, políticas de MFA de admin.
 
 ### 3.2. Estrutura de Diretórios (Proposta)
@@ -80,7 +80,7 @@ security/admin_auth/
 │   ├── admin_totp_service.ex
 │   ├── admin_token_service.ex
 │   ├── admin_action_auth_service.ex
-│   └── permission_service.ex         # (Ou usa DeeperHub.RBAC diretamente)
+│   └── permission_service.ex         # (Ou usa Deeper_Hub.RBAC diretamente)
 │
 ├── schemas/                          # (Ou schema/ singular)
 │   ├── admin_schema.ex
@@ -128,7 +128,7 @@ security/admin_auth/
 ### Fluxo de Autenticação de Administrador com TOTP
 
 1.  **Interface de Login Admin:** Admin submete username e password.
-2.  **Backend Controller:** Chama `DeeperHub.Security.AdminAuth.authenticate_admin(username, password, context)`.
+2.  **Backend Controller:** Chama `Deeper_Hub.Security.AdminAuth.authenticate_admin(username, password, context)`.
 3.  **`AdminAuthService`:**
     *   Valida credenciais primárias (username/password).
     *   Se falhar, retorna erro e registra tentativa falha (considerando `BruteForceProtection` para admin).
@@ -136,7 +136,7 @@ security/admin_auth/
     *   **Se TOTP Ativo:** Retorna `{:error, :mfa_totp_required, %{admin_id: admin.id}}` para o controller.
     *   **Se TOTP Não Ativo (e não mandatório):** Procede para criar sessão e token (via `AdminTokenService`).
 4.  **Interface de Login Admin:** Se `:mfa_totp_required`, exibe campo para código TOTP. Admin submete o código.
-5.  **Backend Controller:** Chama `DeeperHub.Security.AdminAuth.Services.AdminTOTPService.verify(admin_id, totp_code)`.
+5.  **Backend Controller:** Chama `Deeper_Hub.Security.AdminAuth.Services.AdminTOTPService.verify(admin_id, totp_code)`.
 6.  **`AdminTOTPService`:**
     *   Verifica o código TOTP.
     *   Se válido, retorna `{:ok, :valid}`.
@@ -145,24 +145,24 @@ security/admin_auth/
     *   Chama `AdminAuthService` (ou diretamente `AdminTokenService` e `SessionManager`) para criar a sessão de admin e emitir tokens.
     *   Registra login bem-sucedido no `AdminActionLog`.
 
-## 📡 6. API (Funções Públicas da Fachada `DeeperHub.Security.AdminAuth`)
+## 📡 6. API (Funções Públicas da Fachada `Deeper_Hub.Security.AdminAuth`)
 
-### 6.1. `DeeperHub.Security.AdminAuth.authenticate_admin(username :: String.t(), password :: String.t(), opts :: keyword()) :: {:ok, %{admin: AdminSchema.t(), token: String.t()}} | {:error, :invalid_credentials | :account_locked | :mfa_required | :mfa_invalid}`
+### 6.1. `Deeper_Hub.Security.AdminAuth.authenticate_admin(username :: String.t(), password :: String.t(), opts :: keyword()) :: {:ok, %{admin: AdminSchema.t(), token: String.t()}} | {:error, :invalid_credentials | :account_locked | :mfa_required | :mfa_invalid}`
 
 *   **Descrição:** Autentica um administrador.
 *   **`opts`:** `:ip_address`, `:device_info`, `:mfa_code` (se o fluxo de MFA for em uma única etapa).
 
-### 6.2. `DeeperHub.Security.AdminAuth.verify_admin_mfa(admin_id :: String.t(), mfa_method :: atom(), code :: String.t(), opts :: keyword()) :: {:ok, %{admin: AdminSchema.t(), token: String.t()}} | {:error, :mfa_invalid | :max_attempts_reached}` (Nova Sugestão)
+### 6.2. `Deeper_Hub.Security.AdminAuth.verify_admin_mfa(admin_id :: String.t(), mfa_method :: atom(), code :: String.t(), opts :: keyword()) :: {:ok, %{admin: AdminSchema.t(), token: String.t()}} | {:error, :mfa_invalid | :max_attempts_reached}` (Nova Sugestão)
 
 *   **Descrição:** Verifica um código MFA para um admin que já passou pela autenticação primária. Se sucesso, finaliza o login e retorna tokens.
 *   **`mfa_method`:** Ex: `:totp`.
 
-### 6.3. `DeeperHub.Security.AdminAuth.has_admin_permission?(admin_id :: String.t(), permission :: String.t() | atom(), resource_details :: map() | nil) :: boolean()`
+### 6.3. `Deeper_Hub.Security.AdminAuth.has_admin_permission?(admin_id :: String.t(), permission :: String.t() | atom(), resource_details :: map() | nil) :: boolean()`
 
 *   **Descrição:** Verifica se um administrador possui uma permissão específica.
 *   **`permission`:** Ex: `\"users:delete\"`, `:view_audit_logs`.
 
-### 6.4. `DeeperHub.Security.AdminAuth.authorize_action(admin_id :: String.t(), action_atom :: atom(), action_params :: map() | nil, verification_data :: map() | nil) :: :ok | {:error, :unauthorized | :mfa_required_for_action | :mfa_invalid}` (Nova Sugestão)
+### 6.4. `Deeper_Hub.Security.AdminAuth.authorize_action(admin_id :: String.t(), action_atom :: atom(), action_params :: map() | nil, verification_data :: map() | nil) :: :ok | {:error, :unauthorized | :mfa_required_for_action | :mfa_invalid}` (Nova Sugestão)
 
 *   **Descrição:** Autoriza uma ação administrativa, possivelmente exigindo \"step-up authentication\" (MFA).
 *   **`action_atom`:** Identificador único da ação administrativa (ex: `:admin_update_user_role`).
@@ -174,7 +174,7 @@ security/admin_auth/
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolicyManager`:
+Via `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPolicyManager`:
 
 *   **`[:security, :admin_auth, :password_policy, :min_length]`** (Integer): Comprimento mínimo da senha de admin. (Padrão: `12`)
 *   **`[:security, :admin_auth, :password_policy, :expiry_days]`** (Integer): Dias para expiração da senha de admin. (Padrão: `90`)
@@ -190,17 +190,17 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.ConfigManager`, `Core.Logger`, `Core.Metrics`, `Core.Repo`.
-*   `DeeperHub.Auth` (potencialmente para a base de hashing de senha, gerenciamento de sessão, se não for totalmente separado).
-*   `DeeperHub.MFA`: Para a lógica de TOTP e outros métodos MFA.
-*   `DeeperHub.RBAC`: Para gerenciamento de papéis e permissões administrativas.
-*   `DeeperHub.Audit`: Essencial para registrar todas as ações administrativas.
-*   `DeeperHub.Security.BruteForceProtection`: Para proteger o login de admin.
-*   `DeeperHub.Tokens`: Para gerenciamento de tokens de sessão de admin.
+*   `Deeper_Hub.Core.ConfigManager`, `Core.Logger`, `Core.Metrics`, `Core.Repo`.
+*   `Deeper_Hub.Auth` (potencialmente para a base de hashing de senha, gerenciamento de sessão, se não for totalmente separado).
+*   `Deeper_Hub.MFA`: Para a lógica de TOTP e outros métodos MFA.
+*   `Deeper_Hub.RBAC`: Para gerenciamento de papéis e permissões administrativas.
+*   `Deeper_Hub.Audit`: Essencial para registrar todas as ações administrativas.
+*   `Deeper_Hub.Security.BruteForceProtection`: Para proteger o login de admin.
+*   `Deeper_Hub.Tokens`: Para gerenciamento de tokens de sessão de admin.
 
 ### 8.2. Bibliotecas Externas
 
-*   As mesmas de `DeeperHub.Auth` (Joken, Argon2, etc.) se compartilhar a base.
+*   As mesmas de `Deeper_Hub.Auth` (Joken, Argon2, etc.) se compartilhar a base.
 *   Bibliotecas TOTP (ex: `ex_totp`).
 
 ## 🤝 9. Como Usar / Integração
@@ -216,7 +216,7 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
       plug MyAppWeb.Plugs.VerifyAdminPermissionPlug, permission: :access_admin_panel # Permissão genérica para painel
     end
 
-    scope \"/admin\", DeeperHubWeb.Admin do
+    scope \"/admin\", Deeper_HubWeb.Admin do
       pipe_through [:browser, :admin_auth]
       # ... rotas do painel admin ...
     end
@@ -289,7 +289,7 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 A segurança administrativa é uma área densa, mas fundamental.
 
-Agora, qual o próximo módulo? Talvez `DeeperHub.Core.Cache` para variar um pouco e sair da camada de segurança, ou prefere continuar com os outros módulos de segurança como `DdosProtection`?"""),
+Agora, qual o próximo módulo? Talvez `Deeper_Hub.Core.Cache` para variar um pouco e sair da camada de segurança, ou prefere continuar com os outros módulos de segurança como `DdosProtection`?"""),
             ],
         ),
         types.Content(
@@ -301,7 +301,7 @@ Agora, qual o próximo módulo? Talvez `DeeperHub.Core.Cache` para variar um pou
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ok, vamos então detalhar o `DeeperHub.Core.Cache`. Este é um módulo de infraestrutura crucial para o desempenho de toda a aplicação.
+                types.Part.from_text(text="""Ok, vamos então detalhar o `Deeper_Hub.Core.Cache`. Este é um módulo de infraestrutura crucial para o desempenho de toda a aplicação.
 
 ---
 

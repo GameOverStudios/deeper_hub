@@ -1,12 +1,12 @@
-# Módulo: `DeeperHub.Core.Logger` 🚀
+# Módulo: `Deeper_Hub.Core.Logger` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Core.Logger`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Core.Logger`
 
-O módulo `DeeperHub.Core.Logger` serve como a fachada centralizada e padronizada para todas as operações de logging dentro do sistema DeeperHub. Ele abstrai a implementação de logging subjacente (que pode ser o `Logger` padrão do Elixir, um backend customizado, ou integração com serviços externos como Logstash, Datadog, etc.), fornecendo uma API consistente para todos os módulos da aplicação.
+O módulo `Deeper_Hub.Core.Logger` serve como a fachada centralizada e padronizada para todas as operações de logging dentro do sistema Deeper_Hub. Ele abstrai a implementação de logging subjacente (que pode ser o `Logger` padrão do Elixir, um backend customizado, ou integração com serviços externos como Logstash, Datadog, etc.), fornecendo uma API consistente para todos os módulos da aplicação.
 
 Seu principal objetivo é garantir que os logs sejam estruturados, ricos em contexto, e facilmente pesquisáveis, facilitando a depuração, monitoramento e análise do comportamento do sistema. 😊
 
-*(Nota: A documentação original mencionava `DeeperHub.Logger` e `DeeperHub.Core.LoggerFacade`, e também `DeeperHub.Core.Services.LoggerFacade`. Esta documentação consolida a ideia de uma única fachada principal `DeeperHub.Core.Logger` que delega para uma implementação mais robusta, como o `DeeperHub.Shared.Logging.StructuredLogger` mencionado.)*
+*(Nota: A documentação original mencionava `Deeper_Hub.Logger` e `Deeper_Hub.Core.LoggerFacade`, e também `Deeper_Hub.Core.Services.LoggerFacade`. Esta documentação consolida a ideia de uma única fachada principal `Deeper_Hub.Core.Logger` que delega para uma implementação mais robusta, como o `Deeper_Hub.Shared.Logging.StructuredLogger` mencionado.)*
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -22,31 +22,31 @@ Seu principal objetivo é garantir que os logs sejam estruturados, ricos em cont
         *   PID do processo.
         *   ID de Correlação/Trace ID (se integrado com `DistributedTracing`).
 *   **Suporte a Contexto de Logging:**
-    *   Permitir que os módulos definam metadados de contexto que são automaticamente incluídos em todos os logs subsequentes dentro daquele processo ou escopo (via `DeeperHub.Shared.Logging.Context`).
+    *   Permitir que os módulos definam metadados de contexto que são automaticamente incluídos em todos os logs subsequentes dentro daquele processo ou escopo (via `Deeper_Hub.Shared.Logging.Context`).
 *   **Formatação Estruturada:**
     *   Garantir que os logs sejam formatados de maneira consistente (ex: JSON) para facilitar a análise por ferramentas de logging.
 *   **Configurabilidade de Backends:**
-    *   Permitir a configuração de múltiplos backends de logging (console, arquivo, serviço externo) através do `DeeperHub.Core.ConfigManager`.
+    *   Permitir a configuração de múltiplos backends de logging (console, arquivo, serviço externo) através do `Deeper_Hub.Core.ConfigManager`.
     *   Suportar diferentes níveis de log por backend.
 *   **Sanitização de Dados Sensíveis (Integração):**
-    *   Integrar com um serviço de sanitização (como `DeeperHub.Security.LogSanitizer`) para remover ou mascarar dados sensíveis dos logs antes da escrita.
+    *   Integrar com um serviço de sanitização (como `Deeper_Hub.Security.LogSanitizer`) para remover ou mascarar dados sensíveis dos logs antes da escrita.
 *   **Integração com Métricas:**
     *   Opcionalmente, registrar métricas sobre o volume e tipos de logs gerados.
 *   **Emojis Configuráveis (Nice-to-have):**
-    *   Permitir a configuração de emojis para diferentes níveis de log para melhorar a legibilidade no console (via `DeeperHub.Logger.Config`).
+    *   Permitir a configuração de emojis para diferentes níveis de log para melhorar a legibilidade no console (via `Deeper_Hub.Logger.Config`).
 
 ## 🏗️ 3. Arquitetura e Design
 
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.Core.Logger` (Fachada Pública):**
+1.  **`Deeper_Hub.Core.Logger` (Fachada Pública):**
     *   **Responsabilidade:** É a API pública que todos os módulos usam para registrar logs.
     *   **Interações:**
         *   Coleta informações de contexto (módulo, função) automaticamente (potencialmente usando macros).
-        *   Obtém o contexto de logging do processo (via `DeeperHub.Shared.Logging.Context`).
-        *   Obtém o ID de correlação (via `DeeperHub.Shared.Logging.DistributedTracing`).
-        *   Chama o `DeeperHub.Core.Logger.Adapter` para processar e enviar o log.
-2.  **`DeeperHub.Core.Logger.Adapter` (Behaviour e Implementação Padrão):**
+        *   Obtém o contexto de logging do processo (via `Deeper_Hub.Shared.Logging.Context`).
+        *   Obtém o ID de correlação (via `Deeper_Hub.Shared.Logging.DistributedTracing`).
+        *   Chama o `Deeper_Hub.Core.Logger.Adapter` para processar e enviar o log.
+2.  **`Deeper_Hub.Core.Logger.Adapter` (Behaviour e Implementação Padrão):**
     *   **Responsabilidade:** Abstrair a lógica de processamento e envio de logs para os backends.
     *   **Comportamento (`LoggerBehaviour`):** Define a interface que os adaptadores devem implementar.
     *   **Implementação Padrão (`DefaultLoggerAdapter` ou `StructuredLoggerAdapter`):**
@@ -54,16 +54,16 @@ Seu principal objetivo é garantir que os logs sejam estruturados, ricos em cont
         *   Formata a mensagem e os metadados em uma estrutura padronizada (ex: JSON).
         *   Integra com o `LogSanitizer` para remover dados sensíveis.
         *   Itera sobre os backends configurados e envia o log formatado para cada um que corresponda ao nível de severidade.
-3.  **`DeeperHub.Shared.Logging.StructuredLogger` (GenServer, ex-`DeeperHub.Logger.StructuredLogger`):**
+3.  **`Deeper_Hub.Shared.Logging.StructuredLogger` (GenServer, ex-`Deeper_Hub.Logger.StructuredLogger`):**
     *   **Responsabilidade:** Pode ser a implementação central do `DefaultLoggerAdapter`. Gerencia múltiplos backends de logging e despacha mensagens de log formatadas com contexto e metadados.
     *   **Estado Interno:** Lista de backends configurados, filtros por backend.
 4.  **Backends de Logging (Exemplos):**
     *   `Logger.Backends.Console`: Backend padrão do Elixir para o console.
     *   `Logger.Backends.File`: Para escrever logs em arquivos.
     *   Adaptadores customizados para serviços como Datadog, Logstash, Sentry, etc.
-5.  **`DeeperHub.Shared.Logging.Context`:**
+5.  **`Deeper_Hub.Shared.Logging.Context`:**
     *   **Responsabilidade:** Gerenciar metadados de contexto por processo.
-6.  **`DeeperHub.Logger.Config` (Opcional, para Emojis):**
+6.  **`Deeper_Hub.Logger.Config` (Opcional, para Emojis):**
     *   **Responsabilidade:** Gerenciar a configuração de emojis para níveis de log.
 
 ### 3.2. Estrutura de Diretórios (Proposta)
@@ -108,14 +108,14 @@ logger/            # (Opcional) Se manter separação para Config de Emojis
 
 ### Fluxo de Registro de Log
 
-1.  **Módulo Chamador:** Chama uma função da fachada `DeeperHub.Core.Logger` (ex: `Logger.info(message, metadata)`).
+1.  **Módulo Chamador:** Chama uma função da fachada `Deeper_Hub.Core.Logger` (ex: `Logger.info(message, metadata)`).
     *   Macros podem capturar `__MODULE__`, `__ENV__.function`.
-2.  **`DeeperHub.Core.Logger` (Fachada):**
-    *   Obtém o contexto de `DeeperHub.Shared.Logging.Context.get_all()`.
-    *   Obtém o `trace_id` de `DeeperHub.Shared.Logging.DistributedTracing.current_trace_id()`.
+2.  **`Deeper_Hub.Core.Logger` (Fachada):**
+    *   Obtém o contexto de `Deeper_Hub.Shared.Logging.Context.get_all()`.
+    *   Obtém o `trace_id` de `Deeper_Hub.Shared.Logging.DistributedTracing.current_trace_id()`.
     *   Combina os metadados fornecidos, contexto automático e contexto do processo.
-    *   Encaminha a mensagem, nível e metadados combinados para o `DeeperHub.Core.Logger.Adapter`.
-3.  **`DeeperHub.Core.Logger.Adapter` (ex: `StructuredLoggerAdapter`):**
+    *   Encaminha a mensagem, nível e metadados combinados para o `Deeper_Hub.Core.Logger.Adapter`.
+3.  **`Deeper_Hub.Core.Logger.Adapter` (ex: `StructuredLoggerAdapter`):**
     *   Recebe os dados do log.
     *   (Opcional) Enfileira o log para processamento assíncrono se for um GenServer.
     *   Formata o log em uma estrutura padronizada (ex: JSON), incluindo timestamp, nível, mensagem, módulo, função, trace_id, e todos os metadados.
@@ -133,14 +133,14 @@ As funções principais já foram vistas na documentação original (`debug/3`, 
 ### Exemplo de API Refinada (usando módulo como primeiro argumento):
 
 ```elixir
-defmodule DeeperHub.Core.Logger do
+defmodule Deeper_Hub.Core.Logger do
   # ... (macros para capturar __ENV__.function, etc. podem estar aqui) ...
 
   defp call_adapter(level, module, message_or_fun, metadata) do
     # Lógica para obter contexto, trace_id, etc.
     # Lógica para avaliar message_or_fun se for uma função
     # ...
-    # DeeperHub.Core.Logger.Adapter.log(level, full_context_map_with_message)
+    # Deeper_Hub.Core.Logger.Adapter.log(level, full_context_map_with_message)
   end
 
   def debug(module, message_or_fun, metadata \\\\ %{}) do
@@ -163,21 +163,21 @@ defmodule DeeperHub.Core.Logger do
     call_adapter(:critical, module, message_or_fun, metadata)
   end
 
-  # Funções para gerenciar contexto (delegam para DeeperHub.Shared.Logging.Context)
-  def set_context(metadata_map), do: DeeperHub.Shared.Logging.Context.put(metadata_map)
-  def put_context(key, value), do: DeeperHub.Shared.Logging.Context.put(key, value)
-  def get_context(), do: DeeperHub.Shared.Logging.Context.get_all()
-  def clear_context(), do: DeeperHub.Shared.Logging.Context.clear()
+  # Funções para gerenciar contexto (delegam para Deeper_Hub.Shared.Logging.Context)
+  def set_context(metadata_map), do: Deeper_Hub.Shared.Logging.Context.put(metadata_map)
+  def put_context(key, value), do: Deeper_Hub.Shared.Logging.Context.put(key, value)
+  def get_context(), do: Deeper_Hub.Shared.Logging.Context.get_all()
+  def clear_context(), do: Deeper_Hub.Shared.Logging.Context.clear()
 
-  # Funções para gerenciar trace_id (delegam para DeeperHub.Shared.Logging.DistributedTracing)
-  def start_trace(name, metadata \\\\ %{}), do: DeeperHub.Shared.Logging.DistributedTracing.start_trace(name, metadata)
+  # Funções para gerenciar trace_id (delegam para Deeper_Hub.Shared.Logging.DistributedTracing)
+  def start_trace(name, metadata \\\\ %{}), do: Deeper_Hub.Shared.Logging.DistributedTracing.start_trace(name, metadata)
   # ... outros ...
 end
 ```
 
 ## ⚙️ 7. Configuração
 
-Configurações gerenciadas pelo `DeeperHub.Core.ConfigManager`:
+Configurações gerenciadas pelo `Deeper_Hub.Core.ConfigManager`:
 
 *   `[:core, :logger, :level]` (Atom): Nível de log global padrão (ex: `:info`). (Padrão: `:info` para prod, `:debug` para dev).
 *   `[:core, :logger, :format]` (Atom): Formato de log padrão (:json, :text). (Padrão: `:json` para prod, `:text` para dev).
@@ -212,17 +212,17 @@ Configurações gerenciadas pelo `DeeperHub.Core.ConfigManager`:
 *   `[:core, :logger, :sanitizer, :sensitive_keys]` (List de Strings/Atoms): Lista de chaves a serem sanitizadas.
 *   `[:core, :logger, :context, :auto_include_pid]` (Boolean): Inclui PID automaticamente. (Padrão: `true`)
 *   `[:core, :logger, :context, :auto_include_trace_id]` (Boolean): Inclui Trace ID automaticamente. (Padrão: `true`)
-*   (Opcional, se `DeeperHub.Logger.Config` for usado) `[:logger, :emojis, :info]` (String): Emoji para logs de info.
+*   (Opcional, se `Deeper_Hub.Logger.Config` for usado) `[:logger, :emojis, :info]` (String): Emoji para logs de info.
 
 ## 🔗 8. Dependências
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.ConfigManager`: Para obter configurações de logging.
-*   `DeeperHub.Shared.Logging.Context`: Para gerenciamento de contexto de log por processo.
-*   `DeeperHub.Shared.Logging.DistributedTracing`: Para obter Trace IDs.
-*   `DeeperHub.Security.LogSanitizer` (ou similar): Para sanitizar dados sensíveis.
-*   `DeeperHub.Core.Supervisor` (indireta): Para supervisionar o `StructuredLogger` GenServer.
+*   `Deeper_Hub.Core.ConfigManager`: Para obter configurações de logging.
+*   `Deeper_Hub.Shared.Logging.Context`: Para gerenciamento de contexto de log por processo.
+*   `Deeper_Hub.Shared.Logging.DistributedTracing`: Para obter Trace IDs.
+*   `Deeper_Hub.Security.LogSanitizer` (ou similar): Para sanitizar dados sensíveis.
+*   `Deeper_Hub.Core.Supervisor` (indireta): Para supervisionar o `StructuredLogger` GenServer.
 
 ### 8.2. Bibliotecas Externas
 
@@ -234,7 +234,7 @@ Configurações gerenciadas pelo `DeeperHub.Core.ConfigManager`:
 
 **Registro Básico:**
 ```elixir
-alias DeeperHub.Core.Logger
+alias Deeper_Hub.Core.Logger
 
 def my_function(user_id) do
   Logger.info(__MODULE__, \"Iniciando processamento para usuário.\", %{user_id: user_id})
@@ -251,7 +251,7 @@ end
 
 **Usando Contexto de Log:**
 ```elixir
-alias DeeperHub.Core.Logger
+alias Deeper_Hub.Core.Logger
 
 def handle_request(conn, params) do
   request_id = conn.private[:request_id] # Exemplo de como obter um request_id
@@ -312,7 +312,7 @@ Eventos Telemetry podem ser emitidos para:
 
 ## 🧑‍💻 13. Contribuição
 
-*   Sempre use a fachada `DeeperHub.Core.Logger` para registrar logs.
+*   Sempre use a fachada `Deeper_Hub.Core.Logger` para registrar logs.
 *   Forneça metadados ricos e estruturados.
 *   Use o nível de log apropriado para a mensagem.
 *   Tenha cuidado para não logar dados sensíveis diretamente; confie na sanitização, mas seja consciente.
@@ -332,7 +332,7 @@ Eventos Telemetry podem ser emitidos para:
 
 ---
 
-Próximo? Talvez `DeeperHub.Auth` ou `DeeperHub.Core.Metrics`?"""),
+Próximo? Talvez `Deeper_Hub.Auth` ou `Deeper_Hub.Core.Metrics`?"""),
             ],
         ),
         types.Content(
@@ -344,7 +344,7 @@ Próximo? Talvez `DeeperHub.Auth` ou `DeeperHub.Core.Metrics`?"""),
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Combinado! Vamos agora detalhar o `DeeperHub.Core.Metrics`, outro pilar da observabilidade.
+                types.Part.from_text(text="""Combinado! Vamos agora detalhar o `Deeper_Hub.Core.Metrics`, outro pilar da observabilidade.
 
 ---
 

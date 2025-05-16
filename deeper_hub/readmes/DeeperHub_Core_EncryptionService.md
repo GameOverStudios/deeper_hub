@@ -1,12 +1,12 @@
-# Módulo: `DeeperHub.Core.EncryptionService` 🚀
+# Módulo: `Deeper_Hub.Core.EncryptionService` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Core.EncryptionService`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Core.EncryptionService`
 
-O módulo `DeeperHub.Core.EncryptionService` é o componente centralizado para todas as **operações de criptografia e descriptografia de dados sensíveis** no sistema DeeperHub. Ele também é responsável pelo **gerenciamento seguro do ciclo de vida das chaves de criptografia**, incluindo geração, armazenamento, rotação e revogação.
+O módulo `Deeper_Hub.Core.EncryptionService` é o componente centralizado para todas as **operações de criptografia e descriptografia de dados sensíveis** no sistema Deeper_Hub. Ele também é responsável pelo **gerenciamento seguro do ciclo de vida das chaves de criptografia**, incluindo geração, armazenamento, rotação e revogação.
 
 O objetivo principal é garantir a confidencialidade de informações como dados pessoais de usuários (PII), credenciais de acesso a serviços externos, tokens internos e quaisquer outros dados que requeiram proteção contra acesso não autorizado, tanto em repouso (armazenados em banco de dados ou arquivos) quanto, em alguns casos, em trânsito (entre componentes internos, se necessário). 😊
 
-*(Nota: A documentação original tem `DeeperHub.Shared.Encryption` com submódulos como `AtRestEncryptionService`, `KeyManagementService`, `EncryptedType`. Esta documentação consolida a fachada principal em `DeeperHub.Core.EncryptionService` e assume que a lógica especializada residiria em submódulos ou serviços dentro de um contexto `DeeperHub.Encryption` ou `DeeperHub.Shared.Encryption`.)*
+*(Nota: A documentação original tem `Deeper_Hub.Shared.Encryption` com submódulos como `AtRestEncryptionService`, `KeyManagementService`, `EncryptedType`. Esta documentação consolida a fachada principal em `Deeper_Hub.Core.EncryptionService` e assume que a lógica especializada residiria em submódulos ou serviços dentro de um contexto `Deeper_Hub.Encryption` ou `Deeper_Hub.Shared.Encryption`.)*
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -26,8 +26,8 @@ O objetivo principal é garantir a confidencialidade de informações como dados
     *   **Versionamento de Chaves:** Associar um ID e versão a cada chave.
     *   **Revogação de Chaves (Opcional):** Marcar chaves como comprometidas ou não mais em uso.
 *   **Hashing de Senhas (Delegação ou implementação própria segura):**
-    *   Fornecer funcionalidade para gerar hashes seguros de senhas e verificar senhas contra hashes armazenados (ex: usando Argon2, bcrypt). (Pode ser delegado para `DeeperHub.Auth.Services.PasswordService` ou um `HashingService` dedicado).
-*   **Tipo Ecto para Campos Criptografados (`DeeperHub.Shared.Encryption.EncryptedType`):**
+    *   Fornecer funcionalidade para gerar hashes seguros de senhas e verificar senhas contra hashes armazenados (ex: usando Argon2, bcrypt). (Pode ser delegado para `Deeper_Hub.Auth.Services.PasswordService` ou um `HashingService` dedicado).
+*   **Tipo Ecto para Campos Criptografados (`Deeper_Hub.Shared.Encryption.EncryptedType`):**
     *   Fornecer um tipo Ecto customizado que automaticamente criptografa/descriptografa campos de schemas ao serem persistidos/lidos do banco de dados.
 *   **Verificação de Status do Serviço (`check_status/0`):**
     *   Informar sobre a saúde do serviço de criptografia, incluindo a chave ativa e o status da rotação.
@@ -40,14 +40,14 @@ O objetivo principal é garantir a confidencialidade de informações como dados
 
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.Core.EncryptionService` (Fachada Pública):**
+1.  **`Deeper_Hub.Core.EncryptionService` (Fachada Pública):**
     *   Ponto de entrada para todas as operações de criptografia, descriptografia e gerenciamento básico de chaves.
     *   Delega para o `EncryptionEngine` e o `KeyManagementService`.
-2.  **`DeeperHub.Encryption.Engine` (Módulo Funcional ou Serviço):**
+2.  **`Deeper_Hub.Encryption.Engine` (Módulo Funcional ou Serviço):**
     *   **Responsabilidade:** Contém a lógica de baixo nível para realizar as operações criptográficas (criptografar/descriptografar) usando algoritmos específicos (ex: AES-GCM).
     *   Obtém a chave apropriada do `KeyManagementService`.
     *   Utiliza o módulo `:crypto` do Erlang/Elixir.
-3.  **`DeeperHub.Encryption.KeyManagementService` (GenServer):**
+3.  **`Deeper_Hub.Encryption.KeyManagementService` (GenServer):**
     *   **Responsabilidade:** Gerencia o ciclo de vida das chaves de criptografia.
     *   **Estado Interno:** Chave de criptografia ativa, conjunto de chaves antigas (para descriptografia), metadados das chaves, próxima data de rotação.
     *   **Armazenamento de Chaves:** A forma como as chaves são *realmente* armazenadas de forma segura é crítica:
@@ -55,16 +55,16 @@ O objetivo principal é garantir a confidencialidade de informações como dados
         *   **Bom:** Chaves de dados criptografadas por uma Chave de Criptografia de Chave (KEK) ou Chave Mestra, que por sua vez é protegida (ex: variável de ambiente segura, entrada manual no boot, HashiCorp Vault).
         *   **Básico (para desenvolvimento):** Chave(s) em arquivo de configuração protegido ou variável de ambiente.
     *   **Interações:** `EncryptionEngine` solicita chaves. `RotationWorker` aciona rotação.
-4.  **`DeeperHub.Encryption.Workers.KeyRotationWorker` (GenServer):**
+4.  **`Deeper_Hub.Encryption.Workers.KeyRotationWorker` (GenServer):**
     *   **Responsabilidade:** Executar a rotação de chaves de forma programada e, opcionalmente, iniciar o processo de recriptografia de dados em background.
-5.  **`DeeperHub.Shared.Encryption.EncryptedType` (Ecto.Type):**
+5.  **`Deeper_Hub.Shared.Encryption.EncryptedType` (Ecto.Type):**
     *   Tipo customizado para Ecto que chama `EncryptionService.encrypt_for_storage` e `decrypt_from_storage` automaticamente.
-6.  **Configurações (via `DeeperHub.Core.ConfigManager`):**
+6.  **Configurações (via `Deeper_Hub.Core.ConfigManager`):**
     *   Algoritmo de criptografia padrão, tamanho da chave.
     *   Política de rotação de chaves (frequência).
     *   Configurações para o `KeyManagementService` (ex: tipo de storage de chave, path para chave mestra).
 
-### 3.2. Estrutura de Diretórios (Proposta para `DeeperHub.Encryption`)
+### 3.2. Estrutura de Diretórios (Proposta para `Deeper_Hub.Encryption`)
 
 ```
 core/encryption_service.ex  # Fachada Pública
@@ -83,7 +83,7 @@ encryption/                # Lógica interna de criptografia
 ├── supervisor.ex
 └── telemetry.ex
 ```
-O `DeeperHub.Shared.Encryption.EncryptedType` permaneceria em `shared/encryption/`.
+O `Deeper_Hub.Shared.Encryption.EncryptedType` permaneceria em `shared/encryption/`.
 
 ### 3.3. Decisões de Design Importantes
 
@@ -101,7 +101,7 @@ O `DeeperHub.Shared.Encryption.EncryptedType` permaneceria em `shared/encryption
     *   Chama `EncryptionService.encrypt_for_storage(api_key_string, %{service_name: \"Stripe\", context: \"api_key\"})`.
     *   O resultado criptografado é salvo no banco de dados.
 *   **Proteger PII em um Schema Ecto:**
-    *   O `UserSchema` tem um campo `field :social_security_number, DeeperHub.Shared.Encryption.EncryptedType`.
+    *   O `UserSchema` tem um campo `field :social_security_number, Deeper_Hub.Shared.Encryption.EncryptedType`.
     *   Quando um usuário é salvo, o `EncryptedType` automaticamente chama `EncryptionService.encrypt_for_storage` no valor do CPF.
     *   Quando o usuário é lido, o `EncryptedType` chama `EncryptionService.decrypt_from_storage`.
 *   **Rotação de Chave Agendada:**
@@ -114,7 +114,7 @@ O `DeeperHub.Shared.Encryption.EncryptedType` permaneceria em `shared/encryption
 
 ### Fluxo de Criptografia (`encrypt_for_storage/2`)
 
-1.  **Chamador (ex: `EncryptedType` ou serviço):** Chama `DeeperHub.Core.EncryptionService.encrypt_for_storage(plain_value, context_map)`.
+1.  **Chamador (ex: `EncryptedType` ou serviço):** Chama `Deeper_Hub.Core.EncryptionService.encrypt_for_storage(plain_value, context_map)`.
 2.  **`Core.EncryptionService` (Fachada):** Delega para `Encryption.Engine.encrypt`.
 3.  **`Encryption.Engine.encrypt`:**
     *   Solicita a chave de criptografia ativa (ID e material da chave) do `Encryption.KeyManagementService.get_current_key()`.
@@ -127,7 +127,7 @@ O `DeeperHub.Shared.Encryption.EncryptedType` permaneceria em `shared/encryption
 ### Fluxo de Rotação de Chave e Recriptografia (Simplificado)
 
 1.  **`KeyRotationWorker`:** Acionado por agendamento.
-2.  Chama `DeeperHub.Encryption.KeyManagementService.rotate_key()`.
+2.  Chama `Deeper_Hub.Encryption.KeyManagementService.rotate_key()`.
 3.  **`KeyManagementService`:**
     *   Gera uma nova chave (`new_key_material`, `new_key_id`).
     *   Define `new_key_id` como a chave ativa.
@@ -145,35 +145,35 @@ O `DeeperHub.Shared.Encryption.EncryptedType` permaneceria em `shared/encryption
             *   Atualizar o registro no banco de dados com o novo dado criptografado.
         *   Isso deve ser feito em lotes e de forma a minimizar o impacto no desempenho.
 
-## 📡 6. API (Funções Públicas da Fachada `DeeperHub.Core.EncryptionService`)
+## 📡 6. API (Funções Públicas da Fachada `Deeper_Hub.Core.EncryptionService`)
 
-### 6.1. `DeeperHub.Core.EncryptionService.encrypt(data :: binary() | String.t(), context :: map() | nil) :: {:ok, EncryptedOutput.t()} | {:error, term()}`
+### 6.1. `Deeper_Hub.Core.EncryptionService.encrypt(data :: binary() | String.t(), context :: map() | nil) :: {:ok, EncryptedOutput.t()} | {:error, term()}`
 
 *   **Descrição:** Criptografa dados genéricos.
 *   **`context`:** Dados associados adicionais (AAD) para modos AEAD como AES-GCM. Garante que os dados só possam ser descriptografados no mesmo contexto.
 *   **`EncryptedOutput.t()`:** Um mapa ou string que contém o ciphertext, ID da chave usada, IV/nonce, e tag de autenticação. Ex: `%{key_id: \"id\", iv: <<...>>, tag: <<...>>, ciphertext: <<...>>, algorithm: :aes_256_gcm}`.
 
-### 6.2. `DeeperHub.Core.EncryptionService.decrypt(encrypted_output :: EncryptedOutput.t(), context :: map() | nil) :: {:ok, binary() | String.t()} | {:error, :decryption_failed | :integrity_check_failed | :key_not_found | term()}`
+### 6.2. `Deeper_Hub.Core.EncryptionService.decrypt(encrypted_output :: EncryptedOutput.t(), context :: map() | nil) :: {:ok, binary() | String.t()} | {:error, :decryption_failed | :integrity_check_failed | :key_not_found | term()}`
 
 *   **Descrição:** Descriptografa dados previamente criptografados por `encrypt/2`.
 *   **`context`:** Deve ser o mesmo contexto usado durante a criptografia.
 
-### 6.3. `DeeperHub.Core.EncryptionService.encrypt_for_storage(value :: term(), context :: map() | nil) :: {:ok, String.t()} | {:error, term()}`
+### 6.3. `Deeper_Hub.Core.EncryptionService.encrypt_for_storage(value :: term(), context :: map() | nil) :: {:ok, String.t()} | {:error, term()}`
 
 *   **Descrição:** Criptografa um valor (que pode ser qualquer termo Elixir serializável) para armazenamento em banco de dados. Retorna uma string única que contém todos os metadados necessários para descriptografia.
 *   **Formato da String de Saída (Exemplo):** `\"ENCV1:AES256GCM:<key_id>:<base64_iv>:<base64_tag>:<base64_ciphertext>\"`
 *   O `context` pode ser usado como AAD.
 
-### 6.4. `DeeperHub.Core.EncryptionService.decrypt_from_storage(encrypted_string :: String.t(), context :: map() | nil) :: {:ok, term()} | {:error, term()}`
+### 6.4. `Deeper_Hub.Core.EncryptionService.decrypt_from_storage(encrypted_string :: String.t(), context :: map() | nil) :: {:ok, term()} | {:error, term()}`
 
 *   **Descrição:** Descriptografa uma string previamente criptografada por `encrypt_for_storage/2`.
 
-### 6.5. `DeeperHub.Core.EncryptionService.rotate_keys(opts :: keyword()) :: {:ok, %{new_key_id: String.t(), old_key_id: String.t()}} | {:error, term()}`
+### 6.5. `Deeper_Hub.Core.EncryptionService.rotate_keys(opts :: keyword()) :: {:ok, %{new_key_id: String.t(), old_key_id: String.t()}} | {:error, term()}`
 
 *   **Descrição:** Força uma rotação da chave de criptografia ativa.
 *   **`opts`:** Pode incluir `:trigger_re_encryption_job` (boolean).
 
-### 6.6. `DeeperHub.Core.EncryptionService.re_encrypt_data_batch(query_function :: (() -> list(Ecto.Schema.t())), update_function :: ((Ecto.Schema.t(), map_of_reencrypted_fields) -> :ok | {:error, term()}), fields_to_re_encrypt :: list(atom()), opts :: keyword()) :: {:ok, %{processed: integer(), failed: integer()}}` (Nova Sugestão)
+### 6.6. `Deeper_Hub.Core.EncryptionService.re_encrypt_data_batch(query_function :: (() -> list(Ecto.Schema.t())), update_function :: ((Ecto.Schema.t(), map_of_reencrypted_fields) -> :ok | {:error, term()}), fields_to_re_encrypt :: list(atom()), opts :: keyword()) :: {:ok, %{processed: integer(), failed: integer()}}` (Nova Sugestão)
 
 *   **Descrição:** Função de alto nível para ajudar no processo de recriptografia em lote.
 *   **`query_function`:** Função que retorna um lote de registros para recriptografar.
@@ -182,11 +182,11 @@ O `DeeperHub.Shared.Encryption.EncryptedType` permaneceria em `shared/encryption
 
 ## ⚙️ 7. Configuração
 
-Via `DeeperHub.Core.ConfigManager`:
+Via `Deeper_Hub.Core.ConfigManager`:
 
 *   **`[:core, :encryption, :enabled]`** (Boolean): Habilita/desabilita a criptografia. (Padrão: `true`)
 *   **`[:core, :encryption, :default_algorithm]`** (Atom): Algoritmo simétrico padrão (ex: `:aes_256_gcm`).
-*   **`[:core, :encryption, :key_management, :provider]`** (Module): Adaptador para o provedor de gerenciamento de chaves (ex: `DeeperHub.Encryption.StorageAdapters.KMSAdapter`, `DeeperHub.Encryption.StorageAdapters.FileKeyStorage`).
+*   **`[:core, :encryption, :key_management, :provider]`** (Module): Adaptador para o provedor de gerenciamento de chaves (ex: `Deeper_Hub.Encryption.StorageAdapters.KMSAdapter`, `Deeper_Hub.Encryption.StorageAdapters.FileKeyStorage`).
 *   **`[:core, :encryption, :key_management, :file_storage_path]`** (String): Caminho para o arquivo de chaves se `FileKeyStorage` for usado.
 *   **`[:core, :encryption, :key_management, :master_key_env_var]`** (String): Nome da variável de ambiente que contém a chave mestra (KEK) se as chaves de dados forem criptografadas em repouso por ela.
 *   **`[:core, :encryption, :key_management, :key_rotation_days]`** (Integer): Frequência de rotação de chaves em dias. (Padrão: `90`)
@@ -197,11 +197,11 @@ Via `DeeperHub.Core.ConfigManager`:
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.ConfigManager`: Para configurações.
-*   `DeeperHub.Core.Logger`: Para logging.
-*   `DeeperHub.Core.Metrics`: Para métricas.
-*   `DeeperHub.Core.BackgroundTaskManager`: Para jobs de recriptografia.
-*   `DeeperHub.Audit`: Para auditar eventos de gerenciamento de chaves.
+*   `Deeper_Hub.Core.ConfigManager`: Para configurações.
+*   `Deeper_Hub.Core.Logger`: Para logging.
+*   `Deeper_Hub.Core.Metrics`: Para métricas.
+*   `Deeper_Hub.Core.BackgroundTaskManager`: Para jobs de recriptografia.
+*   `Deeper_Hub.Audit`: Para auditar eventos de gerenciamento de chaves.
 
 ### 8.2. Bibliotecas Externas
 
@@ -211,11 +211,11 @@ Via `DeeperHub.Core.ConfigManager`:
 
 ## 🤝 9. Como Usar / Integração
 
-*   **Schemas Ecto:** Usar `DeeperHub.Shared.Encryption.EncryptedType` para campos que precisam ser criptografados em repouso.
+*   **Schemas Ecto:** Usar `Deeper_Hub.Shared.Encryption.EncryptedType` para campos que precisam ser criptografados em repouso.
     ```elixir
-    defmodule DeeperHub.Accounts.Schema.User do
+    defmodule Deeper_Hub.Accounts.Schema.User do
       use Ecto.Schema
-      alias DeeperHub.Shared.Encryption.EncryptedType
+      alias Deeper_Hub.Shared.Encryption.EncryptedType
 
       schema \"users\" do
         field :email, :string
@@ -229,7 +229,7 @@ Via `DeeperHub.Core.ConfigManager`:
     ```elixir
     def store_external_api_key(user_id, service_name, api_key) do
       context = %{user_id: user_id, service: service_name}
-      {:ok, encrypted_key} = DeeperHub.Core.EncryptionService.encrypt_for_storage(api_key, context)
+      {:ok, encrypted_key} = Deeper_Hub.Core.EncryptionService.encrypt_for_storage(api_key, context)
       # ... salvar encrypted_key no banco de dados ...
     end
     ```
@@ -310,7 +310,7 @@ Via `DeeperHub.Core.ConfigManager`:
 Criptografia e gerenciamento de chaves são complexos, mas essenciais!
 
 Temos agora uma boa base de módulos Core e de Segurança. Onde gostaria de ir agora?
-Podemos detalhar os submódulos dos `Shared.Utils` (`MapUtils`, `ListUtils`, `ValidationUtils`, `FileUtils`, `SecurityUtils`), ou talvez um módulo de domínio como `DeeperHub.OAuth` ou `DeeperHub.MFA`?"""),
+Podemos detalhar os submódulos dos `Shared.Utils` (`MapUtils`, `ListUtils`, `ValidationUtils`, `FileUtils`, `SecurityUtils`), ou talvez um módulo de domínio como `Deeper_Hub.OAuth` ou `Deeper_Hub.MFA`?"""),
             ],
         ),
         types.Content(
@@ -322,7 +322,7 @@ Podemos detalhar os submódulos dos `Shared.Utils` (`MapUtils`, `ListUtils`, `Va
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ok, dado que `DeeperHub.Shared.Utils` é um agrupador, vamos detalhar um de seus componentes que é frequentemente usado em toda a aplicação: `DeeperHub.Shared.Utils.MapUtils`.
+                types.Part.from_text(text="""Ok, dado que `Deeper_Hub.Shared.Utils` é um agrupador, vamos detalhar um de seus componentes que é frequentemente usado em toda a aplicação: `Deeper_Hub.Shared.Utils.MapUtils`.
 
 ---
 

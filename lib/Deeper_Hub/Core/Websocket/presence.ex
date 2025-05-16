@@ -1,4 +1,4 @@
-defmodule DeeperHub.Core.Websocket.Presence do
+defmodule Deeper_Hub.Core.Websocket.Presence do
   @moduledoc """
   Gerenciador de presence para o WebSocket.
 
@@ -8,7 +8,7 @@ defmodule DeeperHub.Core.Websocket.Presence do
   - Implementa broadcast de presence
   """
 
-  use Phoenix.Presence, otp_app: :deeper_hub, pubsub_server: DeeperHub.PubSub
+  use Phoenix.Presence, otp_app: :deeper_hub, pubsub_server: Deeper_Hub.PubSub
   import Phoenix.Channel
 
   def init(_opts) do

@@ -1,10 +1,10 @@
-# Módulo: `DeeperHub.Shared.Utils.SecurityUtils` 🚀
+# Módulo: `Deeper_Hub.Shared.Utils.SecurityUtils` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Shared.Utils.SecurityUtils`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Shared.Utils.SecurityUtils`
 
-O módulo `DeeperHub.Shared.Utils.SecurityUtils` fornece um conjunto de **funções utilitárias de segurança de baixo nível e agnósticas de contexto**. Estas são ferramentas básicas que podem ser usadas por vários módulos de segurança ou outras partes do sistema para tarefas como geração de tokens aleatórios seguros, hashing de senhas (se não totalmente encapsulado em `Auth` ou `Core.EncryptionService`), e outras operações criptográficas simples e comparações seguras.
+O módulo `Deeper_Hub.Shared.Utils.SecurityUtils` fornece um conjunto de **funções utilitárias de segurança de baixo nível e agnósticas de contexto**. Estas são ferramentas básicas que podem ser usadas por vários módulos de segurança ou outras partes do sistema para tarefas como geração de tokens aleatórios seguros, hashing de senhas (se não totalmente encapsulado em `Auth` ou `Core.EncryptionService`), e outras operações criptográficas simples e comparações seguras.
 
-O objetivo é fornecer blocos de construção seguros e bem testados para funcionalidades de segurança mais complexas, evitando a reinvenção de primitivas criptográficas e promovendo o uso de práticas seguras em todo o sistema DeeperHub. 😊
+O objetivo é fornecer blocos de construção seguros e bem testados para funcionalidades de segurança mais complexas, evitando a reinvenção de primitivas criptográficas e promovendo o uso de práticas seguras em todo o sistema Deeper_Hub. 😊
 
 **Importante:** Este módulo é para utilitários *genéricos*. Operações de segurança mais complexas ou específicas de um domínio (como gerenciamento de chaves de criptografia, fluxos de autenticação completos, políticas de segurança) devem residir em seus respectivos módulos Core ou de Segurança (ex: `Core.EncryptionService`, `Auth`, `SecurityPolicyManager`).
 
@@ -18,22 +18,22 @@ O objetivo é fornecer blocos de construção seguros e bem testados para funcio
 *   **Hashing de Senhas (Implementação Básica/Primitiva):**
     *   Fornecer uma função para gerar um hash seguro de uma senha usando um algoritmo forte e salt (`hash_password/2`).
     *   Fornecer uma função para verificar uma senha contra um hash armazenado (`verify_password/2`).
-    *(Nota: A lógica principal de hashing de senha, incluindo seleção de algoritmo, gerenciamento de custo/iterações e políticas, deve residir em `DeeperHub.Auth.Services.PasswordService` ou ser parte de `DeeperHub.Core.EncryptionService`. As funções aqui seriam implementações mais diretas de um algoritmo específico, se necessário como utilitário genérico, mas geralmente essa responsabilidade é mais centralizada).*
+    *(Nota: A lógica principal de hashing de senha, incluindo seleção de algoritmo, gerenciamento de custo/iterações e políticas, deve residir em `Deeper_Hub.Auth.Services.PasswordService` ou ser parte de `Deeper_Hub.Core.EncryptionService`. As funções aqui seriam implementações mais diretas de um algoritmo específico, se necessário como utilitário genérico, mas geralmente essa responsabilidade é mais centralizada).*
 *   **Operações HMAC (Hash-based Message Authentication Code):**
     *   Gerar um HMAC para verificar a integridade e autenticidade de dados usando uma chave secreta compartilhada (`generate_hmac/3`).
     *   Verificar um HMAC contra dados e uma chave (`verify_hmac/4`).
 *   **Comparação Segura de Tempo Constante:**
     *   Fornecer uma função para comparar duas strings (ex: tokens, hashes de senha, assinaturas) de uma maneira que o tempo de execução não dependa do número de caracteres que correspondem no início da string. Isso é crucial para prevenir ataques de timing (`secure_compare/2`).
 *   **Geração de Chaves de Assinatura Simples:**
-    *   Gerar chaves aleatórias de um tamanho específico, adequadas para uso como segredos de assinatura HMAC ou para tokens JWT simétricos (HS256/HS512) (`generate_signing_key/0`). (Gerenciamento de chaves mais complexo, incluindo rotação e armazenamento seguro, estaria em `DeeperHub.Core.EncryptionService` e seu `KeyManagementService`).
+    *   Gerar chaves aleatórias de um tamanho específico, adequadas para uso como segredos de assinatura HMAC ou para tokens JWT simétricos (HS256/HS512) (`generate_signing_key/0`). (Gerenciamento de chaves mais complexo, incluindo rotação e armazenamento seguro, estaria em `Deeper_Hub.Core.EncryptionService` e seu `KeyManagementService`).
 *   **Avaliação de Risco Simplificada (Stub/Exemplo da Doc Original):**
-    *   A função `evaluate_risk/1` mencionada na documentação original (que calcula um score agregado simples) seria mais um exemplo conceitual aqui. A lógica robusta de avaliação de risco reside em `DeeperHub.Security.RiskAssessment`.
+    *   A função `evaluate_risk/1` mencionada na documentação original (que calcula um score agregado simples) seria mais um exemplo conceitual aqui. A lógica robusta de avaliação de risco reside em `Deeper_Hub.Security.RiskAssessment`.
 
 ## 🏗️ 3. Arquitetura e Design
 
 ### 3.1. Componentes Principais
 
-*   **`DeeperHub.Shared.Utils.SecurityUtils` (Módulo Funcional):**
+*   **`Deeper_Hub.Shared.Utils.SecurityUtils` (Módulo Funcional):**
     *   Contém todas as funções de utilidade de segurança.
     *   Utiliza primariamente o módulo `:crypto` do Erlang/OTP para operações criptográficas fundamentais (geração de bytes aleatórios, funções de hash, HMAC).
     *   Pode usar `Plug.Crypto.secure_compare/2` para comparação em tempo constante.
@@ -54,15 +54,15 @@ shared/utils/security_utils.ex
 
 ## 🛠️ 4. Casos de Uso Principais
 
-*   **Módulo `DeeperHub.Tokens`:**
+*   **Módulo `Deeper_Hub.Tokens`:**
     *   Usa `SecurityUtils.generate_token/2` para criar a parte aleatória de tokens opacos (ex: tokens de API, tokens de sessão se não forem JWTs completos).
     *   Usa `SecurityUtils.generate_signing_key/0` para gerar um segredo para assinar JWTs (se o segredo for gerenciado dinamicamente e não apenas por config).
-*   **Módulo `DeeperHub.Recovery`:**
+*   **Módulo `Deeper_Hub.Recovery`:**
     *   Usa `SecurityUtils.generate_token/2` para criar tokens de reset de senha e verificação de email.
     *   Usa `SecurityUtils.generate_recovery_code/2` para gerar códigos de recuperação numéricos/alfanuméricos para MFA.
-*   **Módulo `DeeperHub.Auth.Services.PasswordService` (ou este módulo, se centralizar):**
+*   **Módulo `Deeper_Hub.Auth.Services.PasswordService` (ou este módulo, se centralizar):**
     *   Usa `SecurityUtils.hash_password/2` e `SecurityUtils.verify_password/2`.
-*   **Módulo `DeeperHub.Webhooks.PayloadSigner`:**
+*   **Módulo `Deeper_Hub.Webhooks.PayloadSigner`:**
     *   Usa `SecurityUtils.generate_hmac/3` para assinar payloads de webhook.
 *   **Comparação de Tokens Secretos:**
     *   Qualquer módulo que precise comparar um token fornecido pelo cliente com um valor armazenado (ex: token de CSRF, token de API) deve usar `SecurityUtils.secure_compare/2`.
@@ -77,43 +77,43 @@ Não aplicável no mesmo sentido que módulos com estado. O fluxo é a chamada d
 
 ### 6.1. Geração de Aleatoriedade
 
-*   **`DeeperHub.Shared.Utils.SecurityUtils.generate_random_bytes(length_bytes :: pos_integer()) :: binary()`** (Nova Sugestão)
+*   **`Deeper_Hub.Shared.Utils.SecurityUtils.generate_random_bytes(length_bytes :: pos_integer()) :: binary()`** (Nova Sugestão)
     *   **Descrição:** Retorna `length_bytes` de bytes aleatórios criptograficamente seguros. Wrapper direto para `:crypto.strong_rand_bytes/1`.
-*   **`DeeperHub.Shared.Utils.SecurityUtils.generate_token(length_bytes :: pos_integer() \\\\ 32, format :: :hex | :base64 | :base64url | :binary \\\\ :base64url) :: String.t() | binary()`**
+*   **`Deeper_Hub.Shared.Utils.SecurityUtils.generate_token(length_bytes :: pos_integer() \\\\ 32, format :: :hex | :base64 | :base64url | :binary \\\\ :base64url) :: String.t() | binary()`**
     *   **Descrição:** Gera uma string ou binário aleatório seguro. Usa `generate_random_bytes/1` internamente.
-*   **`DeeperHub.Shared.Utils.SecurityUtils.generate_id(format :: :uuid | :prefixed_random_hex | :prefixed_random_base64url, opts :: keyword() \\\\ []) :: String.t()`** (Revisado)
+*   **`Deeper_Hub.Shared.Utils.SecurityUtils.generate_id(format :: :uuid | :prefixed_random_hex | :prefixed_random_base64url, opts :: keyword() \\\\ []) :: String.t()`** (Revisado)
     *   **Descrição:** Gera um identificador único.
         *   `:uuid`: UUID v4 (via `Ecto.UUID.generate()` ou similar).
         *   `:prefixed_random_hex`: `opts[:prefix] <> hex_encoded_random_bytes(opts[:bytes_length] || 16)`.
         *   `:prefixed_random_base64url`: `opts[:prefix] <> base64url_encoded_random_bytes(opts[:bytes_length] || 16)`.
     *   **`opts`:** `:prefix` (String.t), `:bytes_length` (pos_integer).
-*   **`DeeperHub.Shared.Utils.SecurityUtils.generate_recovery_code(length :: pos_integer() \\\\ 6, format :: :numeric | :alphanumeric_upper | :alphanumeric_mixed \\\\ :numeric) :: String.t()`**
+*   **`Deeper_Hub.Shared.Utils.SecurityUtils.generate_recovery_code(length :: pos_integer() \\\\ 6, format :: :numeric | :alphanumeric_upper | :alphanumeric_mixed \\\\ :numeric) :: String.t()`**
     *   **Descrição:** Gera um código simples para recuperação ou OTP.
 
 ### 6.2. Hashing de Senhas
 
-*   **`DeeperHub.Shared.Utils.SecurityUtils.hash_password(password :: String.t(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}`**
+*   **`Deeper_Hub.Shared.Utils.SecurityUtils.hash_password(password :: String.t(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}`**
     *   **Descrição:** Gera um hash seguro de senha (ex: Argon2id).
     *   **`opts`:** Opções específicas do algoritmo (custo, etc.).
     *   **Retorno:** String do hash (inclui salt e parâmetros) ou erro.
-*   **`DeeperHub.Shared.Utils.SecurityUtils.verify_password(password :: String.t(), stored_hash :: String.t()) :: boolean()`**
+*   **`Deeper_Hub.Shared.Utils.SecurityUtils.verify_password(password :: String.t(), stored_hash :: String.t()) :: boolean()`**
     *   **Descrição:** Verifica se a `password` corresponde ao `stored_hash`.
 
 ### 6.3. HMAC
 
-*   **`DeeperHub.Shared.Utils.SecurityUtils.generate_hmac(data :: String.t() | binary(), key :: binary(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}`**
+*   **`Deeper_Hub.Shared.Utils.SecurityUtils.generate_hmac(data :: String.t() | binary(), key :: binary(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}`**
     *   **`opts`:** `:algorithm` (atom, Padrão: `:sha256`), `:output_format` (atom, Padrão: `:hex`).
-*   **`DeeperHub.Shared.Utils.SecurityUtils.verify_hmac(data :: String.t() | binary(), hmac_to_verify :: String.t(), key :: binary(), opts :: keyword()) :: boolean()`**
+*   **`Deeper_Hub.Shared.Utils.SecurityUtils.verify_hmac(data :: String.t() | binary(), hmac_to_verify :: String.t(), key :: binary(), opts :: keyword()) :: boolean()`**
     *   **`opts`:** Mesmas de `generate_hmac/3`.
 
 ### 6.4. Comparação Segura
 
-*   **`DeeperHub.Shared.Utils.SecurityUtils.secure_compare(string1 :: String.t(), string2 :: String.t()) :: boolean()`**
+*   **`Deeper_Hub.Shared.Utils.SecurityUtils.secure_compare(string1 :: String.t(), string2 :: String.t()) :: boolean()`**
     *   **Descrição:** Compara duas strings em tempo constante.
 
 ### 6.5. Geração de Chave Simples
 
-*   **`DeeperHub.Shared.Utils.SecurityUtils.generate_signing_key(length_bytes :: pos_integer() \\\\ 32) :: binary()`**
+*   **`Deeper_Hub.Shared.Utils.SecurityUtils.generate_signing_key(length_bytes :: pos_integer() \\\\ 32) :: binary()`**
     *   **Descrição:** Gera uma chave aleatória adequada para HMAC ou JWT simétrico.
 
 ## ⚙️ 7. Configuração
@@ -127,7 +127,7 @@ Geralmente, este módulo não armazena configurações, mas pode *ler* configura
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.ConfigManager` (para padrões configuráveis, se houver).
+*   `Deeper_Hub.Core.ConfigManager` (para padrões configuráveis, se houver).
 
 ### 8.2. Bibliotecas Externas
 
@@ -140,16 +140,16 @@ Geralmente, este módulo não armazena configurações, mas pode *ler* configura
 Estes utilitários são chamados por outros módulos que implementam funcionalidades de segurança de mais alto nível.
 
 ```elixir
-# Em DeeperHub.Tokens.Services.ApiTokenService
+# Em Deeper_Hub.Tokens.Services.ApiTokenService
 def generate_new_api_token_value() do
-  DeeperHub.Shared.Utils.SecurityUtils.generate_token(32, :base64url) # Gera um token de ~43 caracteres
+  Deeper_Hub.Shared.Utils.SecurityUtils.generate_token(32, :base64url) # Gera um token de ~43 caracteres
 end
 
 # Em um Plug de verificação de assinatura de webhook
 def verify_webhook_request(payload, received_signature, secret_key) do
-  case DeeperHub.Shared.Utils.SecurityUtils.generate_hmac(payload, secret_key) do
+  case Deeper_Hub.Shared.Utils.SecurityUtils.generate_hmac(payload, secret_key) do
     {:ok, calculated_signature} ->
-      DeeperHub.Shared.Utils.SecurityUtils.secure_compare(received_signature, calculated_signature)
+      Deeper_Hub.Shared.Utils.SecurityUtils.secure_compare(received_signature, calculated_signature)
     _ ->
       false
   end
@@ -187,7 +187,7 @@ Geralmente não aplicável para um módulo de utilitários puros, a menos que um
 
 *   **Fonte de Aleatoriedade:** A base de muitos tokens e chaves. Usar `:crypto.strong_rand_bytes/1` é fundamental.
 *   **Algoritmos:** Usar apenas algoritmos criptográficos padrão da indústria e bem vetados. Não inventar criptografia.
-*   **Gerenciamento de Chaves:** Este módulo pode *gerar* chaves simples, mas não é responsável por seu *armazenamento seguro* ou *rotação*. Isso é tarefa do `DeeperHub.Core.EncryptionService` ou de um KMS.
+*   **Gerenciamento de Chaves:** Este módulo pode *gerar* chaves simples, mas não é responsável por seu *armazenamento seguro* ou *rotação*. Isso é tarefa do `Deeper_Hub.Core.EncryptionService` ou de um KMS.
 *   **Comparação em Tempo Constante:** Crítico para evitar vazamento de informação através de análise de tempo de resposta.
 
 ## 🧑‍💻 13. Contribuição
@@ -208,9 +208,9 @@ Geralmente não aplicável para um módulo de utilitários puros, a menos que um
 
 ---
 
-Com isso, encerramos a documentação dos módulos em `DeeperHub.Shared.Utils`. Cobrimos uma boa parte da infraestrutura Core e da camada de Segurança!
+Com isso, encerramos a documentação dos módulos em `Deeper_Hub.Shared.Utils`. Cobrimos uma boa parte da infraestrutura Core e da camada de Segurança!
 
-Para o próximo, sugiro irmos para um módulo de domínio mais complexo que ainda não detalhamos, como `DeeperHub.OAuth` ou `DeeperHub.Webhooks`. Qual sua preferência?"""),
+Para o próximo, sugiro irmos para um módulo de domínio mais complexo que ainda não detalhamos, como `Deeper_Hub.OAuth` ou `Deeper_Hub.Webhooks`. Qual sua preferência?"""),
             ],
         ),
         types.Content(
@@ -223,9 +223,9 @@ Para o próximo, sugiro irmos para um módulo de domínio mais complexo que aind
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ok, já detalhamos `DeeperHub.OAuth`.
+                types.Part.from_text(text="""Ok, já detalhamos `Deeper_Hub.OAuth`.
 
-Vamos então para `DeeperHub.Webhooks`. Este módulo é fundamental para permitir que o DeeperHub se comunique proativamente com sistemas externos quando eventos específicos ocorrem.
+Vamos então para `Deeper_Hub.Webhooks`. Este módulo é fundamental para permitir que o Deeper_Hub se comunique proativamente com sistemas externos quando eventos específicos ocorrem.
 
 ---
 

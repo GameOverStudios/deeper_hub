@@ -1,4 +1,4 @@
-defmodule DeeperHub.Core.Websocket.DatabaseHandler do
+defmodule Deeper_Hub.Core.Websocket.DatabaseHandler do
   @moduledoc """
   Handler para operações de banco de dados via WebSocket.
 
@@ -13,7 +13,7 @@ defmodule DeeperHub.Core.Websocket.DatabaseHandler do
   alias Deeper_Hub.Core.Data.Repository
   alias Deeper_Hub.Core.Schemas.User
   alias Deeper_Hub.Core.Schemas.Profile
-  alias DeeperHub.Core.Websocket.Messages
+  alias Deeper_Hub.Core.Websocket.Messages
   alias Deeper_Hub.Core.EventBus.EventDefinitions
   alias Deeper_Hub.Core.Telemetry.TelemetryEvents
 
@@ -89,14 +89,14 @@ defmodule DeeperHub.Core.Websocket.DatabaseHandler do
       {:ok, data} ->
         # Prepara os dados para resposta JSON
         sanitized_data = case data do
-          data when is_list(data) -> 
+          data when is_list(data) ->
             # Se for uma lista, sanitiza cada item
             Enum.map(data, &sanitize_record/1)
-          data -> 
+          data ->
             # Se for um único registro, sanitiza-o
             sanitize_record(data)
         end
-        
+
         # Cria uma resposta JSON diretamente
         response = %{
           "type" => "database_response",
@@ -163,13 +163,13 @@ defmodule DeeperHub.Core.Websocket.DatabaseHandler do
   defp create_record(operation) do
     # Converte o schema de string para módulo
     schema_module = get_schema_module(operation.schema)
-    
+
     # Deserializa os dados
     case Jason.decode(operation.data) do
       {:ok, data} ->
         # Cria o registro
         Repository.insert(schema_module, data)
-      
+
       {:error, reason} ->
         {:error, "Erro ao deserializar dados: #{inspect(reason)}"}
     end
@@ -178,13 +178,13 @@ defmodule DeeperHub.Core.Websocket.DatabaseHandler do
   defp read_record(operation) do
     # Converte o schema de string para módulo
     schema_module = get_schema_module(operation.schema)
-    
+
     # Busca o registro
     case Repository.get(schema_module, operation.id) do
       {:ok, record} ->
         # Sanitiza o registro antes de retornar
         {:ok, sanitize_record(record)}
-      
+
       error ->
         error
     end
@@ -193,7 +193,7 @@ defmodule DeeperHub.Core.Websocket.DatabaseHandler do
   defp update_record(operation) do
     # Converte o schema de string para módulo
     schema_module = get_schema_module(operation.schema)
-    
+
     # Deserializa os dados
     case Jason.decode(operation.data) do
       {:ok, data} ->
@@ -203,18 +203,18 @@ defmodule DeeperHub.Core.Websocket.DatabaseHandler do
             # Atualiza o registro
             # Cria uma struct atualizada com os novos dados
             record_with_changes = Map.merge(record, data)
-            
+
             # Chama update/2 com a struct atualizada
             Repository.update(record_with_changes, data)
             |> case do
               {:ok, updated} -> {:ok, sanitize_record(updated)}
               error -> error
             end
-          
+
           error ->
             error
         end
-      
+
       {:error, reason} ->
         {:error, "Erro ao deserializar dados: #{inspect(reason)}"}
     end
@@ -223,7 +223,7 @@ defmodule DeeperHub.Core.Websocket.DatabaseHandler do
   defp delete_record(operation) do
     # Converte o schema de string para módulo
     schema_module = get_schema_module(operation.schema)
-    
+
     # Busca o registro existente
     case Repository.get(schema_module, operation.id) do
       {:ok, record} ->
@@ -233,7 +233,7 @@ defmodule DeeperHub.Core.Websocket.DatabaseHandler do
           {:ok, _} -> {:ok, %{id: operation.id, deleted: true}}
           error -> error
         end
-      
+
       error ->
         error
     end
@@ -242,7 +242,7 @@ defmodule DeeperHub.Core.Websocket.DatabaseHandler do
   defp find_records(operation) do
     # Converte o schema de string para módulo
     schema_module = get_schema_module(operation.schema)
-    
+
     # Deserializa as condições
     case Jason.decode(operation.conditions) do
       {:ok, conditions} when is_map(conditions) ->
@@ -252,7 +252,7 @@ defmodule DeeperHub.Core.Websocket.DatabaseHandler do
           {:ok, records} -> {:ok, Enum.map(records, &sanitize_record/1)}
           error -> error
         end
-      
+
       {:error, reason} ->
         {:error, "Erro ao deserializar condições: #{inspect(reason)}"}
     end
@@ -261,7 +261,7 @@ defmodule DeeperHub.Core.Websocket.DatabaseHandler do
   defp list_records(operation) do
     # Converte o schema de string para módulo
     schema_module = get_schema_module(operation.schema)
-    
+
     # Lista os registros
     Repository.list(schema_module)
     |> case do
@@ -288,7 +288,7 @@ defmodule DeeperHub.Core.Websocket.DatabaseHandler do
     |> Map.drop([:__meta__, :password_hash, :password])
     |> sanitize_timestamps()
   end
-  
+
   # Converte timestamps para formato ISO8601 para garantir serialização JSON
   defp sanitize_timestamps(map) do
     map

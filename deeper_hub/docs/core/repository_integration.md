@@ -1,6 +1,6 @@
 # Integração de Módulos de Repositório
 
-Este documento explica como utilizar os módulos de integração do repositório para melhorar a resiliência, observabilidade e desempenho das operações de banco de dados no DeeperHub.
+Este documento explica como utilizar os módulos de integração do repositório para melhorar a resiliência, observabilidade e desempenho das operações de banco de dados no Deeper_Hub.
 
 ## Visão Geral
 
@@ -248,4 +248,4 @@ Deeper_Hub.Core.Data.RepositoryIntegration.restart([
 
 ## Conclusão
 
-Os módulos de integração do repositório fornecem uma camada robusta de resiliência, observabilidade e desempenho para as operações de banco de dados no DeeperHub. Ao utilizá-los corretamente, você pode garantir que sua aplicação seja mais confiável, escalável e fácil de monitorar.
+Os módulos de integração do repositório fornecem uma camada robusta de resiliência, observabilidade e desempenho para as operações de banco de dados no Deeper_Hub. Ao utilizá-los corretamente, você pode garantir que sua aplicação seja mais confiável, escalável e fácil de monitorar.

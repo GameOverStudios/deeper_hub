@@ -1,6 +1,6 @@
-defmodule DeeperHub.Core.Websocket.Supervisor do
+defmodule Deeper_Hub.Core.Websocket.Supervisor do
   @moduledoc """
-  Supervisor para o sistema WebSocket do DeeperHub.
+  Supervisor para o sistema WebSocket do Deeper_Hub.
 
   Este supervisor:
   - Gerencia o endpoint WebSocket
@@ -9,7 +9,7 @@ defmodule DeeperHub.Core.Websocket.Supervisor do
   """
 
   use Supervisor
-  alias DeeperHub.Core.Websocket.Presence
+  alias Deeper_Hub.Core.Websocket.Presence
 
   def start_link(opts) do
     Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
@@ -19,18 +19,18 @@ defmodule DeeperHub.Core.Websocket.Supervisor do
   def init(_opts) do
     children = [
       # Endpoint WebSocket
-      {DeeperHub.Core.Websocket.Endpoint, [
+      {Deeper_Hub.Core.Websocket.Endpoint, [
         http: [port: 4000],
         url: [host: "localhost"],
         websocket: [timeout: 45_000, compress: true],
-        pubsub_server: DeeperHub.PubSub
+        pubsub_server: Deeper_Hub.PubSub
       ]},
 
       # Presence
       {Presence, []},
 
       # Worker para monitoramento de conexões
-      {DeeperHub.Core.Websocket.ConnectionMonitor, []}
+      {Deeper_Hub.Core.Websocket.ConnectionMonitor, []}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

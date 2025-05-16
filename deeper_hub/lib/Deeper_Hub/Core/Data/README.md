@@ -1,6 +1,6 @@
 # Módulo de Repositório com Resiliência
 
-Este módulo implementa uma camada de repositório resiliente para o DeeperHub, integrando funcionalidades de cache, circuit breaker, telemetria, métricas e eventos.
+Este módulo implementa uma camada de repositório resiliente para o Deeper_Hub, integrando funcionalidades de cache, circuit breaker, telemetria, métricas e eventos.
 
 ## Estrutura
 

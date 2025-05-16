@@ -1,9 +1,9 @@
 Plano para Dashboards e Alertas de Observabilidade
 1. Abordagem para Dashboards
-No contexto do DeeperHub, os dashboards de observabilidade podem ser implementados de duas formas principais:
+No contexto do Deeper_Hub, os dashboards de observabilidade podem ser implementados de duas formas principais:
 
 Opção 1: Dashboard Web Integrado
-Uma interface web integrada ao sistema DeeperHub que exibe métricas em tempo real:
+Uma interface web integrada ao sistema Deeper_Hub que exibe métricas em tempo real:
 
 Tecnologias: Phoenix LiveView para atualizações em tempo real
 Componentes:
@@ -15,7 +15,7 @@ Opção 2: Integração com Ferramentas de Observabilidade
 Exportar métricas, logs e eventos para ferramentas especializadas:
 
 Prometheus + Grafana: Para métricas e dashboards visuais
-Implementar exportadores Prometheus para as métricas do DeeperHub
+Implementar exportadores Prometheus para as métricas do Deeper_Hub
 Criar dashboards Grafana pré-configurados
 ELK Stack: Para logs e análise de eventos
 Configurar exportação de logs para Elasticsearch
@@ -26,9 +26,9 @@ Um dashboard simples dentro do console IEx para desenvolvimento e diagnóstico:
 elixir
 CopyInsert
 # Exemplo de uso no IEx
-iex> DeeperHub.Core.Observability.Dashboard.show()
+iex> Deeper_Hub.Core.Observability.Dashboard.show()
 
-===== DeeperHub System Health =====
+===== Deeper_Hub System Health =====
 CircuitBreakers:
   - database_service: CLOSED (healthy)
   - external_api: OPEN (unhealthy since 10:15)
@@ -78,7 +78,7 @@ Exemplo de Configuração
 elixir
 CopyInsert
 # Configuração de alertas
-config :deeper_hub, DeeperHub.Core.Observability.AlertManager,
+config :deeper_hub, Deeper_Hub.Core.Observability.AlertManager,
   rules: [
     # Alerta quando o CircuitBreaker abre
     %{
@@ -109,13 +109,13 @@ config :deeper_hub, DeeperHub.Core.Observability.AlertManager,
 elixir
 CopyInsert
 # Inicialização do sistema de observabilidade
-DeeperHub.Core.Observability.UnifiedObservability.start_link()
+Deeper_Hub.Core.Observability.UnifiedObservability.start_link()
 
 # Configuração de dashboards
-DeeperHub.Core.Observability.DashboardService.setup()
+Deeper_Hub.Core.Observability.DashboardService.setup()
 
 # Verificação manual do estado do sistema
-DeeperHub.Core.Observability.SystemHealth.check()
+Deeper_Hub.Core.Observability.SystemHealth.check()
 5. Integração com Módulos Existentes
 CircuitBreaker:
 Emitir eventos quando o estado do circuito muda
@@ -134,6 +134,6 @@ Implementar o AlertManager com suporte a múltiplos canais
 Desenvolver protótipo de dashboard (web ou IEx)
 Integrar com módulos existentes (CircuitBreaker, Cache, Repository)
 Testar com cenários de falha simulados
-Esta abordagem forneceria uma solução completa de observabilidade para o DeeperHub, permitindo monitorar a saúde do sistema, detectar anomalias e receber alertas sobre problemas potenciais antes que afetem os usuários.
+Esta abordagem forneceria uma solução completa de observabilidade para o Deeper_Hub, permitindo monitorar a saúde do sistema, detectar anomalias e receber alertas sobre problemas potenciais antes que afetem os usuários.
 
 Feedback submitted

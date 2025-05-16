@@ -1,6 +1,6 @@
-# Template: README para Módulos do DeeperHub
+# Template: README para Módulos do Deeper_Hub
 
-Este é um template para a criação de arquivos `README.md` para os módulos do projeto DeeperHub. O objetivo é padronizar a documentação, tornando-a mais clara, completa e consistente.
+Este é um template para a criação de arquivos `README.md` para os módulos do projeto Deeper_Hub. O objetivo é padronizar a documentação, tornando-a mais clara, completa e consistente.
 
 **Instruções:**
 - Substitua `[Nome do Módulo]` pelo nome real do módulo.
@@ -16,7 +16,7 @@ Este é um template para a criação de arquivos `README.md` para os módulos do
 ## 📜 1. Visão Geral do Módulo `[Nome do Módulo]`
 
 <!-- 
-Descreva de forma concisa o que este módulo faz, qual seu propósito principal e seu papel dentro do sistema DeeperHub. 
+Descreva de forma concisa o que este módulo faz, qual seu propósito principal e seu papel dentro do sistema Deeper_Hub. 
 Ex: "O módulo de Autenticação é responsável por verificar a identidade dos usuários e gerenciar suas sessões." 
 Exemplo para um módulo de `UserProfile`:
 "O módulo UserProfile gerencia todos os dados relacionados ao perfil do usuário, como nome, avatar, preferências de contato e biografia. Ele fornece uma API para outros módulos consultarem e atualizarem essas informações."
@@ -203,7 +203,7 @@ Exemplo para um endpoint REST do módulo `UserProfile`:
 <!-- 
 Descreva como o módulo pode ser configurado.
 - Quais variáveis de ambiente ele utiliza?
-- Quais chaves de configuração são lidas do `DeeperHub.Core.ConfigManager`?
+- Quais chaves de configuração são lidas do `Deeper_Hub.Core.ConfigManager`?
 - Quais são os valores padrão e como podem ser alterados?
 
 Exemplo:
@@ -222,7 +222,7 @@ Exemplo:
 
 <!-- 
 Liste as dependências do módulo.
-- **Módulos Internos do DeeperHub:** (ex: `DeeperHub.Core.LoggerFacade`, `DeeperHub.Shared.Utils`)
+- **Módulos Internos do Deeper_Hub:** (ex: `Deeper_Hub.Core.LoggerFacade`, `Deeper_Hub.Shared.Utils`)
 - **Bibliotecas Externas:** (ex: `Ecto`, `Jason`, `Finch`)
 - Justifique brevemente dependências menos óbvias.
 -->
@@ -334,7 +334,7 @@ Instruções para desenvolvedores que desejam contribuir com este módulo.
 - Contato para dúvidas.
 -->
 
-Consulte as diretrizes gerais de contribuição do projeto DeeperHub.
+Consulte as diretrizes gerais de contribuição do projeto Deeper_Hub.
 
 ## 🔮 14. Melhorias Futuras e TODOs
 

@@ -1,8 +1,8 @@
-# Módulo: `Elixir.DeeperHub.Security.FraudDetection.Workers.AnalysisWorker` 🕵️
+# Módulo: `Elixir.Deeper_Hub.Security.FraudDetection.Workers.AnalysisWorker` 🕵️
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Security.FraudDetection.Workers.AnalysisWorker`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Security.FraudDetection.Workers.AnalysisWorker`
 
-O `AnalysisWorker` é um processo GenServer dentro do módulo `DeeperHub.Security.FraudDetection`. Sua principal responsabilidade é executar análises periódicas e assíncronas sobre os dados de eventos e detecções de fraude acumulados. O objetivo é identificar padrões complexos, tendências e anomalias de longo prazo que podem não ser evidentes em análises em tempo real, contribuindo para uma detecção de fraude mais robusta. 😊
+O `AnalysisWorker` é um processo GenServer dentro do módulo `Deeper_Hub.Security.FraudDetection`. Sua principal responsabilidade é executar análises periódicas e assíncronas sobre os dados de eventos e detecções de fraude acumulados. O objetivo é identificar padrões complexos, tendências e anomalias de longo prazo que podem não ser evidentes em análises em tempo real, contribuindo para uma detecção de fraude mais robusta. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -26,12 +26,12 @@ O `AnalysisWorker` é um processo GenServer dentro do módulo `DeeperHub.Securit
 ## 🏗️ 3. Arquitetura e Design
 
 *   **Tipo:** GenServer.
-*   **Supervisão:** Supervisionado pelo `DeeperHub.Security.FraudDetection.Supervisor`.
+*   **Supervisão:** Supervisionado pelo `Deeper_Hub.Security.FraudDetection.Supervisor`.
 *   **Agendamento:** Utiliza `Process.send_after/3` ou um scheduler mais robusto (como `Quantum` integrado via `Core.BackgroundTaskManager`) para execuções periódicas.
 *   **Interações:**
-    *   Consulta dados de fraude através do `DeeperHub.Security.FraudDetection.Services.DetectionRecorderService` ou diretamente do `Core.Repo`.
-    *   Pode interagir com `DeeperHub.Security.FraudDetection.Services.RiskCalculatorService` para reavaliar riscos.
-    *   Pode disparar notificações/alertas via `DeeperHub.Notifications` ou `Core.EventBus`.
+    *   Consulta dados de fraude através do `Deeper_Hub.Security.FraudDetection.Services.DetectionRecorderService` ou diretamente do `Core.Repo`.
+    *   Pode interagir com `Deeper_Hub.Security.FraudDetection.Services.RiskCalculatorService` para reavaliar riscos.
+    *   Pode disparar notificações/alertas via `Deeper_Hub.Notifications` ou `Core.EventBus`.
 
 ### 3.1. Componentes Principais
 
@@ -75,18 +75,18 @@ Este worker geralmente não expõe uma API pública para outros módulos, mas po
 
 ## ⚙️ 7. Configuração
 
-*   **ConfigManager (`DeeperHub.Core.ConfigManager`):**
+*   **ConfigManager (`Deeper_Hub.Core.ConfigManager`):**
     *   `[:security, :fraud_detection, :analysis_worker, :interval_minutes]`: Intervalo entre as execuções automáticas. (Padrão: `1440` - 24 horas)
     *   `[:security, :fraud_detection, :analysis_worker, :data_window_hours]`: Janela de dados a ser analisada em cada execução. (Padrão: `24`)
     *   `[:security, :fraud_detection, :analysis_worker, :alert_thresholds, :high_risk_user_count]`: Limiar para alertar se muitos usuários de alto risco forem detectados.
 
 ## 🔗 8. Dependências
 
-*   `DeeperHub.Core.Repo`
-*   `DeeperHub.Security.FraudDetection.Services.DetectionRecorderService`
-*   `DeeperHub.Security.FraudDetection.Services.RiskCalculatorService`
-*   `DeeperHub.Notifications` ou `DeeperHub.Core.EventBus`
-*   `DeeperHub.Core.Logger`, `DeeperHub.Core.Metrics`, `DeeperHub.Core.ConfigManager`
+*   `Deeper_Hub.Core.Repo`
+*   `Deeper_Hub.Security.FraudDetection.Services.DetectionRecorderService`
+*   `Deeper_Hub.Security.FraudDetection.Services.RiskCalculatorService`
+*   `Deeper_Hub.Notifications` ou `Deeper_Hub.Core.EventBus`
+*   `Deeper_Hub.Core.Logger`, `Deeper_Hub.Core.Metrics`, `Deeper_Hub.Core.ConfigManager`
 
 ## ✅ 10. Testes e Observabilidade
 
@@ -103,5 +103,5 @@ Este worker geralmente não expõe uma API pública para outros módulos, mas po
 
 ---
 
-**Exemplo 3: Submódulo de Schema (dentro de `DeeperHub.Tokens`)**
+**Exemplo 3: Submódulo de Schema (dentro de `Deeper_Hub.Tokens`)**
 

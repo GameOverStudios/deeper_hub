@@ -1,8 +1,8 @@
-# Módulo: `DeeperHub.Achievements` 🏆
+# Módulo: `Deeper_Hub.Achievements` 🏆
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Achievements`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Achievements`
 
-O módulo `DeeperHub.Achievements` é responsável por gerenciar o sistema de conquistas (achievements) dentro da plataforma DeeperHub. Ele permite a definição de várias conquistas, o rastreamento do progresso dos usuários em relação a elas, e a concessão de conquistas quando os critérios são atendidos. O objetivo é engajar e recompensar os usuários por suas interações e marcos alcançados no sistema. 😊
+O módulo `Deeper_Hub.Achievements` é responsável por gerenciar o sistema de conquistas (achievements) dentro da plataforma Deeper_Hub. Ele permite a definição de várias conquistas, o rastreamento do progresso dos usuários em relação a elas, e a concessão de conquistas quando os critérios são atendidos. O objetivo é engajar e recompensar os usuários por suas interações e marcos alcançados no sistema. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -20,34 +20,34 @@ O módulo `DeeperHub.Achievements` é responsável por gerenciar o sistema de co
     *   Permitir que usuários visualizem as conquistas disponíveis, seu progresso e as que já desbloquearam.
     *   Fornecer APIs para exibir informações de conquistas em perfis de usuário ou outras áreas da plataforma.
 *   **Notificações:**
-    *   Notificar usuários quando eles desbloqueiam uma nova conquista (via `DeeperHub.Notifications`).
+    *   Notificar usuários quando eles desbloqueiam uma nova conquista (via `Deeper_Hub.Notifications`).
 *   **Integração com Outros Módulos:**
-    *   Receber eventos de outros módulos (via `Core.EventBus`) que podem acionar o progresso de conquistas (ex: `UserCreatedReviewEvent` do `DeeperHub.ServerReviews` pode contar para uma conquista \"Crítico Ativo\").
-    *   Potencialmente, desbloquear recompensas do módulo `DeeperHub.Rewards` ao alcançar certas conquistas.
+    *   Receber eventos de outros módulos (via `Core.EventBus`) que podem acionar o progresso de conquistas (ex: `UserCreatedReviewEvent` do `Deeper_Hub.ServerReviews` pode contar para uma conquista \"Crítico Ativo\").
+    *   Potencialmente, desbloquear recompensas do módulo `Deeper_Hub.Rewards` ao alcançar certas conquistas.
 *   **Administração de Conquistas:**
     *   Interface para administradores gerenciarem as definições de conquistas.
     *   Capacidade de conceder manualmente uma conquista a um usuário (com auditoria).
 
 ## 🏗️ 3. Arquitetura e Design
 
-`DeeperHub.Achievements` atuará como uma fachada para um serviço de lógica de negócio e componentes de persistência.
+`Deeper_Hub.Achievements` atuará como uma fachada para um serviço de lógica de negócio e componentes de persistência.
 
-*   **Interface Pública (`DeeperHub.Achievements.AchievementsFacade` ou `DeeperHub.Achievements`):** Funções como `list_achievements/1`, `get_user_progress/2`, `unlock_achievement_for_user/2`.
-*   **Serviço de Conquistas (`DeeperHub.Achievements.Services.AchievementsService`):**
+*   **Interface Pública (`Deeper_Hub.Achievements.AchievementsFacade` ou `Deeper_Hub.Achievements`):** Funções como `list_achievements/1`, `get_user_progress/2`, `unlock_achievement_for_user/2`.
+*   **Serviço de Conquistas (`Deeper_Hub.Achievements.Services.AchievementsService`):**
     *   Contém a lógica de negócio principal para gerenciar definições de conquistas, processar progresso e desbloquear conquistas.
 *   **Schemas Ecto:**
-    *   `DeeperHub.Achievements.Schema.Achievement`: Define uma conquista.
-    *   `DeeperHub.Achievements.Schema.UserAchievement`: Rastreia o progresso e o desbloqueio de uma conquista por um usuário.
-    *   `DeeperHub.Achievements.Schema.AchievementType` (Opcional, herdado de `Lists`): Para categorizar tipos de conquistas.
+    *   `Deeper_Hub.Achievements.Schema.Achievement`: Define uma conquista.
+    *   `Deeper_Hub.Achievements.Schema.UserAchievement`: Rastreia o progresso e o desbloqueio de uma conquista por um usuário.
+    *   `Deeper_Hub.Achievements.Schema.AchievementType` (Opcional, herdado de `Lists`): Para categorizar tipos de conquistas.
 *   **Processamento de Eventos (Opcional):**
     *   Um GenServer ou worker que escuta eventos do `Core.EventBus` para atualizar o progresso das conquistas de forma assíncrona.
-*   **Cache (`DeeperHub.Achievements.Cache` ou via `Core.Cache`):**
+*   **Cache (`Deeper_Hub.Achievements.Cache` ou via `Core.Cache`):**
     *   Cache para definições de conquistas frequentemente acessadas ou progresso de usuários ativos.
 *   **Integrações:**
-    *   `DeeperHub.Core.Repo`: Para persistência.
-    *   `DeeperHub.Core.EventBus`: Para escutar eventos relevantes de outros módulos.
-    *   `DeeperHub.Notifications`: Para notificar usuários.
-    *   `DeeperHub.Rewards` (Potencial): Para associar recompensas a conquistas.
+    *   `Deeper_Hub.Core.Repo`: Para persistência.
+    *   `Deeper_Hub.Core.EventBus`: Para escutar eventos relevantes de outros módulos.
+    *   `Deeper_Hub.Notifications`: Para notificar usuários.
+    *   `Deeper_Hub.Rewards` (Potencial): Para associar recompensas a conquistas.
 
 **Padrões de Design:**
 
@@ -57,12 +57,12 @@ O módulo `DeeperHub.Achievements` é responsável por gerenciar o sistema de co
 
 ### 3.1. Componentes Principais
 
-*   **`DeeperHub.Achievements.AchievementsFacade`:** Ponto de entrada.
-*   **`DeeperHub.Achievements.Services.AchievementsService`:** Lógica de negócio.
-*   **`DeeperHub.Achievements.Schema.Achievement`:** Schema da conquista.
-*   **`DeeperHub.Achievements.Schema.UserAchievement`:** Schema do progresso do usuário.
-*   **`DeeperHub.Achievements.EventHandler` (Novo Sugerido):** Módulo/GenServer para lidar com eventos de outros módulos que afetam o progresso.
-*   **`DeeperHub.Achievements.Supervisor`:** Supervisiona processos.
+*   **`Deeper_Hub.Achievements.AchievementsFacade`:** Ponto de entrada.
+*   **`Deeper_Hub.Achievements.Services.AchievementsService`:** Lógica de negócio.
+*   **`Deeper_Hub.Achievements.Schema.Achievement`:** Schema da conquista.
+*   **`Deeper_Hub.Achievements.Schema.UserAchievement`:** Schema do progresso do usuário.
+*   **`Deeper_Hub.Achievements.EventHandler` (Novo Sugerido):** Módulo/GenServer para lidar com eventos de outros módulos que afetam o progresso.
+*   **`Deeper_Hub.Achievements.Supervisor`:** Supervisiona processos.
 
 ### 3.3. Decisões de Design Importantes
 
@@ -80,8 +80,8 @@ O módulo `DeeperHub.Achievements` é responsável por gerenciar o sistema de co
 
 **Fluxo de Desbloqueio de Conquista Baseada em Evento:**
 
-1.  Outro módulo (ex: `DeeperHub.ServerReviews`) emite um evento (ex: `ReviewCreatedEvent`) no `Core.EventBus` contendo `%{user_id: \"123\", review_id: \"abc\"}`.
-2.  `DeeperHub.Achievements.EventHandler` (inscrito neste evento) recebe o evento.
+1.  Outro módulo (ex: `Deeper_Hub.ServerReviews`) emite um evento (ex: `ReviewCreatedEvent`) no `Core.EventBus` contendo `%{user_id: \"123\", review_id: \"abc\"}`.
+2.  `Deeper_Hub.Achievements.EventHandler` (inscrito neste evento) recebe o evento.
 3.  O `EventHandler` identifica quais conquistas podem ser afetadas por este tipo de evento (ex: conquista \"Primeira Review\", \"10 Reviews\").
 4.  Para cada conquista relevante, o `EventHandler` chama o `AchievementsService` para atualizar o progresso do `user_id`.
 5.  O `AchievementsService`:
@@ -91,12 +91,12 @@ O módulo `DeeperHub.Achievements` é responsável por gerenciar o sistema de co
     *   Se sim, marca a `UserAchievement` como desbloqueada, define `unlocked_at`.
     *   Persiste as alterações.
     *   Emite um evento `AchievementUnlockedEvent` no `Core.EventBus`.
-    *   (Opcional) Enfileira uma notificação para o usuário via `DeeperHub.Notifications`.
+    *   (Opcional) Enfileira uma notificação para o usuário via `Deeper_Hub.Notifications`.
 6.  O `EventHandler` confirma o processamento do evento para o `EventBus`.
 
 ## 📡 6. API (Se Aplicável)
 
-### 6.1. `DeeperHub.Achievements.list_achievements/1`
+### 6.1. `Deeper_Hub.Achievements.list_achievements/1`
 
 *   **Descrição:** Lista todas as definições de conquistas disponíveis no sistema.
 *   **`@spec`:** `list_achievements(opts :: Keyword.t()) :: {:ok, list(Achievement.t())} | {:error, reason}`
@@ -105,10 +105,10 @@ O módulo `DeeperHub.Achievements` é responsável por gerenciar o sistema de co
 *   **Retorno:** Lista de structs `Achievement.t()`.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    {:ok, all_achievements} = DeeperHub.Achievements.list_achievements()
+    {:ok, all_achievements} = Deeper_Hub.Achievements.list_achievements()
     ```
 
-### 6.2. `DeeperHub.Achievements.get_user_achievements/2`
+### 6.2. `Deeper_Hub.Achievements.get_user_achievements/2`
 
 *   **Descrição:** Lista todas as conquistas de um usuário específico, incluindo seu status (bloqueada, em progresso, desbloqueada) e progresso atual.
 *   **`@spec`:** `get_user_achievements(user_id :: String.t(), opts :: Keyword.t()) :: {:ok, list(map())} | {:error, reason}`
@@ -119,10 +119,10 @@ O módulo `DeeperHub.Achievements` é responsável por gerenciar o sistema de co
 *   **Retorno:** Lista de mapas, cada um representando uma conquista e o progresso/status do usuário nela.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    {:ok, my_achievements} = DeeperHub.Achievements.get_user_achievements(current_user.id, status: :all)
+    {:ok, my_achievements} = Deeper_Hub.Achievements.get_user_achievements(current_user.id, status: :all)
     ```
 
-### 6.3. `DeeperHub.Achievements.record_user_action/3` (Potencial API Interna ou via Eventos)
+### 6.3. `Deeper_Hub.Achievements.record_user_action/3` (Potencial API Interna ou via Eventos)
 
 *   **Descrição:** Registra uma ação de um usuário que pode contribuir para o progresso de uma ou mais conquistas. (Esta função pode ser interna e acionada por eventos, ou uma API para casos específicos).
 *   **`@spec`:** `record_user_action(user_id :: String.t(), action_type :: atom(), details :: map()) :: :ok | {:error, reason}`
@@ -134,7 +134,7 @@ O módulo `DeeperHub.Achievements` é responsável por gerenciar o sistema de co
 
 ## ⚙️ 7. Configuração
 
-*   **ConfigManager (`DeeperHub.Core.ConfigManager`):**
+*   **ConfigManager (`Deeper_Hub.Core.ConfigManager`):**
     *   `[:achievements, :default_icon_url]`: URL de um ícone padrão para conquistas sem ícone específico.
     *   `[:achievements, :notify_on_unlock]`: (Boolean) Se deve enviar notificação ao usuário ao desbloquear uma conquista. (Padrão: `true`)
     *   `[:achievements, :cache, :definitions_ttl_seconds]`: TTL para cache de definições de conquistas.
@@ -144,13 +144,13 @@ O módulo `DeeperHub.Achievements` é responsável por gerenciar o sistema de co
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.Repo`
-*   `DeeperHub.Core.ConfigManager`
-*   `DeeperHub.Core.EventBus`
-*   `DeeperHub.Core.Cache`
-*   `DeeperHub.Notifications`
-*   `DeeperHub.Rewards` (Potencial)
-*   `DeeperHub.Core.Logger`, `DeeperHub.Core.Metrics`
+*   `Deeper_Hub.Core.Repo`
+*   `Deeper_Hub.Core.ConfigManager`
+*   `Deeper_Hub.Core.EventBus`
+*   `Deeper_Hub.Core.Cache`
+*   `Deeper_Hub.Notifications`
+*   `Deeper_Hub.Rewards` (Potencial)
+*   `Deeper_Hub.Core.Logger`, `Deeper_Hub.Core.Metrics`
 
 ### 8.2. Bibliotecas Externas
 
@@ -162,7 +162,7 @@ O módulo `DeeperHub.Achievements` é responsável por gerenciar o sistema de co
 *   **Frontend/API:** Consomem `get_user_achievements/2` e `list_achievements/1` para exibir informações.
 
 ```elixir
-# Em DeeperHub.ServerReviews, após criar uma review:
+# Em Deeper_Hub.ServerReviews, após criar uma review:
 # Core.EventBus.publish({:review, :created}, %{user_id: review.user_id, server_id: review.server_id})
 ```
 
@@ -183,8 +183,8 @@ O módulo `DeeperHub.Achievements` é responsável por gerenciar o sistema de co
 
 ### 10.3. Logs
 
-*   `Logger.info(\"Conquista '#{name}' desbloqueada para user_id: #{id}\", module: DeeperHub.Achievements.Services.AchievementsService)`
-*   `Logger.debug(\"Progresso da conquista '#{name}' atualizado para user_id: #{id}\", module: DeeperHub.Achievements.Services.AchievementsService)`
+*   `Logger.info(\"Conquista '#{name}' desbloqueada para user_id: #{id}\", module: Deeper_Hub.Achievements.Services.AchievementsService)`
+*   `Logger.debug(\"Progresso da conquista '#{name}' atualizado para user_id: #{id}\", module: Deeper_Hub.Achievements.Services.AchievementsService)`
 
 ### 10.4. Telemetria
 
@@ -220,7 +220,7 @@ O módulo `DeeperHub.Achievements` é responsável por gerenciar o sistema de co
 
 ---
 
-Este é o README para `DeeperHub.Achievements`. O próximo da lista seria `DeeperHub.Challenges`. Quer seguir com ele?"""),
+Este é o README para `Deeper_Hub.Achievements`. O próximo da lista seria `Deeper_Hub.Challenges`. Quer seguir com ele?"""),
             ],
         ),
         types.Content(
@@ -232,7 +232,7 @@ Este é o README para `DeeperHub.Achievements`. O próximo da lista seria `Deepe
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Excelente! Vamos para o README do `DeeperHub.Challenges`.
+                types.Part.from_text(text="""Excelente! Vamos para o README do `Deeper_Hub.Challenges`.
 
 ---
 

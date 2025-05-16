@@ -1,10 +1,10 @@
-# Módulo: `DeeperHub.Shared.Utils.ValidationUtils` 🚀
+# Módulo: `Deeper_Hub.Shared.Utils.ValidationUtils` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Shared.Utils.ValidationUtils`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Shared.Utils.ValidationUtils`
 
-O módulo `DeeperHub.Shared.Utils.ValidationUtils` fornece um conjunto de **funções utilitárias para validação de formatos de dados comuns e verificação de requisitos básicos**. Ele é usado em várias partes do sistema DeeperHub para garantir que os dados de entrada, antes de serem processados ou persistidos, atendam a certos critérios de formato e presença.
+O módulo `Deeper_Hub.Shared.Utils.ValidationUtils` fornece um conjunto de **funções utilitárias para validação de formatos de dados comuns e verificação de requisitos básicos**. Ele é usado em várias partes do sistema Deeper_Hub para garantir que os dados de entrada, antes de serem processados ou persistidos, atendam a certos critérios de formato e presença.
 
-Este módulo foca em validações genéricas e reutilizáveis. Validações mais complexas ou específicas de regras de negócio devem residir nos schemas Ecto dos módulos de domínio ou em serviços de validação dedicados (como `DeeperHub.API.Validation.APIRequestValidator` ou `DeeperHub.Security.Validation.SecurityInputValidation` para contextos específicos). 😊
+Este módulo foca em validações genéricas e reutilizáveis. Validações mais complexas ou específicas de regras de negócio devem residir nos schemas Ecto dos módulos de domínio ou em serviços de validação dedicados (como `Deeper_Hub.API.Validation.APIRequestValidator` ou `Deeper_Hub.Security.Validation.SecurityInputValidation` para contextos específicos). 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -17,7 +17,7 @@ Este módulo foca em validações genéricas e reutilizáveis. Validações mais
     *   Verificar se uma string é um JSON válido (`validate_json/3`).
 *   **Validação de Requisitos de Dados:**
     *   Verificar se um valor está presente (não `nil`, não string vazia/em branco) (`validate_required/1`).
-    *   Validar a complexidade básica de uma senha (comprimento, presença de tipos de caracteres) (`validate_password/2`). (Nota: Validação de política de senha mais robusta estaria em `DeeperHub.Auth` ou `SecurityPolicyManager`).
+    *   Validar a complexidade básica de uma senha (comprimento, presença de tipos de caracteres) (`validate_password/2`). (Nota: Validação de política de senha mais robusta estaria em `Deeper_Hub.Auth` ou `SecurityPolicyManager`).
     *   Validar o formato e comprimento de um nome de usuário (`validate_username/2`).
 *   **Validação de Estrutura de Mapas:**
     *   Verificar se um mapa contém um conjunto específico de chaves obrigatórias (`validate_map/2`).
@@ -26,7 +26,7 @@ Este módulo foca em validações genéricas e reutilizáveis. Validações mais
 
 ### 3.1. Componentes Principais
 
-*   **`DeeperHub.Shared.Utils.ValidationUtils` (Módulo Funcional):**
+*   **`Deeper_Hub.Shared.Utils.ValidationUtils` (Módulo Funcional):**
     *   Contém todas as funções de utilidade para validação.
     *   Utiliza regex e funções de string/tipo do Elixir para as verificações.
     *   Pode, para validações mais complexas (como documentos específicos de país), delegar para bibliotecas especializadas se necessário, mas o objetivo aqui é manter utilitários leves.
@@ -69,53 +69,53 @@ Não aplicável no mesmo sentido que módulos com estado. O fluxo é a execuçã
 
 *(Baseado na documentação original, com sugestão de padronizar retornos para `{:ok, ...} | {:error, ...}` onde apropriado para maior clareza do que apenas booleanos)*
 
-### 6.1. `DeeperHub.Shared.Utils.ValidationUtils.validate_email(email :: String.t() | nil) :: {:ok, String.t()} | {:error, :invalid_format | :missing}`
+### 6.1. `Deeper_Hub.Shared.Utils.ValidationUtils.validate_email(email :: String.t() | nil) :: {:ok, String.t()} | {:error, :invalid_format | :missing}`
 
 *   **Descrição:** Valida o formato básico de um endereço de email.
 *   **Retorno:** `{:ok, email}` se válido, `{:error, :missing}` se `nil` ou vazio, `{:error, :invalid_format}` para outros erros.
 
-### 6.2. `DeeperHub.Shared.Utils.ValidationUtils.validate_phone(phone :: String.t() | nil, opts :: keyword()) :: {:ok, String.t()} | {:error, :invalid_format | :missing}`
+### 6.2. `Deeper_Hub.Shared.Utils.ValidationUtils.validate_phone(phone :: String.t() | nil, opts :: keyword()) :: {:ok, String.t()} | {:error, :invalid_format | :missing}`
 
 *   **Descrição:** Valida o formato básico de um número de telefone.
 *   **`opts`:** `:country_code` (atom, ex: `:BR`, `:US` para aplicar regras específicas de comprimento/formato, se implementado), `:min_digits` (integer).
 *   **Retorno:** `{:ok, phone}` se válido, `{:error, :missing}` se `nil` ou vazio, `{:error, :invalid_format}` ou `{:error, :too_short}`.
 
-### 6.3. `DeeperHub.Shared.Utils.ValidationUtils.validate_url(url :: String.t() | nil, opts :: keyword()) :: {:ok, String.t()} | {:error, :invalid_format | :missing | :disallowed_protocol}`
+### 6.3. `Deeper_Hub.Shared.Utils.ValidationUtils.validate_url(url :: String.t() | nil, opts :: keyword()) :: {:ok, String.t()} | {:error, :invalid_format | :missing | :disallowed_protocol}`
 
 *   **Descrição:** Valida o formato de uma URL.
 *   **`opts`:**
     *   `:require_protocol` (boolean, Padrão: `true`).
     *   `:allowed_protocols` (list(String.t), Padrão: `[\"http\", \"https\"]`).
 
-### 6.4. `DeeperHub.Shared.Utils.ValidationUtils.validate_date(date_string :: String.t() | nil, format_string :: String.t() \\\\ \"YYYY-MM-DD\", opts :: keyword()) :: {:ok, Date.t() | NaiveDateTime.t()} | {:error, :invalid_format | :missing | :invalid_date}`
+### 6.4. `Deeper_Hub.Shared.Utils.ValidationUtils.validate_date(date_string :: String.t() | nil, format_string :: String.t() \\\\ \"YYYY-MM-DD\", opts :: keyword()) :: {:ok, Date.t() | NaiveDateTime.t()} | {:error, :invalid_format | :missing | :invalid_date}`
 
 *   **Descrição:** Valida se `date_string` corresponde ao `format_string` e representa uma data/hora válida. Tenta converter para `NaiveDateTime` ou `Date`.
 *   **`opts`:** `:return_type` (`:naive_datetime`, `:date`, `:datetime_utc` - este último exigiria timezone info ou assumiria UTC).
 
-### 6.5. `DeeperHub.Shared.Utils.ValidationUtils.validate_document(doc_string :: String.t() | nil, type :: atom(), opts :: keyword()) :: {:ok, String.t()} | {:error, :invalid_format | :missing | :invalid_checksum}`
+### 6.5. `Deeper_Hub.Shared.Utils.ValidationUtils.validate_document(doc_string :: String.t() | nil, type :: atom(), opts :: keyword()) :: {:ok, String.t()} | {:error, :invalid_format | :missing | :invalid_checksum}`
 
 *   **Descrição:** Validação básica para números de documento (ex: CPF, CNPJ). A lógica de checksum seria simplificada ou delegada se complexa.
 *   **`type`:** Ex: `:cpf_br`, `:cnpj_br`.
 *   **`opts`:** `:validate_checksum` (boolean, Padrão: `true`).
 
-### 6.6. `DeeperHub.Shared.Utils.ValidationUtils.validate_password(password :: String.t() | nil, opts :: keyword()) :: {:ok, String.t()} | {:error, atom()}`
+### 6.6. `Deeper_Hub.Shared.Utils.ValidationUtils.validate_password(password :: String.t() | nil, opts :: keyword()) :: {:ok, String.t()} | {:error, atom()}`
 
 *   **Descrição:** Valida a complexidade básica de uma senha.
 *   **`opts`:** `:min_length` (Padrão: 8), `:require_uppercase` (Padrão: `true`), `:require_lowercase` (Padrão: `true`), `:require_digit` (Padrão: `true`), `:require_special` (Padrão: `false`).
 *   **Retorno de Erro:** Ex: `:missing`, `:too_short`, `:missing_uppercase`, `:missing_lowercase`, `:missing_digit`, `:missing_special`.
 
-### 6.7. `DeeperHub.Shared.Utils.ValidationUtils.validate_username(username :: String.t() | nil, opts :: keyword()) :: {:ok, String.t()} | {:error, atom()}`
+### 6.7. `Deeper_Hub.Shared.Utils.ValidationUtils.validate_username(username :: String.t() | nil, opts :: keyword()) :: {:ok, String.t()} | {:error, atom()}`
 
 *   **Descrição:** Valida o formato e comprimento de um nome de usuário.
 *   **`opts`:** `:min_length` (Padrão: 3), `:max_length` (Padrão: 30), `:allowed_chars_regex` (Padrão: `~r/^[a-zA-Z0-9_]+$/u`).
 *   **Retorno de Erro:** Ex: `:missing`, `:too_short`, `:too_long`, `:invalid_chars`.
 
-### 6.8. `DeeperHub.Shared.Utils.ValidationUtils.validate_required(value :: term()) :: boolean()`
+### 6.8. `Deeper_Hub.Shared.Utils.ValidationUtils.validate_required(value :: term()) :: boolean()`
 
 *   **Descrição:** Verifica se um valor é considerado \"presente\" (não `nil`, não string vazia, não string só com espaços).
 *   **Retorno:** `true` ou `false`.
 
-### 6.9. `DeeperHub.Shared.Utils.ValidationUtils.validate_map_keys(map_data :: map(), required_keys :: list(atom() | String.t()), opts :: keyword()) :: {:ok, map()} | {:error, {:missing_keys, list()} | :not_a_map}` (Renomeado de `validate_map`)
+### 6.9. `Deeper_Hub.Shared.Utils.ValidationUtils.validate_map_keys(map_data :: map(), required_keys :: list(atom() | String.t()), opts :: keyword()) :: {:ok, map()} | {:error, {:missing_keys, list()} | :not_a_map}` (Renomeado de `validate_map`)
 
 *   **Descrição:** Verifica se `map_data` é um mapa e contém todas as `required_keys`.
 *   **`opts`:** `:allow_nil_values_for_required_keys` (boolean, Padrão: `false` - ou seja, a chave deve existir E ter um valor não-nil se esta opção for false).
@@ -132,7 +132,7 @@ Geralmente, os padrões para validações (ex: comprimento mínimo de senha, reg
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.ConfigManager` (para obter padrões configuráveis).
+*   `Deeper_Hub.Core.ConfigManager` (para obter padrões configuráveis).
 
 ### 8.2. Bibliotecas Externas
 
@@ -144,7 +144,7 @@ Em controllers ou serviços, antes de processar dados de entrada ou criar change
 
 ```elixir
 defmodule MyApp.RegistrationController do
-  alias DeeperHub.Shared.Utils.ValidationUtils
+  alias Deeper_Hub.Shared.Utils.ValidationUtils
 
   def create(conn, %{\"user\" => user_params}) do
     with {:ok, email} <- ValidationUtils.validate_email(user_params[\"email\"]),
@@ -210,7 +210,7 @@ Geralmente não aplicável para um módulo de utilitários puros. O chamador ser
 
 Com isso, cobrimos um bom conjunto de utilitários.
 
-Próximo? Podemos detalhar `DeeperHub.Shared.Utils.FileUtils` e `SecurityUtils` para completar os Utils, ou prefere agora ir para um módulo de domínio como `DeeperHub.OAuth` ou `DeeperHub.MFA`?"""),
+Próximo? Podemos detalhar `Deeper_Hub.Shared.Utils.FileUtils` e `SecurityUtils` para completar os Utils, ou prefere agora ir para um módulo de domínio como `Deeper_Hub.OAuth` ou `Deeper_Hub.MFA`?"""),
             ],
         ),
         types.Content(
@@ -222,7 +222,7 @@ Próximo? Podemos detalhar `DeeperHub.Shared.Utils.FileUtils` e `SecurityUtils` 
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ok, vamos continuar com os utilitários e detalhar o `DeeperHub.Shared.Utils.FileUtils`. Este módulo é útil se a sua aplicação DeeperHub precisar interagir diretamente com o sistema de arquivos do servidor.
+                types.Part.from_text(text="""Ok, vamos continuar com os utilitários e detalhar o `Deeper_Hub.Shared.Utils.FileUtils`. Este módulo é útil se a sua aplicação Deeper_Hub precisar interagir diretamente com o sistema de arquivos do servidor.
 
 ---
 

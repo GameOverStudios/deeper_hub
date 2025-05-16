@@ -164,7 +164,7 @@ message ClientMessage {
 # Em application.ex
 children = [
   # ...
-  {DeeperHub.Core.Websocket.Supervisor, []}
+  {Deeper_Hub.Core.Websocket.Supervisor, []}
 ]
 ```
 

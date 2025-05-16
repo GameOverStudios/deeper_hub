@@ -4,10 +4,10 @@ import Config
 # e podem depender do ambiente de execução
 
 # Configuração do endpoint WebSocket
-config :deeper_hub, DeeperHub.Core.Websocket.Endpoint,
+config :deeper_hub, Deeper_Hub.Core.Websocket.Endpoint,
   url: [host: "localhost", port: 4000],
   http: [port: 4000],
-  pubsub_server: DeeperHub.PubSub,
+  pubsub_server: Deeper_Hub.PubSub,
   websocket: [timeout: 45_000, compress: true],
   longpoll: false
 

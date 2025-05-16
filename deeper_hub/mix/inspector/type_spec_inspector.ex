@@ -1,4 +1,4 @@
-defmodule DeeperHub.Inspector.TypeSpecInspector do
+defmodule Deeper_Hub.Inspector.TypeSpecInspector do
   @moduledoc """
   Inspetor especializado em especificações de tipo (typespecs) 📝
 
@@ -6,9 +6,9 @@ defmodule DeeperHub.Inspector.TypeSpecInspector do
   especificações de tipo em Elixir, incluindo @type, @spec, @callback e outros.
   """
 
-  @behaviour DeeperHub.Inspector.Behaviours.InspectorBehaviour
+  @behaviour Deeper_Hub.Inspector.Behaviours.InspectorBehaviour
 
-  alias DeeperHub.Shared.Utils.StringUtils
+  alias Deeper_Hub.Shared.Utils.StringUtils
 
   @doc """
   Inspeciona uma especificação de tipo e retorna informações detalhadas sobre ela 🔎
@@ -25,7 +25,7 @@ defmodule DeeperHub.Inspector.TypeSpecInspector do
 
   ## Exemplos
 
-      iex> DeeperHub.Inspector.TypeSpecInspector.inspect_typespec({Enum, :type, :t, 0})
+      iex> Deeper_Hub.Inspector.TypeSpecInspector.inspect_typespec({Enum, :type, :t, 0})
       %{
         type: :typespec,
         kind: :type,
@@ -63,10 +63,10 @@ defmodule DeeperHub.Inspector.TypeSpecInspector do
 
   ## Exemplos
 
-      iex> DeeperHub.Inspector.TypeSpecInspector.supported?({Enum, :type, :t, 0})
+      iex> Deeper_Hub.Inspector.TypeSpecInspector.supported?({Enum, :type, :t, 0})
       true
-      
-      iex> DeeperHub.Inspector.TypeSpecInspector.supported?("not a typespec")
+
+      iex> Deeper_Hub.Inspector.TypeSpecInspector.supported?("not a typespec")
       false
   """
   @impl true
@@ -512,12 +512,12 @@ defmodule DeeperHub.Inspector.TypeSpecInspector do
         """
         <div class="typespec-inspector">
           <h3>#{kind_str}: <code>#{inspect(module)}.#{name}/#{arity}</code></h3>
-          
+
           <div class="definition-section">
             <h4>Definição:</h4>
             #{definition}
           </div>
-          
+
           #{related}
         </div>
         """

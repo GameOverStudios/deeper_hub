@@ -1,8 +1,8 @@
-# Módulo: `DeeperHub.Core.APIResponder` 🚀
+# Módulo: `Deeper_Hub.Core.APIResponder` 🚀
 
-## 📜 1. Visão Geral do Módulo `DeeperHub.Core.APIResponder`
+## 📜 1. Visão Geral do Módulo `Deeper_Hub.Core.APIResponder`
 
-O módulo `DeeperHub.Core.APIResponder` é um componente utilitário central no DeeperHub, responsável por **padronizar a estrutura e o formato de todas as respostas HTTP da API REST**. Ele fornece um conjunto de funções para gerar respostas JSON consistentes para diferentes cenários, incluindo sucessos, erros de aplicação, erros de validação e outras condições.
+O módulo `Deeper_Hub.Core.APIResponder` é um componente utilitário central no Deeper_Hub, responsável por **padronizar a estrutura e o formato de todas as respostas HTTP da API REST**. Ele fornece um conjunto de funções para gerar respostas JSON consistentes para diferentes cenários, incluindo sucessos, erros de aplicação, erros de validação e outras condições.
 
 Ao centralizar a formatação de respostas, o `APIResponder` garante que os clientes da API (frontends, aplicativos móveis, serviços de terceiros) recebam dados de uma maneira previsível e fácil de consumir, melhorando a experiência de integração e reduzindo a complexidade no tratamento de respostas no lado do cliente. 😊
 
@@ -28,12 +28,12 @@ Ao centralizar a formatação de respostas, o `APIResponder` garante que os clie
 
 ### 3.1. Componentes Principais
 
-1.  **`DeeperHub.Core.APIResponder` (Módulo Funcional):**
+1.  **`Deeper_Hub.Core.APIResponder` (Módulo Funcional):**
     *   **Responsabilidade:** Contém todas as funções públicas para formatação de respostas.
     *   É stateless e suas funções são puras (dado os mesmos inputs, produzem os mesmos outputs), exceto pela possível geração de timestamps.
     *   **Interações:**
         *   Pode utilizar uma biblioteca JSON como `Jason` internamente para codificação (se essa funcionalidade for incluída aqui).
-        *   Pode consultar `DeeperHub.Core.ConfigManager` para formatos de data/hora padrão ou outras preferências de formatação de resposta.
+        *   Pode consultar `Deeper_Hub.Core.ConfigManager` para formatos de data/hora padrão ou outras preferências de formatação de resposta.
 
 ### 3.2. Estrutura de Diretórios (Proposta)
 
@@ -69,7 +69,7 @@ Este módulo é tipicamente simples e autocontido, não necessitando de uma estr
     ```
 *   **Mensagens de Erro Claras:** Mensagens de erro devem ser úteis para o desenvolvedor que consome a API, mas não devem vazar informações sensíveis do sistema.
 *   **Códigos de Status HTTP:** Usar códigos de status HTTP semanticamente corretos é fundamental. O `APIResponder` pode ajudar a mapear erros internos para esses códigos.
-*   **Internacionalização (i18n) de Mensagens:** Mensagens de erro e sucesso podem precisar ser traduzidas. O `APIResponder` pode integrar com `DeeperHub.Core.Internationalization` para isso.
+*   **Internacionalização (i18n) de Mensagens:** Mensagens de erro e sucesso podem precisar ser traduzidas. O `APIResponder` pode integrar com `Deeper_Hub.Core.Internationalization` para isso.
 
 ## 🛠️ 4. Casos de Uso Principais
 
@@ -102,7 +102,7 @@ Este módulo é tipicamente simples e autocontido, não necessitando de uma estr
 2.  **Controller:**
     *   Recebe `user_data_map`.
     *   Prepara metadados de paginação, se aplicável.
-    *   Chama `formatted_response_body = DeeperHub.Core.APIResponder.format_success(user_data_map, \"Usuário recuperado.\", pagination_meta)`.
+    *   Chama `formatted_response_body = Deeper_Hub.Core.APIResponder.format_success(user_data_map, \"Usuário recuperado.\", pagination_meta)`.
     *   Usa a função `json/2` do Phoenix: `json(conn |> put_status(200), formatted_response_body)`.
 3.  **Phoenix/Plug:** Serializa `formatted_response_body` para JSON e envia a resposta HTTP.
 
@@ -112,8 +112,8 @@ Este módulo é tipicamente simples e autocontido, não necessitando de uma estr
 2.  **Controller:**
     *   Recebe `{:error, changeset}`.
     *   Extrai os erros: `errors = Ecto.Changeset.traverse_errors(changeset, & MyAppWeb.ErrorHelpers.translate_error/1)`.
-    *   Chama `formatted_error_body = DeeperHub.Core.APIResponder.format_validation_error(errors, \"Por favor, corrija os erros indicados.\")`.
-    *   Chama `status_code = DeeperHub.Core.APIResponder.error_to_http_status(:validation_error)` (que retornaria 422).
+    *   Chama `formatted_error_body = Deeper_Hub.Core.APIResponder.format_validation_error(errors, \"Por favor, corrija os erros indicados.\")`.
+    *   Chama `status_code = Deeper_Hub.Core.APIResponder.error_to_http_status(:validation_error)` (que retornaria 422).
     *   Usa `json(conn |> put_status(status_code), formatted_error_body)`.
 3.  **Phoenix/Plug:** Envia a resposta.
 
@@ -121,12 +121,12 @@ Este módulo é tipicamente simples e autocontido, não necessitando de uma estr
 
 *(Baseado na documentação original, com ênfase na estrutura de resposta unificada)*
 
-### 6.1. `DeeperHub.Core.APIResponder.format_success(data :: term(), message :: String.t() | nil, meta :: map() | nil) :: map()`
+### 6.1. `Deeper_Hub.Core.APIResponder.format_success(data :: term(), message :: String.t() | nil, meta :: map() | nil) :: map()`
 
 *   **Descrição:** Formata uma resposta de sucesso.
 *   **Retorno:** Mapa estruturado para sucesso (ex: `%{status: \"success\", data: data, message: message, meta: meta}`).
 
-### 6.2. `DeeperHub.Core.APIResponder.format_error(error_code :: atom() | String.t(), details :: term() | nil, user_message :: String.t() | nil) :: map()`
+### 6.2. `Deeper_Hub.Core.APIResponder.format_error(error_code :: atom() | String.t(), details :: term() | nil, user_message :: String.t() | nil) :: map()`
 
 *   **Descrição:** Formata uma resposta de erro genérica.
 *   **`error_code`:** Um código de erro interno da aplicação (ex: `:resource_not_found`, `\"AUTH_002\"`).
@@ -134,22 +134,22 @@ Este módulo é tipicamente simples e autocontido, não necessitando de uma estr
 *   **`user_message`:** Mensagem amigável para o usuário. Se `nil`, uma mensagem padrão pode ser derivada do `error_code`.
 *   **Retorno:** Mapa estruturado para erro (ex: `%{status: \"error\", error: %{code: error_code, message: user_message, details: details}}`).
 
-### 6.3. `DeeperHub.Core.APIResponder.format_validation_error(errors :: map() | list(), user_message :: String.t() | nil) :: map()`
+### 6.3. `Deeper_Hub.Core.APIResponder.format_validation_error(errors :: map() | list(), user_message :: String.t() | nil) :: map()`
 
 *   **Descrição:** Formata uma resposta específica para erros de validação.
 *   **`errors`:** Mapa de erros (ex: `%{field_name: [\"error message\"]}`) ou lista de strings de erro.
 *   **Retorno:** Mapa estruturado para erro de validação (ex: `%{status: \"error\", error: %{code: \"VALIDATION_ERROR\", message: user_message, fields: errors_map}}`).
 
-### 6.4. `DeeperHub.Core.APIResponder.error_to_http_status(error_code :: atom() | String.t()) :: integer()`
+### 6.4. `Deeper_Hub.Core.APIResponder.error_to_http_status(error_code :: atom() | String.t()) :: integer()`
 
 *   **Descrição:** Mapeia um código de erro interno da aplicação para um código de status HTTP apropriado.
 *   **Exemplo:** `:not_found` -> `404`, `:unauthenticated` -> `401`, `:unauthorized` -> `403`, `:validation_error` -> `422`, `:internal_server_error` -> `500`.
 
-### 6.5. `DeeperHub.Core.APIResponder.encode(data :: term(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}` (Opcional)
+### 6.5. `Deeper_Hub.Core.APIResponder.encode(data :: term(), opts :: keyword()) :: {:ok, String.t()} | {:error, term()}` (Opcional)
 
 *   **Descrição:** Wrapper para `Jason.encode/2` com opções padrão do sistema.
 
-### 6.6. `DeeperHub.Core.APIResponder.decode(json_string :: String.t(), opts :: keyword()) :: {:ok, term()} | {:error, term()}` (Opcional)
+### 6.6. `Deeper_Hub.Core.APIResponder.decode(json_string :: String.t(), opts :: keyword()) :: {:ok, term()} | {:error, term()}` (Opcional)
 
 *   **Descrição:** Wrapper para `Jason.decode/2` com opções padrão do sistema.
 
@@ -165,8 +165,8 @@ Geralmente, este módulo tem poucas configurações diretas, mas pode depender d
 
 ### 8.1. Módulos Internos
 
-*   `DeeperHub.Core.Internationalization` (opcional): Se as mensagens forem traduzidas.
-*   `DeeperHub.Core.ConfigManager` (opcional): Para obter configurações de formatação.
+*   `Deeper_Hub.Core.Internationalization` (opcional): Se as mensagens forem traduzidas.
+*   `Deeper_Hub.Core.ConfigManager` (opcional): Para obter configurações de formatação.
 
 ### 8.2. Bibliotecas Externas
 
@@ -178,12 +178,12 @@ Os controllers Phoenix são os principais consumidores deste módulo.
 
 **Exemplo em um Controller Phoenix:**
 ```elixir
-defmodule DeeperHubWeb.API.V1.UserController do
-  use DeeperHubWeb, :controller
-  alias DeeperHub.Core.APIResponder
-  alias DeeperHub.Accounts
+defmodule Deeper_HubWeb.API.V1.UserController do
+  use Deeper_HubWeb, :controller
+  alias Deeper_Hub.Core.APIResponder
+  alias Deeper_Hub.Accounts
 
-  action_fallback DeeperHubWeb.API.FallbackController # Para tratamento centralizado de erros não capturados
+  action_fallback Deeper_HubWeb.API.FallbackController # Para tratamento centralizado de erros não capturados
 
   def show(conn, %{\"id\" => id}) do
     case Accounts.get_user(id) do
@@ -230,7 +230,7 @@ end
 
 ### 10.2. Métricas
 
-Este módulo em si geralmente não gera muitas métricas, pois é um utilitário de formatação. As métricas relevantes (taxa de erro da API, status codes) seriam geradas pelo `DeeperHub.API` ou pelos Plugs de HTTP.
+Este módulo em si geralmente não gera muitas métricas, pois é um utilitário de formatação. As métricas relevantes (taxa de erro da API, status codes) seriam geradas pelo `Deeper_Hub.API` ou pelos Plugs de HTTP.
 
 ### 10.3. Logs
 
@@ -259,7 +259,7 @@ Não aplicável diretamente para um módulo de formatação puro. A telemetria e
 ## 🔮 14. Melhorias Futuras e TODOs
 
 *   [ ] Adicionar suporte mais explícito para o padrão JSON:API se for uma direção desejada para a API.
-*   [ ] Integrar mais profundamente com `DeeperHub.Core.Internationalization` para que `user_message` possa ser um código de tradução.
+*   [ ] Integrar mais profundamente com `Deeper_Hub.Core.Internationalization` para que `user_message` possa ser um código de tradução.
 *   [ ] Fornecer uma maneira de configurar a estrutura de resposta padrão (ex: chaves `status`, `data`, `error`) através do `ConfigManager` para maior flexibilidade.
 *   [ ] Criar helpers Phoenix para os controllers que combinem a formatação da resposta e o envio da mesma (ex: `respond_success(conn, data, status_code \\\\ 200)`).
 
@@ -271,7 +271,7 @@ Não aplicável diretamente para um módulo de formatação puro. A telemetria e
 
 Este módulo é mais um utilitário, mas fundamental para a experiência do desenvolvedor que consome a API.
 
-Próximo? Que tal `DeeperHub.Shared.Utils` para agruparmos os utilitários gerais, ou prefere um módulo de domínio como `DeeperHub.Accounts` (que já começamos) ou `DeeperHub.UserProfiles` (mencionado na documentação original)?"""),
+Próximo? Que tal `Deeper_Hub.Shared.Utils` para agruparmos os utilitários gerais, ou prefere um módulo de domínio como `Deeper_Hub.Accounts` (que já começamos) ou `Deeper_Hub.UserProfiles` (mencionado na documentação original)?"""),
             ],
         ),
         types.Content(
@@ -283,9 +283,9 @@ Próximo? Que tal `DeeperHub.Shared.Utils` para agruparmos os utilitários gerai
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ok, vamos agrupar e detalhar os utilitários genéricos que podem ser usados em toda a aplicação sob um namespace `DeeperHub.Shared.Utils`. A documentação original listou vários (`DateUtils`, `FileUtils`, `ListUtils`, `MapUtils`, `SecurityUtils`, `StringUtils`, `ValidationUtils`).
+                types.Part.from_text(text="""Ok, vamos agrupar e detalhar os utilitários genéricos que podem ser usados em toda a aplicação sob um namespace `Deeper_Hub.Shared.Utils`. A documentação original listou vários (`DateUtils`, `FileUtils`, `ListUtils`, `MapUtils`, `SecurityUtils`, `StringUtils`, `ValidationUtils`).
 
-Criaremos um README \"guarda-chuva\" para `DeeperHub.Shared.Utils` e, em seguida, podemos detalhar cada um deles como se fossem submódulos ou arquivos dentro desse contexto. Para este exercício, vou criar um README para o módulo `DeeperHub.Shared.Utils` como um todo, mencionando seus componentes, e depois detalhar um deles, por exemplo, `DeeperHub.Shared.Utils.StringUtils`.
+Criaremos um README \"guarda-chuva\" para `Deeper_Hub.Shared.Utils` e, em seguida, podemos detalhar cada um deles como se fossem submódulos ou arquivos dentro desse contexto. Para este exercício, vou criar um README para o módulo `Deeper_Hub.Shared.Utils` como um todo, mencionando seus componentes, e depois detalhar um deles, por exemplo, `Deeper_Hub.Shared.Utils.StringUtils`.
 
 ---
 

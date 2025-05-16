@@ -1,6 +1,6 @@
 defmodule Deeper_Hub.Core.Metrics.Reporters do
   @moduledoc """
-  Configuração e gerenciamento de reporters de métricas para o DeeperHub.
+  Configuração e gerenciamento de reporters de métricas para o Deeper_Hub.
 
   Este módulo fornece funções para configurar e gerenciar diferentes reporters
   de métricas, permitindo que as métricas coletadas pelo sistema sejam enviadas

@@ -1,4 +1,4 @@
-defmodule DeeperHub.Core.Websocket.Messages do
+defmodule Deeper_Hub.Core.Websocket.Messages do
   @moduledoc """
   Definições de mensagens Protocol Buffers para comunicação WebSocket.
 
@@ -211,7 +211,7 @@ defmodule DeeperHub.Core.Websocket.Messages do
         )
     end
   end
-  
+
   # Decodifica uma mensagem JSON para o formato ClientMessage
   defp decode_json_message(%{"payload" => payload}) when is_binary(payload) do
     # Tenta decodificar o payload como JSON
@@ -223,22 +223,22 @@ defmodule DeeperHub.Core.Websocket.Messages do
         {:error, "Erro ao decodificar payload JSON: #{inspect(reason)}"}
     end
   end
-  
+
   defp decode_json_message(%{"payload" => payload}) when is_map(payload) do
     # O payload já é um mapa, processa diretamente
     process_json_payload(payload)
   end
-  
+
   defp decode_json_message(_) do
     {:error, "Formato de mensagem JSON inválido"}
   end
-  
+
   # Processa o payload JSON e converte para o formato ClientMessage
   defp process_json_payload(%{"database_operation" => db_op}) when is_map(db_op) do
     # Log para depurar o conteúdo da operação de banco de dados
     require Logger
     Logger.debug("Processando operação de banco de dados: #{inspect(db_op)}")
-    
+
     # Converte a operação de banco de dados para o formato esperado
     operation = %DatabaseOperation{
       operation: Map.get(db_op, "operation"),
@@ -248,14 +248,14 @@ defmodule DeeperHub.Core.Websocket.Messages do
       request_id: Map.get(db_op, "request_id"),
       timestamp: Map.get(db_op, "timestamp", System.system_time(:millisecond))
     }
-    
+
     # Log da operação convertida
     Logger.debug("Operação convertida: #{inspect(operation)}")
-    
+
     # Cria uma mensagem do cliente com a operação de banco de dados
     {:ok, %ClientMessage{message_type: {:database_operation, operation}}}
   end
-  
+
   defp process_json_payload(_) do
     {:error, "Tipo de mensagem JSON não suportado"}
   end

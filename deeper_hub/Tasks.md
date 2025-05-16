@@ -1,4 +1,4 @@
-Vou analisar quais módulos do DeeperHub, especialmente os relacionados a dados e banco de dados, precisam de integração direta com EventBus, Metrics, Telemetry, Cache e CircuitBreaker.
+Vou analisar quais módulos do Deeper_Hub, especialmente os relacionados a dados e banco de dados, precisam de integração direta com EventBus, Metrics, Telemetry, Cache e CircuitBreaker.
 
 Baseado na estrutura de arquivos e no código que analisei, aqui está uma avaliação dos módulos que precisam dessas integrações:
 
