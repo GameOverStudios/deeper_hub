@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-Cliente WebSocket simplificado para testar operações CRUD com o servidor Deeper_Hub.
+Cliente WebSocket para testar operações CRUD e joins com o servidor Deeper_Hub.
 
-Este script executa automaticamente todas as operações CRUD sem interação do usuário.
+Este cliente implementa todos os testes equivalentes aos do arquivo testes.ex,
+incluindo operações CRUD e diferentes tipos de joins.
 """
 
 import json
@@ -13,6 +14,11 @@ import string
 import logging
 import websocket
 import threading
+import os
+import sys
+
+# Adiciona os arquivos de partes ao path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Configuração de logging
 logging.basicConfig(
@@ -22,7 +28,7 @@ logging.basicConfig(
 logger = logging.getLogger('crud_test')
 
 class CrudTestClient:
-    """Cliente WebSocket para testar operações CRUD."""
+    """Cliente WebSocket para testar operações CRUD e joins."""
     
     def __init__(self, url="ws://localhost:4000/socket/websocket", auth_token="test_token"):
         """
@@ -40,6 +46,7 @@ class CrudTestClient:
         self.last_response = None
         self.response_received = False
         self.created_user_id = None
+        self.created_profile_id = None
         self.test_results = {}
         
     def connect(self):
@@ -180,20 +187,21 @@ class CrudTestClient:
     def create_user(self):
         """
         Cria um novo usuário com dados aleatórios.
+        Equivalente à operação 'teste_usuarios' no arquivo testes.ex.
         
         Returns:
-            A resposta do servidor
+            A resposta do servidor e o ID do usuário criado
         """
         if not self.connected or not self.authenticated:
             logger.warning("Tentativa de criar usuário sem conexão ou autenticação")
-            return None
+            return None, None
         
         # Gera dados aleatórios para o usuário
         username = f"user_{self.generate_random_string()}"
         email = f"{self.generate_random_string()}@example.com"
         password = self.generate_random_string(12)
         
-        # Prepara os dados do usuário como um dicionário simples
+        # Prepara os dados do usuário
         user_data = {
             "username": username,
             "email": email,
@@ -201,24 +209,28 @@ class CrudTestClient:
             "is_active": True
         }
         
-        # Converte para JSON string - o servidor espera uma string JSON
+        # Converte para JSON string
         user_data_json = json.dumps(user_data)
         
         # Cria um ID de requisição único
         request_id = str(uuid.uuid4())
         
-        # Cria a mensagem de operação de banco de dados no formato exato esperado pelo servidor
-        # Envia a mensagem diretamente para o canal
-        message = {
-            "topic": "websocket",
-            "event": "database_operation",  # Usa o evento database_operation diretamente
-            "payload": {
+        # Cria a mensagem no formato que o servidor espera
+        # Importante: o payload deve ser uma string JSON, não um dict
+        payload = json.dumps({
+            "database_operation": {
                 "operation": "create",
                 "schema": "user",
-                "data": user_data_json,
+                "data": user_data_json,  # Já é uma string JSON
                 "request_id": request_id,
                 "timestamp": int(time.time() * 1000)
-            },
+            }
+        })
+        
+        message = {
+            "topic": "websocket",
+            "event": "message",  # Usa o evento message que o servidor espera
+            "payload": payload,  # Envia o payload como string JSON
             "ref": str(uuid.uuid4())
         }
         
@@ -256,11 +268,12 @@ class CrudTestClient:
             logger.error(f"❌ Falha ao criar usuário: {response}")
             self.test_results["create_user"] = False
         
-        return response
+        return response, self.created_user_id
     
     def get_user(self, user_id):
         """
         Obtém um usuário pelo ID.
+        Equivalente à operação de busca por ID no arquivo testes.ex.
         
         Args:
             user_id: ID do usuário
@@ -271,107 +284,179 @@ class CrudTestClient:
         if not self.connected or not self.authenticated:
             logger.warning("Tentativa de obter usuário sem conexão ou autenticação")
             return None
-    
-    # Cria a mensagem de operação de banco de dados
-    # Envia a mensagem diretamente para o canal
-    message = {
-        "topic": "websocket",
-        "event": "database_operation",  # Usa o evento database_operation diretamente
-        "payload": {
+        
+        # Cria um ID de requisição único
+        request_id = str(uuid.uuid4())
+        
+        # Cria a mensagem no formato que o servidor espera
+        database_operation = {
             "operation": "read",
             "schema": "user",
             "id": user_id,
             "request_id": request_id,
             "timestamp": int(time.time() * 1000)
-        },
-        "ref": str(uuid.uuid4())
-    }
-    
-    # Envia a mensagem
-    logger.info(f"Obtendo usuário com ID: {user_id}")
-    self.send_message(message)
-    
-    # Aguarda a resposta
-    response = self.wait_for_response()
-    
-    # Verifica o resultado
-    if response and response.get('status') == 'success':
-        logger.info("✅ Usuário obtido com sucesso")
-        self.test_results["get_user"] = True
-    else:
-        logger.error(f"❌ Falha ao obter usuário: {response}")
-        self.test_results["get_user"] = False
-    
-    return response
-
-def update_user(self, user_id):
-    """
-    Atualiza um usuário existente.
+        }
+        
+        # Serializa a operação de banco de dados como string JSON
+        payload = json.dumps({
+            "database_operation": database_operation
+        })
+        
+        message = {
+            "topic": "websocket",
+            "event": "message",
+            "payload": payload,
+            "ref": str(uuid.uuid4())
+        }
+        
+        # Envia a mensagem
+        logger.info(f"Obtendo usuário com ID: {user_id}")
+        self.send_message(message)
         
         # Aguarda a resposta
         response = self.wait_for_response()
         
         # Verifica o resultado
         if response and response.get('status') == 'success':
-            logger.info("✅ Usuário excluído com sucesso")
-            self.test_results["delete_user"] = True
+            logger.info("✅ Usuário obtido com sucesso")
+    def get_user(self, user_id):
+        """
+        Obtém um usuário pelo ID.
+        Equivalente à operação de busca por ID no arquivo testes.ex.
+        
+        Args:
+            user_id: ID do usuário
+                
+        Returns:
+            A resposta do servidor
+        """
+        if not self.connected or not self.authenticated:
+            logger.warning("Tentativa de obter usuário sem conexão ou autenticação")
+            return None
+            
+        # Cria um ID de requisição único
+        request_id = str(uuid.uuid4())
+            
+        # Cria a mensagem no formato que o servidor espera
+        database_operation = {
+            "operation": "read",
+            "schema": "user",
+            "id": user_id,
+            "request_id": request_id,
+            "timestamp": int(time.time() * 1000)
+        }
+            
+        # Serializa a operação de banco de dados como string JSON
+        payload = json.dumps({
+            "database_operation": database_operation
+        })
+            
+        message = {
+            "topic": "websocket",
+            "event": "message",
+            "payload": payload,
+            "ref": str(uuid.uuid4())
+        }
+        
+        # Envia a mensagem
+        logger.info(f"Obtendo usuário com ID: {user_id}")
+        self.send_message(message)
+        
+        # Aguarda a resposta
+        response = self.wait_for_response()
+        
+        # Verifica o resultado
+        if response and response.get('status') == 'success':
+            logger.info("✅ Usuário obtido com sucesso")
+            self.test_results["get_user"] = True
         else:
-            logger.error(f"❌ Falha ao excluir usuário: {response}")
-            self.test_results["delete_user"] = False
+            logger.error(f"❌ Falha ao obter usuário: {response}")
+            self.test_results["get_user"] = False
         
         return response
     
-    def run_all_tests(self):
-        """Executa todos os testes automaticamente."""
-        logger.info("Iniciando testes automatizados...")
+    def find_active_users(self):
+        """
+        Busca usuários ativos.
+        Equivalente à operação 'find_active_users' no arquivo testes.ex.
         
-        # Teste 1: Criar usuário
-        user_response = self.create_user()
+        Returns:
+            A resposta do servidor
+        """
+        if not self.connected or not self.authenticated:
+            logger.warning("Tentativa de buscar usuários sem conexão ou autenticação")
+            return None
         
-        # Se o usuário foi criado com sucesso, continua com os outros testes
-        if self.created_user_id:
-            # Teste 2: Obter usuário pelo ID
-            self.get_user(self.created_user_id)
-            
-            # Teste 3: Atualizar usuário
-            self.update_user(self.created_user_id)
-            
-            # Teste 4: Buscar usuários por condição
-            self.find_users()
-            
-            # Teste 5: Listar todos os usuários
-            self.list_users()
-            
-            # Teste 6: Criar perfil para o usuário
-            self.create_profile(self.created_user_id)
-            
-            # Teste 7: Excluir usuário (último teste para não afetar os outros)
-            self.delete_user(self.created_user_id)
+        # Cria um ID de requisição único
+        request_id = str(uuid.uuid4())
+        
+        # Condições para a busca em formato JSON
+        conditions = {
+            "where": {"is_active": True},
+            "order_by": {"username": "asc"},
+            "limit": 10
+        }
+        
+        # Serializa as condições como string JSON
+        conditions_json = json.dumps(conditions)
+        
+        # Cria a mensagem no formato que o servidor espera
+        database_operation = {
+            "operation": "find",
+            "schema": "user",
+            "conditions": conditions_json,
+            "request_id": request_id,
+            "timestamp": int(time.time() * 1000)
+        }
+        
+        # Serializa a operação de banco de dados como string JSON
+        payload = json.dumps({
+            "database_operation": database_operation
+        })
+        
+        message = {
+            "topic": "websocket",
+            "event": "message",
+            "payload": payload,
+            "ref": str(uuid.uuid4())
+        }
+        
+        # Envia a mensagem
+        logger.info("Buscando usuários ativos")
+        self.send_message(message)
+        
+        # Aguarda a resposta
+        response = self.wait_for_response()
+        
+        # Verifica o resultado
+        if response and response.get('status') == 'success':
+            logger.info(f"✅ Busca de usuários ativos bem-sucedida: {len(response.get('data', []))} usuários encontrados")
+            self.test_results["find_active_users"] = True
         else:
-            logger.error("Não foi possível criar um usuário, pulando os outros testes")
+            logger.error(f"❌ Falha na busca de usuários ativos: {response}")
+            self.test_results["find_active_users"] = False
         
-        # Exibe o resumo dos resultados
-        self.print_test_summary()
-    
-    def print_test_summary(self):
-        """Imprime um resumo dos resultados dos testes."""
-        logger.info("\n===== RESUMO DOS TESTES =====")
-        
-        all_passed = True
-        for test_name, result in self.test_results.items():
-            status = "✅ PASSOU" if result else "❌ FALHOU" if result is False else "⚠️ NÃO EXECUTADO"
-            logger.info(f"{test_name}: {status}")
-            if result is not True:
-                all_passed = False
-        
-        if all_passed:
-            logger.info("\n✅✅✅ TODOS OS TESTES PASSARAM! ✅✅✅")
-        else:
-            logger.info("\n⚠️ ALGUNS TESTES FALHARAM OU NÃO FORAM EXECUTADOS ⚠️")
+        return response
+
+# Importa os métodos adicionais dos arquivos de partes
+from crud_test_complete_part2 import update_user, create_profile
+from crud_test_complete_part3 import update_profile, inner_join_users_profiles
+from crud_test_complete_part4 import left_join_users_profiles, right_join_users_profiles
+from crud_test_complete_part5 import conditional_join_users_profiles, run_all_tests
+
+# Adiciona os métodos importados à classe CrudTestClient
+CrudTestClient.update_user = update_user
+CrudTestClient.create_profile = create_profile
+CrudTestClient.update_profile = update_profile
+CrudTestClient.inner_join_users_profiles = inner_join_users_profiles
+CrudTestClient.left_join_users_profiles = left_join_users_profiles
+CrudTestClient.right_join_users_profiles = right_join_users_profiles
+CrudTestClient.conditional_join_users_profiles = conditional_join_users_profiles
+CrudTestClient.run_all_tests = run_all_tests
 
 def main():
     """Função principal."""
-    logger.info("Iniciando cliente de teste CRUD")
+    logger.info("Iniciando cliente de teste CRUD completo")
     
     # Cria o cliente
     client = CrudTestClient()
@@ -381,29 +466,34 @@ def main():
         logger.error("Falha ao conectar ao servidor")
         return
     
-    # Aguarda a conexão ser estabelecida e a autenticação ser concluída
-    max_wait_time = 10  # segundos
-    wait_interval = 0.5  # segundos
-    total_waited = 0
-    
+    # Aguarda a conexão e autenticação
     logger.info("Aguardando estabelecimento da conexão e autenticação...")
-    while not client.authenticated and total_waited < max_wait_time:
-        time.sleep(wait_interval)
-        total_waited += wait_interval
+    start_time = time.time()
+    while (not client.connected or not client.authenticated) and time.time() - start_time < 10:
+        time.sleep(0.1)
     
-    if not client.authenticated:
-        logger.error(f"Timeout esperando a autenticação ser concluída após {max_wait_time} segundos")
+    # Verifica se a conexão e autenticação foram bem-sucedidas
+    if not client.connected:
+        logger.error("Falha ao conectar ao servidor")
         return
     
+    if not client.authenticated:
+        logger.error("Falha ao autenticar no servidor")
+        return
+    
+    # Aguarda mais alguns segundos para estabilização
     logger.info("Conexão e autenticação concluídas com sucesso, aguardando mais 2 segundos para estabilização...")
-    time.sleep(2)  # Aguarda mais um pouco para garantir que tudo está estável
+    time.sleep(2)
     
     # Executa todos os testes
     client.run_all_tests()
     
     # Fecha a conexão
-    time.sleep(1)  # Aguarda um pouco para garantir que as últimas mensagens sejam processadas
-    client.ws.close()
+    if client.ws:
+        client.ws.close()
+    
+    # Aguarda o fechamento da conexão
+    time.sleep(1)
     logger.info("Testes concluídos, conexão fechada")
 
 if __name__ == "__main__":

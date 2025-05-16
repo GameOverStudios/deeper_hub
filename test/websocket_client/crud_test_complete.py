@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-Cliente WebSocket simplificado para testar operações CRUD com o servidor Deeper_Hub.
+Cliente WebSocket para testar operações CRUD e joins com o servidor Deeper_Hub.
 
-Esta versão usa uma abordagem mais direta, enviando mensagens no formato exato esperado pelo servidor.
+Este cliente implementa todos os testes equivalentes aos do arquivo testes.ex,
+incluindo operações CRUD e diferentes tipos de joins.
 """
 
 import json
@@ -22,7 +23,7 @@ logging.basicConfig(
 logger = logging.getLogger('crud_test')
 
 class CrudTestClient:
-    """Cliente WebSocket para testar operações CRUD."""
+    """Cliente WebSocket para testar operações CRUD e joins."""
     
     def __init__(self, url="ws://localhost:4000/socket/websocket", auth_token="test_token"):
         """
@@ -40,6 +41,7 @@ class CrudTestClient:
         self.last_response = None
         self.response_received = False
         self.created_user_id = None
+        self.created_profile_id = None
         self.test_results = {}
         
     def connect(self):
@@ -180,9 +182,10 @@ class CrudTestClient:
     def create_user(self):
         """
         Cria um novo usuário com dados aleatórios.
+        Equivalente à operação 'teste_usuarios' no arquivo testes.ex.
         
         Returns:
-            A resposta do servidor
+            A resposta do servidor e o ID do usuário criado
         """
         if not self.connected or not self.authenticated:
             logger.warning("Tentativa de criar usuário sem conexão ou autenticação")
@@ -206,12 +209,6 @@ class CrudTestClient:
         
         # Cria um ID de requisição único
         request_id = str(uuid.uuid4())
-        
-        # Envia a mensagem no formato esperado pelo servidor
-        # Certifica-se de que user_data_json é uma string JSON válida
-        # O servidor espera que o campo data seja uma string JSON
-        if isinstance(user_data, dict):
-            user_data_json = json.dumps(user_data)
         
         # Cria a mensagem no formato que o servidor espera
         # Importante: o payload deve ser uma string JSON, não um dict
@@ -266,73 +263,115 @@ class CrudTestClient:
             logger.error(f"❌ Falha ao criar usuário: {response}")
             self.test_results["create_user"] = False
         
-        return response
+        return response, self.created_user_id
     
-    def run_tests(self):
-        """Executa todos os testes automatizados."""
-        logger.info("Iniciando testes automatizados...")
+    def get_user(self, user_id):
+        """
+        Obtém um usuário pelo ID.
+        Equivalente à operação de busca por ID no arquivo testes.ex.
         
-        # Cria um usuário
-        user_response = self.create_user()
+        Args:
+            user_id: ID do usuário
+            
+        Returns:
+            A resposta do servidor
+        """
+        if not self.connected or not self.authenticated:
+            logger.warning("Tentativa de obter usuário sem conexão ou autenticação")
+            return None
         
-        # Se não conseguiu criar um usuário, não continua os testes
-        if not user_response or not self.created_user_id:
-            logger.error("Não foi possível criar um usuário, pulando os outros testes")
-            return
+        # Cria um ID de requisição único
+        request_id = str(uuid.uuid4())
         
-        # Exibe um resumo dos testes
-        logger.info("\n===== RESUMO DOS TESTES =====")
-        for test_name, result in self.test_results.items():
-            status = "✅ PASSOU" if result else "❌ FALHOU"
-            logger.info(f"{test_name}: {status}")
+        # Cria a mensagem no formato que o servidor espera
+        payload = json.dumps({
+            "database_operation": {
+                "operation": "read",
+                "schema": "user",
+                "id": user_id,
+                "request_id": request_id,
+                "timestamp": int(time.time() * 1000)
+            }
+        })
         
-        # Verifica se algum teste falhou
-        if not all(self.test_results.values()):
-            logger.info("\n⚠️ ALGUNS TESTES FALHARAM OU NÃO FORAM EXECUTADOS ⚠️")
+        message = {
+            "topic": "websocket",
+            "event": "message",
+            "payload": payload,
+            "ref": str(uuid.uuid4())
+        }
+        
+        # Envia a mensagem
+        logger.info(f"Obtendo usuário com ID: {user_id}")
+        self.send_message(message)
+        
+        # Aguarda a resposta
+        response = self.wait_for_response()
+        
+        # Verifica o resultado
+        if response and response.get('status') == 'success':
+            logger.info("✅ Usuário obtido com sucesso")
+            self.test_results["get_user"] = True
         else:
-            logger.info("\n🎉 TODOS OS TESTES PASSARAM! 🎉")
+            logger.error(f"❌ Falha ao obter usuário: {response}")
+            self.test_results["get_user"] = False
+        
+        return response
 
-def main():
-    """Função principal."""
-    logger.info("Iniciando cliente de teste CRUD")
-    
-    # Cria o cliente
-    client = CrudTestClient()
-    
-    # Conecta ao servidor
-    if not client.connect():
-        logger.error("Falha ao conectar ao servidor")
-        return
-    
-    # Aguarda a conexão e autenticação
-    logger.info("Aguardando estabelecimento da conexão e autenticação...")
-    start_time = time.time()
-    while (not client.connected or not client.authenticated) and time.time() - start_time < 10:
-        time.sleep(0.1)
-    
-    # Verifica se a conexão e autenticação foram bem-sucedidas
-    if not client.connected:
-        logger.error("Falha ao conectar ao servidor")
-        return
-    
-    if not client.authenticated:
-        logger.error("Falha ao autenticar no servidor")
-        return
-    
-    # Aguarda mais alguns segundos para estabilização
-    logger.info("Conexão e autenticação concluídas com sucesso, aguardando mais 2 segundos para estabilização...")
-    time.sleep(2)
-    
-    # Executa os testes
-    client.run_tests()
-    
-    # Fecha a conexão
-    if client.ws:
-        client.ws.close()
-    
-    # Aguarda o fechamento da conexão
-    time.sleep(1)
-    logger.info("Testes concluídos, conexão fechada")
-
-if __name__ == "__main__":
-    main()
+    def find_active_users(self):
+        """
+        Busca usuários ativos.
+        Equivalente à operação 'usuarios_ativos' no arquivo testes.ex.
+        
+        Returns:
+            A resposta do servidor
+        """
+        if not self.connected or not self.authenticated:
+            logger.warning("Tentativa de buscar usuários sem conexão ou autenticação")
+            return None
+        
+        # Condições de busca (usuários ativos) como um dicionário
+        conditions = {
+            "is_active": True
+        }
+        
+        # Converte para JSON string
+        conditions_json = json.dumps(conditions)
+        
+        # Cria um ID de requisição único
+        request_id = str(uuid.uuid4())
+        
+        # Cria a mensagem no formato que o servidor espera
+        payload = json.dumps({
+            "database_operation": {
+                "operation": "find",
+                "schema": "user",
+                "conditions": conditions_json,
+                "request_id": request_id,
+                "timestamp": int(time.time() * 1000)
+            }
+        })
+        
+        message = {
+            "topic": "websocket",
+            "event": "message",
+            "payload": payload,
+            "ref": str(uuid.uuid4())
+        }
+        
+        # Envia a mensagem
+        logger.info("Buscando usuários ativos")
+        self.send_message(message)
+        
+        # Aguarda a resposta
+        response = self.wait_for_response()
+        
+        # Verifica o resultado
+        if response and response.get('status') == 'success':
+            logger.info(f"✅ Busca de usuários ativos bem-sucedida: {len(response.get('data', []))} usuários encontrados")
+            self.test_results["find_active_users"] = True
+        else:
+            logger.error(f"❌ Falha na busca de usuários ativos: {response}")
+            self.test_results["find_active_users"] = False
+        
+        return response
