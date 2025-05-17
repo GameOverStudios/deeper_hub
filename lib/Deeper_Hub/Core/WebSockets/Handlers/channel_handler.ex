@@ -140,7 +140,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.ChannelHandler do
   end
   
   # Lista canais disponíveis
-  defp do_handle_message("list", payload, state) do
+  defp do_handle_message("list", payload, _state) do
     filter = Map.get(payload, "filter")
     
     case ChannelManager.list_channels(filter) do

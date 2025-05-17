@@ -65,7 +65,11 @@ defmodule Deeper_Hub.Core.Supervisor do
       Deeper_Hub.Core.Metrics.Reporter,
 
       # Inicia um worker para configurar o EventBus
-      {Task, fn -> Deeper_Hub.Core.EventBus.init() end},
+      %{
+        id: :event_bus_init_task,
+        start: {Task, :start_link, [fn -> Deeper_Hub.Core.EventBus.init() end]},
+        restart: :temporary
+      },
 
       # Inicia o ConnectionManager para gerenciar conexões WebSocket
       Deeper_Hub.Core.Communications.ConnectionManager,
@@ -80,10 +84,14 @@ defmodule Deeper_Hub.Core.Supervisor do
       {Deeper_Hub.Core.WebSockets.WebSocketSupervisor, [port: 4000]},
       
       # Inicia um worker para criar as tabelas do banco de dados
-      {Task, fn -> 
-        Deeper_Hub.Core.Communications.Messages.MessageStorage.create_table_if_not_exists()
-        Deeper_Hub.Core.Communications.Channels.ChannelStorage.create_tables_if_not_exist()
-      end}
+      %{
+        id: :db_tables_init_task,
+        start: {Task, :start_link, [fn -> 
+          Deeper_Hub.Core.Communications.Messages.MessageStorage.create_table_if_not_exists()
+          Deeper_Hub.Core.Communications.Channels.ChannelStorage.create_tables_if_not_exist()
+        end]},
+        restart: :temporary
+      }
     ]
 
     # Configura o supervisor para reiniciar os filhos individualmente

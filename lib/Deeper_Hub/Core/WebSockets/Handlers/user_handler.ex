@@ -46,19 +46,6 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
   end
   
   # Handlers específicos para cada tipo de ação
-  
-  @doc """
-  Busca um usuário pelo ID.
-  
-  ## Parâmetros
-  
-    - `payload`: O payload contendo o ID do usuário
-  
-  ## Retorno
-  
-    - `{:ok, response}` em caso de sucesso
-    - `{:error, reason}` em caso de falha
-  """
   defp do_handle_message("get", %{"id" => id}, _state) when is_binary(id) do
     Logger.info("Buscando usuário via WebSocket", %{
       module: __MODULE__,
@@ -100,18 +87,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
     {:error, :invalid_payload}
   end
   
-  @doc """
-  Cria um novo usuário.
-  
-  ## Parâmetros
-  
-    - `payload`: O payload contendo os dados do usuário
-  
-  ## Retorno
-  
-    - `{:ok, response}` em caso de sucesso
-    - `{:error, reason}` em caso de falha
-  """
+  # Cria um novo usuário
   defp do_handle_message("create", %{"username" => username, "email" => email, "password" => password}, _state) 
     when is_binary(username) and is_binary(email) and is_binary(password) do
     
@@ -175,18 +151,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
     {:error, :invalid_payload}
   end
   
-  @doc """
-  Atualiza um usuário existente.
-  
-  ## Parâmetros
-  
-    - `payload`: O payload contendo os dados do usuário
-  
-  ## Retorno
-  
-    - `{:ok, response}` em caso de sucesso
-    - `{:error, reason}` em caso de falha
-  """
+  # Atualiza um usuário existente
   defp do_handle_message("update", %{"id" => id} = payload, _state) when is_binary(id) do
     Logger.info("Atualizando usuário via WebSocket", %{
       module: __MODULE__,
@@ -270,18 +235,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
     {:error, :invalid_payload}
   end
   
-  @doc """
-  Exclui um usuário.
-  
-  ## Parâmetros
-  
-    - `payload`: O payload contendo o ID do usuário
-  
-  ## Retorno
-  
-    - `{:ok, response}` em caso de sucesso
-    - `{:error, reason}` em caso de falha
-  """
+  # Exclui um usuário
   defp do_handle_message("delete", %{"id" => id}, _state) when is_binary(id) do
     Logger.info("Excluindo usuário via WebSocket", %{
       module: __MODULE__,
