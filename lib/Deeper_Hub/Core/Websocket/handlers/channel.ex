@@ -15,6 +15,7 @@ defmodule Deeper_Hub.Core.Websocket.Channel do
   alias Deeper_Hub.Core.Websocket.DatabaseHandler
   alias Deeper_Hub.Core.EventBus.EventDefinitions
   alias Deeper_Hub.Core.Telemetry.TelemetryEvents
+  alias Deeper_Hub.Core.Websocket.Handlers.Actions.ActionsUsers
   
   # Função auxiliar para obter o tipo de um valor
   defp get_type(value) when is_binary(value), do: "string"
@@ -53,106 +54,25 @@ defmodule Deeper_Hub.Core.Websocket.Channel do
       action = payload["action"]
       Logger.debug("Ação simplificada detectada: #{action}")
       
-      # Responde diretamente para evitar o erro 'not an iodata term'
+      # Delega para o módulo de ações de usuários
       case action do
         "create_user" ->
-          # Extrai os dados do usuário
-          username = Map.get(payload, "username")
-          email = Map.get(payload, "email")
-          _password = Map.get(payload, "password")
-          
-          # Log dos dados recebidos
-          Logger.info("Tentativa de criação de usuário: #{username} (#{email})")
-          
-          # Responde com sucesso (simplificado para evitar erros)
-          {:reply, {:ok, %{"status" => "success", "message" => "Usuário criado com sucesso"}}, socket}
+          ActionsUsers.create_user(payload, socket)
           
         "list_users" ->
-          # Log da ação
-          Logger.info("Listagem de usuários solicitada")
-          
-          # Responde com uma lista vazia (simplificado para evitar erros)
-          {:reply, {:ok, %{"status" => "success", "users" => []}}, socket}
+          ActionsUsers.list_users(payload, socket)
           
         "update_user" ->
-          # Extrai os dados do usuário
-          user_id = Map.get(payload, "user_id")
-          email = Map.get(payload, "email")
-          
-          # Log dos dados recebidos
-          Logger.info("Tentativa de atualização de usuário: #{user_id} (novo email: #{email})")
-          
-          # Simula um usuário atualizado
-          updated_user = %{
-            "id" => user_id,
-            "username" => "user_#{:rand.uniform(1000)}",
-            "email" => email,
-            "is_active" => true
-          }
-          
-          # Responde com sucesso
-          {:reply, {:ok, %{
-            "status" => "success", 
-            "message" => "Usuário atualizado com sucesso",
-            "user" => updated_user
-          }}, socket}
+          ActionsUsers.update_user(payload, socket)
           
         "deactivate_user" ->
-          # Extrai o ID do usuário
-          user_id = Map.get(payload, "user_id")
-          
-          # Log da ação
-          Logger.info("Tentativa de desativação de usuário: #{user_id}")
-          
-          # Simula um usuário desativado
-          deactivated_user = %{
-            "id" => user_id,
-            "username" => "user_#{:rand.uniform(1000)}",
-            "email" => "user_#{:rand.uniform(1000)}@example.com",
-            "is_active" => false
-          }
-          
-          # Responde com sucesso
-          {:reply, {:ok, %{
-            "status" => "success", 
-            "message" => "Usuário desativado com sucesso",
-            "user" => deactivated_user
-          }}, socket}
+          ActionsUsers.deactivate_user(payload, socket)
           
         "reactivate_user" ->
-          # Extrai o ID do usuário
-          user_id = Map.get(payload, "user_id")
-          
-          # Log da ação
-          Logger.info("Tentativa de reativação de usuário: #{user_id}")
-          
-          # Simula um usuário reativado
-          reactivated_user = %{
-            "id" => user_id,
-            "username" => "user_#{:rand.uniform(1000)}",
-            "email" => "user_#{:rand.uniform(1000)}@example.com",
-            "is_active" => true
-          }
-          
-          # Responde com sucesso
-          {:reply, {:ok, %{
-            "status" => "success", 
-            "message" => "Usuário reativado com sucesso",
-            "user" => reactivated_user
-          }}, socket}
+          ActionsUsers.reactivate_user(payload, socket)
           
         "delete_user" ->
-          # Extrai o ID do usuário
-          user_id = Map.get(payload, "user_id")
-          
-          # Log da ação
-          Logger.info("Tentativa de exclusão de usuário: #{user_id}")
-          
-          # Responde com sucesso
-          {:reply, {:ok, %{
-            "status" => "success", 
-            "message" => "Usuário excluído com sucesso"
-          }}, socket}
+          ActionsUsers.delete_user(payload, socket)
           
         _ ->
           # Ação desconhecida
