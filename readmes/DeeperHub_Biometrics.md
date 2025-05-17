@@ -1,8 +1,8 @@
-# Módulo: `Deeper_Hub.Biometrics` 👆
+# Módulo: `DeeperHub.Biometrics` 👆
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.Biometrics`
+## 📜 1. Visão Geral do Módulo `DeeperHub.Biometrics`
 
-O módulo `Deeper_Hub.Biometrics` é responsável por coletar, analisar e verificar padrões biométricos comportamentais dos usuários. O objetivo principal é adicionar uma camada de segurança adaptativa e contínua, identificando usuários com base em seus padrões únicos de interação com o sistema (como digitação e uso da interface) e detectando anomalias que possam indicar comprometimento de conta ou atividades fraudulentas. 😊
+O módulo `DeeperHub.Biometrics` é responsável por coletar, analisar e verificar padrões biométricos comportamentais dos usuários. O objetivo principal é adicionar uma camada de segurança adaptativa e contínua, identificando usuários com base em seus padrões únicos de interação com o sistema (como digitação e uso da interface) e detectando anomalias que possam indicar comprometimento de conta ou atividades fraudulentas. 😊
 
 Ele não lida com biometria física tradicional (impressão digital, reconhecimento facial direto), mas foca em como o usuário *se comporta*.
 
@@ -22,7 +22,7 @@ Ele não lida com biometria física tradicional (impressão digital, reconhecime
     *   Identificar desvios significativos do perfil de comportamento normal de um usuário.
     *   Sinalizar atividades que não correspondem aos padrões esperados, o que pode indicar que a conta foi comprometida ou está sendo usada de forma incomum.
 *   **Integração com Segurança:**
-    *   Fornecer scores de confiança e flags de anomalia para outros módulos de segurança (ex: `Deeper_Hub.Security.RiskAssessment`, `Deeper_Hub.MFA`) para influenciar decisões de autenticação ou autorização (ex: exigir MFA adicional se o score biométrico for baixo).
+    *   Fornecer scores de confiança e flags de anomalia para outros módulos de segurança (ex: `DeeperHub.Security.RiskAssessment`, `DeeperHub.MFA`) para influenciar decisões de autenticação ou autorização (ex: exigir MFA adicional se o score biométrico for baixo).
 *   **Gerenciamento de Perfis:**
     *   Permitir a listagem e (potencialmente) o reset de perfis biométricos por administradores.
 *   **Privacidade e Consentimento:**
@@ -31,23 +31,23 @@ Ele não lida com biometria física tradicional (impressão digital, reconhecime
 
 ## 🏗️ 3. Arquitetura e Design
 
-O `Deeper_Hub.Biometrics` será uma fachada que interage com serviços especializados para diferentes tipos de biometria comportamental e análise.
+O `DeeperHub.Biometrics` será uma fachada que interage com serviços especializados para diferentes tipos de biometria comportamental e análise.
 
-*   **Interface Pública (`Deeper_Hub.Biometrics.BiometricsFacade` ou `Deeper_Hub.Biometrics`):** Funções como `register_profile/2`, `verify_profile/3`, `analyze_behavior/2`.
-*   **Serviço Principal de Biometria (`Deeper_Hub.Biometrics.Services.BiometricsService`):** Orquestra a coleta, o processamento e a análise dos dados.
+*   **Interface Pública (`DeeperHub.Biometrics.BiometricsFacade` ou `DeeperHub.Biometrics`):** Funções como `register_profile/2`, `verify_profile/3`, `analyze_behavior/2`.
+*   **Serviço Principal de Biometria (`DeeperHub.Biometrics.Services.BiometricsService`):** Orquestra a coleta, o processamento e a análise dos dados.
 *   **Serviços Especializados (ex: `KeystrokeService`, `UsagePatternService`):**
-    *   `Deeper_Hub.Biometrics.Services.KeystrokeService`: Lida especificamente com a captura e análise de padrões de digitação.
-    *   `Deeper_Hub.Biometrics.Services.UsagePatternService`: Lida com padrões de uso da interface e temporais.
-*   **Serviço de Análise e Matching (`Deeper_Hub.Biometrics.Services.PatternMatchingService`):**
+    *   `DeeperHub.Biometrics.Services.KeystrokeService`: Lida especificamente com a captura e análise de padrões de digitação.
+    *   `DeeperHub.Biometrics.Services.UsagePatternService`: Lida com padrões de uso da interface e temporais.
+*   **Serviço de Análise e Matching (`DeeperHub.Biometrics.Services.PatternMatchingService`):**
     *   Contém algoritmos para construir perfis, comparar amostras com perfis e calcular scores de confiança.
     *   Pode utilizar técnicas de machine learning para detecção de padrões e anomalias.
 *   **Schemas (`BiometricProfile`, `KeystrokePattern`, `BiometricAnomaly`):** Estruturas de dados para persistir perfis, padrões e anomalias.
-*   **Cache (`Deeper_Hub.Biometrics.Cache.BiometricsCache`):** Para armazenar perfis ou dados processados e acelerar verificações.
+*   **Cache (`DeeperHub.Biometrics.Cache.BiometricsCache`):** Para armazenar perfis ou dados processados e acelerar verificações.
 *   **Integrações:**
-    *   `Deeper_Hub.Core.Repo`: Para persistência.
-    *   `Deeper_Hub.Core.EventBus`: Para publicar eventos de anomalia ou atualização de perfil.
-    *   `Deeper_Hub.Audit`: Para registrar eventos de verificação e alterações de perfil.
-    *   `Deeper_Hub.FeatureFlags`: Para controlar a ativação de diferentes features biométricas.
+    *   `DeeperHub.Core.Repo`: Para persistência.
+    *   `DeeperHub.Core.EventBus`: Para publicar eventos de anomalia ou atualização de perfil.
+    *   `DeeperHub.Audit`: Para registrar eventos de verificação e alterações de perfil.
+    *   `DeeperHub.FeatureFlags`: Para controlar a ativação de diferentes features biométricas.
 
 **Padrões de Design:**
 
@@ -57,13 +57,13 @@ O `Deeper_Hub.Biometrics` será uma fachada que interage com serviços especiali
 
 ### 3.1. Componentes Principais
 
-*   **`Deeper_Hub.Biometrics.BiometricsFacade`:** Ponto de entrada.
-*   **`Deeper_Hub.Biometrics.Services.BiometricsService`:** Orquestrador principal.
-*   **`Deeper_Hub.Biometrics.Services.KeystrokeService`:** Focado em digitação.
-*   **`Deeper_Hub.Biometrics.Services.PatternMatchingService`:** Motor de análise e comparação.
-*   **`Deeper_Hub.Biometrics.Schemas.*`:** Schemas Ecto.
-*   **`Deeper_Hub.Biometrics.Cache.BiometricsCache`:** Cache de perfis.
-*   **`Deeper_Hub.Biometrics.Supervisor`:** Supervisiona os processos do módulo.
+*   **`DeeperHub.Biometrics.BiometricsFacade`:** Ponto de entrada.
+*   **`DeeperHub.Biometrics.Services.BiometricsService`:** Orquestrador principal.
+*   **`DeeperHub.Biometrics.Services.KeystrokeService`:** Focado em digitação.
+*   **`DeeperHub.Biometrics.Services.PatternMatchingService`:** Motor de análise e comparação.
+*   **`DeeperHub.Biometrics.Schemas.*`:** Schemas Ecto.
+*   **`DeeperHub.Biometrics.Cache.BiometricsCache`:** Cache de perfis.
+*   **`DeeperHub.Biometrics.Supervisor`:** Supervisiona os processos do módulo.
 *   **Workers (ex: `AnomalyDetectionWorker`, `DataCleanupWorker`):** Para processamento assíncrono e manutenção.
 
 ### 3.3. Decisões de Design Importantes
@@ -86,18 +86,18 @@ O `Deeper_Hub.Biometrics` será uma fachada que interage com serviços especiali
 
 1.  O usuário digita em um campo monitorado (ex: campo de senha ou um formulário específico).
 2.  Dados brutos de temporização de teclas (keydown, keyup timestamps para cada tecla) são coletados no frontend.
-3.  Esses dados são enviados para o backend (ex: `Deeper_Hub.API`).
-4.  O controller da API chama `Deeper_Hub.Biometrics.verify_profile(user_id, %{type: :keystroke, data: raw_keystroke_data}, opts)`.
+3.  Esses dados são enviados para o backend (ex: `DeeperHub.API`).
+4.  O controller da API chama `DeeperHub.Biometrics.verify_profile(user_id, %{type: :keystroke, data: raw_keystroke_data}, opts)`.
 5.  A fachada delega para `BiometricsService`, que por sua vez pode usar o `KeystrokeService` para processar `raw_keystroke_data` em um conjunto de features (métricas como velocidade, latência entre digrafos, etc.).
 6.  O `PatternMatchingService` é chamado para comparar essas features com o perfil de digitação armazenado para `user_id`.
 7.  Um score de confiança é calculado.
 8.  O `BiometricsService` retorna o resultado (ex: `{:ok, %{match: true, confidence: 0.85}}`).
 9.  O sistema chamador (ex: `Auth` ou `Security.RiskAssessment`) usa esse score para tomar uma decisão.
-10. O evento de verificação é logado no `Deeper_Hub.Audit`.
+10. O evento de verificação é logado no `DeeperHub.Audit`.
 
 ## 📡 6. API (Se Aplicável)
 
-### 6.1. `Deeper_Hub.Biometrics.register_profile/2`
+### 6.1. `DeeperHub.Biometrics.register_profile/2`
 
 *   **Descrição:** Inicia o processo de registro ou atualização do perfil biométrico de um usuário com base nos dados fornecidos.
 *   **`@spec`:** `register_profile(user_id :: String.t(), biometric_data :: map()) :: {:ok, profile :: BiometricProfile.t()} | {:error, reason :: atom() | Ecto.Changeset.t()}`
@@ -110,13 +110,13 @@ O `Deeper_Hub.Biometrics` será uma fachada que interage com serviços especiali
 *   **Exemplo de Uso (Elixir):**
     ```elixir
     raw_data = fetch_collected_biometric_data_from_frontend()
-    case Deeper_Hub.Biometrics.register_profile(current_user.id, raw_data) do
+    case DeeperHub.Biometrics.register_profile(current_user.id, raw_data) do
       {:ok, profile} -> Logger.info(\"Perfil biométrico atualizado para #{current_user.id}\")
       {:error, err} -> Logger.error(\"Falha ao atualizar perfil biométrico: #{inspect(err)}\")
     end
     ```
 
-### 6.2. `Deeper_Hub.Biometrics.verify_profile/3`
+### 6.2. `DeeperHub.Biometrics.verify_profile/3`
 
 *   **Descrição:** Verifica uma amostra biométrica atual contra o perfil conhecido de um usuário.
 *   **`@spec`:** `verify_profile(user_id :: String.t(), biometric_sample :: map(), opts :: Keyword.t()) :: {:ok, %{match: boolean(), confidence: float(), details: map()}} | {:error, reason :: atom()}`
@@ -131,7 +131,7 @@ O `Deeper_Hub.Biometrics` será uma fachada que interage com serviços especiali
 *   **Exemplo de Uso (Elixir):**
     ```elixir
     sample_keystroke_data = get_current_keystroke_sample()
-    case Deeper_Hub.Biometrics.verify_profile(current_user.id, %{type: :keystroke, data: sample_keystroke_data}) do
+    case DeeperHub.Biometrics.verify_profile(current_user.id, %{type: :keystroke, data: sample_keystroke_data}) do
       {:ok, result} ->
         if result.match do
           Logger.info(\"Verificação biométrica bem-sucedida com confiança: #{result.confidence}\")
@@ -143,7 +143,7 @@ O `Deeper_Hub.Biometrics` será uma fachada que interage com serviços especiali
     end
     ```
 
-### 6.3. `Deeper_Hub.Biometrics.detect_anomalies/2`
+### 6.3. `DeeperHub.Biometrics.detect_anomalies/2`
 
 *   **Descrição:** Analisa o comportamento biométrico recente de um usuário em busca de anomalias em relação ao seu perfil estabelecido.
 *   **`@spec`:** `detect_anomalies(user_id :: String.t(), opts :: Keyword.t()) :: {:ok, list(BiometricAnomaly.t())} | {:error, reason :: atom()}`
@@ -156,7 +156,7 @@ O `Deeper_Hub.Biometrics` será uma fachada que interage com serviços especiali
     *   `{:error, reason}`: Em caso de erro.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    case Deeper_Hub.Biometrics.detect_anomalies(current_user.id, time_window_hours: 48) do
+    case DeeperHub.Biometrics.detect_anomalies(current_user.id, time_window_hours: 48) do
       {:ok, anomalies} when anomalies != [] ->
         Logger.warning(\"Anomalias biométricas detectadas para #{current_user.id}: #{inspect(anomalies)}\")
       {:ok, []} ->
@@ -168,7 +168,7 @@ O `Deeper_Hub.Biometrics` será uma fachada que interage com serviços especiali
 
 ## ⚙️ 7. Configuração
 
-*   **ConfigManager (`Deeper_Hub.Core.ConfigManager`):**
+*   **ConfigManager (`DeeperHub.Core.ConfigManager`):**
     *   `[:biometrics, :enabled]`: (Boolean) Habilita/desabilita globalmente o módulo de biometria. (Padrão: `false`)
     *   `[:biometrics, :keystroke, :min_samples_for_profile]`: Número mínimo de amostras de digitação para construir um perfil inicial. (Padrão: `10`)
     *   `[:biometrics, :keystroke, :verification_threshold]`: Limiar de confiança para verificação de digitação. (Padrão: `0.75`)
@@ -181,14 +181,14 @@ O `Deeper_Hub.Biometrics` será uma fachada que interage com serviços especiali
 
 ### 8.1. Módulos Internos
 
-*   `Deeper_Hub.Core.Repo`: Para persistência de perfis e padrões.
-*   `Deeper_Hub.Core.ConfigManager`: Para configurações.
-*   `Deeper_Hub.Core.Cache`: Para cache de perfis.
-*   `Deeper_Hub.Core.EventBus`: Para publicar eventos de anomalia.
-*   `Deeper_Hub.Audit`: Para registrar verificações e alterações.
-*   `Deeper_Hub.Security.RiskAssessment` (Potencial): Para usar scores biométricos como entrada na avaliação de risco.
-*   `Deeper_Hub.MFA` (Potencial): Para usar verificação biométrica como um segundo fator.
-*   `Deeper_Hub.Core.Logger`, `Deeper_Hub.Core.Metrics`.
+*   `DeeperHub.Core.Repo`: Para persistência de perfis e padrões.
+*   `DeeperHub.Core.ConfigManager`: Para configurações.
+*   `DeeperHub.Core.Cache`: Para cache de perfis.
+*   `DeeperHub.Core.EventBus`: Para publicar eventos de anomalia.
+*   `DeeperHub.Audit`: Para registrar verificações e alterações.
+*   `DeeperHub.Security.RiskAssessment` (Potencial): Para usar scores biométricos como entrada na avaliação de risco.
+*   `DeeperHub.MFA` (Potencial): Para usar verificação biométrica como um segundo fator.
+*   `DeeperHub.Core.Logger`, `DeeperHub.Core.Metrics`.
 
 ### 8.2. Bibliotecas Externas
 
@@ -198,10 +198,10 @@ O `Deeper_Hub.Biometrics` será uma fachada que interage com serviços especiali
 ## 🤝 9. Como Usar / Integração
 
 *   **Coleta de Dados no Frontend:** O frontend precisa de lógica (JavaScript) para capturar dados de digitação ou interação e enviá-los para uma API específica.
-*   **APIs de Coleta e Verificação:** Endpoints na `Deeper_Hub.API` receberão esses dados e chamarão as funções da fachada `Deeper_Hub.Biometrics`.
+*   **APIs de Coleta e Verificação:** Endpoints na `DeeperHub.API` receberão esses dados e chamarão as funções da fachada `DeeperHub.Biometrics`.
 *   **Integração com Fluxo de Login/Autenticação:**
-    *   No login, após a senha, o `Deeper_Hub.Auth` pode chamar `Deeper_Hub.Biometrics.verify_profile/3` com os dados de digitação da senha.
-    *   Se o score de confiança for baixo, `Deeper_Hub.Auth` pode exigir um segundo fator ou aumentar o nível de risco da sessão.
+    *   No login, após a senha, o `DeeperHub.Auth` pode chamar `DeeperHub.Biometrics.verify_profile/3` com os dados de digitação da senha.
+    *   Se o score de confiança for baixo, `DeeperHub.Auth` pode exigir um segundo fator ou aumentar o nível de risco da sessão.
 *   **Monitoramento Contínuo:** Workers podem periodicamente chamar `detect_anomalies/2` para usuários ativos.
 
 ## ✅ 10. Testes e Observabilidade
@@ -225,9 +225,9 @@ O `Deeper_Hub.Biometrics` será uma fachada que interage com serviços especiali
 
 ### 10.3. Logs
 
-*   `Logger.info(\"Perfil biométrico criado/atualizado para user_id: #{id}\", module: Deeper_Hub.Biometrics.Services.BiometricsService)`
-*   `Logger.info(\"Verificação biométrica para user_id: #{id}, tipo: #{type}, match: #{match}, confiança: #{confidence}\", module: Deeper_Hub.Biometrics.Services.PatternMatchingService)`
-*   `Logger.warning(\"Anomalia biométrica detectada para user_id: #{id}, tipo: #{anomaly.type}\", module: Deeper_Hub.Biometrics.Services.PatternMatchingService)`
+*   `Logger.info(\"Perfil biométrico criado/atualizado para user_id: #{id}\", module: DeeperHub.Biometrics.Services.BiometricsService)`
+*   `Logger.info(\"Verificação biométrica para user_id: #{id}, tipo: #{type}, match: #{match}, confiança: #{confidence}\", module: DeeperHub.Biometrics.Services.PatternMatchingService)`
+*   `Logger.warning(\"Anomalia biométrica detectada para user_id: #{id}, tipo: #{anomaly.type}\", module: DeeperHub.Biometrics.Services.PatternMatchingService)`
 
 ### 10.4. Telemetria
 
@@ -273,7 +273,7 @@ O `Deeper_Hub.Biometrics` será uma fachada que interage com serviços especiali
 
 ---
 
-Próximo é o `Deeper_Hub.ModuleInspector`. Vamos lá?"""),
+Próximo é o `DeeperHub.ModuleInspector`. Vamos lá?"""),
             ],
         ),
         types.Content(
@@ -286,7 +286,7 @@ Próximo é o `Deeper_Hub.ModuleInspector`. Vamos lá?"""),
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Combinado! Vamos criar o README para o `Deeper_Hub.ModuleInspector`. Este é uma ferramenta mais voltada para desenvolvimento e manutenção.
+                types.Part.from_text(text="""Combinado! Vamos criar o README para o `DeeperHub.ModuleInspector`. Este é uma ferramenta mais voltada para desenvolvimento e manutenção.
 
 ---
 

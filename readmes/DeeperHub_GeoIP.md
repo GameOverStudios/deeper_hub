@@ -1,8 +1,8 @@
-# Módulo: `Deeper_Hub.GeoIP` 🌎
+# Módulo: `DeeperHub.GeoIP` 🌎
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.GeoIP`
+## 📜 1. Visão Geral do Módulo `DeeperHub.GeoIP`
 
-O módulo `Deeper_Hub.GeoIP` é responsável por obter informações de geolocalização (como país, cidade, região, coordenadas, ISP) a partir de um endereço IP. Ele atua como uma interface centralizada para interagir com serviços de geolocalização externos ou bases de dados locais, abstraindo os detalhes da implementação específica e incorporando mecanismos de resiliência como Circuit Breaker e cache. 😊
+O módulo `DeeperHub.GeoIP` é responsável por obter informações de geolocalização (como país, cidade, região, coordenadas, ISP) a partir de um endereço IP. Ele atua como uma interface centralizada para interagir com serviços de geolocalização externos ou bases de dados locais, abstraindo os detalhes da implementação específica e incorporando mecanismos de resiliência como Circuit Breaker e cache. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -13,10 +13,10 @@ O módulo `Deeper_Hub.GeoIP` é responsável por obter informações de geolocal
     *   Interface para um ou mais provedores de GeoIP (ex: MaxMind GeoLite2/GeoIP2, IP-API, DB-IP, etc.).
     *   Permitir a troca de provedores com configuração mínima.
 *   **Cache de Resultados:**
-    *   Armazenar em cache os resultados de lookups de IP para reduzir a latência e o número de chamadas a serviços externos (usando `Deeper_Hub.Core.Cache`).
+    *   Armazenar em cache os resultados de lookups de IP para reduzir a latência e o número de chamadas a serviços externos (usando `DeeperHub.Core.Cache`).
     *   Configuração de TTL para as entradas do cache.
 *   **Integração com Circuit Breaker:**
-    *   Utilizar o `Deeper_Hub.Core.CircuitBreakerFactory` para proteger o sistema contra falhas ou lentidão de serviços de GeoIP externos.
+    *   Utilizar o `DeeperHub.Core.CircuitBreakerFactory` para proteger o sistema contra falhas ou lentidão de serviços de GeoIP externos.
     *   Fallback para uma base de dados local (se disponível e configurada) ou para um resultado padrão/nulo quando o circuito estiver aberto.
 *   **Logging e Métricas:**
     *   Registrar lookups, acertos/erros de cache, e o estado do Circuit Breaker.
@@ -28,13 +28,13 @@ O módulo `Deeper_Hub.GeoIP` é responsável por obter informações de geolocal
 
 ## 🏗️ 3. Arquitetura e Design
 
-`Deeper_Hub.GeoIP` será uma fachada que interage com um ou mais adaptadores de provedores de GeoIP, utilizando o `Core.HTTPClient` (para APIs externas) e o `Core.Cache`.
+`DeeperHub.GeoIP` será uma fachada que interage com um ou mais adaptadores de provedores de GeoIP, utilizando o `Core.HTTPClient` (para APIs externas) e o `Core.Cache`.
 
-*   **Interface Pública (`Deeper_Hub.GeoIP.GeoIPFacade` ou `Deeper_Hub.GeoIP`):** Função principal `lookup/2`.
-*   **Adaptador(es) de Provedor (`Deeper_Hub.GeoIP.Adapters.<ProviderName>Adapter`):**
+*   **Interface Pública (`DeeperHub.GeoIP.GeoIPFacade` ou `DeeperHub.GeoIP`):** Função principal `lookup/2`.
+*   **Adaptador(es) de Provedor (`DeeperHub.GeoIP.Adapters.<ProviderName>Adapter`):**
     *   Implementa a lógica específica para consultar um provedor de GeoIP (ex: `MaxMindDBAdapter` para arquivos locais, `IPAPIAdapter` para uma API HTTP).
     *   A seleção do adaptador ou a ordem de preferência pode ser configurada.
-*   **Struct de Resposta (`Deeper_Hub.GeoIP.LocationData`):** Estrutura padronizada para os dados de geolocalização.
+*   **Struct de Resposta (`DeeperHub.GeoIP.LocationData`):** Estrutura padronizada para os dados de geolocalização.
 *   **Integração com `Core.HTTPClient`:** Para adaptadores que consomem APIs externas.
 *   **Integração com `Core.Cache`:** Para armazenar resultados de lookups.
 *   **Integração com `Core.CircuitBreakerFactory`:** Para chamadas a APIs externas.
@@ -49,14 +49,14 @@ O módulo `Deeper_Hub.GeoIP` é responsável por obter informações de geolocal
 
 ### 3.1. Componentes Principais
 
-*   **`Deeper_Hub.GeoIP.GeoIPFacade` (ou `Deeper_Hub.GeoIP`):** Ponto de entrada.
-*   **`Deeper_Hub.GeoIP.LocationData` (Struct):** `%{country_code: \"US\", country_name: \"United States\", region_name: \"California\", city_name: \"Mountain View\", latitude: 37.422, longitude: -122.084, isp: \"Google LLC\", organization: \"Google LLC\", timezone: \"America/Los_Angeles\", postal_code: \"94043\", asn: 15169}`.
-*   **`Deeper_Hub.GeoIP.AdapterBehaviour` (Novo Sugerido):** Comportamento para adaptadores de provedor.
+*   **`DeeperHub.GeoIP.GeoIPFacade` (ou `DeeperHub.GeoIP`):** Ponto de entrada.
+*   **`DeeperHub.GeoIP.LocationData` (Struct):** `%{country_code: \"US\", country_name: \"United States\", region_name: \"California\", city_name: \"Mountain View\", latitude: 37.422, longitude: -122.084, isp: \"Google LLC\", organization: \"Google LLC\", timezone: \"America/Los_Angeles\", postal_code: \"94043\", asn: 15169}`.
+*   **`DeeperHub.GeoIP.AdapterBehaviour` (Novo Sugerido):** Comportamento para adaptadores de provedor.
 *   **Exemplos de Adaptadores:**
-    *   `Deeper_Hub.GeoIP.Adapters.MaxMindDBAdapter` (para arquivos `.mmdb`)
-    *   `Deeper_Hub.GeoIP.Adapters.IPAPIAdapter` (para `ip-api.com`)
-*   **`Deeper_Hub.GeoIP.Cache` (Novo Sugerido, ou usa `Core.Cache` com namespace):** Gerencia o cache de lookups.
-*   **`Deeper_Hub.GeoIP.Supervisor` (Opcional):** Se houver processos de longa duração, como um atualizador de DB.
+    *   `DeeperHub.GeoIP.Adapters.MaxMindDBAdapter` (para arquivos `.mmdb`)
+    *   `DeeperHub.GeoIP.Adapters.IPAPIAdapter` (para `ip-api.com`)
+*   **`DeeperHub.GeoIP.Cache` (Novo Sugerido, ou usa `Core.Cache` com namespace):** Gerencia o cache de lookups.
+*   **`DeeperHub.GeoIP.Supervisor` (Opcional):** Se houver processos de longa duração, como um atualizador de DB.
 
 ### 3.3. Decisões de Design Importantes
 
@@ -75,7 +75,7 @@ O módulo `Deeper_Hub.GeoIP` é responsável por obter informações de geolocal
 
 **Fluxo de Lookup de IP com Cache e Circuit Breaker (para API externa):**
 
-1.  Outro módulo chama `Deeper_Hub.GeoIP.lookup(ip_address, opts)`.
+1.  Outro módulo chama `DeeperHub.GeoIP.lookup(ip_address, opts)`.
 2.  `GeoIP` verifica se o resultado para `ip_address` está no `Core.Cache`.
 3.  **Cache Hit:** Se encontrado e válido, retorna os dados cacheados.
 4.  **Cache Miss:**
@@ -92,7 +92,7 @@ O módulo `Deeper_Hub.GeoIP` é responsável por obter informações de geolocal
 
 ## 📡 6. API (Se Aplicável)
 
-### 6.1. `Deeper_Hub.GeoIP.lookup/2`
+### 6.1. `DeeperHub.GeoIP.lookup/2`
 
 *   **Descrição:** Obtém informações de geolocalização para um endereço IP.
 *   **`@spec`:** `lookup(ip_address :: String.t(), opts :: Keyword.t()) :: {:ok, LocationData.t()} | {:error, reason :: atom()}`
@@ -103,14 +103,14 @@ O módulo `Deeper_Hub.GeoIP` é responsável por obter informações de geolocal
         *   `:skip_cache` (boolean): Se `true`, ignora o cache e força uma nova consulta. (Padrão: `false`)
         *   `:timeout_ms` (integer): Timeout específico para esta consulta.
 *   **Retorno:**
-    *   `{:ok, %Deeper_Hub.GeoIP.LocationData{}}`: Em caso de sucesso, com os dados de geolocalização.
+    *   `{:ok, %DeeperHub.GeoIP.LocationData{}}`: Em caso de sucesso, com os dados de geolocalização.
     *   `{:error, :not_found}`: Se o IP não for encontrado ou não tiver dados geográficos.
     *   `{:error, :service_unavailable}`: Se o serviço de GeoIP estiver indisponível (ex: circuito aberto).
     *   `{:error, :invalid_ip}`: Se o formato do IP for inválido.
     *   `{:error, reason}`: Outros erros.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    case Deeper_Hub.GeoIP.lookup(\"8.8.8.8\") do
+    case DeeperHub.GeoIP.lookup(\"8.8.8.8\") do
       {:ok, location} ->
         IO.puts(\"País: #{location.country_name}, Cidade: #{location.city_name}\")
       {:error, reason} ->
@@ -120,7 +120,7 @@ O módulo `Deeper_Hub.GeoIP` é responsável por obter informações de geolocal
 
 ## ⚙️ 7. Configuração
 
-*   **ConfigManager (`Deeper_Hub.Core.ConfigManager`):**
+*   **ConfigManager (`DeeperHub.Core.ConfigManager`):**
     *   `[:geoip, :default_provider_order]`: Lista de átomos representando a ordem de preferência dos provedores de GeoIP (ex: `[:maxmind_local, :ip_api_com]`).
     *   `[:geoip, :providers, :provider_name, :api_key]`: Chave de API para um provedor específico.
     *   `[:geoip, :providers, :provider_name, :api_url]`: URL da API para um provedor específico.
@@ -133,12 +133,12 @@ O módulo `Deeper_Hub.GeoIP` é responsável por obter informações de geolocal
 
 ### 8.1. Módulos Internos
 
-*   `Deeper_Hub.Core.HTTPClient`: Para interagir com APIs de GeoIP.
-*   `Deeper_Hub.Core.Cache`: Para cachear resultados de lookup.
-*   `Deeper_Hub.Core.CircuitBreakerFactory`: Para proteger chamadas a APIs externas.
-*   `Deeper_Hub.Core.ConfigManager`: Para configurações.
-*   `Deeper_Hub.Core.Logger`: Para logging.
-*   `Deeper_Hub.Core.Metrics`: Para métricas.
+*   `DeeperHub.Core.HTTPClient`: Para interagir com APIs de GeoIP.
+*   `DeeperHub.Core.Cache`: Para cachear resultados de lookup.
+*   `DeeperHub.Core.CircuitBreakerFactory`: Para proteger chamadas a APIs externas.
+*   `DeeperHub.Core.ConfigManager`: Para configurações.
+*   `DeeperHub.Core.Logger`: Para logging.
+*   `DeeperHub.Core.Metrics`: Para métricas.
 
 ### 8.2. Bibliotecas Externas
 
@@ -147,11 +147,11 @@ O módulo `Deeper_Hub.GeoIP` é responsável por obter informações de geolocal
 
 ## 🤝 9. Como Usar / Integração
 
-Outros módulos devem chamar `Deeper_Hub.GeoIP.lookup/2` para obter dados de geolocalização.
+Outros módulos devem chamar `DeeperHub.GeoIP.lookup/2` para obter dados de geolocalização.
 
 ```elixir
-defmodule Deeper_Hub.Security.LoginAttemptAnalyzer do
-  alias Deeper_Hub.GeoIP
+defmodule DeeperHub.Security.LoginAttemptAnalyzer do
+  alias DeeperHub.GeoIP
 
   def analyze_login_ip(ip_address) do
     case GeoIP.lookup(ip_address) do
@@ -187,9 +187,9 @@ end
 
 ### 10.3. Logs
 
-*   `Logger.debug(\"GeoIP lookup para #{ip_address} via #{provider}. Cache: #{status}\", module: Deeper_Hub.GeoIP)`
-*   `Logger.error(\"Falha no GeoIP lookup para #{ip_address} via #{provider}: #{reason}\", module: Deeper_Hub.GeoIP)`
-*   `Logger.warning(\"GeoIP Circuit Breaker para #{provider} abriu.\", module: Deeper_Hub.GeoIP)`
+*   `Logger.debug(\"GeoIP lookup para #{ip_address} via #{provider}. Cache: #{status}\", module: DeeperHub.GeoIP)`
+*   `Logger.error(\"Falha no GeoIP lookup para #{ip_address} via #{provider}: #{reason}\", module: DeeperHub.GeoIP)`
+*   `Logger.warning(\"GeoIP Circuit Breaker para #{provider} abriu.\", module: DeeperHub.GeoIP)`
 
 ### 10.4. Telemetria
 
@@ -210,7 +210,7 @@ end
 
 ## 🧑‍💻 13. Contribuição
 
-*   Ao adicionar um novo adaptador de provedor, implementar o `Deeper_Hub.GeoIP.AdapterBehaviour`.
+*   Ao adicionar um novo adaptador de provedor, implementar o `DeeperHub.GeoIP.AdapterBehaviour`.
 *   Garantir que os dados retornados sejam normalizados para a struct `LocationData`.
 *   Adicionar configurações relevantes ao `ConfigManager`.
 
@@ -227,7 +227,7 @@ end
 
 ---
 
-Continuamos com `Deeper_Hub.Mailer`?"""),
+Continuamos com `DeeperHub.Mailer`?"""),
             ],
         ),
         types.Content(
@@ -239,7 +239,7 @@ Continuamos com `Deeper_Hub.Mailer`?"""),
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Beleza! Agora vamos para o README do `Deeper_Hub.Mailer`.
+                types.Part.from_text(text="""Beleza! Agora vamos para o README do `DeeperHub.Mailer`.
 
 ---
 

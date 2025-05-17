@@ -1,1 +1,1 @@
-cls & mix phx.server
+cls & mix run --no-halt

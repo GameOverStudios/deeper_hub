@@ -1,12 +1,12 @@
-# Módulo: `Deeper_Hub.Security.Policy.SecurityPolicyManager` 🚀
+# Módulo: `DeeperHub.Security.Policy.SecurityPolicyManager` 🚀
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.Security.Policy.SecurityPolicyManager`
+## 📜 1. Visão Geral do Módulo `DeeperHub.Security.Policy.SecurityPolicyManager`
 
-O módulo `Deeper_Hub.Security.Policy.SecurityPolicyManager` atua como o **gerenciador centralizado para todas as políticas de segurança** dentro do sistema Deeper_Hub. Ele fornece uma interface unificada para definir, consultar e atualizar diversas políticas que governam o comportamento dos diferentes submódulos de segurança (ex: `RiskAssessment`, `BruteForceProtection`, `MFA`, `SessionPolicy`, etc.).
+O módulo `DeeperHub.Security.Policy.SecurityPolicyManager` atua como o **gerenciador centralizado para todas as políticas de segurança** dentro do sistema DeeperHub. Ele fornece uma interface unificada para definir, consultar e atualizar diversas políticas que governam o comportamento dos diferentes submódulos de segurança (ex: `RiskAssessment`, `BruteForceProtection`, `MFA`, `SessionPolicy`, etc.).
 
-Uma característica chave deste módulo é a integração com o sistema de Controle de Acesso Baseado em Papéis (`Deeper_Hub.RBAC`), garantindo que apenas usuários autorizados (tipicamente administradores de segurança) possam visualizar e modificar configurações críticas de segurança. Todas as alterações de política são, idealmente, auditadas.
+Uma característica chave deste módulo é a integração com o sistema de Controle de Acesso Baseado em Papéis (`DeeperHub.RBAC`), garantindo que apenas usuários autorizados (tipicamente administradores de segurança) possam visualizar e modificar configurações críticas de segurança. Todas as alterações de política são, idealmente, auditadas.
 
-Este módulo abstrai o armazenamento subjacente das políticas (que pode ser o `Deeper_Hub.Core.ConfigManager` ou um armazenamento dedicado) e adiciona uma camada de validação, autorização e lógica de negócio específica para políticas de segurança. 😊
+Este módulo abstrai o armazenamento subjacente das políticas (que pode ser o `DeeperHub.Core.ConfigManager` ou um armazenamento dedicado) e adiciona uma camada de validação, autorização e lógica de negócio específica para políticas de segurança. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -19,13 +19,13 @@ Este módulo abstrai o armazenamento subjacente das políticas (que pode ser o `
     *   Fornecer uma API para que outros módulos de segurança consultem as políticas relevantes para suas operações (`get_security_configs/2`).
     *   Obter políticas modificadas em relação aos valores padrão (`get_modified_configs/2`).
 *   **Validação de Políticas:**
-    *   Validar os valores das políticas antes de aplicá-los para garantir que são válidos e consistentes (via `Deeper_Hub.Security.Validation.SecurityInputValidation`).
+    *   Validar os valores das políticas antes de aplicá-los para garantir que são válidos e consistentes (via `DeeperHub.Security.Validation.SecurityInputValidation`).
 *   **Autorização RBAC:**
-    *   Integrar com `Deeper_Hub.RBAC` para garantir que apenas usuários com as permissões adequadas possam visualizar ou modificar políticas de segurança (via `Deeper_Hub.Security.Policy.SecurityPolicyAuthorization`).
+    *   Integrar com `DeeperHub.RBAC` para garantir que apenas usuários com as permissões adequadas possam visualizar ou modificar políticas de segurança (via `DeeperHub.Security.Policy.SecurityPolicyAuthorization`).
 *   **Redefinição para Padrões:**
     *   Permitir a redefinição de políticas para seus valores padrão de fábrica (`reset_security_config/3`).
 *   **Auditoria de Mudanças de Política:**
-    *   Integrar com `Deeper_Hub.Audit` para registrar todas as alterações nas políticas de segurança, incluindo quem fez a alteração, quando e qual foi a mudança.
+    *   Integrar com `DeeperHub.Audit` para registrar todas as alterações nas políticas de segurança, incluindo quem fez a alteração, quando e qual foi a mudança.
 *   **Notificação de Mudanças de Política (Opcional):**
     *   Publicar eventos no `Core.EventBus` quando políticas de segurança críticas são alteradas, permitindo que os sistemas relevantes recarreguem suas configurações.
 *   **Interface para Diferentes Tipos de Política:**
@@ -35,8 +35,8 @@ Este módulo abstrai o armazenamento subjacente das políticas (que pode ser o `
         *   Regras de Ação de Risco (`RiskAssessment`).
         *   Limiares de Força Bruta (`BruteForceProtection`).
         *   Duração de Bloqueios (`BruteForceProtection`, `IPFirewallService`).
-        *   Regras de MFA (`Deeper_Hub.MFA.MFAPolicyService`).
-        *   Políticas de Sessão (`Deeper_Hub.SessionPolicy`).
+        *   Regras de MFA (`DeeperHub.MFA.MFAPolicyService`).
+        *   Políticas de Sessão (`DeeperHub.SessionPolicy`).
         *   Configurações de Criptografia (ex: frequência de rotação de chaves).
         *   Listas de IPs/Domínios Permitidos/Bloqueados (`IPFirewallService`, `EmailValidator`).
         *   E outras configurações de segurança.
@@ -45,22 +45,22 @@ Este módulo abstrai o armazenamento subjacente das políticas (que pode ser o `
 
 ### 3.1. Componentes Principais
 
-1.  **`Deeper_Hub.Security.Policy.SecurityPolicyManager` (Fachada Pública):**
+1.  **`DeeperHub.Security.Policy.SecurityPolicyManager` (Fachada Pública):**
     *   Ponto de entrada para gerenciamento de políticas.
     *   Delega para o `SecurityPolicyService` (ou GenServer interno).
-2.  **`Deeper_Hub.Security.Policy.SecurityPolicyService` (GenServer ou Módulo de Serviço):**
+2.  **`DeeperHub.Security.Policy.SecurityPolicyService` (GenServer ou Módulo de Serviço):**
     *   **Responsabilidade:** Orquestra a lógica de gerenciamento de políticas.
     *   **Interações:**
         *   `SecurityPolicyAuthorization`: Para verificar permissões do usuário que está tentando modificar/visualizar.
-        *   `Deeper_Hub.Security.Validation.SecurityInputValidation`: Para validar novos valores de política.
-        *   `Deeper_Hub.Core.ConfigManager`: Como o *backend de armazenamento primário* para as políticas. O `SecurityPolicyManager` atua como uma camada de lógica de negócio e segurança sobre o `ConfigManager` para configurações especificamente de segurança.
-        *   `Deeper_Hub.Audit`: Para registrar alterações.
-        *   `Deeper_Hub.Core.EventBus` (opcional): Para notificar mudanças.
-3.  **`Deeper_Hub.Security.Policy.SecurityPolicyAuthorization`:**
-    *   **Responsabilidade:** Contém a lógica para verificar se um usuário tem permissão (via `Deeper_Hub.RBAC`) para acessar ou modificar uma determinada política ou área de política.
-4.  **`Deeper_Hub.Security.Validation.SecurityInputValidation`:**
+        *   `DeeperHub.Security.Validation.SecurityInputValidation`: Para validar novos valores de política.
+        *   `DeeperHub.Core.ConfigManager`: Como o *backend de armazenamento primário* para as políticas. O `SecurityPolicyManager` atua como uma camada de lógica de negócio e segurança sobre o `ConfigManager` para configurações especificamente de segurança.
+        *   `DeeperHub.Audit`: Para registrar alterações.
+        *   `DeeperHub.Core.EventBus` (opcional): Para notificar mudanças.
+3.  **`DeeperHub.Security.Policy.SecurityPolicyAuthorization`:**
+    *   **Responsabilidade:** Contém a lógica para verificar se um usuário tem permissão (via `DeeperHub.RBAC`) para acessar ou modificar uma determinada política ou área de política.
+4.  **`DeeperHub.Security.Validation.SecurityInputValidation`:**
     *   Contém schemas e funções de validação específicas para diferentes tipos de políticas de segurança (ex: `validate_ip_firewall_config`, `validate_mfa_policy`).
-5.  **`Deeper_Hub.Core.ConfigManager` (Backend de Armazenamento):**
+5.  **`DeeperHub.Core.ConfigManager` (Backend de Armazenamento):**
     *   As políticas de segurança são, em última análise, configurações armazenadas e gerenciadas pelo `ConfigManager`. O `SecurityPolicyManager` garante que o acesso e a modificação dessas configurações específicas de segurança sigam um fluxo controlado.
 
 ### 3.2. Estrutura de Diretórios (Proposta)
@@ -106,23 +106,23 @@ security/validation/     # (Já existe, mas SecurityInputValidation é usado aqu
 ### Fluxo de Atualização de uma Política de Segurança
 
 1.  **Interface (Admin UI/Console):** Um usuário administrador tenta modificar uma política (ex: aumentar o TTL da sessão).
-2.  **Chamada à Fachada:** A interface chama `Deeper_Hub.Security.Policy.SecurityPolicyManager.update_security_config(admin_user_id, \"security.policy.session.max_duration_seconds\", 7200, %{reason: \"Policy review\"})`.
+2.  **Chamada à Fachada:** A interface chama `DeeperHub.Security.Policy.SecurityPolicyManager.update_security_config(admin_user_id, \"security.policy.session.max_duration_seconds\", 7200, %{reason: \"Policy review\"})`.
 3.  **`SecurityPolicyService`:**
     *   Recebe a solicitação.
     *   Chama `SecurityPolicyAuthorization.authorize_config_change(admin_user_id, \"security.policy.session.max_duration_seconds\")`.
         *   **Falha na Autorização:** Retorna `{:error, :unauthorized}`.
-    *   Se autorizado, chama `Deeper_Hub.Security.Validation.SecurityInputValidation.validate_security_policy(7200, :session_duration, opts)`.
+    *   Se autorizado, chama `DeeperHub.Security.Validation.SecurityInputValidation.validate_security_policy(7200, :session_duration, opts)`.
         *   **Falha na Validação:** Retorna `{:error, :validation_failed, errors}`.
-    *   Se validado, chama `Deeper_Hub.Core.ConfigManager.set(\"security.policy.session.max_duration_seconds\", 7200, %{scope: \"global\", description: \"Max session TTL\", created_by: admin_user_id})`.
+    *   Se validado, chama `DeeperHub.Core.ConfigManager.set(\"security.policy.session.max_duration_seconds\", 7200, %{scope: \"global\", description: \"Max session TTL\", created_by: admin_user_id})`.
     *   Se `ConfigManager.set` for bem-sucedido:
-        *   Chama `Deeper_Hub.Audit.log_event(...)` para registrar a alteração da política.
+        *   Chama `DeeperHub.Audit.log_event(...)` para registrar a alteração da política.
         *   (Opcional) Publica um evento `config_changed` ou `security_policy_changed` no `Core.EventBus`.
         *   Retorna `{:ok, 7200}`.
     *   Se `ConfigManager.set` falhar, propaga o erro.
 
-## 📡 6. API (Funções Públicas da Fachada `Deeper_Hub.Security.Policy.SecurityPolicyManager`)
+## 📡 6. API (Funções Públicas da Fachada `DeeperHub.Security.Policy.SecurityPolicyManager`)
 
-### 6.1. `Deeper_Hub.Security.Policy.SecurityPolicyManager.get_security_configs(requesting_user_id :: String.t() | nil, opts :: keyword()) :: {:ok, map()} | {:error, :unauthorized | term()}`
+### 6.1. `DeeperHub.Security.Policy.SecurityPolicyManager.get_security_configs(requesting_user_id :: String.t() | nil, opts :: keyword()) :: {:ok, map()} | {:error, :unauthorized | term()}`
 
 *   **Descrição:** Obtém as configurações de segurança que o `requesting_user_id` tem permissão para visualizar. Se `requesting_user_id` for `nil` (sistema interno), pode retornar todas.
 *   **`opts`:**
@@ -130,7 +130,7 @@ security/validation/     # (Já existe, mas SecurityInputValidation é usado aqu
     *   `:keys_only` (boolean): Retorna apenas as chaves das políticas, não os valores.
 *   **Retorno:** Um mapa onde as chaves são os nomes das políticas (ex: `\"security.mfa.required_for_admin\"`) e os valores são os valores das políticas.
 
-### 6.2. `Deeper_Hub.Security.Policy.SecurityPolicyManager.update_security_config(admin_user_id :: String.t(), config_key :: String.t(), new_value :: term(), opts :: keyword()) :: {:ok, term()} | {:error, :unauthorized | :validation_failed | term()}`
+### 6.2. `DeeperHub.Security.Policy.SecurityPolicyManager.update_security_config(admin_user_id :: String.t(), config_key :: String.t(), new_value :: term(), opts :: keyword()) :: {:ok, term()} | {:error, :unauthorized | :validation_failed | term()}`
 
 *   **Descrição:** Atualiza o valor de uma política de segurança específica. Requer que `admin_user_id` tenha as permissões adequadas.
 *   **`config_key`:** A chave completa da política no `ConfigManager` (ex: `\"security.brute_force.login.max_attempts\"`).
@@ -140,12 +140,12 @@ security/validation/     # (Já existe, mas SecurityInputValidation é usado aqu
     *   `:scope` (String.t): Escopo da configuração no ConfigManager. (Padrão: `\"global\"`)
 *   **Retorno:** `{:ok, new_value_applied}` ou erro.
 
-### 6.3. `Deeper_Hub.Security.Policy.SecurityPolicyManager.update_multiple_configs(admin_user_id :: String.t(), configs_map :: map(), opts :: keyword()) :: {:ok, updated_configs :: map()} | {:error, :unauthorized | :validation_failed | term()}`
+### 6.3. `DeeperHub.Security.Policy.SecurityPolicyManager.update_multiple_configs(admin_user_id :: String.t(), configs_map :: map(), opts :: keyword()) :: {:ok, updated_configs :: map()} | {:error, :unauthorized | :validation_failed | term()}`
 
 *   **Descrição:** Atualiza múltiplas políticas de segurança em uma única operação transacional (se possível pelo `ConfigManager`).
 *   **`configs_map`:** Mapa de `{config_key, new_value}`.
 
-### 6.4. `Deeper_Hub.Security.Policy.SecurityPolicyManager.reset_security_config(admin_user_id :: String.t(), config_key :: String.t(), opts :: keyword()) :: {:ok, default_value :: term()} | {:error, :unauthorized | term()}`
+### 6.4. `DeeperHub.Security.Policy.SecurityPolicyManager.reset_security_config(admin_user_id :: String.t(), config_key :: String.t(), opts :: keyword()) :: {:ok, default_value :: term()} | {:error, :unauthorized | term()}`
 
 *   **Descrição:** Redefine uma política de segurança para seu valor padrão do sistema.
 *   **Retorno:** `{:ok, default_value_restored}` ou erro.
@@ -161,11 +161,11 @@ O próprio `SecurityPolicyManager` pode ter algumas configurações no `Core.Con
 
 ### 8.1. Módulos Internos
 
-*   `Deeper_Hub.Core.ConfigManager`: Como backend de armazenamento para as políticas.
-*   `Deeper_Hub.Core.Logger`, `Core.Metrics`, `Core.EventBus`.
-*   `Deeper_Hub.RBAC`: Para verificar permissões de acesso e modificação das políticas.
-*   `Deeper_Hub.Security.Validation.SecurityInputValidation`: Para validar os valores das políticas.
-*   `Deeper_Hub.Audit`: Para registrar alterações nas políticas.
+*   `DeeperHub.Core.ConfigManager`: Como backend de armazenamento para as políticas.
+*   `DeeperHub.Core.Logger`, `Core.Metrics`, `Core.EventBus`.
+*   `DeeperHub.RBAC`: Para verificar permissões de acesso e modificação das políticas.
+*   `DeeperHub.Security.Validation.SecurityInputValidation`: Para validar os valores das políticas.
+*   `DeeperHub.Audit`: Para registrar alterações nas políticas.
 
 ### 8.2. Bibliotecas Externas
 
@@ -250,7 +250,7 @@ O próprio `SecurityPolicyManager` pode ter algumas configurações no `Core.Con
 
 Este módulo age como um guardião para as configurações de segurança.
 
-Agora, podemos ir para `Deeper_Hub.Security.IPFirewallService` (que foi referenciado aqui e é um consumidor de políticas), ou talvez detalhar o `Deeper_Hub.Core.Cache`?"""),
+Agora, podemos ir para `DeeperHub.Security.IPFirewallService` (que foi referenciado aqui e é um consumidor de políticas), ou talvez detalhar o `DeeperHub.Core.Cache`?"""),
             ],
         ),
         types.Content(
@@ -262,7 +262,7 @@ Agora, podemos ir para `Deeper_Hub.Security.IPFirewallService` (que foi referenc
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Entendido! Vamos detalhar o `Deeper_Hub.Security.IPFirewallService`. Este serviço é uma linha de defesa importante, controlando o acesso à aplicação com base em endereços IP.
+                types.Part.from_text(text="""Entendido! Vamos detalhar o `DeeperHub.Security.IPFirewallService`. Este serviço é uma linha de defesa importante, controlando o acesso à aplicação com base em endereços IP.
 
 ---
 

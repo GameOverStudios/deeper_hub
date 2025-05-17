@@ -4,10 +4,10 @@
 # If you run "mix test --cover", coverage assets end up here.
 /cover/
 
-/Subprojects/
-
 # The directory Mix downloads your dependencies sources to.
 /deps/
+
+/.gitOLD/
 
 # Where third-party dependencies like ExDoc output generated docs.
 /doc/

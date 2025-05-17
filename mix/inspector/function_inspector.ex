@@ -1,4 +1,4 @@
-defmodule Deeper_Hub.Inspector.FunctionInspector do
+defmodule DeeperHub.Inspector.FunctionInspector do
   @moduledoc """
   Inspetor especializado em funções e seus metadados 🔍
 
@@ -7,9 +7,9 @@ defmodule Deeper_Hub.Inspector.FunctionInspector do
   e outros metadados relevantes.
   """
 
-  @behaviour Deeper_Hub.Inspector.Behaviours.InspectorBehaviour
+  @behaviour DeeperHub.Inspector.Behaviours.InspectorBehaviour
 
-  alias Deeper_Hub.Shared.Utils.StringUtils
+  alias DeeperHub.Shared.Utils.StringUtils
 
   @doc """
   Inspeciona uma função e retorna informações detalhadas sobre ela 🔎
@@ -28,7 +28,7 @@ defmodule Deeper_Hub.Inspector.FunctionInspector do
 
   ## Exemplos
 
-      iex> Deeper_Hub.Inspector.FunctionInspector.inspect_function({Enum, :map, 2})
+      iex> DeeperHub.Inspector.FunctionInspector.inspect_function({Enum, :map, 2})
       %{
         type: :function,
         module: Enum,
@@ -71,13 +71,13 @@ defmodule Deeper_Hub.Inspector.FunctionInspector do
 
   ## Exemplos
 
-      iex> Deeper_Hub.Inspector.FunctionInspector.supported?({Enum, :map, 2})
+      iex> DeeperHub.Inspector.FunctionInspector.supported?({Enum, :map, 2})
       true
-
-      iex> Deeper_Hub.Inspector.FunctionInspector.supported?(fn x -> x * 2 end)
+      
+      iex> DeeperHub.Inspector.FunctionInspector.supported?(fn x -> x * 2 end)
       true
-
-      iex> Deeper_Hub.Inspector.FunctionInspector.supported?("not a function")
+      
+      iex> DeeperHub.Inspector.FunctionInspector.supported?("not a function")
       false
   """
   @impl true
@@ -416,11 +416,11 @@ defmodule Deeper_Hub.Inspector.FunctionInspector do
         <div class="function-inspector">
           <h3>Função: #{inspect(module)}.#{name}/#{arity}</h3>
           <p><strong>Exportada:</strong> #{if info[:exported], do: "Sim", else: "Não"}</p>
-
+          
           #{if info[:docs], do: "<div class=\"docs\"><h4>Documentação:</h4><pre>#{escape_html(info[:docs])}</pre></div>", else: ""}
-
+          
           #{if info[:specs], do: format_specs_html(info[:specs]), else: ""}
-
+          
           #{if info[:source], do: "<div class=\"source\"><h4>Código Fonte:</h4><pre>#{escape_html(info[:source])}</pre></div>", else: ""}
         </div>
         """
@@ -430,7 +430,7 @@ defmodule Deeper_Hub.Inspector.FunctionInspector do
         <div class="function-inspector">
           <h3>Função Anônima com aridade #{arity}</h3>
           <p><strong>Definida em módulo:</strong> #{inspect(info[:module])}</p>
-
+          
           #{if info[:source], do: "<div class=\"source\"><h4>Informações:</h4><pre>#{escape_html(info[:source])}</pre></div>", else: ""}
         </div>
         """

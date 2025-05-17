@@ -1,8 +1,8 @@
-# Módulo: `Deeper_Hub.Shared.Utils.ListUtils` 🚀
+# Módulo: `DeeperHub.Shared.Utils.ListUtils` 🚀
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.Shared.Utils.ListUtils`
+## 📜 1. Visão Geral do Módulo `DeeperHub.Shared.Utils.ListUtils`
 
-O módulo `Deeper_Hub.Shared.Utils.ListUtils` agrupa um conjunto de **funções utilitárias para manipulação e processamento de listas**. Sendo o Elixir uma linguagem funcional que faz uso extensivo de listas, este módulo visa fornecer helpers para operações comuns que podem não estar diretamente disponíveis no módulo `Enum` ou `List` padrão, ou para encapsular combinações comuns dessas funções de forma mais expressiva.
+O módulo `DeeperHub.Shared.Utils.ListUtils` agrupa um conjunto de **funções utilitárias para manipulação e processamento de listas**. Sendo o Elixir uma linguagem funcional que faz uso extensivo de listas, este módulo visa fornecer helpers para operações comuns que podem não estar diretamente disponíveis no módulo `Enum` ou `List` padrão, ou para encapsular combinações comuns dessas funções de forma mais expressiva.
 
 Estas funções são projetadas para serem genéricas, puras e eficientes, auxiliando em tarefas como divisão de listas, comparação, agrupamento, ordenação complexa e garantia de unicidade. 😊
 
@@ -30,7 +30,7 @@ Estas funções são projetadas para serem genéricas, puras e eficientes, auxil
 
 ### 3.1. Componentes Principais
 
-*   **`Deeper_Hub.Shared.Utils.ListUtils` (Módulo Funcional):**
+*   **`DeeperHub.Shared.Utils.ListUtils` (Módulo Funcional):**
     *   Contém todas as funções de utilidade para listas.
     *   Utiliza extensivamente os módulos `Enum` e `List` do Elixir como base para suas implementações.
 
@@ -70,52 +70,52 @@ Não aplicável no mesmo sentido que módulos com estado. O fluxo é a execuçã
 
 *(Baseado na documentação original, com algumas clarificações)*
 
-### 6.1. `Deeper_Hub.Shared.Utils.ListUtils.chunk(list :: list(), chunk_size :: pos_integer()) :: list(list())`
+### 6.1. `DeeperHub.Shared.Utils.ListUtils.chunk(list :: list(), chunk_size :: pos_integer()) :: list(list())`
 
 *   **Descrição:** Divide `list` em sub-listas, cada uma com no máximo `chunk_size` elementos.
 *   **Exemplo:** `ListUtils.chunk([1,2,3,4,5], 2)` -> `[[1,2], [3,4], [5]]`
 
-### 6.2. `Deeper_Hub.Shared.Utils.ListUtils.partition(list :: list(), predicate_fun :: (element :: term() -> boolean())) :: {list(), list()}`
+### 6.2. `DeeperHub.Shared.Utils.ListUtils.partition(list :: list(), predicate_fun :: (element :: term() -> boolean())) :: {list(), list()}`
 
 *   **Descrição:** Divide `list` em duas listas: a primeira com elementos para os quais `predicate_fun` retorna `true`, e a segunda com os restantes.
 *   **Exemplo:** `ListUtils.partition([1,2,3,4], &Integer.is_even/1)` -> `{[2,4], [1,3]}`
 
-### 6.3. `Deeper_Hub.Shared.Utils.ListUtils.diff(list1 :: list(), list2 :: list(), key_fun :: (element :: term() -> term()) | nil \\\\ nil) :: list()`
+### 6.3. `DeeperHub.Shared.Utils.ListUtils.diff(list1 :: list(), list2 :: list(), key_fun :: (element :: term() -> term()) | nil \\\\ nil) :: list()`
 
 *   **Descrição:** Retorna os elementos que estão em `list1` mas não em `list2`. Se `key_fun` for fornecida, a comparação é baseada no resultado da aplicação de `key_fun` a cada elemento.
 *   **Exemplo:** `ListUtils.diff([%{id: 1}, %{id: 2}], [%{id: 2}, %{id: 3}], &(&1.id))` -> `[%{id: 1}]`
 
-### 6.4. `Deeper_Hub.Shared.Utils.ListUtils.group_by(list :: list(), key_fun :: (element :: term() -> group_key :: term())) :: map()`
+### 6.4. `DeeperHub.Shared.Utils.ListUtils.group_by(list :: list(), key_fun :: (element :: term() -> group_key :: term())) :: map()`
 
 *   **Descrição:** Agrupa elementos de `list` em um mapa, onde as chaves são o resultado de `key_fun` e os valores são listas dos elementos correspondentes.
 *   **Exemplo:** `ListUtils.group_by([%{type: \"A\"}, %{type: \"B\"}, %{type: \"A\"}], &(&1.type))` -> `%{ \"A\" => [%{type: \"A\"}, %{type: \"A\"}], \"B\" => [%{type: \"B\"}]}`
 
-### 6.5. `Deeper_Hub.Shared.Utils.ListUtils.interleave(list1 :: list(), list2 :: list()) :: list()`
+### 6.5. `DeeperHub.Shared.Utils.ListUtils.interleave(list1 :: list(), list2 :: list()) :: list()`
 
 *   **Descrição:** Cria uma nova lista intercalando os elementos de `list1` e `list2`. Se uma lista for mais longa, seus elementos restantes são anexados no final.
 *   **Exemplo:** `ListUtils.interleave([1,3], [2,4,5])` -> `[1,2,3,4,5]`
 
-### 6.6. `Deeper_Hub.Shared.Utils.ListUtils.paginate(list :: list(), page_number :: pos_integer(), per_page :: pos_integer()) :: %{items: list(), page: pos_integer(), per_page: pos_integer(), total_items: non_neg_integer(), total_pages: non_neg_integer()}`
+### 6.6. `DeeperHub.Shared.Utils.ListUtils.paginate(list :: list(), page_number :: pos_integer(), per_page :: pos_integer()) :: %{items: list(), page: pos_integer(), per_page: pos_integer(), total_items: non_neg_integer(), total_pages: non_neg_integer()}`
 
 *   **Descrição:** Retorna uma \"página\" de itens da `list` e metadados de paginação.
 *   **Exemplo:** `ListUtils.paginate(Enum.to_list(1..10), 2, 3)` -> `%{items: [4,5,6], page: 2, per_page: 3, total_items: 10, total_pages: 4}`
 
-### 6.7. `Deeper_Hub.Shared.Utils.ListUtils.sort_by_keys(list_of_maps_or_structs :: list(), sort_definitions :: list({key_path :: atom() | list(), direction :: :asc | :desc})) :: list()`
+### 6.7. `DeeperHub.Shared.Utils.ListUtils.sort_by_keys(list_of_maps_or_structs :: list(), sort_definitions :: list({key_path :: atom() | list(), direction :: :asc | :desc})) :: list()`
 
 *   **Descrição:** Ordena uma lista de mapas/structs. `sort_definitions` é uma lista de tuplas onde `key_path` pode ser um átomo para acesso direto ou uma lista para acesso aninhado (ex: `[:user, :name]`).
 *   **Exemplo:** `ListUtils.sort_by_keys([%{a:2,b:1}, %{a:1,b:2}], [{:a, :asc}])` -> `[%{a:1,b:2}, %{a:2,b:1}]`
 
-### 6.8. `Deeper_Hub.Shared.Utils.ListUtils.unique(list :: list(), key_fun :: (element :: term() -> unique_key :: term()) | nil \\\\ nil) :: list()`
+### 6.8. `DeeperHub.Shared.Utils.ListUtils.unique(list :: list(), key_fun :: (element :: term() -> unique_key :: term()) | nil \\\\ nil) :: list()`
 
 *   **Descrição:** Remove elementos duplicados da `list`. Se `key_fun` for fornecida, a unicidade é baseada no resultado de `key_fun`. A ordem dos elementos restantes é preservada com base na primeira ocorrência.
 *   **Exemplo:** `ListUtils.unique([%{id:1, v:1}, %{id:2,v:2}, %{id:1,v:3}], &(&1.id))` -> `[%{id:1, v:1}, %{id:2,v:2}]`
 
-### 6.9. `Deeper_Hub.Shared.Utils.ListUtils.safe_nth(list :: list(), index :: integer(), default_value :: term() \\\\ nil) :: term()` (Nova Sugestão)
+### 6.9. `DeeperHub.Shared.Utils.ListUtils.safe_nth(list :: list(), index :: integer(), default_value :: term() \\\\ nil) :: term()` (Nova Sugestão)
 
 *   **Descrição:** Retorna o elemento no `index` (base 0) da lista, ou `default_value` se o índice estiver fora dos limites.
 *   **Exemplo:** `ListUtils.safe_nth([10,20,30], 1)` -> `20`, `ListUtils.safe_nth([10], 5, :not_found)` -> `:not_found`
 
-### 6.10. `Deeper_Hub.Shared.Utils.ListUtils.transpose(list_of_lists :: list(list())) :: list(list()) | {:error, :uneven_lists}` (Nova Sugestão)
+### 6.10. `DeeperHub.Shared.Utils.ListUtils.transpose(list_of_lists :: list(list())) :: list(list()) | {:error, :uneven_lists}` (Nova Sugestão)
 
 *   **Descrição:** Transpõe as linhas e colunas de uma lista de listas. Retorna erro se as listas internas tiverem tamanhos diferentes.
 *   **Exemplo:** `ListUtils.transpose([[1,2,3],[4,5,6]])` -> `[[1,4],[2,5],[3,6]]`
@@ -138,7 +138,7 @@ Este módulo, sendo puramente funcional e genérico, geralmente não requer conf
 
 Importar ou usar alias e chamar as funções diretamente onde a manipulação de listas for necessária.
 ```elixir
-alias Deeper_Hub.Shared.Utils.ListUtils
+alias DeeperHub.Shared.Utils.ListUtils
 
 def process_batched_users(all_users) do
   Enum.each(ListUtils.chunk(all_users, 100), fn user_batch ->
@@ -200,7 +200,7 @@ Não aplicável para um módulo de utilitários puros.
 
 Com isso, cobrimos os utilitários de lista.
 
-Para o próximo, podemos fazer `Deeper_Hub.Shared.Utils.ValidationUtils` ou `Deeper_Hub.Shared.Utils.SecurityUtils` para continuar nos utilitários, ou mudar para um módulo de domínio ou Core mais específico?"""),
+Para o próximo, podemos fazer `DeeperHub.Shared.Utils.ValidationUtils` ou `DeeperHub.Shared.Utils.SecurityUtils` para continuar nos utilitários, ou mudar para um módulo de domínio ou Core mais específico?"""),
             ],
         ),
         types.Content(
@@ -212,7 +212,7 @@ Para o próximo, podemos fazer `Deeper_Hub.Shared.Utils.ValidationUtils` ou `Dee
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Entendido! Vamos continuar com os utilitários e detalhar o `Deeper_Hub.Shared.Utils.ValidationUtils`. Este módulo é essencial para garantir a integridade dos dados que entram no sistema.
+                types.Part.from_text(text="""Entendido! Vamos continuar com os utilitários e detalhar o `DeeperHub.Shared.Utils.ValidationUtils`. Este módulo é essencial para garantir a integridade dos dados que entram no sistema.
 
 ---
 

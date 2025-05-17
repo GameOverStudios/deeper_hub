@@ -1,8 +1,8 @@
-# Módulo: `Deeper_Hub.Core.InputValidator` 🛡️
+# Módulo: `DeeperHub.Core.InputValidator` 🛡️
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.Core.InputValidator`
+## 📜 1. Visão Geral do Módulo `DeeperHub.Core.InputValidator`
 
-O módulo `Deeper_Hub.Core.InputValidator` é o responsável centralizado por validar e sanitizar todos os dados de entrada que chegam ao sistema Deeper_Hub, seja através de APIs REST, GraphQL, chamadas de console, ou qualquer outra interface externa. Seu principal objetivo é garantir a integridade, formato e segurança dos dados antes que sejam processados pelas lógicas de negócio, prevenindo uma variedade de ataques como XSS, Injeção de SQL (em um nível básico, complementando proteções mais específicas), e entrada de dados malformados. 😊
+O módulo `DeeperHub.Core.InputValidator` é o responsável centralizado por validar e sanitizar todos os dados de entrada que chegam ao sistema DeeperHub, seja através de APIs REST, GraphQL, chamadas de console, ou qualquer outra interface externa. Seu principal objetivo é garantir a integridade, formato e segurança dos dados antes que sejam processados pelas lógicas de negócio, prevenindo uma variedade de ataques como XSS, Injeção de SQL (em um nível básico, complementando proteções mais específicas), e entrada de dados malformados. 😊
 
 Este módulo consolida e expande as funcionalidades que antes poderiam estar dispersas em `Shared.Validation.InputValidator` e `Shared.Validation.InputSanitizer`.
 
@@ -39,9 +39,9 @@ Este módulo consolida e expande as funcionalidades que antes poderiam estar dis
 
 ## 🏗️ 3. Arquitetura e Design
 
-O `Deeper_Hub.Core.InputValidator` atuará como uma fachada que pode utilizar diferentes estratégias ou motores de validação/sanitização.
+O `DeeperHub.Core.InputValidator` atuará como uma fachada que pode utilizar diferentes estratégias ou motores de validação/sanitização.
 
-*   **Interface Pública (`Deeper_Hub.Core.InputValidator`):** Funções como `validate/3`, `sanitize/3`, `check_format/3`.
+*   **Interface Pública (`DeeperHub.Core.InputValidator`):** Funções como `validate/3`, `sanitize/3`, `check_format/3`.
 *   **Módulos de Validação Específicos (ex: `InputValidator.FormatValidators`, `InputValidator.StringValidators`):** Contêm a lógica para tipos específicos de validação.
 *   **Módulos de Sanitização (ex: `InputValidator.Sanitizers.HTMLSanitizer`, `InputValidator.Sanitizers.SQLSanitizer`):** Contêm a lógica para diferentes tipos de sanitização.
 *   **Schema de Validação:** Pode ser um mapa Elixir descrevendo as regras, ou integrar-se com structs/changesets Ecto (mesmo para dados não-persistidos) ou bibliotecas de schema.
@@ -56,11 +56,11 @@ O `Deeper_Hub.Core.InputValidator` atuará como uma fachada que pode utilizar di
 
 ### 3.1. Componentes Principais
 
-*   **`Deeper_Hub.Core.InputValidator`:** A fachada principal.
-*   **`Deeper_Hub.Core.InputValidator.Schema` (ou integração com Ecto.Schema/Changeset):** Define como as regras de validação são especificadas.
-*   **`Deeper_Hub.Core.InputValidator.Validators`:** Namespace para módulos validadores específicos (ex: `EmailValidator`, `URLValidator`, `NumberValidator`).
-*   **`Deeper_Hub.Core.InputValidator.Sanitizers`:** Namespace para módulos sanitizadores específicos (ex: `HTMLSanitizer`).
-*   **`Deeper_Hub.Core.InputValidator.ErrorFormatter`:** Responsável por formatar erros de validação de forma padronizada.
+*   **`DeeperHub.Core.InputValidator`:** A fachada principal.
+*   **`DeeperHub.Core.InputValidator.Schema` (ou integração com Ecto.Schema/Changeset):** Define como as regras de validação são especificadas.
+*   **`DeeperHub.Core.InputValidator.Validators`:** Namespace para módulos validadores específicos (ex: `EmailValidator`, `URLValidator`, `NumberValidator`).
+*   **`DeeperHub.Core.InputValidator.Sanitizers`:** Namespace para módulos sanitizadores específicos (ex: `HTMLSanitizer`).
+*   **`DeeperHub.Core.InputValidator.ErrorFormatter`:** Responsável por formatar erros de validação de forma padronizada.
 
 ### 3.3. Decisões de Design Importantes
 
@@ -70,16 +70,16 @@ O `Deeper_Hub.Core.InputValidator` atuará como uma fachada que pode utilizar di
 
 ## 🛠️ 4. Casos de Uso Principais
 
-*   **Validação de Payload de API:** Um controller da API `Deeper_Hub.API` recebe um payload JSON e usa `InputValidator.validate(payload, user_creation_schema)` antes de passá-lo para o serviço de contas.
+*   **Validação de Payload de API:** Um controller da API `DeeperHub.API` recebe um payload JSON e usa `InputValidator.validate(payload, user_creation_schema)` antes de passá-lo para o serviço de contas.
 *   **Sanitização de Comentário de Usuário:** Antes de exibir um comentário de usuário na interface, o sistema usa `InputValidator.sanitize(comment_text, type: :html, level: :allow_safe_tags)`.
 *   **Verificação de Parâmetros de Query:** Um endpoint da API que aceita parâmetros de query usa `InputValidator.validate(conn.query_params, search_filter_schema)` para validar os filtros.
-*   **Validação de Argumentos de Comandos do Console:** O `Deeper_Hub.Console` usa `InputValidator` para validar os argumentos fornecidos aos comandos.
+*   **Validação de Argumentos de Comandos do Console:** O `DeeperHub.Console` usa `InputValidator` para validar os argumentos fornecidos aos comandos.
 
 ## 🌊 5. Fluxos Importantes (Opcional)
 
 **Fluxo de Validação de um Mapa com Schema:**
 
-1.  O chamador invoca `Deeper_Hub.Core.InputValidator.validate(data_map, schema_definition, opts)`.
+1.  O chamador invoca `DeeperHub.Core.InputValidator.validate(data_map, schema_definition, opts)`.
 2.  O `InputValidator` itera sobre os campos definidos no `schema_definition`.
 3.  Para cada campo:
     *   Verifica se é obrigatório e se está presente no `data_map`.
@@ -93,7 +93,7 @@ O `Deeper_Hub.Core.InputValidator` atuará como uma fachada que pode utilizar di
 
 ## 📡 6. API (Se Aplicável)
 
-### 6.1. `Deeper_Hub.Core.InputValidator.validate/3`
+### 6.1. `DeeperHub.Core.InputValidator.validate/3`
 
 *   **Descrição:** Valida um conjunto de dados de entrada contra um schema definido e opções.
 *   **`@spec`:** `validate(data :: map() | Keyword.t(), schema :: map() | atom(), opts :: Keyword.t()) :: {:ok, map()} | {:error, list()}`
@@ -120,7 +120,7 @@ O `Deeper_Hub.Core.InputValidator` atuará como uma fachada que pode utilizar di
 
     opts = [strict: true] # Rejeitará \"extra_field\" se não estiver no schema ou se for opcional e não fornecido
 
-    case Deeper_Hub.Core.InputValidator.validate(user_params, user_schema, opts) do
+    case DeeperHub.Core.InputValidator.validate(user_params, user_schema, opts) do
       {:ok, valid_user} ->
         # valid_user pode ser %{name: \"John Doe\", email: \"john.doe@example.com\", age: 30}
         IO.inspect(valid_user)
@@ -130,7 +130,7 @@ O `Deeper_Hub.Core.InputValidator` atuará como uma fachada que pode utilizar di
     end
     ```
 
-### 6.2. `Deeper_Hub.Core.InputValidator.sanitize/3`
+### 6.2. `DeeperHub.Core.InputValidator.sanitize/3`
 
 *   **Descrição:** Aplica regras de sanitização a um dado de entrada.
 *   **`@spec`:** `sanitize(data :: String.t() | map() | list(), type :: atom(), opts :: Keyword.t()) :: {:ok, sanitized_data :: any()} | {:error, atom()}`
@@ -145,19 +145,19 @@ O `Deeper_Hub.Core.InputValidator` atuará como uma fachada que pode utilizar di
 *   **Exemplo de Uso (Elixir):**
     ```elixir
     html_input = \"<script>alert('XSS');</script><p>Hello</p>\"
-    case Deeper_Hub.Core.InputValidator.sanitize(html_input, :html, level: :strip_all_tags) do
+    case DeeperHub.Core.InputValidator.sanitize(html_input, :html, level: :strip_all_tags) do
       {:ok, safe_html} -> IO.puts(safe_html) # => \"Hello\"
       {:error, _} -> IO.puts(\"Erro de sanitização\")
     end
 
     user_comment = \"This is <b>bold</b> and <i>italic</i>.\"
-    case Deeper_Hub.Core.InputValidator.sanitize(user_comment, :html, level: :allow_safe_html, safe_tags: [\"b\", \"i\"]) do
+    case DeeperHub.Core.InputValidator.sanitize(user_comment, :html, level: :allow_safe_html, safe_tags: [\"b\", \"i\"]) do
       {:ok, safe_comment} -> IO.puts(safe_comment) # => \"This is <b>bold</b> and <i>italic</i>.\"
       {:error, _} -> IO.puts(\"Erro de sanitização\")
     end
     ```
 
-### 6.3. `Deeper_Hub.Core.InputValidator.check_format/3`
+### 6.3. `DeeperHub.Core.InputValidator.check_format/3`
 
 *   **Descrição:** Verifica se uma string corresponde a um formato esperado.
 *   **`@spec`:** `check_format(value :: String.t(), format_type :: atom(), opts :: Keyword.t()) :: :ok | {:error, atom()}`
@@ -170,9 +170,9 @@ O `Deeper_Hub.Core.InputValidator` atuará como uma fachada que pode utilizar di
     *   `{:error, reason}`: Se não corresponder ou houver erro.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    Deeper_Hub.Core.InputValidator.check_format(\"test@example.com\", :email) # => :ok
-    Deeper_Hub.Core.InputValidator.check_format(\"not-an-email\", :email) # => {:error, :invalid_email_format}
-    Deeper_Hub.Core.InputValidator.check_format(\"2023-10-26\", :date_iso8601) # => :ok
+    DeeperHub.Core.InputValidator.check_format(\"test@example.com\", :email) # => :ok
+    DeeperHub.Core.InputValidator.check_format(\"not-an-email\", :email) # => {:error, :invalid_email_format}
+    DeeperHub.Core.InputValidator.check_format(\"2023-10-26\", :date_iso8601) # => :ok
     ```
 
 ## ⚙️ 7. Configuração
@@ -186,9 +186,9 @@ O `Deeper_Hub.Core.InputValidator` atuará como uma fachada que pode utilizar di
 
 ### 8.1. Módulos Internos
 
-*   `Deeper_Hub.Core.ConfigManager`: Para obter configurações globais de validação.
-*   `Deeper_Hub.Core.Logger`: Para logar tentativas de entrada de dados maliciosos.
-*   `Deeper_Hub.Shared.Utils.StringUtils`, `Deeper_Hub.Shared.Utils.ValidationUtils`: Podem ser usados internamente para algumas verificações e manipulações.
+*   `DeeperHub.Core.ConfigManager`: Para obter configurações globais de validação.
+*   `DeeperHub.Core.Logger`: Para logar tentativas de entrada de dados maliciosos.
+*   `DeeperHub.Shared.Utils.StringUtils`, `DeeperHub.Shared.Utils.ValidationUtils`: Podem ser usados internamente para algumas verificações e manipulações.
 
 ### 8.2. Bibliotecas Externas
 
@@ -202,10 +202,10 @@ Este módulo deve ser usado na fronteira do sistema, onde os dados externos são
 
 **Exemplo em um Controller Phoenix:**
 ```elixir
-defmodule Deeper_HubWeb.UserController do
-  use Deeper_HubWeb, :controller
-  alias Deeper_Hub.Core.InputValidator
-  alias Deeper_Hub.Accounts
+defmodule DeeperHubWeb.UserController do
+  use DeeperHubWeb, :controller
+  alias DeeperHub.Core.InputValidator
+  alias DeeperHub.Accounts
 
   # Schema de validação para criação de usuário
   @user_create_schema %{
@@ -302,11 +302,11 @@ Como estamos indo? Gostaria de continuar com os módulos do Core ou pular para a
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ótimo! O próximo módulo que sugeri como novo dentro do `Core` foi o `Deeper_Hub.Core.Internationalization (I18n)`.
+                types.Part.from_text(text="""Ótimo! O próximo módulo que sugeri como novo dentro do `Core` foi o `DeeperHub.Core.Internationalization (I18n)`.
 
 Na verdade, já detalhamos este na resposta anterior (foi o segundo que fizemos). Para recapitular brevemente:
 
-**Módulo: `Deeper_Hub.Core.Internationalization` 🌍**
+**Módulo: `DeeperHub.Core.Internationalization` 🌍**
 *   **Visão Geral:** Responsável por fornecer suporte a múltiplos idiomas e localização (tradução de strings, formatação de datas, números, moedas).
 *   **Responsabilidades:** Tradução, localização, gerenciamento de locales, armazenamento de traduções, fallback, etc.
 
@@ -314,13 +314,13 @@ Se você quiser que eu gere o README para outro módulo ou revise algum detalhe 
 
 Caso contrário, podemos passar para o próximo módulo que identificamos como faltando um README principal:
 
-*   **`Deeper_Hub.Audit`**
-*   **`Deeper_Hub.FeatureFlags`**
-*   **`Deeper_Hub.Console`**
-*   **`Deeper_Hub.Biometrics`**
-*   **`Deeper_Hub.ModuleInspector`**
-*   **`Deeper_Hub.GeoIP`**
-*   **`Deeper_Hub.Mailer`**
+*   **`DeeperHub.Audit`**
+*   **`DeeperHub.FeatureFlags`**
+*   **`DeeperHub.Console`**
+*   **`DeeperHub.Biometrics`**
+*   **`DeeperHub.ModuleInspector`**
+*   **`DeeperHub.GeoIP`**
+*   **`DeeperHub.Mailer`**
 
 Qual deles você gostaria de abordar agora? Ou prefere que eu siga a ordem?"""),
             ],
@@ -337,7 +337,7 @@ Qual deles você gostaria de abordar agora? Ou prefere que eu siga a ordem?"""),
             parts=[
                 types.Part.from_text(text="""Entendido! Vamos seguir a ordem dos módulos de aplicação/domínio que identificamos como faltando um README principal.
 
-Começando com `Deeper_Hub.Audit`.
+Começando com `DeeperHub.Audit`.
 
 ---
 

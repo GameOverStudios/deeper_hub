@@ -1,4 +1,4 @@
-defmodule Deeper_Hub.Inspector.ModuleInspector do
+defmodule DeeperHub.Inspector.ModuleInspector do
   @moduledoc """
   Inspetor especializado em módulos e seus metadados 📚
 
@@ -7,9 +7,9 @@ defmodule Deeper_Hub.Inspector.ModuleInspector do
   e outros metadados relevantes.
   """
 
-  @behaviour Deeper_Hub.Inspector.Behaviours.InspectorBehaviour
+  @behaviour DeeperHub.Inspector.Behaviours.InspectorBehaviour
 
-  alias Deeper_Hub.Shared.Utils.StringUtils
+  alias DeeperHub.Shared.Utils.StringUtils
 
   @doc """
   Inspeciona um módulo e retorna informações detalhadas sobre ele 🔎
@@ -30,7 +30,7 @@ defmodule Deeper_Hub.Inspector.ModuleInspector do
 
   ## Exemplos
 
-      iex> Deeper_Hub.Inspector.ModuleInspector.inspect_module(Enum)
+      iex> DeeperHub.Inspector.ModuleInspector.inspect_module(Enum)
       %{
         type: :module,
         name: Enum,
@@ -130,10 +130,10 @@ defmodule Deeper_Hub.Inspector.ModuleInspector do
 
   ## Exemplos
 
-      iex> Deeper_Hub.Inspector.ModuleInspector.supported?(Enum)
+      iex> DeeperHub.Inspector.ModuleInspector.supported?(Enum)
       true
-
-      iex> Deeper_Hub.Inspector.ModuleInspector.supported?("not a module")
+      
+      iex> DeeperHub.Inspector.ModuleInspector.supported?("not a module")
       false
   """
   @impl true
@@ -436,15 +436,15 @@ defmodule Deeper_Hub.Inspector.ModuleInspector do
         """
         <div class="module-inspector">
           <h3>Módulo: #{inspect(name)}</h3>
-
+          
           #{if info[:docs], do: "<div class=\"docs\"><h4>Documentação:</h4><pre>#{escape_html(info[:docs])}</pre></div>", else: ""}
-
+          
           #{format_functions_html(info[:functions])}
-
+          
           #{format_behaviours_html(info[:behaviours])}
-
+          
           #{format_struct_html(info[:struct])}
-
+          
           #{format_types_html(info[:types])}
         </div>
         """

@@ -1,3 +1,3 @@
-cls & cd build & del deeper_client.exe & meson compile
+cd build & meson compile
 deeper_client.exe
 cd ..

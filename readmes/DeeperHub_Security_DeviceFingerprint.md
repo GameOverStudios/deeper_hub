@@ -1,16 +1,16 @@
-# Módulo: `Deeper_Hub.Security.DeviceFingerprint` 🚀
+# Módulo: `DeeperHub.Security.DeviceFingerprint` 🚀
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.Security.DeviceFingerprint`
+## 📜 1. Visão Geral do Módulo `DeeperHub.Security.DeviceFingerprint`
 
-O módulo `Deeper_Hub.Security.DeviceFingerprint` é responsável por gerar, comparar e gerenciar \"fingerprints\" (impressões digitais) de dispositivos dos usuários. Uma fingerprint de dispositivo é um identificador quasi-único gerado a partir de uma combinação de características de hardware e software reportadas pelo cliente (navegador web, aplicativo mobile).
+O módulo `DeeperHub.Security.DeviceFingerprint` é responsável por gerar, comparar e gerenciar \"fingerprints\" (impressões digitais) de dispositivos dos usuários. Uma fingerprint de dispositivo é um identificador quasi-único gerado a partir de uma combinação de características de hardware e software reportadas pelo cliente (navegador web, aplicativo mobile).
 
-O objetivo principal é ajudar a identificar e rastrear dispositivos que acessam o sistema Deeper_Hub, contribuindo para várias medidas de segurança, como:
+O objetivo principal é ajudar a identificar e rastrear dispositivos que acessam o sistema DeeperHub, contribuindo para várias medidas de segurança, como:
 *   Detecção de acesso por dispositivos novos ou não reconhecidos.
 *   Gerenciamento de dispositivos confiáveis.
 *   Prevenção de fraude e tomada de contas (Account Takeover - ATO).
 *   Enriquecimento de dados para análise de risco e comportamental.
 
-Este módulo trabalha em conjunto com `Deeper_Hub.Security.DeviceService` (ou um componente similar dentro do `SecurityManager`) para associar fingerprints a dispositivos registrados e gerenciar seu status de confiança. 😊
+Este módulo trabalha em conjunto com `DeeperHub.Security.DeviceService` (ou um componente similar dentro do `SecurityManager`) para associar fingerprints a dispositivos registrados e gerenciar seu status de confiança. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -37,19 +37,19 @@ Este módulo trabalha em conjunto com `Deeper_Hub.Security.DeviceService` (ou um
 
 ## 🏗️ 3. Arquitetura e Design
 
-O `Deeper_Hub.Security.DeviceFingerprint` é primariamente um módulo funcional que fornece algoritmos e lógica para trabalhar com fingerprints. Ele não gerencia estado persistente de dispositivos diretamente, essa responsabilidade recai sobre o `DeviceService`.
+O `DeeperHub.Security.DeviceFingerprint` é primariamente um módulo funcional que fornece algoritmos e lógica para trabalhar com fingerprints. Ele não gerencia estado persistente de dispositivos diretamente, essa responsabilidade recai sobre o `DeviceService`.
 
 ### 3.1. Componentes Principais
 
-1.  **`Deeper_Hub.Security.DeviceFingerprint` (Módulo Funcional):**
+1.  **`DeeperHub.Security.DeviceFingerprint` (Módulo Funcional):**
     *   **Responsabilidade:** Contém as funções principais para `generate_fingerprint/1`, `compare_fingerprints/2`, `detect_anomalies/3`, `is_trusted_fingerprint/2`.
     *   **Interações:**
         *   Recebe `device_info` (um mapa de atributos coletados do cliente).
-        *   Pode interagir com `Deeper_Hub.Security.DeviceService` ou `Deeper_Hub.Core.Repo` para buscar históricos de fingerprints de um usuário ou dispositivos confiáveis.
+        *   Pode interagir com `DeeperHub.Security.DeviceService` ou `DeeperHub.Core.Repo` para buscar históricos de fingerprints de um usuário ou dispositivos confiáveis.
 2.  **Coleta de Atributos no Cliente (Externo ao Módulo Backend):**
     *   A coleta real dos atributos do dispositivo ocorre no lado do cliente (JavaScript no navegador, SDK no mobile). Bibliotecas como FingerprintJS, ClientJS podem ser usadas.
     *   Esses atributos são enviados para o backend como parte das requisições (ex: login, ou uma chamada específica de \"registro de dispositivo\").
-3.  **`Deeper_Hub.Security.DeviceService` (ou parte do `SecurityManager`):**
+3.  **`DeeperHub.Security.DeviceService` (ou parte do `SecurityManager`):**
     *   **Responsabilidade:** Gerenciar a persistência dos dispositivos registrados, suas fingerprints associadas e seu status de confiança.
     *   **Interações:** Usa `DeviceFingerprint.generate_fingerprint/1` ao registrar um novo dispositivo. Armazena a fingerprint junto com os dados do dispositivo.
 
@@ -91,7 +91,7 @@ security/device_management/  # Novo submódulo
     *   Após um login bem-sucedido, o usuário opta por \"confiar neste dispositivo\".
     *   O cliente envia `device_info`.
     *   O backend gera a fingerprint.
-    *   `Deeper_Hub.Security.DeviceService.trust_device(user_id, fingerprint, device_name)` é chamado para armazenar a fingerprint como confiável.
+    *   `DeeperHub.Security.DeviceService.trust_device(user_id, fingerprint, device_name)` é chamado para armazenar a fingerprint como confiável.
 *   **Pular MFA para Dispositivos Confiáveis:**
     *   Durante o login, se a fingerprint do dispositivo atual corresponder a uma fingerprint confiável para o usuário (`DeviceFingerprint.is_trusted_fingerprint/2`), o sistema pode optar por não exigir MFA, mesmo que configurado (dependendo da política de risco).
 
@@ -101,26 +101,26 @@ security/device_management/  # Novo submódulo
 
 1.  **Coleta no Cliente:** JavaScript no navegador (ou SDK mobile) coleta atributos do dispositivo.
 2.  **Envio para o Backend:** Os atributos são enviados para o backend durante a tentativa de login.
-3.  **`Deeper_Hub.Auth.Services.LoginService` (ou `SecurityManager`):**
+3.  **`DeeperHub.Auth.Services.LoginService` (ou `SecurityManager`):**
     *   Recebe `device_info` como parte dos dados de login.
-    *   Chama `Deeper_Hub.Security.DeviceFingerprint.generate_fingerprint(device_info)` para obter a `current_fingerprint`.
-4.  **`Deeper_Hub.Security.DeviceFingerprint.generate_fingerprint/1`:**
+    *   Chama `DeeperHub.Security.DeviceFingerprint.generate_fingerprint(device_info)` para obter a `current_fingerprint`.
+4.  **`DeeperHub.Security.DeviceFingerprint.generate_fingerprint/1`:**
     *   Seleciona um subconjunto de atributos de `device_info` (configurável).
     *   Normaliza os valores (ex: lowercase, ordenação).
     *   Concatena os valores normalizados em uma string.
     *   Calcula o hash (ex: SHA-256) da string concatenada.
     *   Retorna o hash como a fingerprint.
-5.  **`Deeper_Hub.Auth.Services.LoginService` (ou `SecurityManager`):**
+5.  **`DeeperHub.Auth.Services.LoginService` (ou `SecurityManager`):**
     *   Recupera as fingerprints históricas e confiáveis para o `user_id` do `DeviceService` (que consulta o DB).
-    *   Chama `Deeper_Hub.Security.DeviceFingerprint.is_trusted_fingerprint(current_fingerprint, trusted_fingerprints_for_user)`.
-    *   Chama `Deeper_Hub.Security.DeviceFingerprint.detect_anomalies(user_id, current_fingerprint, historical_fingerprints)`.
-    *   Os resultados (`is_trusted`, `is_new_device`) são passados para `Deeper_Hub.Security.RiskAssessment` como fatores de risco.
+    *   Chama `DeeperHub.Security.DeviceFingerprint.is_trusted_fingerprint(current_fingerprint, trusted_fingerprints_for_user)`.
+    *   Chama `DeeperHub.Security.DeviceFingerprint.detect_anomalies(user_id, current_fingerprint, historical_fingerprints)`.
+    *   Os resultados (`is_trusted`, `is_new_device`) são passados para `DeeperHub.Security.RiskAssessment` como fatores de risco.
 6.  **(Pós-Login bem-sucedido, se o dispositivo for novo e o usuário optar por registrar/confiar):**
-    *   `Deeper_Hub.Security.DeviceService.register_or_update_device(user_id, current_fingerprint, device_info_attributes, is_trusted: true)`.
+    *   `DeeperHub.Security.DeviceService.register_or_update_device(user_id, current_fingerprint, device_info_attributes, is_trusted: true)`.
 
 ## 📡 6. API (Funções Públicas do Módulo)
 
-### 6.1. `Deeper_Hub.Security.DeviceFingerprint.generate_fingerprint(device_info :: map()) :: {:ok, String.t()} | {:error, :missing_attributes | term()}`
+### 6.1. `DeeperHub.Security.DeviceFingerprint.generate_fingerprint(device_info :: map()) :: {:ok, String.t()} | {:error, :missing_attributes | term()}`
 
 *   **Descrição:** Gera uma fingerprint de dispositivo a partir de um mapa de atributos.
 *   **`device_info`:** Mapa contendo atributos coletados do cliente (ex: `%{user_agent: \"...\", screen_resolution: \"1920x1080\", timezone: \"America/New_York\", plugins: [\"...\", \"...\"], canvas_fingerprint: \"...\", ...}`).
@@ -131,10 +131,10 @@ security/device_management/  # Novo submódulo
 *   **Exemplo:**
     ```elixir
     device_attrs = %{user_agent: \"...\", screen_width: 1920, screen_height: 1080}
-    {:ok, fp} = Deeper_Hub.Security.DeviceFingerprint.generate_fingerprint(device_attrs)
+    {:ok, fp} = DeeperHub.Security.DeviceFingerprint.generate_fingerprint(device_attrs)
     ```
 
-### 6.2. `Deeper_Hub.Security.DeviceFingerprint.compare_fingerprints(fp1 :: String.t(), fp2 :: String.t(), opts :: keyword()) :: {:ok, :match | :partial_match | :no_match, float() | nil}`
+### 6.2. `DeeperHub.Security.DeviceFingerprint.compare_fingerprints(fp1 :: String.t(), fp2 :: String.t(), opts :: keyword()) :: {:ok, :match | :partial_match | :no_match, float() | nil}`
 
 *   **Descrição:** Compara duas fingerprints e retorna o nível de correspondência.
 *   **`opts`:**
@@ -145,7 +145,7 @@ security/device_management/  # Novo submódulo
     *   `{:ok, :no_match, score}`: Nenhuma correspondência.
 *   *(Nota: A implementação de `partial_match` pode ser complexa e depender de algoritmos de similaridade de string ou análise dos atributos que diferem.)*
 
-### 6.3. `Deeper_Hub.Security.DeviceFingerprint.detect_anomalies(user_id :: String.t(), current_fingerprint :: String.t(), historical_fingerprints :: list(String.t())) :: {:ok, %{is_new_device: boolean(), is_significantly_different: boolean(), confidence: float()}}`
+### 6.3. `DeeperHub.Security.DeviceFingerprint.detect_anomalies(user_id :: String.t(), current_fingerprint :: String.t(), historical_fingerprints :: list(String.t())) :: {:ok, %{is_new_device: boolean(), is_significantly_different: boolean(), confidence: float()}}`
 
 *   **Descrição:** Compara a fingerprint atual com um conjunto de fingerprints históricas do usuário.
 *   **Retorno:**
@@ -153,14 +153,14 @@ security/device_management/  # Novo submódulo
     *   `is_significantly_different`: `true` se `current_fingerprint` for nova e/ou muito diferente das históricas (usando `compare_fingerprints`).
     *   `confidence`: Confiança na detecção da anomalia.
 
-### 6.4. `Deeper_Hub.Security.DeviceFingerprint.is_trusted_fingerprint(user_id :: String.t(), current_fingerprint :: String.t()) :: boolean()`
+### 6.4. `DeeperHub.Security.DeviceFingerprint.is_trusted_fingerprint(user_id :: String.t(), current_fingerprint :: String.t()) :: boolean()`
 
 *   **Descrição:** Verifica se a `current_fingerprint` corresponde a alguma fingerprint de um dispositivo marcado como confiável para o `user_id`.
-*   **(Delegação):** Esta função provavelmente chamaria `Deeper_Hub.Security.DeviceService.list_trusted_devices(user_id)` e então compararia as fingerprints.
+*   **(Delegação):** Esta função provavelmente chamaria `DeeperHub.Security.DeviceService.list_trusted_devices(user_id)` e então compararia as fingerprints.
 
 ## ⚙️ 7. Configuração
 
-Via `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPolicyManager`:
+Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolicyManager`:
 
 *   **`[:security, :device_fingerprint, :enabled]`** (Boolean): Habilita/desabilita o sistema de fingerprinting. (Padrão: `true`)
 *   **`[:security, :device_fingerprint, :attributes_to_use]`** (List de Atoms/Strings): Lista de chaves de `device_info` que serão usadas para gerar a fingerprint.
@@ -173,11 +173,11 @@ Via `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPol
 
 ### 8.1. Módulos Internos
 
-*   `Deeper_Hub.Core.ConfigManager`: Para configurações.
-*   `Deeper_Hub.Core.Logger`: Para logging.
-*   `Deeper_Hub.Core.Metrics`: Para métricas.
-*   `Deeper_Hub.Security.DeviceService` (ou componente do `SecurityManager`): Para persistir e consultar dispositivos registrados e seu status de confiança.
-*   `Deeper_Hub.Shared.Utils.SecurityUtils` (ou `Core.EncryptionService` se a fingerprint em si precisar ser hasheada de uma forma específica, embora geralmente o resultado do hash dos atributos já seja a fingerprint).
+*   `DeeperHub.Core.ConfigManager`: Para configurações.
+*   `DeeperHub.Core.Logger`: Para logging.
+*   `DeeperHub.Core.Metrics`: Para métricas.
+*   `DeeperHub.Security.DeviceService` (ou componente do `SecurityManager`): Para persistir e consultar dispositivos registrados e seu status de confiança.
+*   `DeeperHub.Shared.Utils.SecurityUtils` (ou `Core.EncryptionService` se a fingerprint em si precisar ser hasheada de uma forma específica, embora geralmente o resultado do hash dos atributos já seja a fingerprint).
 
 ### 8.2. Bibliotecas Externas
 
@@ -191,11 +191,11 @@ Via `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPol
     ```elixir
     def handle_login(params, user_id) do
       device_info = Map.get(params, \"device_info\", %{})
-      {:ok, current_fp} = Deeper_Hub.Security.DeviceFingerprint.generate_fingerprint(device_info)
+      {:ok, current_fp} = DeeperHub.Security.DeviceFingerprint.generate_fingerprint(device_info)
       
-      is_trusted = Deeper_Hub.Security.DeviceFingerprint.is_trusted_fingerprint(user_id, current_fp)
+      is_trusted = DeeperHub.Security.DeviceFingerprint.is_trusted_fingerprint(user_id, current_fp)
       # Ou, melhor, via DeviceService:
-      # {:ok, device_status} = Deeper_Hub.Security.DeviceService.get_device_status_by_fp(user_id, current_fp)
+      # {:ok, device_status} = DeeperHub.Security.DeviceService.get_device_status_by_fp(user_id, current_fp)
       # is_trusted = device_status == :trusted
 
       # Passar current_fp, is_trusted para RiskAssessment
@@ -264,7 +264,7 @@ Via `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPol
 
 ---
 
-Agora, com a fingerprint do dispositivo documentada, faz sentido ir para `Deeper_Hub.Security.GeoLocationService` para completar o contexto da requisição, ou prefere outro rumo?"""),
+Agora, com a fingerprint do dispositivo documentada, faz sentido ir para `DeeperHub.Security.GeoLocationService` para completar o contexto da requisição, ou prefere outro rumo?"""),
             ],
         ),
         types.Content(
@@ -276,7 +276,7 @@ Agora, com a fingerprint do dispositivo documentada, faz sentido ir para `Deeper
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Perfeito! Vamos detalhar o `Deeper_Hub.Security.GeoLocationService`. Este serviço é essencial para entender o contexto geográfico das interações do usuário, o que é um fator importante para `RiskAssessment` e `FraudDetection`.
+                types.Part.from_text(text="""Perfeito! Vamos detalhar o `DeeperHub.Security.GeoLocationService`. Este serviço é essencial para entender o contexto geográfico das interações do usuário, o que é um fator importante para `RiskAssessment` e `FraudDetection`.
 
 ---
 

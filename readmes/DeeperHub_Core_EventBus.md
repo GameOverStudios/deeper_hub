@@ -1,10 +1,10 @@
-# Módulo: `Deeper_Hub.Core.EventBus` 🚀
+# Módulo: `DeeperHub.Core.EventBus` 🚀
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.Core.EventBus`
+## 📜 1. Visão Geral do Módulo `DeeperHub.Core.EventBus`
 
-O módulo `Deeper_Hub.Core.EventBus` é o coração do sistema de publicação e assinatura de eventos (Pub/Sub) dentro do Deeper_Hub. Ele permite que diferentes módulos da aplicação se comuniquem de forma assíncrona e desacoplada, emitindo eventos quando ocorrem ações significativas e permitindo que outros módulos interessados reajam a esses eventos sem conhecimento direto uns dos outros. Isso promove uma arquitetura mais modular, extensível e resiliente. 😊
+O módulo `DeeperHub.Core.EventBus` é o coração do sistema de publicação e assinatura de eventos (Pub/Sub) dentro do DeeperHub. Ele permite que diferentes módulos da aplicação se comuniquem de forma assíncrona e desacoplada, emitindo eventos quando ocorrem ações significativas e permitindo que outros módulos interessados reajam a esses eventos sem conhecimento direto uns dos outros. Isso promove uma arquitetura mais modular, extensível e resiliente. 😊
 
-Exemplo: Quando um novo usuário é criado pelo módulo `Deeper_Hub.Accounts`, ele publica um evento `UserCreatedEvent`. O módulo `Deeper_Hub.Notifications` pode estar inscrito nesse evento para enviar um email de boas-vindas, e o módulo `Deeper_Hub.Audit` pode registrar o evento para fins de auditoria.
+Exemplo: Quando um novo usuário é criado pelo módulo `DeeperHub.Accounts`, ele publica um evento `UserCreatedEvent`. O módulo `DeeperHub.Notifications` pode estar inscrito nesse evento para enviar um email de boas-vindas, e o módulo `DeeperHub.Audit` pode registrar o evento para fins de auditoria.
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -35,7 +35,7 @@ Exemplo: Quando um novo usuário é criado pelo módulo `Deeper_Hub.Accounts`, e
 
 ### 3.1. Componentes Principais
 
-1.  **`Deeper_Hub.Core.EventBus.Server` (GenServer):**
+1.  **`DeeperHub.Core.EventBus.Server` (GenServer):**
     *   **Responsabilidade:** É o processo central que gerencia o estado do EventBus.
     *   **Estado Interno:**
         *   Tabela de Assinaturas: Mapeamento de tópicos de eventos para uma lista de PIDs de assinantes.
@@ -43,14 +43,14 @@ Exemplo: Quando um novo usuário é criado pelo módulo `Deeper_Hub.Accounts`, e
         *   Histórico de Eventos: Buffer circular por tópico para eventos recentes (se habilitado).
         *   Configurações: Limites, políticas de retry, etc.
     *   **Interações:** Recebe chamadas de `publish`, `subscribe`, `unsubscribe`. Delega o dispatch real para `DispatcherWorkers` ou `Task.Supervisor`.
-2.  **`Deeper_Hub.Core.EventBus.DispatcherWorker` (Pool de Workers ou `Task.Supervisor`):**
+2.  **`DeeperHub.Core.EventBus.DispatcherWorker` (Pool de Workers ou `Task.Supervisor`):**
     *   **Responsabilidade:** Enviar eventos para os PIDs dos assinantes de forma isolada.
     *   **Interações:** Recebe um evento e uma lista de PIDs de assinantes do `EventBus.Server`. Tenta enviar a mensagem para cada PID. Reporta sucesso/falha de volta para o `EventBus.Server` (para lógica de retry ou DLQ).
-3.  **`Deeper_Hub.Core.EventBus.RetryManager` (GenServer ou Worker):**
+3.  **`DeeperHub.Core.EventBus.RetryManager` (GenServer ou Worker):**
     *   **Responsabilidade:** Gerenciar eventos que falharam na entrega e precisam ser reenviados.
     *   **Estado Interno:** Fila de eventos para retry com timestamps da próxima tentativa.
     *   **Interações:** Recebe eventos falhados do `DispatcherWorker`. Agenda reenvios e os envia de volta para o `DispatcherWorker`.
-4.  **`Deeper_Hub.Core.EventBus.StorageAdapter` (Behaviour e Implementações):**
+4.  **`DeeperHub.Core.EventBus.StorageAdapter` (Behaviour e Implementações):**
     *   **Responsabilidade:** Abstrair a persistência de eventos para histórico ou garantia de entrega.
     *   **Implementações:** `EtsStorage` (para histórico em memória), `DbStorage` (para persistência em banco de dados), `NoOpStorage`.
 
@@ -83,23 +83,23 @@ core/event_bus/
 ## 🛠️ 4. Casos de Uso Principais
 
 *   **Notificação de Criação de Usuário:**
-    *   `Deeper_Hub.Accounts` publica `Deeper_Hub.Core.EventBus.publish(\"user.created\", %{user_id: 123, email: \"a@b.com\"})`.
-    *   `Deeper_Hub.Notifications` (inscrito em `\"user.created\"`) recebe o evento e envia um email de boas-vindas.
-    *   `Deeper_Hub.Audit` (inscrito em `\"user.created\"`) recebe o evento e registra uma entrada de auditoria.
+    *   `DeeperHub.Accounts` publica `DeeperHub.Core.EventBus.publish(\"user.created\", %{user_id: 123, email: \"a@b.com\"})`.
+    *   `DeeperHub.Notifications` (inscrito em `\"user.created\"`) recebe o evento e envia um email de boas-vindas.
+    *   `DeeperHub.Audit` (inscrito em `\"user.created\"`) recebe o evento e registra uma entrada de auditoria.
 *   **Atualização de Cache em Tempo Real:**
-    *   Um módulo de gerenciamento de `Servidores` publica `Deeper_Hub.Core.EventBus.publish(\"server.updated\", %{server_id: 456, changes: %{name: \"Novo Nome\"}})`.
-    *   O `Deeper_Hub.Core.Cache` ou um serviço de cache específico (inscrito em `\"server.updated\"`) recebe o evento e invalida/atualiza a entrada de cache para o servidor 456.
+    *   Um módulo de gerenciamento de `Servidores` publica `DeeperHub.Core.EventBus.publish(\"server.updated\", %{server_id: 456, changes: %{name: \"Novo Nome\"}})`.
+    *   O `DeeperHub.Core.Cache` ou um serviço de cache específico (inscrito em `\"server.updated\"`) recebe o evento e invalida/atualiza a entrada de cache para o servidor 456.
 *   **Processamento Assíncrono de Pedidos:**
-    *   Módulo `Deeper_Hub.Orders` publica `Deeper_Hub.Core.EventBus.publish(\"order.placed\", %{order_id: 789, items: [...]})`.
-    *   `Deeper_Hub.InventoryService` (inscrito) reserva itens.
-    *   `Deeper_Hub.PaymentService` (inscrito) processa o pagamento.
-    *   `Deeper_Hub.Notifications` (inscrito) envia confirmação ao usuário.
+    *   Módulo `DeeperHub.Orders` publica `DeeperHub.Core.EventBus.publish(\"order.placed\", %{order_id: 789, items: [...]})`.
+    *   `DeeperHub.InventoryService` (inscrito) reserva itens.
+    *   `DeeperHub.PaymentService` (inscrito) processa o pagamento.
+    *   `DeeperHub.Notifications` (inscrito) envia confirmação ao usuário.
 
 ## 🌊 5. Fluxos Importantes
 
 ### 5.1. Fluxo de Publicação e Entrega de Evento
 
-1.  **Publicador:** Um módulo (ex: `Deeper_Hub.Accounts`) chama `Deeper_Hub.Core.EventBus.publish(\"user.created\", payload, opts)`.
+1.  **Publicador:** Um módulo (ex: `DeeperHub.Accounts`) chama `DeeperHub.Core.EventBus.publish(\"user.created\", payload, opts)`.
 2.  **`EventBus.Server`:**
     *   Recebe a chamada `publish`.
     *   Cria uma `Event` struct com `topic`, `payload`, `metadata` (timestamp, event_id único).
@@ -120,7 +120,7 @@ core/event_bus/
 
 ### 5.2. Fluxo de Assinatura
 
-1.  **Assinante:** Um processo (ex: um GenServer de `Deeper_Hub.Notifications`) chama `Deeper_Hub.Core.EventBus.subscribe(\"user.created\", self(), opts)` durante sua inicialização (`init/1`).
+1.  **Assinante:** Um processo (ex: um GenServer de `DeeperHub.Notifications`) chama `DeeperHub.Core.EventBus.subscribe(\"user.created\", self(), opts)` durante sua inicialização (`init/1`).
 2.  **`EventBus.Server`:**
     *   Recebe a chamada `subscribe`.
     *   Adiciona o `self()` (PID do assinante) à lista de assinantes do tópico `\"user.created\"`.
@@ -143,7 +143,7 @@ core/event_bus/
 
 ## 📡 6. API (Funções Públicas)
 
-### 6.1. `Deeper_Hub.Core.EventBus.publish(topic :: String.t() | atom() | list(atom()), payload :: term(), opts :: keyword()) :: :ok | {:error, term()}`
+### 6.1. `DeeperHub.Core.EventBus.publish(topic :: String.t() | atom() | list(atom()), payload :: term(), opts :: keyword()) :: :ok | {:error, term()}`
 
 *   **Descrição:** Publica um evento no barramento para todos os assinantes interessados.
 *   **`@spec`:** `publish(topic :: String.t() | atom() | list(atom()), payload :: term(), opts :: keyword()) :: :ok | {:error, term()}`
@@ -164,10 +164,10 @@ core/event_bus/
     ```elixir
     payload = %{user_id: \"user123\", registration_method: \"email\"}
     metadata = %{source_module: MyModule, trace_id: \"trace-xyz\"}
-    Deeper_Hub.Core.EventBus.publish(\"user.registered\", payload, metadata: metadata)
+    DeeperHub.Core.EventBus.publish(\"user.registered\", payload, metadata: metadata)
     ```
 
-### 6.2. `Deeper_Hub.Core.EventBus.subscribe(topic_pattern :: String.t() | atom() | list(atom()), subscriber :: pid() | module() | {module(), term()} | {atom(), node()}, opts :: keyword()) :: :ok | {:error, term()}`
+### 6.2. `DeeperHub.Core.EventBus.subscribe(topic_pattern :: String.t() | atom() | list(atom()), subscriber :: pid() | module() | {module(), term()} | {atom(), node()}, opts :: keyword()) :: :ok | {:error, term()}`
 
 *   **Descrição:** Registra um `subscriber` para receber eventos que correspondam ao `topic_pattern`.
 *   **`@spec`:** `subscribe(topic_pattern :: String.t() | atom() | list(atom()), subscriber :: pid() | module() | {module(), term()} | {atom(), node()}, opts :: keyword()) :: :ok | {:error, term()}`
@@ -189,7 +189,7 @@ core/event_bus/
     ```elixir
     # Em um GenServer
     def init(_args) do
-      Deeper_Hub.Core.EventBus.subscribe(\"user.*\", self())
+      DeeperHub.Core.EventBus.subscribe(\"user.*\", self())
       {:ok, %{}}
     end
 
@@ -199,7 +199,7 @@ core/event_bus/
     end
     ```
 
-### 6.3. `Deeper_Hub.Core.EventBus.unsubscribe(topic_pattern :: String.t() | atom() | list(atom()), subscriber :: pid() | module() | {atom(), node()}) :: :ok`
+### 6.3. `DeeperHub.Core.EventBus.unsubscribe(topic_pattern :: String.t() | atom() | list(atom()), subscriber :: pid() | module() | {atom(), node()}) :: :ok`
 
 *   **Descrição:** Remove uma assinatura específica.
 *   **`@spec`:** `unsubscribe(topic_pattern :: String.t() | atom() | list(atom()), subscriber :: pid() | module() | {atom(), node()}) :: :ok`
@@ -209,10 +209,10 @@ core/event_bus/
 *   **Retorno:** `:ok`.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    Deeper_Hub.Core.EventBus.unsubscribe(\"user.*\", self())
+    DeeperHub.Core.EventBus.unsubscribe(\"user.*\", self())
     ```
 
-### 6.4. `Deeper_Hub.Core.EventBus.unsubscribe_all(subscriber :: pid() | module() | {atom(), node()}) :: :ok`
+### 6.4. `DeeperHub.Core.EventBus.unsubscribe_all(subscriber :: pid() | module() | {atom(), node()}) :: :ok`
 
 *   **Descrição:** Remove todas as assinaturas de um `subscriber`.
 *   **`@spec`:** `unsubscribe_all(subscriber :: pid() | module() | {atom(), node()}) :: :ok`
@@ -221,10 +221,10 @@ core/event_bus/
 *   **Retorno:** `:ok`.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    Deeper_Hub.Core.EventBus.unsubscribe_all(self())
+    DeeperHub.Core.EventBus.unsubscribe_all(self())
     ```
 
-### 6.5. `Deeper_Hub.Core.EventBus.get_event_history(topic :: String.t() | atom() | list(atom()), opts :: keyword()) :: {:ok, list(Event.t())} | {:error, :not_found | term()}` (Nova Funcionalidade)
+### 6.5. `DeeperHub.Core.EventBus.get_event_history(topic :: String.t() | atom() | list(atom()), opts :: keyword()) :: {:ok, list(Event.t())} | {:error, :not_found | term()}` (Nova Funcionalidade)
 
 *   **Descrição:** Recupera o histórico recente de eventos para um tópico específico. Requer que o histórico de eventos esteja habilitado e configurado.
 *   **`@spec`:** `get_event_history(topic :: String.t() | atom() | list(atom()), opts :: keyword()) :: {:ok, list(map())} | {:error, :not_found | term()}`
@@ -239,7 +239,7 @@ core/event_bus/
     *   `{:error, :history_disabled}`: Se o histórico de eventos não estiver habilitado.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    case Deeper_Hub.Core.EventBus.get_event_history(\"user.created\", limit: 5) do
+    case DeeperHub.Core.EventBus.get_event_history(\"user.created\", limit: 5) do
       {:ok, events} -> IO.inspect(events)
       {:error, reason} -> Logger.warn(\"Não foi possível obter histórico: #{reason}\")
     end
@@ -247,7 +247,7 @@ core/event_bus/
 
 ## ⚙️ 7. Configuração
 
-O módulo `EventBus` é configurado através do `Deeper_Hub.Core.ConfigManager`.
+O módulo `EventBus` é configurado através do `DeeperHub.Core.ConfigManager`.
 
 *   **ConfigManager:**
     *   `[:core, :event_bus, :enabled]` (Boolean): Habilita/desabilita completamente o EventBus. (Padrão: `true`)
@@ -259,7 +259,7 @@ O módulo `EventBus` é configurado através do `Deeper_Hub.Core.ConfigManager`.
     *   `[:core, :event_bus, :retry_max_interval_ms]` (Integer): Intervalo máximo (em ms) entre retentativas (para backoff exponencial). (Padrão: `60000`)
     *   `[:core, :event_bus, :retry_backoff_strategy]` (Atom): Estratégia de backoff (:exponential, :fixed). (Padrão: `:exponential`)
     *   `[:core, :event_bus, :dispatcher_pool_size]` (Integer): Número de workers no pool de dispatchers. (Padrão: `System.schedulers_online() * 2`)
-    *   `[:core, :event_bus, :storage_adapter]` (Module): Módulo adaptador para persistência de eventos (ex: `Deeper_Hub.Core.EventBus.Storage.DbStorage`). (Padrão: `Deeper_Hub.Core.EventBus.Storage.EtsStorage` para histórico em memória, ou `Deeper_Hub.Core.EventBus.Storage.NoOpStorage` se desabilitado)
+    *   `[:core, :event_bus, :storage_adapter]` (Module): Módulo adaptador para persistência de eventos (ex: `DeeperHub.Core.EventBus.Storage.DbStorage`). (Padrão: `DeeperHub.Core.EventBus.Storage.EtsStorage` para histórico em memória, ou `DeeperHub.Core.EventBus.Storage.NoOpStorage` se desabilitado)
     *   `[:core, :event_bus, :dlq_enabled]` (Boolean): Habilita Dead-Letter Queue para eventos que falham persistentemente. (Padrão: `false`)
     *   `[:core, :event_bus, :dlq_adapter]` (Module): Módulo adaptador para a DLQ. (Padrão: `nil`)
 
@@ -267,10 +267,10 @@ O módulo `EventBus` é configurado através do `Deeper_Hub.Core.ConfigManager`.
 
 ### 8.1. Módulos Internos
 
-*   `Deeper_Hub.Core.ConfigManager`: Para obter configurações de runtime.
-*   `Deeper_Hub.Core.Logger`: Para registrar atividades e erros.
-*   `Deeper_Hub.Core.Metrics`: Para emitir métricas de desempenho e saúde.
-*   `Deeper_Hub.Core.Supervisor` (indireta): Para ser supervisionado.
+*   `DeeperHub.Core.ConfigManager`: Para obter configurações de runtime.
+*   `DeeperHub.Core.Logger`: Para registrar atividades e erros.
+*   `DeeperHub.Core.Metrics`: Para emitir métricas de desempenho e saúde.
+*   `DeeperHub.Core.Supervisor` (indireta): Para ser supervisionado.
 
 ### 8.2. Bibliotecas Externas
 
@@ -283,7 +283,7 @@ O módulo `EventBus` é configurado através do `Deeper_Hub.Core.ConfigManager`.
 Qualquer módulo pode publicar um evento chamando a função `publish/3`.
 ```elixir
 # Em um módulo qualquer
-alias Deeper_Hub.Core.EventBus
+alias DeeperHub.Core.EventBus
 
 def process_order(order) do
   # ... lógica de processamento ...
@@ -296,8 +296,8 @@ end
 ```elixir
 defmodule MyApp.OrderNotifier do
   use GenServer
-  alias Deeper_Hub.Core.EventBus
-  alias Deeper_Hub.Core.Logger # Exemplo
+  alias DeeperHub.Core.EventBus
+  alias DeeperHub.Core.Logger # Exemplo
 
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
@@ -436,7 +436,7 @@ O `EventBus` emite eventos Telemetry para permitir instrumentação fina e obser
 
 ---
 
-Este é um exemplo detalhado para o `Deeper_Hub.Core.EventBus`. Posso continuar com o próximo módulo, talvez o `Deeper_Hub.Core.ConfigManager` ou algum outro de sua preferência?"""),
+Este é um exemplo detalhado para o `DeeperHub.Core.EventBus`. Posso continuar com o próximo módulo, talvez o `DeeperHub.Core.ConfigManager` ou algum outro de sua preferência?"""),
             ],
         ),
         types.Content(
@@ -448,7 +448,7 @@ Este é um exemplo detalhado para o `Deeper_Hub.Core.EventBus`. Posso continuar 
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Excelente! Vamos prosseguir com a documentação do módulo `Deeper_Hub.Core.ConfigManager`. Este é outro componente crucial, pois centraliza a forma como o sistema acessa suas configurações.
+                types.Part.from_text(text="""Excelente! Vamos prosseguir com a documentação do módulo `DeeperHub.Core.ConfigManager`. Este é outro componente crucial, pois centraliza a forma como o sistema acessa suas configurações.
 
 ---
 

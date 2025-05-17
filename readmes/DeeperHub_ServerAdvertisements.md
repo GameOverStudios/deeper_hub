@@ -1,8 +1,8 @@
-# Módulo: `Deeper_Hub.ServerAdvertisements` 📢
+# Módulo: `DeeperHub.ServerAdvertisements` 📢
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.ServerAdvertisements`
+## 📜 1. Visão Geral do Módulo `DeeperHub.ServerAdvertisements`
 
-O módulo `Deeper_Hub.ServerAdvertisements` é responsável pelo sistema de anúncios de servidores dentro da plataforma Deeper_Hub. Ele permite que proprietários de servidores ou administradores criem e gerenciem campanhas de anúncios para promover seus servidores, aumentando sua visibilidade para os usuários. O sistema lida com a definição, agendamento, exibição e métricas básicas de anúncios. 😊
+O módulo `DeeperHub.ServerAdvertisements` é responsável pelo sistema de anúncios de servidores dentro da plataforma DeeperHub. Ele permite que proprietários de servidores ou administradores criem e gerenciem campanhas de anúncios para promover seus servidores, aumentando sua visibilidade para os usuários. O sistema lida com a definição, agendamento, exibição e métricas básicas de anúncios. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -30,26 +30,26 @@ O módulo `Deeper_Hub.ServerAdvertisements` é responsável pelo sistema de anú
 
 ## 🏗️ 3. Arquitetura e Design
 
-`Deeper_Hub.ServerAdvertisements` atuará como uma fachada para um serviço de lógica de negócio e componentes de persistência.
+`DeeperHub.ServerAdvertisements` atuará como uma fachada para um serviço de lógica de negócio e componentes de persistência.
 
-*   **Interface Pública (`Deeper_Hub.ServerAdvertisements.ServerAdvertisementsFacade` ou `Deeper_Hub.ServerAdvertisements`):** Funções como `create_advertisement/1`, `list_active_advertisements/1`, `record_impression/1`.
-*   **Serviço de Anúncios (`Deeper_Hub.ServerAdvertisements.Services.AdvertisementService`):**
+*   **Interface Pública (`DeeperHub.ServerAdvertisements.ServerAdvertisementsFacade` ou `DeeperHub.ServerAdvertisements`):** Funções como `create_advertisement/1`, `list_active_advertisements/1`, `record_impression/1`.
+*   **Serviço de Anúncios (`DeeperHub.ServerAdvertisements.Services.AdvertisementService`):**
     *   Contém a lógica de negócio principal para gerenciar definições, agendamento, e métricas de anúncios.
 *   **Schemas Ecto:**
-    *   `Deeper_Hub.ServerAdvertisements.Schema.Advertisement`: Define um anúncio.
-    *   (Opcional) `Deeper_Hub.ServerAdvertisements.Schema.AdvertisementImpressionLog`: Para logar impressões.
-    *   (Opcional) `Deeper_Hub.ServerAdvertisements.Schema.AdvertisementClickLog`: Para logar cliques.
-*   **Cache (`Deeper_Hub.ServerAdvertisements.Cache` ou via `Core.Cache`):**
+    *   `DeeperHub.ServerAdvertisements.Schema.Advertisement`: Define um anúncio.
+    *   (Opcional) `DeeperHub.ServerAdvertisements.Schema.AdvertisementImpressionLog`: Para logar impressões.
+    *   (Opcional) `DeeperHub.ServerAdvertisements.Schema.AdvertisementClickLog`: Para logar cliques.
+*   **Cache (`DeeperHub.ServerAdvertisements.Cache` ou via `Core.Cache`):**
     *   Cache para anúncios ativos frequentemente requisitados para exibição.
 *   **Workers (via `Core.BackgroundTaskManager`):**
     *   Worker para atualizar o status de anúncios (ex: de pendente para ativo, de ativo para expirado).
     *   Worker para agregar métricas de impressões/cliques.
 *   **Integrações:**
-    *   `Deeper_Hub.Core.Repo`: Para persistência.
-    *   `Deeper_Hub.Servers`: Para associar anúncios a servidores.
-    *   `Deeper_Hub.Accounts`: Para associar anúncios a usuários proprietários.
-    *   `Deeper_Hub.Notifications`: Para notificar sobre status de anúncios (ex: aprovado, expirando).
-    *   `Deeper_Hub.Core.Payment` (Se aplicável): Para processar pagamentos de anúncios.
+    *   `DeeperHub.Core.Repo`: Para persistência.
+    *   `DeeperHub.Servers`: Para associar anúncios a servidores.
+    *   `DeeperHub.Accounts`: Para associar anúncios a usuários proprietários.
+    *   `DeeperHub.Notifications`: Para notificar sobre status de anúncios (ex: aprovado, expirando).
+    *   `DeeperHub.Core.Payment` (Se aplicável): Para processar pagamentos de anúncios.
 
 **Padrões de Design:**
 
@@ -58,10 +58,10 @@ O módulo `Deeper_Hub.ServerAdvertisements` é responsável pelo sistema de anú
 
 ### 3.1. Componentes Principais
 
-*   **`Deeper_Hub.ServerAdvertisements.ServerAdvertisementsFacade`:** Ponto de entrada.
-*   **`Deeper_Hub.ServerAdvertisements.Services.AdvertisementService`:** Lógica de negócio.
-*   **`Deeper_Hub.ServerAdvertisements.Schema.Advertisement`:** Schema do anúncio.
-*   **`Deeper_Hub.ServerAdvertisements.Supervisor`:** Supervisiona processos.
+*   **`DeeperHub.ServerAdvertisements.ServerAdvertisementsFacade`:** Ponto de entrada.
+*   **`DeeperHub.ServerAdvertisements.Services.AdvertisementService`:** Lógica de negócio.
+*   **`DeeperHub.ServerAdvertisements.Schema.Advertisement`:** Schema do anúncio.
+*   **`DeeperHub.ServerAdvertisements.Supervisor`:** Supervisiona processos.
 *   **Workers (ex: `AdvertisementStatusWorker`, `AdMetricsAggregatorWorker`).**
 
 ### 3.3. Decisões de Design Importantes
@@ -73,7 +73,7 @@ O módulo `Deeper_Hub.ServerAdvertisements` é responsável pelo sistema de anú
 ## 🛠️ 4. Casos de Uso Principais
 
 *   **Proprietário de Servidor Cria um Anúncio:** Um usuário dono de um servidor cria uma campanha para promover seu servidor por uma semana.
-*   **Sistema Exibe Anúncios na Home Page:** A página inicial do Deeper_Hub busca e exibe alguns anúncios de servidores ativos.
+*   **Sistema Exibe Anúncios na Home Page:** A página inicial do DeeperHub busca e exibe alguns anúncios de servidores ativos.
 *   **Usuário Clica em um Anúncio:** Um usuário clica em um anúncio e é redirecionado para a página do servidor; o clique é registrado.
 *   **Administrador Aprova um Novo Anúncio:** Um administrador da plataforma revisa e aprova um anúncio submetido por um proprietário de servidor.
 *   **Anúncio Expira Automaticamente:** Um worker verifica e muda o status de anúncios cujo período de veiculação terminou.
@@ -83,7 +83,7 @@ O módulo `Deeper_Hub.ServerAdvertisements` é responsável pelo sistema de anú
 **Fluxo de Criação e Ativação de um Anúncio:**
 
 1.  Proprietário do servidor submete dados do anúncio via API/UI.
-2.  `Deeper_Hub.API` (Controller) chama `Deeper_Hub.ServerAdvertisements.create_advertisement(params)`.
+2.  `DeeperHub.API` (Controller) chama `DeeperHub.ServerAdvertisements.create_advertisement(params)`.
 3.  `AdvertisementService` valida os dados e cria um registro `Advertisement` com status `pending_approval` (ou `active` se não houver aprovação).
 4.  (Se aprovação necessária) Notificação é enviada para administradores.
 5.  Administrador aprova o anúncio. `AdvertisementService.approve_advertisement(ad_id)` é chamado.
@@ -93,7 +93,7 @@ O módulo `Deeper_Hub.ServerAdvertisements` é responsável pelo sistema de anú
 
 ## 📡 6. API (Se Aplicável)
 
-### 6.1. `Deeper_Hub.ServerAdvertisements.create_advertisement/1`
+### 6.1. `DeeperHub.ServerAdvertisements.create_advertisement/1`
 
 *   **Descrição:** Cria um novo anúncio de servidor.
 *   **`@spec`:** `create_advertisement(attrs :: map()) :: {:ok, Advertisement.t()} | {:error, Ecto.Changeset.t() | reason}`
@@ -117,13 +117,13 @@ O módulo `Deeper_Hub.ServerAdvertisements` é responsável pelo sistema de anú
       start_date: ~D[2025-07-01],
       end_date: ~D[2025-07-07]
     }
-    case Deeper_Hub.ServerAdvertisements.create_advertisement(ad_attrs) do
+    case DeeperHub.ServerAdvertisements.create_advertisement(ad_attrs) do
       {:ok, ad} -> Logger.info(\"Anúncio #{ad.id} criado.\")
       {:error, reason} -> Logger.error(\"Falha ao criar anúncio: #{inspect(reason)}\")
     end
     ```
 
-### 6.2. `Deeper_Hub.ServerAdvertisements.list_active_advertisements/1`
+### 6.2. `DeeperHub.ServerAdvertisements.list_active_advertisements/1`
 
 *   **Descrição:** Lista anúncios que estão atualmente ativos e dentro de seu período de veiculação.
 *   **`@spec`:** `list_active_advertisements(opts :: Keyword.t()) :: {:ok, list(Advertisement.t())} | {:error, reason}`
@@ -135,14 +135,14 @@ O módulo `Deeper_Hub.ServerAdvertisements` é responsável pelo sistema de anú
 *   **Retorno:** Lista de anúncios ativos.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    {:ok, banner_ads} = Deeper_Hub.ServerAdvertisements.list_active_advertisements(type: :banner, limit: 3)
+    {:ok, banner_ads} = DeeperHub.ServerAdvertisements.list_active_advertisements(type: :banner, limit: 3)
     ```
 
 *(Outras funções como `get_advertisement/1`, `update_advertisement/2`, `record_impression/1`, `record_click/1` seriam documentadas aqui).*
 
 ## ⚙️ 7. Configuração
 
-*   **ConfigManager (`Deeper_Hub.Core.ConfigManager`):**
+*   **ConfigManager (`DeeperHub.Core.ConfigManager`):**
     *   `[:server_advertisements, :max_active_ads_per_server]`: Número máximo de anúncios ativos simultaneamente para um único servidor.
     *   `[:server_advertisements, :default_duration_days]`: Duração padrão de um anúncio se não especificado.
     *   `[:server_advertisements, :approval_required]`: (Boolean) Se novos anúncios requerem aprovação de um administrador. (Padrão: `true`)
@@ -153,14 +153,14 @@ O módulo `Deeper_Hub.ServerAdvertisements` é responsável pelo sistema de anú
 
 ### 8.1. Módulos Internos
 
-*   `Deeper_Hub.Core.Repo`
-*   `Deeper_Hub.Core.ConfigManager`
-*   `Deeper_Hub.Core.EventBus`
-*   `Deeper_Hub.Core.BackgroundTaskManager`
-*   `Deeper_Hub.Notifications`
-*   `Deeper_Hub.Servers`
-*   `Deeper_Hub.Accounts`
-*   `Deeper_Hub.Core.Logger`, `Deeper_Hub.Core.Metrics`
+*   `DeeperHub.Core.Repo`
+*   `DeeperHub.Core.ConfigManager`
+*   `DeeperHub.Core.EventBus`
+*   `DeeperHub.Core.BackgroundTaskManager`
+*   `DeeperHub.Notifications`
+*   `DeeperHub.Servers`
+*   `DeeperHub.Accounts`
+*   `DeeperHub.Core.Logger`, `DeeperHub.Core.Metrics`
 
 ### 8.2. Bibliotecas Externas
 
@@ -191,8 +191,8 @@ O módulo `Deeper_Hub.ServerAdvertisements` é responsável pelo sistema de anú
 
 ### 10.3. Logs
 
-*   `Logger.info(\"Anúncio #{id} criado para o servidor #{server_id}\", module: Deeper_Hub.ServerAdvertisements.Services.AdvertisementService)`
-*   `Logger.info(\"Anúncio #{id} ativado/expirado.\", module: Deeper_Hub.ServerAdvertisements.Workers.AdvertisementStatusWorker)`
+*   `Logger.info(\"Anúncio #{id} criado para o servidor #{server_id}\", module: DeeperHub.ServerAdvertisements.Services.AdvertisementService)`
+*   `Logger.info(\"Anúncio #{id} ativado/expirado.\", module: DeeperHub.ServerAdvertisements.Workers.AdvertisementStatusWorker)`
 
 ### 10.4. Telemetria
 
@@ -232,7 +232,7 @@ O módulo `Deeper_Hub.ServerAdvertisements` é responsável pelo sistema de anú
 
 ---
 
-Próximo da lista é `Deeper_Hub.ServerEvents`. Vamos nessa?"""),
+Próximo da lista é `DeeperHub.ServerEvents`. Vamos nessa?"""),
             ],
         ),
         types.Content(
@@ -244,7 +244,7 @@ Próximo da lista é `Deeper_Hub.ServerEvents`. Vamos nessa?"""),
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Com certeza! Vamos ao README do `Deeper_Hub.ServerEvents`.
+                types.Part.from_text(text="""Com certeza! Vamos ao README do `DeeperHub.ServerEvents`.
 
 ---
 

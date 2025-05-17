@@ -1,8 +1,8 @@
-# Módulo: `Deeper_Hub.Security.GeoLocationService` 🚀
+# Módulo: `DeeperHub.Security.GeoLocationService` 🚀
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.Security.GeoLocationService`
+## 📜 1. Visão Geral do Módulo `DeeperHub.Security.GeoLocationService`
 
-O módulo `Deeper_Hub.Security.GeoLocationService` é responsável por obter, analisar e gerenciar informações de geolocalização associadas a endereços IP dos usuários que interagem com o sistema Deeper_Hub. Ele fornece dados como país, região, cidade e, potencialmente, provedor de internet (ISP) e informações de ASN (Autonomous System Number) para um determinado IP.
+O módulo `DeeperHub.Security.GeoLocationService` é responsável por obter, analisar e gerenciar informações de geolocalização associadas a endereços IP dos usuários que interagem com o sistema DeeperHub. Ele fornece dados como país, região, cidade e, potencialmente, provedor de internet (ISP) e informações de ASN (Autonomous System Number) para um determinado IP.
 
 Essas informações são cruciais para várias funcionalidades de segurança, incluindo:
 *   Detecção de logins de locais incomuns ou de alto risco.
@@ -18,15 +18,15 @@ Este módulo tipicamente integra-se com serviços de GeoIP externos (como MaxMin
     *   Obter dados de geolocalização (país, cidade, região, coordenadas, ISP, ASN) para um endereço IP.
     *   Suporte a diferentes provedores de GeoIP (externos ou bases de dados locais).
 *   **Cache de Resultados de Geolocalização:**
-    *   Armazenar em cache os resultados de lookups de IP para reduzir a latência e o custo de chamadas a serviços externos (via `Deeper_Hub.Security.Cache.GeoCache` ou similar).
+    *   Armazenar em cache os resultados de lookups de IP para reduzir a latência e o custo de chamadas a serviços externos (via `DeeperHub.Security.Cache.GeoCache` ou similar).
 *   **Proteção com Circuit Breaker:**
-    *   Integrar com `Deeper_Hub.Core.CircuitBreakerFactory` ao chamar serviços GeoIP externos para prevenir falhas em cascata.
+    *   Integrar com `DeeperHub.Core.CircuitBreakerFactory` ao chamar serviços GeoIP externos para prevenir falhas em cascata.
 *   **Análise de Risco de Localização (`assess_location_risk/3`):**
     *   Avaliar o risco associado a uma determinada localização (ex: país de alto risco, proxy conhecido, Tor exit node).
 *   **Detecção de Viagem Impossível (`is_impossible_travel?/3`):**
     *   Comparar a localização atual de um login com localizações anteriores para detectar movimentos geograficamente implausíveis em um curto período.
 *   **Gerenciamento de Localizações Confiáveis e Bloqueadas (Integração):**
-    *   Permitir que usuários ou administradores marquem certas localizações (ou países/regiões) como confiáveis ou bloqueadas (lógica gerenciada por `Deeper_Hub.SessionPolicy` ou `SecurityPolicyManager`).
+    *   Permitir que usuários ou administradores marquem certas localizações (ou países/regiões) como confiáveis ou bloqueadas (lógica gerenciada por `DeeperHub.SessionPolicy` ou `SecurityPolicyManager`).
     *   Validar se um IP pertence a uma lista de países permitidos/bloqueados.
 *   **Atualização de Bases de Dados GeoIP (se locais):**
     *   Fornecer mecanismos ou recomendar processos para manter as bases de dados GeoIP locais atualizadas.
@@ -38,27 +38,27 @@ Este módulo tipicamente integra-se com serviços de GeoIP externos (como MaxMin
 
 ### 3.1. Componentes Principais
 
-1.  **`Deeper_Hub.Security.GeoLocationService` (Fachada Pública):**
+1.  **`DeeperHub.Security.GeoLocationService` (Fachada Pública):**
     *   Ponto de entrada para todas as funcionalidades de geolocalização.
     *   Delega para um `GeoLocationAdapter` ou diretamente para um serviço interno.
-2.  **`Deeper_Hub.Security.GeoLocationService.Adapter` (Behaviour e Implementações):**
+2.  **`DeeperHub.Security.GeoLocationService.Adapter` (Behaviour e Implementações):**
     *   **Responsabilidade:** Abstrair a interação com diferentes provedores de GeoIP.
     *   **Implementações:**
         *   `MaxMindAdapter`: Para interagir com a API ou base de dados MaxMind GeoIP2.
         *   `IPinfoAdapter`: Para interagir com a API IPinfo.io.
         *   `LocalDbAdapter`: Para consultar uma base de dados GeoIP local (ex: baixada e atualizada periodicamente).
         *   `CompositeAdapter`: Para tentar múltiplos provedores em uma ordem de precedência.
-3.  **`Deeper_Hub.Core.CircuitBreakerFactory` e Circuit Breakers específicos por provedor:**
+3.  **`DeeperHub.Core.CircuitBreakerFactory` e Circuit Breakers específicos por provedor:**
     *   Usados pelos adaptadores de provedores externos para proteger o sistema.
-    *   Exemplo: `Deeper_Hub.Infrastructure.GeoIP.GeoIPServiceWithCircuitBreaker` (da documentação original) pode ser renomeado ou integrado aqui.
-4.  **`Deeper_Hub.Security.Cache.GeoCache` (GenServer ou ETS direta):**
+    *   Exemplo: `DeeperHub.Infrastructure.GeoIP.GeoIPServiceWithCircuitBreaker` (da documentação original) pode ser renomeado ou integrado aqui.
+4.  **`DeeperHub.Security.Cache.GeoCache` (GenServer ou ETS direta):**
     *   Armazena em cache os resultados de lookups de IP para evitar chamadas repetidas a serviços externos.
-5.  **`Deeper_Hub.Security.GeoLocationService.RiskAnalyzer` (Módulo Funcional):**
+5.  **`DeeperHub.Security.GeoLocationService.RiskAnalyzer` (Módulo Funcional):**
     *   Contém a lógica para `assess_location_risk/3` e `is_impossible_travel?/3`.
     *   Pode consultar listas de países de alto risco, proxies conhecidos, etc. (configuráveis).
-6.  **`Deeper_Hub.Security.LoginLocation.Schema.LocationHistory` e `TrustedLocation` (se persistência for usada):**
+6.  **`DeeperHub.Security.LoginLocation.Schema.LocationHistory` e `TrustedLocation` (se persistência for usada):**
     *   Schemas Ecto para armazenar o histórico de login de usuários e localizações confiáveis. A lógica de gravação/leitura seria gerenciada por um serviço como `LoginLocationService` ou diretamente pelo `RiskAnalyzer`.
-7.  **Configurações (via `Deeper_Hub.Core.ConfigManager` e `Deeper_Hub.Security.Policy.SecurityPolicyManager`):**
+7.  **Configurações (via `DeeperHub.Core.ConfigManager` e `DeeperHub.Security.Policy.SecurityPolicyManager`):**
     *   Chaves de API para serviços GeoIP externos.
     *   Caminhos para bases de dados GeoIP locais.
     *   Configurações de cache (TTL).
@@ -85,7 +85,7 @@ security/geo_location_service/ # Ou apenas geo_location.ex se for mais simples
 ├── supervisor.ex                   # Supervisor para processos do GeoLocation (ex: Cache)
 └── telemetry.ex
 ```
-*(Nota: O módulo `Deeper_Hub.LoginLocation` da documentação original parece ter responsabilidades sobrepostas. A geolocalização de um IP é uma função, enquanto rastrear e analisar os *logins* de um *usuário* em diferentes localizações é outra. Podemos manter `GeoLocationService` focado no lookup de IP e na análise de risco da localização em si, e `LoginLocation` (ou um `UserLocationHistoryService`) focado no histórico e padrões do usuário.)*
+*(Nota: O módulo `DeeperHub.LoginLocation` da documentação original parece ter responsabilidades sobrepostas. A geolocalização de um IP é uma função, enquanto rastrear e analisar os *logins* de um *usuário* em diferentes localizações é outra. Podemos manter `GeoLocationService` focado no lookup de IP e na análise de risco da localização em si, e `LoginLocation` (ou um `UserLocationHistoryService`) focado no histórico e padrões do usuário.)*
 
 ### 3.3. Decisões de Design Importantes
 
@@ -97,7 +97,7 @@ security/geo_location_service/ # Ou apenas geo_location.ex se for mais simples
 ## 🛠️ 4. Casos de Uso Principais
 
 *   **Verificar Localização de um Novo Login:**
-    *   `Deeper_Hub.Auth` recebe um IP durante o login.
+    *   `DeeperHub.Auth` recebe um IP durante o login.
     *   Chama `GeoLocationService.get_location(ip_address)`.
     *   O resultado é usado pelo `RiskAssessment` para avaliar o risco do login.
 *   **Detectar Viagem Impossível:**
@@ -106,7 +106,7 @@ security/geo_location_service/ # Ou apenas geo_location.ex se for mais simples
     *   Um Plug de segurança chama `GeoLocationService.assess_location_risk(ip_info)`.
     *   Se o risco for crítico devido ao país, a requisição pode ser bloqueada.
 *   **Enriquecer Logs de Auditoria:**
-    *   `Deeper_Hub.Audit` usa o `GeoLocationService` para adicionar informações de país/cidade aos logs de eventos.
+    *   `DeeperHub.Audit` usa o `GeoLocationService` para adicionar informações de país/cidade aos logs de eventos.
 
 ## 🌊 5. Fluxos Importantes
 
@@ -136,7 +136,7 @@ security/geo_location_service/ # Ou apenas geo_location.ex se for mais simples
 
 ## 📡 6. API (Funções Públicas da Fachada)
 
-### 6.1. `Deeper_Hub.Security.GeoLocationService.get_location(ip_address :: String.t(), opts :: keyword()) :: {:ok, GeoData.t()} | {:error, reason :: atom()}`
+### 6.1. `DeeperHub.Security.GeoLocationService.get_location(ip_address :: String.t(), opts :: keyword()) :: {:ok, GeoData.t()} | {:error, reason :: atom()}`
 
 *   **Descrição:** Obtém dados de geolocalização para um endereço IP.
 *   **`opts`:**
@@ -153,7 +153,7 @@ security/geo_location_service/ # Ou apenas geo_location.ex se for mais simples
     end
     ```
 
-### 6.2. `Deeper_Hub.Security.GeoLocationService.assess_location_risk(ip_address :: String.t() | GeoData.t(), opts :: keyword()) :: {:ok, LocationRisk.t()} | {:error, reason :: atom()}`
+### 6.2. `DeeperHub.Security.GeoLocationService.assess_location_risk(ip_address :: String.t() | GeoData.t(), opts :: keyword()) :: {:ok, LocationRisk.t()} | {:error, reason :: atom()}`
 
 *   **Descrição:** Avalia o risco associado a um IP ou dados de geolocalização já obtidos.
 *   **`opts`:**
@@ -166,7 +166,7 @@ security/geo_location_service/ # Ou apenas geo_location.ex se for mais simples
     # {:ok, %{risk_score: 75.0, risk_level: :high, factors: [...]}}
     ```
 
-### 6.3. `Deeper_Hub.Security.GeoLocationService.is_impossible_travel?(prev_location :: StoredLocation.t(), current_ip :: String.t(), current_timestamp :: DateTime.t() | nil, opts :: keyword()) :: {:ok, ImpossibleTravelResult.t()} | {:error, reason :: atom()}`
+### 6.3. `DeeperHub.Security.GeoLocationService.is_impossible_travel?(prev_location :: StoredLocation.t(), current_ip :: String.t(), current_timestamp :: DateTime.t() | nil, opts :: keyword()) :: {:ok, ImpossibleTravelResult.t()} | {:error, reason :: atom()}`
 
 *   **Descrição:** Verifica se uma movimentação entre a `prev_location` (com seu timestamp) e a localização do `current_ip` (no `current_timestamp`) é geograficamente implausível.
 *   **`StoredLocation.t()`:** `%{latitude: float(), longitude: float(), timestamp: DateTime.t()}`.
@@ -182,7 +182,7 @@ security/geo_location_service/ # Ou apenas geo_location.ex se for mais simples
 
 ## ⚙️ 7. Configuração
 
-Via `Deeper_Hub.Core.ConfigManager` e `Deeper_Hub.Security.Policy.SecurityPolicyManager`:
+Via `DeeperHub.Core.ConfigManager` e `DeeperHub.Security.Policy.SecurityPolicyManager`:
 
 *   **`[:security, :geo_location, :enabled]`** (Boolean): Habilita/desabilita o serviço. (Padrão: `true`)
 *   **`[:security, :geo_location, :default_provider_order]`** (List de Atoms): Ordem de preferência dos adaptadores de provedor GeoIP (ex: `[:maxmind_api, :ipinfo_api, :local_db]`).
@@ -198,10 +198,10 @@ Via `Deeper_Hub.Core.ConfigManager` e `Deeper_Hub.Security.Policy.SecurityPolicy
 
 ### 8.1. Módulos Internos
 
-*   `Deeper_Hub.Core.ConfigManager`, `Core.Logger`, `Core.Metrics`, `Core.Cache` (ou `Security.Cache.GeoCache`).
-*   `Deeper_Hub.Core.CircuitBreakerFactory`: Para chamadas a APIs externas.
-*   `Deeper_Hub.Core.HTTPClient`: Para realizar as chamadas HTTP aos provedores.
-*   `Deeper_Hub.Security.Policy.SecurityPolicyManager`: Para obter listas de países de risco, etc.
+*   `DeeperHub.Core.ConfigManager`, `Core.Logger`, `Core.Metrics`, `Core.Cache` (ou `Security.Cache.GeoCache`).
+*   `DeeperHub.Core.CircuitBreakerFactory`: Para chamadas a APIs externas.
+*   `DeeperHub.Core.HTTPClient`: Para realizar as chamadas HTTP aos provedores.
+*   `DeeperHub.Security.Policy.SecurityPolicyManager`: Para obter listas de países de risco, etc.
 
 ### 8.2. Bibliotecas Externas
 
@@ -217,13 +217,13 @@ O `GeoLocationService` é primariamente consumido por outros módulos de seguran
 ```elixir
 defp calculate_location_factors(ip_address, user_profile) do
   factors = 
-    case Deeper_Hub.Security.GeoLocationService.get_location(ip_address) do
+    case DeeperHub.Security.GeoLocationService.get_location(ip_address) do
       {:ok, geo_data} ->
-        location_risk_result = Deeper_Hub.Security.GeoLocationService.assess_location_risk(geo_data, user_context: user_profile.geo_history)
+        location_risk_result = DeeperHub.Security.GeoLocationService.assess_location_risk(geo_data, user_context: user_profile.geo_history)
         
         travel_check = 
           if last_login = UserLoginHistory.get_last(user_profile.id) do
-            Deeper_Hub.Security.GeoLocationService.is_impossible_travel?(last_login.location, ip_address)
+            DeeperHub.Security.GeoLocationService.is_impossible_travel?(last_login.location, ip_address)
           else
             {:ok, %{is_impossible: false}}
           end
@@ -307,7 +307,7 @@ end
 
 ---
 
-Agora que cobrimos a geolocalização, faz sentido documentar o `Deeper_Hub.Security.DeviceService` (ou `SecurityManager` se ele englobar essa funcionalidade) que lida com o registro e confiança de dispositivos, usando a `DeviceFingerprint`. Ou prefere mudar o foco?"""),
+Agora que cobrimos a geolocalização, faz sentido documentar o `DeeperHub.Security.DeviceService` (ou `SecurityManager` se ele englobar essa funcionalidade) que lida com o registro e confiança de dispositivos, usando a `DeviceFingerprint`. Ou prefere mudar o foco?"""),
             ],
         ),
         types.Content(
@@ -319,7 +319,7 @@ Agora que cobrimos a geolocalização, faz sentido documentar o `Deeper_Hub.Secu
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Perfeito! Vamos então detalhar o `Deeper_Hub.Security.DeviceService`. Este módulo é crucial para o gerenciamento de dispositivos, trabalhando em conjunto com o `Deeper_Hub.Security.DeviceFingerprint` para identificar e gerenciar o acesso de diferentes dispositivos dos usuários.
+                types.Part.from_text(text="""Perfeito! Vamos então detalhar o `DeeperHub.Security.DeviceService`. Este módulo é crucial para o gerenciamento de dispositivos, trabalhando em conjunto com o `DeeperHub.Security.DeviceFingerprint` para identificar e gerenciar o acesso de diferentes dispositivos dos usuários.
 
 ---
 

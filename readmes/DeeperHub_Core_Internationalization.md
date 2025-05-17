@@ -1,8 +1,8 @@
-# Módulo: `Deeper_Hub.Core.Internationalization` 🌍
+# Módulo: `DeeperHub.Core.Internationalization` 🌍
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.Core.Internationalization`
+## 📜 1. Visão Geral do Módulo `DeeperHub.Core.Internationalization`
 
-O módulo `Deeper_Hub.Core.Internationalization` (referido como `I18n`) é o componente central responsável por fornecer suporte a múltiplos idiomas e localização para todo o sistema Deeper_Hub. Ele permite que a aplicação apresente textos, datas, números e outros dados formatados de acordo com o locale (idioma e região) do usuário ou do contexto da requisição. O objetivo é garantir uma experiência de usuário localizada e acessível globalmente. 😊
+O módulo `DeeperHub.Core.Internationalization` (referido como `I18n`) é o componente central responsável por fornecer suporte a múltiplos idiomas e localização para todo o sistema DeeperHub. Ele permite que a aplicação apresente textos, datas, números e outros dados formatados de acordo com o locale (idioma e região) do usuário ou do contexto da requisição. O objetivo é garantir uma experiência de usuário localizada e acessível globalmente. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -31,18 +31,18 @@ O módulo `Deeper_Hub.Core.Internationalization` (referido como `I18n`) é o com
 
 ## 🏗️ 3. Arquitetura e Design
 
-O `Deeper_Hub.Core.I18n` provavelmente será uma fachada que utiliza um backend de tradução configurável.
+O `DeeperHub.Core.I18n` provavelmente será uma fachada que utiliza um backend de tradução configurável.
 
-*   **Interface Pública (`Deeper_Hub.Core.I18n`):** Define as funções principais como `t/2`, `l/3` (para localizar datas/números), `get_locale/0`, `with_locale/2`.
+*   **Interface Pública (`DeeperHub.Core.I18n`):** Define as funções principais como `t/2`, `l/3` (para localizar datas/números), `get_locale/0`, `with_locale/2`.
 *   **Backend de I18n (ex: `Gettext`, `Exáció` ou uma implementação customizada):**
     *   Responsável por carregar, armazenar e buscar as traduções.
     *   A escolha do backend é configurável.
-*   **Módulo de Configuração (`Deeper_Hub.Core.I18n.Config` ou via `Core.ConfigManager`):**
+*   **Módulo de Configuração (`DeeperHub.Core.I18n.Config` ou via `Core.ConfigManager`):**
     *   Armazena o locale padrão, locales disponíveis, caminho para os arquivos de tradução, configuração do backend.
 *   **Mecanismo de Detecção de Locale:**
     *   Lógica para determinar o locale a ser usado, possivelmente em um Plug para aplicações web Phoenix, ou através de contexto explícito.
 *   **Cache de Traduções:**
-    *   Pode utilizar o `Deeper_Hub.Core.Cache` para armazenar traduções frequentemente acessadas.
+    *   Pode utilizar o `DeeperHub.Core.Cache` para armazenar traduções frequentemente acessadas.
 
 **Padrões de Design:**
 
@@ -51,11 +51,11 @@ O `Deeper_Hub.Core.I18n` provavelmente será uma fachada que utiliza um backend 
 
 ### 3.1. Componentes Principais
 
-*   **`Deeper_Hub.Core.I18n`:** A fachada principal.
-*   **`Deeper_Hub.Core.I18n.BackendBehaviour` (Novo Sugerido):** Um comportamento que os backends de tradução devem implementar.
-*   **`Deeper_Hub.Core.I18n.Backends.GettextAdapter` (Exemplo):** Implementação usando a biblioteca Gettext.
-*   **`Deeper_Hub.Core.I18n.Locale` (Novo Sugerido):** Módulo para gerenciamento e detecção de locales.
-*   **`Deeper_Hub.Core.I18n.Formatters` (Novo Sugerido):** Módulo contendo lógica para formatação de datas, números e moedas (pode usar bibliotecas como `ex_cldr`).
+*   **`DeeperHub.Core.I18n`:** A fachada principal.
+*   **`DeeperHub.Core.I18n.BackendBehaviour` (Novo Sugerido):** Um comportamento que os backends de tradução devem implementar.
+*   **`DeeperHub.Core.I18n.Backends.GettextAdapter` (Exemplo):** Implementação usando a biblioteca Gettext.
+*   **`DeeperHub.Core.I18n.Locale` (Novo Sugerido):** Módulo para gerenciamento e detecção de locales.
+*   **`DeeperHub.Core.I18n.Formatters` (Novo Sugerido):** Módulo contendo lógica para formatação de datas, números e moedas (pode usar bibliotecas como `ex_cldr`).
 
 ### 3.3. Decisões de Design Importantes
 
@@ -66,17 +66,17 @@ O `Deeper_Hub.Core.I18n` provavelmente será uma fachada que utiliza um backend 
 ## 🛠️ 4. Casos de Uso Principais
 
 *   **Exibir Mensagem de Boas-Vindas Localizada:** A API retorna uma mensagem de boas-vindas no idioma do usuário.
-    *   `Deeper_Hub.Core.I18n.t(\"welcome_message\", name: current_user.name)`
-*   **Formatar Data em um Email de Notificação:** O módulo `Deeper_Hub.Notifications` usa `I18n.l(event_date, format: :long)` para formatar uma data de evento no idioma do destinatário.
+    *   `DeeperHub.Core.I18n.t(\"welcome_message\", name: current_user.name)`
+*   **Formatar Data em um Email de Notificação:** O módulo `DeeperHub.Notifications` usa `I18n.l(event_date, format: :long)` para formatar uma data de evento no idioma do destinatário.
 *   **Validar Entrada de Data de um Formulário:** A API recebe uma data em um formato localizado e usa `I18n.parse_date(input_string)` para convertê-la para um `Date.t()`.
-*   **Exibir Preços de Produtos Localizados:** Uma loja virtual dentro do Deeper_Hub usa `I18n.format_currency(price, currency_code)` para mostrar preços corretamente.
+*   **Exibir Preços de Produtos Localizados:** Uma loja virtual dentro do DeeperHub usa `I18n.format_currency(price, currency_code)` para mostrar preços corretamente.
 
 ## 🌊 5. Fluxos Importantes (Opcional)
 
 **Fluxo de Tradução de uma String:**
 
-1.  Um módulo (ex: Controller da API) chama `Deeper_Hub.Core.I18n.t(\"my.translation.key\", name: \"Mundo\")`.
-2.  `I18n.t/2` determina o locale atual (ex: consultando `Deeper_Hub.Core.I18n.Locale.current_locale()`).
+1.  Um módulo (ex: Controller da API) chama `DeeperHub.Core.I18n.t(\"my.translation.key\", name: \"Mundo\")`.
+2.  `I18n.t/2` determina o locale atual (ex: consultando `DeeperHub.Core.I18n.Locale.current_locale()`).
 3.  A chave `\"my.translation.key\"` e o locale são passados para o backend de I18n configurado (ex: `GettextAdapter`).
 4.  O `GettextAdapter` busca a tradução nos arquivos `.po` correspondentes ao locale.
     *   Se não encontrada no locale primário, tenta o locale de fallback.
@@ -86,7 +86,7 @@ O `Deeper_Hub.Core.I18n` provavelmente será uma fachada que utiliza um backend 
 
 ## 📡 6. API (Se Aplicável)
 
-### 6.1. `Deeper_Hub.Core.I18n.t/2` (Translate)
+### 6.1. `DeeperHub.Core.I18n.t/2` (Translate)
 
 *   **Descrição:** Busca e retorna uma string traduzida para uma chave, com interpolação opcional.
 *   **`@spec`:** `t(key :: String.t() | atom(), bindings :: Keyword.t() | map()) :: String.t()`
@@ -99,15 +99,15 @@ O `Deeper_Hub.Core.I18n` provavelmente será uma fachada que utiliza um backend 
     ```elixir
     # Supondo que em pt_BR.po: msgid \"labels.greeting\" msgstr \"Olá, %{user}!\"
     name = \"Ana\"
-    Deeper_Hub.Core.I18n.t(\"labels.greeting\", user: name) # => \"Olá, Ana!\"
+    DeeperHub.Core.I18n.t(\"labels.greeting\", user: name) # => \"Olá, Ana!\"
 
     # Usando com pluralização (requer configuração no backend Gettext)
     # Supondo: msgid_plural \"%{count} items\" msgstr[0] \"%{count} item\" msgstr[1] \"%{count} itens\"
-    Deeper_Hub.Core.I18n.t(\"items.count\", count: 1) # => \"1 item\"
-    Deeper_Hub.Core.I18n.t(\"items.count\", count: 5) # => \"5 itens\"
+    DeeperHub.Core.I18n.t(\"items.count\", count: 1) # => \"1 item\"
+    DeeperHub.Core.I18n.t(\"items.count\", count: 5) # => \"5 itens\"
     ```
 
-### 6.2. `Deeper_Hub.Core.I18n.l/3` (Localize)
+### 6.2. `DeeperHub.Core.I18n.l/3` (Localize)
 
 *   **Descrição:** Formata um valor (data, hora, número) de acordo com o locale atual.
 *   **`@spec`:** `l(value :: Date.t() | DateTime.t() | NaiveDateTime.t() | Time.t() | number(), type :: atom(), opts :: Keyword.t()) :: String.t()`
@@ -120,28 +120,28 @@ O `Deeper_Hub.Core.I18n` provavelmente será uma fachada que utiliza um backend 
 *   **Exemplo de Uso (Elixir):**
     ```elixir
     date = ~D[2025-12-25]
-    Deeper_Hub.Core.I18n.with_locale \"pt-BR\", fn ->
-      Deeper_Hub.Core.I18n.l(date, :date, format: :long) # => \"25 de dezembro de 2025\"
+    DeeperHub.Core.I18n.with_locale \"pt-BR\", fn ->
+      DeeperHub.Core.I18n.l(date, :date, format: :long) # => \"25 de dezembro de 2025\"
     end
 
     number = 12345.67
-    Deeper_Hub.Core.I18n.with_locale \"en-US\", fn ->
-      Deeper_Hub.Core.I18n.l(number, :number, precision: 2) # => \"12,345.67\"
+    DeeperHub.Core.I18n.with_locale \"en-US\", fn ->
+      DeeperHub.Core.I18n.l(number, :number, precision: 2) # => \"12,345.67\"
     end
     ```
 
-### 6.3. `Deeper_Hub.Core.I18n.current_locale/0`
+### 6.3. `DeeperHub.Core.I18n.current_locale/0`
 
 *   **Descrição:** Retorna o locale atualmente ativo para o processo/requisição.
 *   **`@spec`:** `current_locale() :: String.t()`
 *   **Retorno:** O código do locale (ex: \"pt-BR\", \"en-US\").
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    locale = Deeper_Hub.Core.I18n.current_locale()
+    locale = DeeperHub.Core.I18n.current_locale()
     Logger.info(\"Current locale: #{locale}\")
     ```
 
-### 6.4. `Deeper_Hub.Core.I18n.with_locale/2`
+### 6.4. `DeeperHub.Core.I18n.with_locale/2`
 
 *   **Descrição:** Executa uma função dentro de um contexto de locale específico.
 *   **`@spec`:** `with_locale(locale :: String.t(), fun :: (() -> any())) :: any()`
@@ -151,20 +151,20 @@ O `Deeper_Hub.Core.I18n` provavelmente será uma fachada que utiliza um backend 
 *   **Retorno:** O resultado da função `fun`.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    Deeper_Hub.Core.I18n.with_locale \"es-ES\", fn ->
-      Deeper_Hub.Core.I18n.t(\"greetings.hello\") # => \"Hola\"
+    DeeperHub.Core.I18n.with_locale \"es-ES\", fn ->
+      DeeperHub.Core.I18n.t(\"greetings.hello\") # => \"Hola\"
     end
     ```
 
 ## ⚙️ 7. Configuração
 
-O módulo `I18n` é configurado através do `Deeper_Hub.Core.ConfigManager`.
+O módulo `I18n` é configurado através do `DeeperHub.Core.ConfigManager`.
 
 *   **ConfigManager:**
     *   `[:core, :i18n, :default_locale]`: Locale padrão da aplicação. (Padrão: `\"en-US\"`)
     *   `[:core, :i18n, :available_locales]`: Lista de locales suportados pela aplicação. (Padrão: `[\"en-US\", \"pt-BR\"]`)
     *   `[:core, :i18n, :fallback_locale]`: Locale a ser usado se uma tradução não for encontrada no locale atual. (Padrão: `config :core, :i18n, :default_locale`)
-    *   `[:core, :i18n, :backend_module]`: Módulo do backend de tradução (ex: `MyApp.Gettext`). (Padrão: `Deeper_Hub.Core.I18n.Backends.GettextAdapter`)
+    *   `[:core, :i18n, :backend_module]`: Módulo do backend de tradução (ex: `MyApp.Gettext`). (Padrão: `DeeperHub.Core.I18n.Backends.GettextAdapter`)
     *   `[:core, :i18n, :translations_path]`: Caminho para os arquivos de tradução (relevante para backends baseados em arquivo). (Padrão: `\"priv/gettext\"`)
     *   `[:core, :i18n, :cache_enabled]`: Habilita/desabilita o cache de traduções. (Padrão: `true`)
     *   `[:core, :i18n, :cache_ttl_seconds]`: TTL para o cache de traduções. (Padrão: `3600`)
@@ -174,9 +174,9 @@ O módulo `I18n` é configurado através do `Deeper_Hub.Core.ConfigManager`.
 
 ### 8.1. Módulos Internos
 
-*   `Deeper_Hub.Core.ConfigManager`: Para configurações do I18n.
-*   `Deeper_Hub.Core.Cache`: Para cache de traduções (opcional).
-*   `Deeper_Hub.Core.Logger`: Para logar avisos sobre traduções ausentes.
+*   `DeeperHub.Core.ConfigManager`: Para configurações do I18n.
+*   `DeeperHub.Core.Cache`: Para cache de traduções (opcional).
+*   `DeeperHub.Core.Logger`: Para logar avisos sobre traduções ausentes.
 
 ### 8.2. Bibliotecas Externas
 
@@ -186,12 +186,12 @@ O módulo `I18n` é configurado através do `Deeper_Hub.Core.ConfigManager`.
 
 ## 🤝 9. Como Usar / Integração
 
-Outros módulos que precisam de textos traduzidos ou formatação localizada devem usar as funções da fachada `Deeper_Hub.Core.I18n`.
+Outros módulos que precisam de textos traduzidos ou formatação localizada devem usar as funções da fachada `DeeperHub.Core.I18n`.
 
 **Em Controllers Phoenix (para detectar locale da requisição):**
 ```elixir
 # Em um Plug
-defmodule Deeper_HubWeb.Plugs.SetLocale do
+defmodule DeeperHubWeb.Plugs.SetLocale do
   import Plug.Conn
 
   def init(opts), do: opts
@@ -199,25 +199,25 @@ defmodule Deeper_HubWeb.Plugs.SetLocale do
   def call(conn, _opts) do
     # Lógica para detectar o locale (ex: do header Accept-Language, cookie, params)
     locale = determine_locale_from_conn(conn) # Função a ser implementada
-    Deeper_Hub.Core.I18n.set_current_locale_for_process(locale) # Supõe uma função para definir no processo
+    DeeperHub.Core.I18n.set_current_locale_for_process(locale) # Supõe uma função para definir no processo
     conn
   end
 
   defp determine_locale_from_conn(conn) do
     # ... lógica para extrair locale ...
-    # Se não encontrar, usar Deeper_Hub.Core.I18n.get_default_locale()
+    # Se não encontrar, usar DeeperHub.Core.I18n.get_default_locale()
     \"pt-BR\" # Exemplo
   end
 end
 
 # No endpoint.ex
-# plug Deeper_HubWeb.Plugs.SetLocale
+# plug DeeperHubWeb.Plugs.SetLocale
 ```
 
 **Em Módulos de Serviço:**
 ```elixir
-defmodule Deeper_Hub.MyFeatureService do
-  alias Deeper_Hub.Core.I18n
+defmodule DeeperHub.MyFeatureService do
+  alias DeeperHub.Core.I18n
 
   def process_data(user) do
     # ...
@@ -293,7 +293,7 @@ Próximo? Que tal o `Core.InputValidator` ou algum dos módulos de domínio?""")
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ok, vamos continuar com o README para `Deeper_Hub.Core.InputValidator`. Este módulo é crucial para a segurança e integridade dos dados.
+                types.Part.from_text(text="""Ok, vamos continuar com o README para `DeeperHub.Core.InputValidator`. Este módulo é crucial para a segurança e integridade dos dados.
 
 ---
 

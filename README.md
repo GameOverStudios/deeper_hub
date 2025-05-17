@@ -1,300 +1,214 @@
-# Deeper_Hub
+# DeeperHub
 
-## Visão Geral
-
-O Deeper_Hub é uma plataforma robusta e escalável desenvolvida em Elixir, projetada para fornecer uma base sólida para aplicações que necessitam de alta disponibilidade, resiliência e desempenho. A arquitetura do sistema é baseada em princípios de design modular, com foco em observabilidade, resiliência e manutenibilidade.
+DeeperHub é uma plataforma de gerenciamento de dados em Elixir que fornece uma interface simplificada para operações de banco de dados, com suporte a cache e consultas otimizadas.
 
 ## Características Principais
 
-### 🔄 Arquitetura Modular
+- **Repositório Genérico**: Interface unificada para operações CRUD em qualquer schema Ecto
+- **Sistema de Cache**: Melhora o desempenho de consultas repetitivas com cache automático
+- **Operações de Join**: Suporte a inner, left e right joins com API simplificada
+- **Consultas Flexíveis**: Filtros dinâmicos, ordenação e paginação
+- **Arquitetura Modular**: Código organizado em módulos com responsabilidades específicas
 
-O Deeper_Hub adota uma arquitetura modular bem definida, com separação clara de responsabilidades:
+## Arquitetura
 
-- **Core**: Contém os componentes fundamentais do sistema
-  - **Data**: Gerenciamento de dados e persistência
-  - **Cache**: Sistema de cache para otimização de desempenho
-  - **Resilience**: Mecanismos para garantir a resiliência do sistema
-  - **EventBus**: Sistema de eventos para comunicação entre módulos
-  - **Telemetry**: Instrumentação para observabilidade
+O sistema é dividido em três módulos principais:
 
-### 💾 Gerenciamento de Dados
+1. **RepositoryCore**: Gerencia o cache e fornece funções auxiliares
+2. **RepositoryCrud**: Implementa operações CRUD básicas (Create, Read, Update, Delete)
+3. **RepositoryJoins**: Fornece operações de join entre tabelas
 
-- **Repositório Padrão**: Interface unificada para operações de CRUD
-- **Cache Integrado**: Armazenamento em cache transparente para operações frequentes
-- **Transações**: Suporte a transações atômicas
-- **Joins Otimizados**: Suporte a operações de join eficientes
+O módulo `Repository` funciona como uma fachada (Facade) que delega chamadas para os módulos específicos.
 
-### 🚀 Resiliência
+## Exemplos de Uso no IEx
 
-- **Circuit Breaker**: Proteção contra falhas em cascata em serviços externos
-- **Retry Mechanisms**: Tentativas automáticas para operações que podem falhar temporariamente
-- **Timeouts**: Configuração de timeouts para evitar bloqueios indefinidos
+Abaixo estão exemplos práticos de como utilizar o DeeperHub no console interativo do Elixir (IEx).
 
-### 📊 Observabilidade
+### Iniciar o IEx com a Aplicação
 
-- **Telemetria**: Instrumentação abrangente para métricas de desempenho
-- **Logging**: Sistema de logging estruturado com níveis configuráveis
-- **EventBus**: Rastreamento de eventos do sistema para análise e depuração
-
-### 🔒 Segurança
-
-- **Validação de Entrada**: Validação rigorosa de dados de entrada
-- **Sanitização**: Proteção contra injeção de SQL e outros ataques
-- **Auditoria**: Registro de atividades críticas para fins de auditoria
-
-## Componentes Essenciais
-
-### 1. Sistema de Cache
-
-O sistema de cache é gerenciado pelo módulo `Deeper_Hub.Core.Cache.CacheManager`, que fornece uma interface unificada para operações de cache usando a biblioteca Cachex.
-
-### 2. Circuit Breaker
-
-Implementado através do módulo `Deeper_Hub.Core.Resilience.CircuitBreaker`, utilizando a biblioteca `ex_break` para proteger contra falhas em cascata em serviços externos.
-
-### 3. EventBus
-
-Sistema de eventos baseado na biblioteca `event_bus`, permitindo comunicação desacoplada entre módulos através de eventos bem definidos.
-
-### 4. Telemetria
-
-Instrumentação abrangente usando a biblioteca `telemetry` para coletar métricas de desempenho e comportamento do sistema.
-
-### 5. Repositório
-
-Padrão de repositório implementado pelos módulos `Deeper_Hub.Core.Data.Repository`, `RepositoryCrud` e `RepositoryJoins` para operações de dados consistentes.
-
-## Guia de Integração para Novos Módulos
-
-Esta seção descreve como novos módulos podem se integrar com os componentes essenciais do Deeper_Hub para aproveitar todas as funcionalidades do sistema.
-
-### 🔄 Integrando com o Circuit Breaker
-
-O Circuit Breaker protege contra falhas em cascata quando serviços externos falham repetidamente. Para utilizar o Circuit Breaker em um novo módulo:
-
-```elixir
-defmodule MeuModulo.MeuServico do
-  alias Deeper_Hub.Core.Resilience.CircuitBreaker
-  
-  def chamar_servico_externo(params) do
-    CircuitBreaker.call(
-      :meu_servico_externo,  # Nome único para este circuit breaker
-      fn -> 
-        # Código que pode falhar (ex: chamada HTTP, operação de banco de dados)
-        realizar_chamada_externa(params)
-      end,
-      [],  # Argumentos para a função (vazio neste caso pois usamos closure)
-      threshold: 5,  # Número de falhas antes de abrir o circuito
-      timeout_sec: 30,  # Tempo em segundos para tentar fechar o circuito novamente
-      match_error: fn  # Função para determinar o que é considerado uma falha
-        {:error, _} -> true
-        _ -> false
-      end
-    )
-  end
-  
-  defp realizar_chamada_externa(params) do
-    # Implementação da chamada externa
-  end
-end
+```bash
+iex -S mix
 ```
 
-### 💾 Integrando com o Cache
+### Operações CRUD Básicas
 
-Para utilizar o sistema de cache em um novo módulo:
+> **Nota**: O projeto DeeperHub utiliza UUIDs (binary_id) como chaves primárias em vez de IDs numéricos sequenciais. Todos os exemplos abaixo usam UUIDs no formato string.
 
-```elixir
-defmodule MeuModulo.MeuServico do
-  alias Deeper_Hub.Core.Cache.CacheManager
-  
-  @cache_ttl 3600  # TTL em segundos (1 hora)
-  
-  def buscar_dados(id) do
-    cache_key = "meu_servico:dados:#{id}"
-    
-    # Tenta obter do cache primeiro
-    case CacheManager.get(:default_cache, cache_key) do
-      {:ok, value} when not is_nil(value) ->
-        {:ok, value}
-        
-      _ ->
-        # Se não estiver no cache, busca da fonte original
-        case buscar_dados_da_fonte(id) do
-          {:ok, dados} = result ->
-            # Armazena no cache para futuras requisições
-            CacheManager.put(:default_cache, cache_key, dados, ttl: @cache_ttl)
-            result
-            
-          error ->
-            error
-        end
-    end
-  end
-  
-  defp buscar_dados_da_fonte(id) do
-    # Implementação da busca de dados
-  end
-end
-```
-
-### 📢 Integrando com o EventBus
-
-Para emitir e consumir eventos usando o EventBus:
+#### Inserir um Registro
 
 ```elixir
-defmodule MeuModulo.MeuServico do
-  alias Deeper_Hub.Core.EventBus.EventDefinitions
-  
-  def realizar_acao(params) do
-    # Realiza a ação
-    resultado = executar_acao(params)
-    
-    # Emite um evento informando que a ação foi realizada
-    EventDefinitions.emit(
-      EventDefinitions.meu_evento(),  # Tipo do evento (definido em EventDefinitions)
-      %{  # Dados do evento
-        params: params,
-        resultado: resultado,
-        timestamp: DateTime.utc_now()
-      },
-      source: "#{__MODULE__}"  # Fonte do evento
-    )
-    
-    resultado
-  end
-  
-  defp executar_acao(params) do
-    # Implementação da ação
-  end
-end
+# Usando o schema User existente no projeto
+alias Deeper_Hub.Core.Data.Repository
+alias Deeper_Hub.Core.Schemas.User
 
-# Para consumir eventos, crie um módulo subscriber
-defmodule MeuModulo.MeuEventoSubscriber do
-  use GenServer
-  
-  def start_link(_) do
-    GenServer.start_link(__MODULE__, [], name: __MODULE__)
-  end
-  
-  def init(_) do
-    # Registra-se para receber eventos do tipo "meu_evento"
-    :ok = EventBus.subscribe({__MODULE__, ["meu_evento"]})
-    {:ok, %{}}
-  end
-  
-  # Callback chamado quando um evento é recebido
-  def process({:meu_evento, id} = event_shadow) do
-    # Obtém os dados do evento
-    %{data: data} = EventBus.fetch_event(event_shadow)
-    
-    # Processa o evento
-    # ...
-    
-    # Marca o evento como processado
-    EventBus.mark_as_completed({__MODULE__, event_shadow})
-  end
-end
+# Gerar um UUID para testes (opcional)
+# uuid = UUID.uuid4() # Requer a dependência :uuid
+
+# Inserir um novo usuário
+{:ok, user} = Repository.insert(User, %{username: "joao_silva", email: "joao@example.com", password: "senha123", is_active: true})
 ```
 
-### 📊 Integrando com Telemetria
-
-Para instrumentar um novo módulo com telemetria:
+#### Buscar um Registro por ID
 
 ```elixir
-defmodule MeuModulo.MeuServico do
-  alias Deeper_Hub.Core.Telemetry.TelemetryEvents
-  
-  def realizar_operacao(params) do
-    # Início da medição de tempo
-    start_time = System.monotonic_time()
-    
-    # Realiza a operação
-    resultado = executar_operacao(params)
-    
-    # Cálculo da duração
-    end_time = System.monotonic_time()
-    duration = end_time - start_time
-    
-    # Emite evento de telemetria
-    TelemetryEvents.execute_custom_operation(
-      %{duration: duration, count: 1},  # Medições
-      %{  # Metadados
-        operation: :minha_operacao,
-        module: __MODULE__,
-        params: params,
-        status: (case resultado do
-          {:ok, _} -> :success
-          _ -> :error
-        end)
-      }
-    )
-    
-    resultado
-  end
-  
-  defp executar_operacao(params) do
-    # Implementação da operação
-  end
-end
+# Buscar um usuário pelo ID (usando UUID)
+Repository.get(User, "f81d4fae-7dec-11d0-a765-00a0c91e6bf6")
 
-# Defina o evento de telemetria em TelemetryEvents
-defmodule Deeper_Hub.Core.Telemetry.TelemetryEvents do
-  # ... código existente ...
-  
-  @custom_operation [:deeper_hub, :custom, :operation]
-  
-  def execute_custom_operation(measurements, metadata) do
-    :telemetry.execute(@custom_operation, measurements, metadata)
-  end
-end
+# O resultado é armazenado em cache automaticamente para consultas futuras
 ```
 
-### 📝 Integrando com o Repositório
-
-Para utilizar o padrão de repositório em um novo módulo:
+#### Atualizar um Registro
 
 ```elixir
-defmodule MeuModulo.MeuRepositorio do
-  alias Deeper_Hub.Core.Data.RepositoryCrud
-  
-  @table_name "minha_tabela"
-  
-  # Operações CRUD básicas
-  def criar(entidade) do
-    RepositoryCrud.create(@table_name, entidade)
-  end
-  
-  def buscar(id) do
-    RepositoryCrud.read(@table_name, id)
-  end
-  
-  def atualizar(id, entidade) do
-    RepositoryCrud.update(@table_name, id, entidade)
-  end
-  
-  def excluir(id) do
-    RepositoryCrud.delete(@table_name, id)
-  end
-  
-  def listar(filtro \\ %{}) do
-    RepositoryCrud.list(@table_name, filtro)
-  end
-end
+# Primeiro, busque o registro
+{:ok, user} = Repository.get(User, "f81d4fae-7dec-11d0-a765-00a0c91e6bf6")
+
+# Depois, atualize-o
+{:ok, updated_user} = Repository.update(user, %{username: "joao_santos"})
 ```
 
-## Boas Práticas para Novos Módulos
+#### Excluir um Registro
 
-1. **Separação de Responsabilidades**: Mantenha cada módulo focado em uma única responsabilidade.
-2. **Documentação**: Documente todas as funções públicas com `@moduledoc` e `@doc`.
-3. **Testes**: Escreva testes abrangentes para cada módulo.
-4. **Tratamento de Erros**: Utilize o padrão `{:ok, result}` ou `{:error, reason}` para retornos de função.
-5. **Logging**: Utilize o módulo `Logger` para registrar informações relevantes.
-6. **Configuração**: Utilize o sistema de configuração do Elixir para valores configuráveis.
-7. **Telemetria**: Instrumente operações críticas para monitoramento de desempenho.
-8. **Circuit Breaker**: Proteja chamadas a serviços externos com o Circuit Breaker.
-9. **Cache**: Utilize o cache para operações frequentes e custosas.
-10. **EventBus**: Utilize eventos para comunicação desacoplada entre módulos.
+```elixir
+# Primeiro, busque o registro
+{:ok, user} = Repository.get(User, "f81d4fae-7dec-11d0-a765-00a0c91e6bf6")
 
-## Conclusão
+# Depois, exclua-o
+{:ok, :deleted} = Repository.delete(user)
+```
 
-O Deeper_Hub fornece uma base sólida para o desenvolvimento de aplicações robustas e escaláveis em Elixir. Seguindo as diretrizes e padrões estabelecidos neste documento, novos módulos podem se integrar facilmente com os componentes essenciais do sistema, aproveitando todas as funcionalidades de resiliência, observabilidade e desempenho.
+### Listagem e Consultas
+
+#### Listar Todos os Registros
+
+```elixir
+# Listar todos os usuários
+{:ok, users} = Repository.list(User)
+IO.inspect(users)
+
+# Listar com limite e deslocamento (paginação)
+{:ok, users_page} = Repository.list(User, limit: 10, offset: 0)
+
+# Listar com ordenação personalizada
+{:ok, sorted_users} = Repository.list(User, order_by: [desc: :inserted_at])
+```
+
+#### Buscar Registros com Condições
+
+```elixir
+# Buscar usuários ativos
+{:ok, active_users} = Repository.find(User, %{is_active: true})
+
+# Buscar com múltiplas condições
+{:ok, admin_users} = Repository.find(User, %{is_active: true, username: {:like, "admin"}})
+
+# Buscar com operadores especiais
+# Valores nulos
+{:ok, no_login_users} = Repository.find(User, %{last_login: nil})
+
+# Valores não nulos
+{:ok, with_email_users} = Repository.find(User, %{email: :not_nil})
+
+# Busca por lista de valores (IN)
+{:ok, specific_users} = Repository.find(User, %{id: {:in, ["f81d4fae-7dec-11d0-a765-00a0c91e6bf6", "f81d4fae-7dec-11d0-a765-00a0c91e6bf7"]}})
+
+# Exclusão de lista de valores (NOT IN)
+{:ok, filtered_users} = Repository.find(User, %{id: {:not_in, ["f81d4fae-7dec-11d0-a765-00a0c91e6bf8", "f81d4fae-7dec-11d0-a765-00a0c91e6bf9"]}})
+
+# Busca com LIKE (case-sensitive)
+{:ok, silva_users} = Repository.find(User, %{username: {:like, "silva"}})
+
+# Busca com ILIKE (case-insensitive)
+{:ok, silva_users_i} = Repository.find(User, %{username: {:ilike, "silva"}})
+
+# Combinando com paginação
+{:ok, active_users_page} = Repository.find(User, %{is_active: true}, limit: 10, offset: 0)
+```
+
+### Operações de Join
+
+#### Inner Join
+
+```elixir
+# Inner join entre User e outro schema (exemplo)
+{:ok, results} = Repository.join_inner(
+  User,
+  OtherSchema, # Substitua por um schema real quando disponível
+  [:id, :username, :email],
+  %{is_active: true},
+  join_on: {:id, :user_id}
+)
+
+# O parâmetro join_on especifica os campos para a condição de join
+# No exemplo acima: User.id = OtherSchema.user_id
+```
+
+#### Left Join
+
+```elixir
+# Left join entre User e outro schema (exemplo)
+# Retorna todos os usuários, mesmo os que não têm relação com o outro schema
+{:ok, results} = Repository.join_left(
+  User,
+  OtherSchema, # Substitua por um schema real quando disponível
+  [:id, :username, :email],
+  %{is_active: true},
+  join_on: {:id, :user_id}
+)
+```
+
+#### Right Join
+
+```elixir
+# Right join entre User e outro schema (exemplo)
+# Retorna todos os registros do outro schema, mesmo os que não estão associados a um usuário
+{:ok, results} = Repository.join_right(
+  User,
+  OtherSchema, # Substitua por um schema real quando disponível
+  [:id, :username, :email],
+  %{is_active: true},
+  join_on: {:id, :user_id}
+)
+```
+
+### Gerenciamento de Cache
+
+#### Estatísticas de Cache
+
+```elixir
+# Obter estatísticas de uso do cache
+stats = Repository.get_cache_stats()
+IO.inspect(stats, label: "Estatísticas de cache")
+# Retorna um mapa com hits, misses e hit_rate
+```
+
+#### Invalidar Cache
+
+```elixir
+# Invalidar o cache para um registro específico
+:ok = Repository.invalidate_cache(User, "f81d4fae-7dec-11d0-a765-00a0c91e6bf6")
+```
+
+## Configuração
+
+O DeeperHub é configurado automaticamente na inicialização da aplicação. O cache é inicializado e gerenciado pelo módulo `RepositoryCore`, que é supervisionado pela árvore de supervisão principal.
+
+## Boas Práticas
+
+1. **Use a Fachada**: Sempre acesse as funcionalidades através do módulo `Repository` em vez de chamar diretamente os módulos específicos.
+
+2. **Aproveite o Cache**: O sistema de cache é automático para operações de leitura. Use `Repository.get/2` para aproveitar o cache.
+
+3. **Consultas Eficientes**: Use `find/3` com condições específicas em vez de buscar todos os registros e filtrar na aplicação.
+
+4. **Paginação**: Sempre use paginação (limit e offset) ao lidar com grandes conjuntos de dados.
+
+5. **Joins Seletivos**: Ao usar joins, selecione apenas os campos necessários para melhorar o desempenho.
+
+## Contribuindo
+
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/nova-funcionalidade`)
+3. Faça commit das suas alterações (`git commit -am 'Adiciona nova funcionalidade'`)
+4. Faça push para a branch (`git push origin feature/nova-funcionalidade`)
+5. Abra um Pull Request

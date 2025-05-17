@@ -1,8 +1,8 @@
-# Módulo: `Deeper_Hub.Core.ConfigManager` 🚀
+# Módulo: `DeeperHub.Core.ConfigManager` 🚀
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.Core.ConfigManager`
+## 📜 1. Visão Geral do Módulo `DeeperHub.Core.ConfigManager`
 
-O módulo `Deeper_Hub.Core.ConfigManager` é o serviço centralizado para gerenciar e acessar todas as configurações dinâmicas do sistema Deeper_Hub. Ele abstrai a origem das configurações (seja de arquivos de configuração, banco de dados, variáveis de ambiente ou um serviço de configuração externo), fornecendo uma interface unificada e consistente para todos os outros módulos.
+O módulo `DeeperHub.Core.ConfigManager` é o serviço centralizado para gerenciar e acessar todas as configurações dinâmicas do sistema DeeperHub. Ele abstrai a origem das configurações (seja de arquivos de configuração, banco de dados, variáveis de ambiente ou um serviço de configuração externo), fornecendo uma interface unificada e consistente para todos os outros módulos.
 
 Este módulo permite que as configurações sejam alteradas em tempo de execução (para aquelas que suportam isso) e notifica outros componentes do sistema sobre essas mudanças, permitindo uma adaptação dinâmica do comportamento da aplicação. 😊
 
@@ -31,34 +31,34 @@ Este módulo permite que as configurações sejam alteradas em tempo de execuç�
 *   **Carregamento de Configurações:**
     *   Carregar configurações de diferentes fontes na inicialização (ex: `config/*.exs`, variáveis de ambiente, banco de dados).
 *   **Auditoria (Opcional):**
-    *   Integrar com `Deeper_Hub.Audit` para registrar quem alterou qual configuração e quando.
+    *   Integrar com `DeeperHub.Audit` para registrar quem alterou qual configuração e quando.
 
 ## 🏗️ 3. Arquitetura e Design
 
 ### 3.1. Componentes Principais
 
-1.  **`Deeper_Hub.Core.ConfigManager` (Fachada Pública):**
+1.  **`DeeperHub.Core.ConfigManager` (Fachada Pública):**
     *   **Responsabilidade:** Ponto de entrada para todas as interações com o sistema de configuração.
     *   **Interações:** Delega chamadas para o `ConfigManager.Server`.
-2.  **`Deeper_Hub.Core.ConfigManager.Server` (GenServer):**
+2.  **`DeeperHub.Core.ConfigManager.Server` (GenServer):**
     *   **Responsabilidade:** Processo central que gerencia o estado das configurações, interage com o storage e o cache.
     *   **Estado Interno:**
         *   Cache de Configurações (provavelmente uma tabela ETS gerenciada pelo `ConfigManager.Cache`).
         *   Informações sobre as fontes de configuração.
     *   **Interações:** Recebe chamadas da fachada, interage com `StorageAdapter` para persistência e `Cache` para caching, e com `Core.EventBus` para notificar mudanças.
-3.  **`Deeper_Hub.Core.ConfigManager.StorageAdapter` (Behaviour e Implementações):**
+3.  **`DeeperHub.Core.ConfigManager.StorageAdapter` (Behaviour e Implementações):**
     *   **Responsabilidade:** Abstrair a camada de persistência das configurações.
     *   **Implementações:**
         *   `EctoStorage`: Para armazenar configurações no banco de dados principal.
         *   `FileStorage`: Para carregar configurações de arquivos (ex: arquivos `.yaml` ou `.json` adicionais).
         *   `EnvVarStorage`: Para carregar configurações de variáveis de ambiente.
         *   `CombinedStorage`: Para agregar configurações de múltiplas fontes com uma ordem de precedência definida.
-4.  **`Deeper_Hub.Core.ConfigManager.Cache` (GenServer ou ETS direta):**
+4.  **`DeeperHub.Core.ConfigManager.Cache` (GenServer ou ETS direta):**
     *   **Responsabilidade:** Armazenar em cache as configurações para acesso rápido.
     *   **Interações:** Usado pelo `ConfigManager.Server` para reduzir acessos ao `StorageAdapter`.
-5.  **`Deeper_Hub.Core.ConfigManager.Schema.Setting` (Ecto Schema):**
+5.  **`DeeperHub.Core.ConfigManager.Schema.Setting` (Ecto Schema):**
     *   **Responsabilidade:** Define a estrutura da tabela de configurações no banco de dados (se `EctoStorage` for usado). Inclui campos como `key`, `value`, `scope`, `data_type`, `is_sensitive`, `description`.
-6.  **`Deeper_Hub.Core.ConfigManager.ChangeNotifier` (Opcional, pode ser parte do Server):**
+6.  **`DeeperHub.Core.ConfigManager.ChangeNotifier` (Opcional, pode ser parte do Server):**
     *   **Responsabilidade:** Publicar eventos no `Core.EventBus` quando configurações mudam.
 
 ### 3.2. Estrutura de Diretórios (Proposta)
@@ -94,16 +94,16 @@ core/config_manager/
 ## 🛠️ 4. Casos de Uso Principais
 
 *   **Módulo Obtém Limite de Taxa:**
-    *   O módulo `Deeper_Hub.API.RateLimiter` precisa saber o limite de requisições para um endpoint.
-    *   Ele chama `Deeper_Hub.Core.ConfigManager.get(\"api.rate_limit.users_endpoint\", \"global\", 100)`.
+    *   O módulo `DeeperHub.API.RateLimiter` precisa saber o limite de requisições para um endpoint.
+    *   Ele chama `DeeperHub.Core.ConfigManager.get(\"api.rate_limit.users_endpoint\", \"global\", 100)`.
 *   **Administrador Altera Configuração de Email:**
     *   Um administrador, através de uma interface (Console ou Web), altera a configuração do servidor SMTP.
-    *   A interface chama `Deeper_Hub.Core.ConfigManager.set(\"notifications.smtp.host\", \"new.smtp.server\", scope: \"global\", description: \"...\")`.
+    *   A interface chama `DeeperHub.Core.ConfigManager.set(\"notifications.smtp.host\", \"new.smtp.server\", scope: \"global\", description: \"...\")`.
     *   O `ConfigManager` atualiza o valor no storage, invalida o cache e publica um evento `config_updated`.
-    *   O módulo `Deeper_Hub.Notifications` (ou seu `Mailer`) recebe o evento e recarrega a configuração do SMTP.
+    *   O módulo `DeeperHub.Notifications` (ou seu `Mailer`) recebe o evento e recarrega a configuração do SMTP.
 *   **Definir Feature Flag:**
-    *   O módulo `Deeper_Hub.FeatureFlags` usa o `ConfigManager` para armazenar e recuperar o estado das feature flags.
-    *   Ex: `Deeper_Hub.Core.ConfigManager.get([:feature_flags, :new_dashboard, :enabled], \"global\", false)`.
+    *   O módulo `DeeperHub.FeatureFlags` usa o `ConfigManager` para armazenar e recuperar o estado das feature flags.
+    *   Ex: `DeeperHub.Core.ConfigManager.get([:feature_flags, :new_dashboard, :enabled], \"global\", false)`.
 *   **Carregamento Inicial:**
     *   Na inicialização da aplicação, o `ConfigManager` carrega as configurações de `config/runtime.exs`, variáveis de ambiente e do banco de dados.
 
@@ -111,7 +111,7 @@ core/config_manager/
 
 ### 5.1. Fluxo de Obtenção de Configuração (`get/3`)
 
-1.  **Chamador:** Um módulo chama `Deeper_Hub.Core.ConfigManager.get(key, scope, default_value)`.
+1.  **Chamador:** Um módulo chama `DeeperHub.Core.ConfigManager.get(key, scope, default_value)`.
 2.  **`ConfigManager.Server`:**
     *   Recebe a chamada.
     *   Primeiro, tenta obter o valor do `ConfigManager.Cache` usando a `key` e `scope`.
@@ -127,7 +127,7 @@ core/config_manager/
 
 ### 5.2. Fluxo de Atualização de Configuração (`set/3`)
 
-1.  **Chamador:** Um módulo (geralmente uma interface administrativa ou processo de deploy) chama `Deeper_Hub.Core.ConfigManager.set(key, value, opts)`.
+1.  **Chamador:** Um módulo (geralmente uma interface administrativa ou processo de deploy) chama `DeeperHub.Core.ConfigManager.set(key, value, opts)`.
 2.  **`ConfigManager.Server`:**
     *   Recebe a chamada.
     *   Valida os dados de entrada (tipo do valor, escopo, etc.).
@@ -139,7 +139,7 @@ core/config_manager/
 
 ## 📡 6. API (Funções Públicas da Fachada)
 
-### 6.1. `Deeper_Hub.Core.ConfigManager.get(key :: String.t() | list(atom()), scope :: String.t() | nil, default :: term() | nil) :: term()`
+### 6.1. `DeeperHub.Core.ConfigManager.get(key :: String.t() | list(atom()), scope :: String.t() | nil, default :: term() | nil) :: term()`
 
 *   **Descrição:** Obtém o valor de uma configuração. Se a chave for uma lista de átomos (ex: `[:service, :feature, :enabled]`), ela é convertida internamente para uma string (ex: `\"service.feature.enabled\"`).
 *   **`@spec`:** `get(key :: String.t() | list(atom()), scope :: String.t() | nil, default :: term() | nil) :: term()`
@@ -150,11 +150,11 @@ core/config_manager/
 *   **Retorno:** O valor da configuração ou o valor `default`.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    timeout = Deeper_Hub.Core.ConfigManager.get(\"app.request_timeout_ms\", \"global\", 5000)
-    feature_enabled = Deeper_Hub.Core.ConfigManager.get([:features, :new_reporting, :enabled], \"tenant:abc\", false)
+    timeout = DeeperHub.Core.ConfigManager.get(\"app.request_timeout_ms\", \"global\", 5000)
+    feature_enabled = DeeperHub.Core.ConfigManager.get([:features, :new_reporting, :enabled], \"tenant:abc\", false)
     ```
 
-### 6.2. `Deeper_Hub.Core.ConfigManager.get_config(keys :: list(atom() | String.t()), default :: term() | nil) :: term()`
+### 6.2. `DeeperHub.Core.ConfigManager.get_config(keys :: list(atom() | String.t()), default :: term() | nil) :: term()`
 
 *   **Descrição:** Similar a `get/3` mas assume escopo global e aceita uma lista de chaves para construir o nome da configuração.
 *   **`@spec`:** `get_config(keys :: list(atom() | String.t()), default :: term() | nil) :: term()`
@@ -164,10 +164,10 @@ core/config_manager/
 *   **Retorno:** O valor da configuração ou o valor `default`.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    api_key = Deeper_Hub.Core.ConfigManager.get_config([:external_services, :weather_api, :key], nil)
+    api_key = DeeperHub.Core.ConfigManager.get_config([:external_services, :weather_api, :key], nil)
     ```
 
-### 6.3. `Deeper_Hub.Core.ConfigManager.set(key :: String.t() | list(atom()), value :: term(), opts :: keyword()) :: {:ok, Setting.t()} | {:error, Ecto.Changeset.t() | term()}`
+### 6.3. `DeeperHub.Core.ConfigManager.set(key :: String.t() | list(atom()), value :: term(), opts :: keyword()) :: {:ok, Setting.t()} | {:error, Ecto.Changeset.t() | term()}`
 
 *   **Descrição:** Define ou atualiza o valor de uma configuração.
 *   **`@spec`:** `set(key :: String.t() | list(atom()), value :: term(), opts :: keyword()) :: {:ok, map()} | {:error, term()}`
@@ -181,7 +181,7 @@ core/config_manager/
         *   `:is_sensitive` (Boolean): Indica se a configuração contém dados sensíveis. (Padrão: `false`)
         *   `:created_by` (String): Identificador de quem está fazendo a alteração (para auditoria).
 *   **Retorno:**
-    *   `{:ok, setting}`: Em caso de sucesso, retorna a struct da configuração salva (ex: `Deeper_Hub.Core.ConfigManager.Schema.Setting.t()`).
+    *   `{:ok, setting}`: Em caso de sucesso, retorna a struct da configuração salva (ex: `DeeperHub.Core.ConfigManager.Schema.Setting.t()`).
     *   `{:error, changeset}`: Se houver falha na validação.
     *   `{:error, reason}`: Para outros erros.
 *   **Exemplo de Uso (Elixir):**
@@ -193,13 +193,13 @@ core/config_manager/
       is_sensitive: false,
       created_by: \"admin_user_id\"
     ]
-    case Deeper_Hub.Core.ConfigManager.set(\"external_api.timeout\", 10000, opts) do
+    case DeeperHub.Core.ConfigManager.set(\"external_api.timeout\", 10000, opts) do
       {:ok, setting} -> Logger.info(\"Configuração '#{setting.key}' atualizada.\")
       {:error, reason} -> Logger.error(\"Falha ao atualizar configuração: #{inspect(reason)}\")
     end
     ```
 
-### 6.4. `Deeper_Hub.Core.ConfigManager.delete(key :: String.t() | list(atom()), scope :: String.t() | nil, opts :: keyword()) :: {:ok, Setting.t()} | {:error, :not_found | term()}`
+### 6.4. `DeeperHub.Core.ConfigManager.delete(key :: String.t() | list(atom()), scope :: String.t() | nil, opts :: keyword()) :: {:ok, Setting.t()} | {:error, :not_found | term()}`
 
 *   **Descrição:** Remove uma configuração.
 *   **`@spec`:** `delete(key :: String.t() | list(atom()), scope :: String.t() | nil, opts :: keyword()) :: {:ok, map()} | {:error, term()}`
@@ -214,14 +214,14 @@ core/config_manager/
     *   `{:error, reason}`: Para outros erros.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    case Deeper_Hub.Core.ConfigManager.delete(\"old_feature.enabled\", \"global\", deleted_by: \"cleanup_script\") do
+    case DeeperHub.Core.ConfigManager.delete(\"old_feature.enabled\", \"global\", deleted_by: \"cleanup_script\") do
       {:ok, _} -> Logger.info(\"Configuração removida.\")
       {:error, :not_found} -> Logger.warn(\"Configuração não encontrada para remoção.\")
       {:error, reason} -> Logger.error(\"Falha ao remover configuração: #{inspect(reason)}\")
     end
     ```
 
-### 6.5. `Deeper_Hub.Core.ConfigManager.subscribe(event_key_pattern :: String.t(), subscriber :: pid() | module()) :: :ok | {:error, term()}`
+### 6.5. `DeeperHub.Core.ConfigManager.subscribe(event_key_pattern :: String.t(), subscriber :: pid() | module()) :: :ok | {:error, term()}`
 
 *   **Descrição:** Permite que um processo ou módulo se inscreva para notificações de mudanças em configurações que correspondam ao `event_key_pattern`.
 *   **`@spec`:** `subscribe(event_key_pattern :: String.t(), subscriber :: pid() | module()) :: :ok | {:error, term()}`
@@ -233,7 +233,7 @@ core/config_manager/
     ```elixir
     # Em um GenServer
     def init(_args) do
-      Deeper_Hub.Core.ConfigManager.subscribe(\"notifications.smtp.*\", self())
+      DeeperHub.Core.ConfigManager.subscribe(\"notifications.smtp.*\", self())
       {:ok, load_smtp_config()}
     end
 
@@ -248,23 +248,23 @@ core/config_manager/
 
 O próprio `ConfigManager` carrega suas configurações iniciais de:
 1.  Arquivos de configuração Elixir (ex: `config/runtime.exs`).
-2.  Variáveis de ambiente (com um prefixo definido, ex: `Deeper_Hub_CORE_CONFIGMANAGER_`).
+2.  Variáveis de ambiente (com um prefixo definido, ex: `DEEPERHUB_CORE_CONFIGMANAGER_`).
 3.  Banco de dados (se o `EctoStorage` estiver configurado como uma fonte).
 
 Configurações específicas do `ConfigManager`:
 *   `[:core, :config_manager, :cache_ttl_seconds]` (Integer): TTL padrão para entradas de configuração no cache. (Padrão: `300` - 5 minutos)
-*   `[:core, :config_manager, :sources]` (List): Lista de módulos adaptadores de storage a serem usados e sua ordem de precedência (ex: `[Deeper_Hub.Core.ConfigManager.Storage.EnvVarStorage, Deeper_Hub.Core.ConfigManager.Storage.EctoStorage, Deeper_Hub.Core.ConfigManager.Storage.FileStorage]`).
+*   `[:core, :config_manager, :sources]` (List): Lista de módulos adaptadores de storage a serem usados e sua ordem de precedência (ex: `[DeeperHub.Core.ConfigManager.Storage.EnvVarStorage, DeeperHub.Core.ConfigManager.Storage.EctoStorage, DeeperHub.Core.ConfigManager.Storage.FileStorage]`).
 *   `[:core, :config_manager, :file_storage, :paths]` (List de Strings): Caminhos para arquivos de configuração adicionais se `FileStorage` for usado.
 
 ## 🔗 8. Dependências
 
 ### 8.1. Módulos Internos
 
-*   `Deeper_Hub.Core.EventBus`: Para notificar sobre mudanças de configuração.
-*   `Deeper_Hub.Core.Logger`: Para logging.
-*   `Deeper_Hub.Core.Metrics`: Para métricas de acesso ao cache e storage.
-*   `Deeper_Hub.Core.Repo` (opcional): Se `EctoStorage` for usado.
-*   `Deeper_Hub.Core.Supervisor` (indireta): Para ser supervisionado.
+*   `DeeperHub.Core.EventBus`: Para notificar sobre mudanças de configuração.
+*   `DeeperHub.Core.Logger`: Para logging.
+*   `DeeperHub.Core.Metrics`: Para métricas de acesso ao cache e storage.
+*   `DeeperHub.Core.Repo` (opcional): Se `EctoStorage` for usado.
+*   `DeeperHub.Core.Supervisor` (indireta): Para ser supervisionado.
 
 ### 8.2. Bibliotecas Externas
 
@@ -273,11 +273,11 @@ Configurações específicas do `ConfigManager`:
 
 ## 🤝 9. Como Usar / Integração
 
-A maioria dos módulos no sistema Deeper_Hub dependerá do `ConfigManager` para obter suas configurações.
+A maioria dos módulos no sistema DeeperHub dependerá do `ConfigManager` para obter suas configurações.
 
 **Obtendo uma configuração:**
 ```elixir
-alias Deeper_Hub.Core.ConfigManager
+alias DeeperHub.Core.ConfigManager
 
 # Obter com valor padrão
 default_page_size = ConfigManager.get(\"myapp.pagination.default_size\", \"global\", 20)
@@ -296,8 +296,8 @@ end
 ```elixir
 defmodule MyService do
   use GenServer
-  alias Deeper_Hub.Core.ConfigManager
-  alias Deeper_Hub.Core.Logger
+  alias DeeperHub.Core.ConfigManager
+  alias DeeperHub.Core.Logger
 
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
@@ -403,7 +403,7 @@ Eventos Telemetry são emitidos para:
 
 ---
 
-Próximo! Qual módulo você gostaria de detalhar agora? Talvez `Deeper_Hub.Core.Logger` ou `Deeper_Hub.Auth`?"""),
+Próximo! Qual módulo você gostaria de detalhar agora? Talvez `DeeperHub.Core.Logger` ou `DeeperHub.Auth`?"""),
             ],
         ),
         types.Content(
@@ -415,7 +415,7 @@ Próximo! Qual módulo você gostaria de detalhar agora? Talvez `Deeper_Hub.Core
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Entendido! Vamos continuar com o `Deeper_Hub.Core.Logger`, que é fundamental para a observabilidade do sistema.
+                types.Part.from_text(text="""Entendido! Vamos continuar com o `DeeperHub.Core.Logger`, que é fundamental para a observabilidade do sistema.
 
 ---
 

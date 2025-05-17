@@ -1,38 +1,38 @@
-# Módulo: `Deeper_Hub.Auth` 🚀
+# Módulo: `DeeperHub.Auth` 🚀
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.Auth`
+## 📜 1. Visão Geral do Módulo `DeeperHub.Auth`
 
-O módulo `Deeper_Hub.Auth` é o pilar central para todas as funcionalidades de **autenticação** e **autorização** no sistema Deeper_Hub. Ele é responsável por verificar a identidade dos usuários, proteger recursos, gerenciar sessões, emitir e validar tokens, e aplicar políticas de acesso.
+O módulo `DeeperHub.Auth` é o pilar central para todas as funcionalidades de **autenticação** e **autorização** no sistema DeeperHub. Ele é responsável por verificar a identidade dos usuários, proteger recursos, gerenciar sessões, emitir e validar tokens, e aplicar políticas de acesso.
 
-Este módulo abrange uma vasta gama de mecanismos de segurança, desde o login tradicional com senha até métodos modernos como WebAuthn e Autenticação Multifator (MFA), além de integrar com sistemas de Controle de Acesso Baseado em Papéis (RBAC) e gerenciamento de permissões. Seu objetivo é garantir que apenas usuários autenticados e autorizados possam acessar os recursos e funcionalidades apropriadas do Deeper_Hub. 😊
+Este módulo abrange uma vasta gama de mecanismos de segurança, desde o login tradicional com senha até métodos modernos como WebAuthn e Autenticação Multifator (MFA), além de integrar com sistemas de Controle de Acesso Baseado em Papéis (RBAC) e gerenciamento de permissões. Seu objetivo é garantir que apenas usuários autenticados e autorizados possam acessar os recursos e funcionalidades apropriadas do DeeperHub. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
 *   **Autenticação de Usuários:**
     *   Login com email/senha (via `AuthService` e `LoginService`).
-    *   Login com OAuth (via `Deeper_Hub.OAuth`).
-    *   Login com WebAuthn (FIDO2) (via `Deeper_Hub.WebAuthn`).
-    *   Autenticação Multifator (MFA) com suporte a TOTP, SMS (implícito), Push (implícito), Códigos de Recuperação (via `Deeper_Hub.MFA`).
+    *   Login com OAuth (via `DeeperHub.OAuth`).
+    *   Login com WebAuthn (FIDO2) (via `DeeperHub.WebAuthn`).
+    *   Autenticação Multifator (MFA) com suporte a TOTP, SMS (implícito), Push (implícito), Códigos de Recuperação (via `DeeperHub.MFA`).
     *   Autenticação com tokens de API (via `TokenService`).
 *   **Gerenciamento de Sessões:**
     *   Criação, validação, invalidação (logout) e renovação de sessões de usuário (via `SessionManager`, `SessionService`).
     *   Suporte a sessões persistentes (\"lembrar-me\").
     *   Limpeza periódica de sessões expiradas (`SessionCleanupWorker`).
-    *   Aplicação de políticas de sessão (duração máxima, timeout por inatividade, etc., via `Deeper_Hub.SessionPolicy`).
+    *   Aplicação de políticas de sessão (duração máxima, timeout por inatividade, etc., via `DeeperHub.SessionPolicy`).
 *   **Gerenciamento de Tokens:**
     *   Geração e validação de tokens JWT (acesso, refresh) (via `TokenService`, `JwtService`).
     *   Geração e validação de tokens opacos (API, recuperação de senha, verificação de email) (via `TokenService`).
     *   Rotação de tokens de refresh (via `TokenRotationService`).
     *   Blacklist de tokens revogados (via `TokenBlacklist` e `BlacklistService`).
 *   **Autorização e Controle de Acesso:**
-    *   Verificação de permissões baseada em papéis (RBAC) (via `Deeper_Hub.RBAC`, `PermissionService`, `RoleService`).
+    *   Verificação de permissões baseada em papéis (RBAC) (via `DeeperHub.RBAC`, `PermissionService`, `RoleService`).
     *   Gerenciamento de papéis, permissões e hierarquias de papéis.
     *   Suporte a permissões temporárias.
 *   **Recuperação de Conta:**
-    *   Fluxo de \"esqueci minha senha\" com tokens de reset (via `Deeper_Hub.Recovery`, `PasswordResetService`).
-    *   Verificação de email (via `Deeper_Hub.Recovery`, `EmailVerificationService`).
+    *   Fluxo de \"esqueci minha senha\" com tokens de reset (via `DeeperHub.Recovery`, `PasswordResetService`).
+    *   Verificação de email (via `DeeperHub.Recovery`, `EmailVerificationService`).
 *   **Segurança de Credenciais:**
-    *   Hashing seguro de senhas (via `PasswordAdapter` ou `Deeper_Hub.Shared.Encryption.HashingService`).
+    *   Hashing seguro de senhas (via `PasswordAdapter` ou `DeeperHub.Shared.Encryption.HashingService`).
     *   Políticas de força de senha.
 *   **Integrações de Segurança:**
     *   Limitação de Taxa (Rate Limiting) para endpoints de autenticação (via `RateLimitIntegration`).
@@ -43,53 +43,53 @@ Este módulo abrange uma vasta gama de mecanismos de segurança, desde o login t
 
 ## 🏗️ 3. Arquitetura e Design
 
-O módulo `Deeper_Hub.Auth` é uma fachada de alto nível que orquestra uma série de submódulos e serviços especializados. A complexidade é gerenciada através da separação de responsabilidades em componentes menores e mais focados.
+O módulo `DeeperHub.Auth` é uma fachada de alto nível que orquestra uma série de submódulos e serviços especializados. A complexidade é gerenciada através da separação de responsabilidades em componentes menores e mais focados.
 
 ### 3.1. Componentes Principais
 
 **(Baseado na documentação original e na refatoração proposta)**
 
-*   **`Deeper_Hub.Auth` (Fachada Pública):**
+*   **`DeeperHub.Auth` (Fachada Pública):**
     *   Ponto de entrada principal para funcionalidades de autenticação e autorização.
-    *   Delega para `Deeper_Hub.Auth.AuthService`.
-*   **`Deeper_Hub.Auth.AuthService`:**
+    *   Delega para `DeeperHub.Auth.AuthService`.
+*   **`DeeperHub.Auth.AuthService`:**
     *   Serviço central que coordena as operações de login, logout, validação de sessão/token, e verificação de permissões.
     *   Utiliza outros serviços especializados como `LoginService`, `SessionService`, `TokenService`, `PermissionService`, `RoleService`.
-*   **`Deeper_Hub.Auth.Services.LoginService`:**
+*   **`DeeperHub.Auth.Services.LoginService`:**
     *   Lida especificamente com a lógica de autenticação primária (ex: verificação de email/senha).
-*   **`Deeper_Hub.Auth.SessionManager` (GenServer):**
+*   **`DeeperHub.Auth.SessionManager` (GenServer):**
     *   Gerencia o ciclo de vida das sessões de usuários (criação, validação, invalidação, renovação).
-    *   Pode usar `Deeper_Hub.Auth.Schema.Session` para persistência.
-*   **`Deeper_Hub.Auth.TokenService` (Pode ser `Deeper_Hub.Tokens.TokenFacadeUnified`):**
+    *   Pode usar `DeeperHub.Auth.Schema.Session` para persistência.
+*   **`DeeperHub.Auth.TokenService` (Pode ser `DeeperHub.Tokens.TokenFacadeUnified`):**
     *   Responsável por gerar, validar, revogar e rotacionar diferentes tipos de tokens (JWT, API, recuperação).
     *   Pode incluir subcomponentes como `JwtService`, `BlacklistService`, `TokenRotationService`.
-*   **`Deeper_Hub.Auth.PermissionService` (ou integração com `Deeper_Hub.RBAC`):**
+*   **`DeeperHub.Auth.PermissionService` (ou integração com `DeeperHub.RBAC`):**
     *   Gerencia a definição de permissões e sua associação a papéis ou usuários.
-*   **`Deeper_Hub.Auth.RoleService` (ou integração com `Deeper_Hub.RBAC`):**
+*   **`DeeperHub.Auth.RoleService` (ou integração com `DeeperHub.RBAC`):**
     *   Gerencia a definição de papéis.
-*   **`Deeper_Hub.MFA` (Módulo separado, mas fortemente acoplado):**
-    *   `Deeper_Hub.MFA.MFAFacade` e seus serviços (`TOTPService`, `WebAuthnService` via `Deeper_Hub.WebAuthn`, `RecoveryCodeService`, `PushVerificationService`).
-*   **`Deeper_Hub.OAuth` (Módulo separado, mas fortemente acoplado):**
-    *   `Deeper_Hub.OAuth.OAuthFacadeUnified` e seus serviços para autenticação com provedores externos.
-*   **`Deeper_Hub.Recovery` (Módulo separado, mas fortemente acoplado):**
-    *   `Deeper_Hub.Recovery.RecoveryFacadeUnified` para recuperação de senha e verificação de email.
+*   **`DeeperHub.MFA` (Módulo separado, mas fortemente acoplado):**
+    *   `DeeperHub.MFA.MFAFacade` e seus serviços (`TOTPService`, `WebAuthnService` via `DeeperHub.WebAuthn`, `RecoveryCodeService`, `PushVerificationService`).
+*   **`DeeperHub.OAuth` (Módulo separado, mas fortemente acoplado):**
+    *   `DeeperHub.OAuth.OAuthFacadeUnified` e seus serviços para autenticação com provedores externos.
+*   **`DeeperHub.Recovery` (Módulo separado, mas fortemente acoplado):**
+    *   `DeeperHub.Recovery.RecoveryFacadeUnified` para recuperação de senha e verificação de email.
 *   **Schemas Ecto:**
-    *   `Deeper_Hub.Auth.Schema.Permission`
-    *   `Deeper_Hub.Auth.Schema.Role`
-    *   `Deeper_Hub.Auth.Schema.RolePermission`
-    *   `Deeper_Hub.Auth.Schema.UserPermission`
-    *   `Deeper_Hub.Auth.Schema.UserRole`
-    *   `Deeper_Hub.Auth.TokenSchema` (ou `Deeper_Hub.Tokens.Schema.ApiToken` e `TokenBlacklist`)
-    *   `Deeper_Hub.Auth.TemporaryPassword` (ou `Deeper_Hub.TemporaryPassword.Schema.TempPassword`)
+    *   `DeeperHub.Auth.Schema.Permission`
+    *   `DeeperHub.Auth.Schema.Role`
+    *   `DeeperHub.Auth.Schema.RolePermission`
+    *   `DeeperHub.Auth.Schema.UserPermission`
+    *   `DeeperHub.Auth.Schema.UserRole`
+    *   `DeeperHub.Auth.TokenSchema` (ou `DeeperHub.Tokens.Schema.ApiToken` e `TokenBlacklist`)
+    *   `DeeperHub.Auth.TemporaryPassword` (ou `DeeperHub.TemporaryPassword.Schema.TempPassword`)
 *   **Workers:**
-    *   `Deeper_Hub.Auth.Workers.SessionCleanupWorker`
-    *   `Deeper_Hub.Auth.Workers.TokenCleanupWorker`
+    *   `DeeperHub.Auth.Workers.SessionCleanupWorker`
+    *   `DeeperHub.Auth.Workers.TokenCleanupWorker`
 *   **Integrações:**
-    *   `Deeper_Hub.Auth.Integrations.AuditIntegration`: Para logs de auditoria.
-    *   `Deeper_Hub.Auth.Integrations.EventIntegration`: Para eventos de domínio.
-    *   `Deeper_Hub.Auth.RateLimitIntegration`: Para limitar tentativas de autenticação.
+    *   `DeeperHub.Auth.Integrations.AuditIntegration`: Para logs de auditoria.
+    *   `DeeperHub.Auth.Integrations.EventIntegration`: Para eventos de domínio.
+    *   `DeeperHub.Auth.RateLimitIntegration`: Para limitar tentativas de autenticação.
 *   **Validação:**
-    *   `Deeper_Hub.Auth.Validation.AuthValidation`: Para validar entradas.
+    *   `DeeperHub.Auth.Validation.AuthValidation`: Para validar entradas.
 
 ### 3.2. Estrutura de Diretórios (Proposta Consolidada)
 
@@ -116,7 +116,7 @@ auth/
 │
 ├── workers/
 │   ├── session_cleanup_worker.ex
-│   └── token_cleanup_worker.ex     # (Se não estiver em Deeper_Hub.Tokens)
+│   └── token_cleanup_worker.ex     # (Se não estiver em DeeperHub.Tokens)
 │
 ├── supervisor.ex                   # Supervisor para os processos de Auth
 └── telemetry.ex                    # Telemetria específica do Auth
@@ -133,19 +133,19 @@ auth/
 
 ### 3.3. Decisões de Design Importantes
 
-*   **Camada de Fachada Clara:** `Deeper_Hub.Auth` serve como o único ponto de entrada para o restante da aplicação.
+*   **Camada de Fachada Clara:** `DeeperHub.Auth` serve como o único ponto de entrada para o restante da aplicação.
 *   **Serviços Especializados:** A lógica de autenticação, sessão, token, MFA, OAuth, etc., é dividida em serviços dedicados para manter a coesão e facilitar a manutenção.
-*   **Estado Gerenciado por GenServers:** Componentes como `SessionManager` e o `TokenBlacklistService` (dentro de `Deeper_Hub.Tokens`) usam GenServers para gerenciar estado concorrente.
+*   **Estado Gerenciado por GenServers:** Componentes como `SessionManager` e o `TokenBlacklistService` (dentro de `DeeperHub.Tokens`) usam GenServers para gerenciar estado concorrente.
 *   **Segurança por Padrão:** Práticas como hashing forte de senhas, uso de tokens seguros (JWTs assinados, tokens opacos com entropia suficiente), e proteção contra ataques comuns são incorporadas.
 *   **Extensibilidade:** O uso de adaptadores (implícito nos serviços) e a arquitetura modular permitem a adição de novos métodos de autenticação ou políticas de segurança no futuro.
 
 ## 🛠️ 4. Casos de Uso Principais
 
 *   **Login com Senha:** Usuário fornece email/senha. `Auth.login` -> `AuthService` -> `LoginService` verifica credenciais -> `PasswordAdapter` compara hash -> `SessionManager` cria sessão -> `TokenService` gera tokens.
-*   **Login com Google (OAuth):** Usuário clica em \"Login com Google\". Redirecionado para `Deeper_Hub.OAuth` que interage com o Google -> `OAuth` autentica/cria usuário -> `AuthService` (ou `SessionManager`) cria sessão para o usuário Deeper_Hub.
-*   **Registro de Chave de Segurança (WebAuthn):** Usuário adiciona uma chave de segurança. `Deeper_Hub.MFA` (via `WebAuthnService`) gerencia o fluxo de registro.
-*   **Verificação de Acesso a Recurso:** Um controller de API verifica se o usuário tem permissão para acessar um endpoint. O controller chama `Deeper_Hub.Auth.authorize(user_id, resource, action)` -> `AuthService` -> `PermissionService` (ou `Deeper_Hub.RBAC`) verifica papéis e permissões.
-*   **Recuperação de Senha:** Usuário solicita reset de senha. `Deeper_Hub.Recovery.RecoveryFacade` -> `PasswordResetService` gera token -> `TokenService` armazena token -> `Notifications` envia email. Usuário clica no link -> `PasswordResetService` verifica token -> `PasswordService` atualiza senha.
+*   **Login com Google (OAuth):** Usuário clica em \"Login com Google\". Redirecionado para `DeeperHub.OAuth` que interage com o Google -> `OAuth` autentica/cria usuário -> `AuthService` (ou `SessionManager`) cria sessão para o usuário DeeperHub.
+*   **Registro de Chave de Segurança (WebAuthn):** Usuário adiciona uma chave de segurança. `DeeperHub.MFA` (via `WebAuthnService`) gerencia o fluxo de registro.
+*   **Verificação de Acesso a Recurso:** Um controller de API verifica se o usuário tem permissão para acessar um endpoint. O controller chama `DeeperHub.Auth.authorize(user_id, resource, action)` -> `AuthService` -> `PermissionService` (ou `DeeperHub.RBAC`) verifica papéis e permissões.
+*   **Recuperação de Senha:** Usuário solicita reset de senha. `DeeperHub.Recovery.RecoveryFacade` -> `PasswordResetService` gera token -> `TokenService` armazena token -> `Notifications` envia email. Usuário clica no link -> `PasswordResetService` verifica token -> `PasswordService` atualiza senha.
 *   **Logout:** Usuário clica em logout. `Auth.logout` -> `SessionManager` invalida sessão -> `TokenService` (via `BlacklistService`) adiciona token de acesso à blacklist.
 
 ## 🌊 5. Fluxos Importantes
@@ -153,19 +153,19 @@ auth/
 ### 5.1. Fluxo de Login com Email e Senha (com MFA opcional)
 
 1.  **Controller API/Web:** Recebe `email` e `password`.
-2.  Chama `Deeper_Hub.Auth.login(email, password, ip_address, device_info, metadata)`.
-3.  **`Deeper_Hub.Auth.AuthService`:**
+2.  Chama `DeeperHub.Auth.login(email, password, ip_address, device_info, metadata)`.
+3.  **`DeeperHub.Auth.AuthService`:**
     *   Valida entrada (`AuthValidation`).
     *   Verifica rate limit (`RateLimitIntegration`).
-    *   Delega para `Deeper_Hub.Accounts.get_user_by_email(email)` para buscar o usuário.
+    *   Delega para `DeeperHub.Accounts.get_user_by_email(email)` para buscar o usuário.
         *   Se não encontrado, retorna `{:error, :invalid_credentials}`.
-    *   Delega para `Deeper_Hub.Auth.Services.PasswordService.compare_password(user, password)`.
+    *   Delega para `DeeperHub.Auth.Services.PasswordService.compare_password(user, password)`.
         *   Se a senha não bate, registra falha de login (`RateLimitIntegration`), retorna `{:error, :invalid_credentials}`.
-    *   **Verifica se MFA é necessário para o usuário (via `Deeper_Hub.MFA.MFAPolicyService`).**
+    *   **Verifica se MFA é necessário para o usuário (via `DeeperHub.MFA.MFAPolicyService`).**
         *   Se sim, retorna `{:error, :mfa_required, %{user_id: user.id, available_methods: [...]}}`. O frontend/cliente deve então iniciar o fluxo MFA.
         *   Se não, prossegue.
-    *   Chama `Deeper_Hub.Auth.SessionManager.create_session(user, context_info)` para criar uma sessão.
-    *   Chama `Deeper_Hub.Auth.TokenService.generate_token_pair(user.id, %{session_id: session.id})` para gerar tokens de acesso e refresh.
+    *   Chama `DeeperHub.Auth.SessionManager.create_session(user, context_info)` para criar uma sessão.
+    *   Chama `DeeperHub.Auth.TokenService.generate_token_pair(user.id, %{session_id: session.id})` para gerar tokens de acesso e refresh.
     *   Publica evento `UserLoggedInEvent` (via `EventIntegration`).
     *   Registra evento de auditoria (`AuditIntegration`).
     *   Retorna `{:ok, %{user: user, session: session, access_token: access_token, refresh_token: refresh_token}}`.
@@ -173,26 +173,26 @@ auth/
 ### 5.2. Fluxo de Validação de Token de Acesso (em um Plug/Middleware)
 
 1.  **Plug/Middleware:** Extrai o token de acesso do header `Authorization`.
-2.  Chama `Deeper_Hub.Auth.validate_token(access_token)`.
-3.  **`Deeper_Hub.Auth.AuthService`:**
-    *   Delega para `Deeper_Hub.Auth.TokenService.validate_token(access_token)`.
-4.  **`Deeper_Hub.Auth.TokenService` (usando `JwtService` e `BlacklistService`):**
+2.  Chama `DeeperHub.Auth.validate_token(access_token)`.
+3.  **`DeeperHub.Auth.AuthService`:**
+    *   Delega para `DeeperHub.Auth.TokenService.validate_token(access_token)`.
+4.  **`DeeperHub.Auth.TokenService` (usando `JwtService` e `BlacklistService`):**
     *   Verifica a assinatura do JWT.
     *   Verifica a data de expiração.
     *   Verifica se o token está na blacklist.
     *   Se tudo ok, extrai `user_id` e `session_id` das claims.
-    *   Delega para `Deeper_Hub.Auth.SessionManager.validate_session(session_id)`.
-5.  **`Deeper_Hub.Auth.SessionManager`:**
+    *   Delega para `DeeperHub.Auth.SessionManager.validate_session(session_id)`.
+5.  **`DeeperHub.Auth.SessionManager`:**
     *   Verifica se a sessão existe, está ativa e não expirou (considerando `SessionPolicy`).
     *   Se a sessão é válida, retorna `{:ok, session}`.
-6.  **`Deeper_Hub.Auth.AuthService`:** Se tudo válido, retorna `{:ok, %{user_id: user_id, session_id: session_id, claims: claims}}` para o Plug.
+6.  **`DeeperHub.Auth.AuthService`:** Se tudo válido, retorna `{:ok, %{user_id: user_id, session_id: session_id, claims: claims}}` para o Plug.
 7.  **Plug/Middleware:** Adiciona `current_user_id` e `session_id` à `conn.assigns`.
 
-## 📡 6. API (Funções Públicas da Fachada `Deeper_Hub.Auth`)
+## 📡 6. API (Funções Públicas da Fachada `DeeperHub.Auth`)
 
 *(Muitas funções já foram documentadas na seção de `AuthFacade` da documentação original. O foco aqui é na consolidação e clareza.)*
 
-### 6.1. `Deeper_Hub.Auth.login(email :: String.t(), password :: String.t(), ip_address :: String.t() | nil, device_info :: map() | nil, metadata :: map() | nil) :: {:ok, AuthResponse.t()} | {:error, atom() | {atom(), map()}}`
+### 6.1. `DeeperHub.Auth.login(email :: String.t(), password :: String.t(), ip_address :: String.t() | nil, device_info :: map() | nil, metadata :: map() | nil) :: {:ok, AuthResponse.t()} | {:error, atom() | {atom(), map()}}`
 
 *   **Descrição:** Autentica um usuário com email e senha.
 *   **`AuthResponse.t()`:** `%{user: User.t(), access_token: String.t(), refresh_token: String.t(), session_id: String.t()}`.
@@ -202,36 +202,36 @@ auth/
     *   `{:error, :mfa_required, %{user_id: String.t(), available_methods: list(atom())}}`
     *   `{:error, :rate_limited, retry_after_seconds :: non_neg_integer()}`
 
-### 6.2. `Deeper_Hub.Auth.logout(access_token :: String.t(), opts :: keyword()) :: :ok | {:error, atom()}`
+### 6.2. `DeeperHub.Auth.logout(access_token :: String.t(), opts :: keyword()) :: :ok | {:error, atom()}`
 
 *   **Descrição:** Realiza logout do usuário, invalidando a sessão e o token de acesso.
 *   **`opts`:**
     *   `:revoke_all_sessions_for_user` (boolean): Se `true`, invalida todas as sessões do usuário.
 *   **Retorno:** `:ok` ou `{:error, :invalid_token | :session_not_found}`.
 
-### 6.3. `Deeper_Hub.Auth.refresh_session_token(refresh_token :: String.t(), context :: map()) :: {:ok, AuthResponse.t()} | {:error, atom()}`
+### 6.3. `DeeperHub.Auth.refresh_session_token(refresh_token :: String.t(), context :: map()) :: {:ok, AuthResponse.t()} | {:error, atom()}`
 
 *   **Descrição:** Gera um novo par de tokens de acesso e refresh usando um token de refresh válido.
 *   **`context`:** `%{ip_address: String.t(), user_agent: String.t()}`.
 
-### 6.4. `Deeper_Hub.Auth.validate_token(access_token :: String.t()) :: {:ok, TokenClaims.t()} | {:error, atom()}`
+### 6.4. `DeeperHub.Auth.validate_token(access_token :: String.t()) :: {:ok, TokenClaims.t()} | {:error, atom()}`
 
 *   **Descrição:** Valida um token de acesso.
 *   **`TokenClaims.t()`:** `%{user_id: String.t(), session_id: String.t(), exp: integer(), ...}`.
 *   **Retorno de Erro:** `:token_invalid`, `:token_expired`, `:session_invalid`, `:session_expired`.
 
-### 6.5. `Deeper_Hub.Auth.authorize(user_id :: String.t(), resource :: String.t() | atom(), action :: atom(), resource_details :: map() | nil) :: :ok | {:error, :unauthorized}`
+### 6.5. `DeeperHub.Auth.authorize(user_id :: String.t(), resource :: String.t() | atom(), action :: atom(), resource_details :: map() | nil) :: :ok | {:error, :unauthorized}`
 
 *   **Descrição:** Verifica se um usuário tem permissão para realizar uma ação em um recurso.
 *   **`resource_details`:** Metadados sobre o recurso específico sendo acessado (ex: para verificações baseadas em propriedade).
 
-### 6.6. `Deeper_Hub.Auth.get_user_permissions(user_id :: String.t()) :: {:ok, list(String.t())}` (Nova Funcionalidade Sugerida)
+### 6.6. `DeeperHub.Auth.get_user_permissions(user_id :: String.t()) :: {:ok, list(String.t())}` (Nova Funcionalidade Sugerida)
 
 *   **Descrição:** Retorna uma lista consolidada de todas as permissões efetivas de um usuário.
 
 ## ⚙️ 7. Configuração
 
-O módulo `Auth` e seus submódulos são extensivamente configurados via `Deeper_Hub.Core.ConfigManager`.
+O módulo `Auth` e seus submódulos são extensivamente configurados via `DeeperHub.Core.ConfigManager`.
 
 *   **`[:auth, :session, :default_duration_seconds]`**: Duração padrão das sessões. (Padrão: `86400` - 24 horas)
 *   **`[:auth, :session, :idle_timeout_seconds]`**: Timeout de inatividade da sessão. (Padrão: `1800` - 30 minutos)
@@ -252,11 +252,11 @@ O módulo `Auth` e seus submódulos são extensivamente configurados via `Deeper
 
 ### 8.1. Módulos Internos
 
-*   `Deeper_Hub.Core.ConfigManager`, `Core.EventBus`, `Core.Logger`, `Core.Metrics`, `Core.Repo`.
-*   `Deeper_Hub.Accounts`: Para buscar informações de usuário.
-*   `Deeper_Hub.MFA`, `Deeper_Hub.OAuth`, `Deeper_Hub.Recovery`, `Deeper_Hub.RBAC`, `Deeper_Hub.Tokens`, `Deeper_Hub.WebAuthn`, `Deeper_Hub.SessionPolicy`, `Deeper_Hub.SecurityQuestions`.
-*   `Deeper_Hub.Notifications` (indireta): Para enviar emails de reset de senha, alertas de MFA, etc.
-*   `Deeper_Hub.Shared.Utils`, `Deeper_Hub.Shared.Encryption`.
+*   `DeeperHub.Core.ConfigManager`, `Core.EventBus`, `Core.Logger`, `Core.Metrics`, `Core.Repo`.
+*   `DeeperHub.Accounts`: Para buscar informações de usuário.
+*   `DeeperHub.MFA`, `DeeperHub.OAuth`, `DeeperHub.Recovery`, `DeeperHub.RBAC`, `DeeperHub.Tokens`, `DeeperHub.WebAuthn`, `DeeperHub.SessionPolicy`, `DeeperHub.SecurityQuestions`.
+*   `DeeperHub.Notifications` (indireta): Para enviar emails de reset de senha, alertas de MFA, etc.
+*   `DeeperHub.Shared.Utils`, `DeeperHub.Shared.Encryption`.
 
 ### 8.2. Bibliotecas Externas
 
@@ -272,7 +272,7 @@ O módulo `Auth` e seus submódulos são extensivamente configurados via `Deeper
 ```elixir
 defmodule MyAppWeb.AuthPlug do
   import Plug.Conn
-  alias Deeper_Hub.Auth
+  alias DeeperHub.Auth
 
   def init(opts), do: opts
 
@@ -296,7 +296,7 @@ end
 ```elixir
 defmodule MyAppWeb.PostController do
   use MyAppWeb, :controller
-  alias Deeper_Hub.Auth
+  alias DeeperHub.Auth
 
   plug MyAppWeb.AuthPlug # Garante que :current_user_id está disponível
 
@@ -399,7 +399,7 @@ Eventos Telemetry são emitidos para operações chave:
 
 Ufa! Esse foi denso. O módulo `Auth` é realmente um gigante.
 
-Qual módulo você gostaria de abordar em seguida? `Deeper_Hub.API` ou `Deeper_Hub.Security` talvez? Ou algo do Core?"""),
+Qual módulo você gostaria de abordar em seguida? `DeeperHub.API` ou `DeeperHub.Security` talvez? Ou algo do Core?"""),
             ],
         ),
         types.Content(
@@ -411,7 +411,7 @@ Qual módulo você gostaria de abordar em seguida? `Deeper_Hub.API` ou `Deeper_H
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ok, vamos para o módulo `Deeper_Hub.API`! Este módulo é a porta de entrada para muitas interações com o sistema Deeper_Hub, então sua documentação é crucial.
+                types.Part.from_text(text="""Ok, vamos para o módulo `DeeperHub.API`! Este módulo é a porta de entrada para muitas interações com o sistema DeeperHub, então sua documentação é crucial.
 
 ---
 

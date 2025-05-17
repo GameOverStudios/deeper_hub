@@ -1,16 +1,16 @@
-# Módulo: `Deeper_Hub.Security.ResponseSanitizer` 🚀
+# Módulo: `DeeperHub.Security.ResponseSanitizer` 🚀
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.Security.ResponseSanitizer`
+## 📜 1. Visão Geral do Módulo `DeeperHub.Security.ResponseSanitizer`
 
-O módulo `Deeper_Hub.Security.ResponseSanitizer` é responsável por **sanitizar as respostas da API e das páginas web** antes que sejam enviadas aos clientes. Seu principal objetivo é prevenir o vazamento de dados sensíveis ou a inclusão de conteúdo malicioso que poderia ser explorado no lado do cliente (embora o foco principal de XSS seja na entrada, a sanitização de saída é uma defesa adicional).
+O módulo `DeeperHub.Security.ResponseSanitizer` é responsável por **sanitizar as respostas da API e das páginas web** antes que sejam enviadas aos clientes. Seu principal objetivo é prevenir o vazamento de dados sensíveis ou a inclusão de conteúdo malicioso que poderia ser explorado no lado do cliente (embora o foco principal de XSS seja na entrada, a sanitização de saída é uma defesa adicional).
 
-Este módulo trabalha em conjunto com `Deeper_Hub.Security.DataMasking` para aplicar regras de mascaramento a dados sensíveis e pode também filtrar ou modificar cabeçalhos HTTP para reforçar a segurança. A ideia é garantir que apenas as informações necessárias e seguras cheguem ao usuário final. 😊
+Este módulo trabalha em conjunto com `DeeperHub.Security.DataMasking` para aplicar regras de mascaramento a dados sensíveis e pode também filtrar ou modificar cabeçalhos HTTP para reforçar a segurança. A ideia é garantir que apenas as informações necessárias e seguras cheguem ao usuário final. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
 *   **Sanitização do Corpo da Resposta (`sanitize_response/2`):**
     *   Analisar o corpo da resposta (JSON, HTML, etc.) e aplicar regras de sanitização.
-    *   Integrar com `Deeper_Hub.Security.DataMasking` para mascarar campos sensíveis identificados em respostas JSON ou estruturas de dados antes da serialização.
+    *   Integrar com `DeeperHub.Security.DataMasking` para mascarar campos sensíveis identificados em respostas JSON ou estruturas de dados antes da serialização.
     *   Para respostas HTML (embora menos comum para APIs puras), aplicar sanitização XSS como uma camada de defesa adicional, mesmo que os templates já devam fazer escaping.
 *   **Filtragem de Campos Sensíveis (`filter_sensitive_fields/2`):**
     *   Remover ou substituir campos explicitamente marcados como sensíveis e que não deveriam ser expostos em uma determinada resposta de API, mesmo que o usuário tenha permissão para a entidade principal.
@@ -30,13 +30,13 @@ Este módulo trabalha em conjunto com `Deeper_Hub.Security.DataMasking` para apl
 
 ### 3.1. Componentes Principais
 
-1.  **`Deeper_Hub.Security.ResponseSanitizer` (Fachada Pública / Módulo Funcional):**
+1.  **`DeeperHub.Security.ResponseSanitizer` (Fachada Pública / Módulo Funcional):**
     *   Ponto de entrada para as funcionalidades de sanitização de respostas.
     *   Contém a lógica para orquestrar a sanitização do corpo e dos cabeçalhos.
     *   **Interações:**
-        *   `Deeper_Hub.Security.DataMasking`: Para aplicar regras de mascaramento a campos específicos.
-        *   `Deeper_Hub.Core.ConfigManager` / `SecurityPolicyManager`: Para obter a lista de campos sensíveis por contexto, cabeçalhos a serem removidos/modificados, e outras políticas de sanitização.
-        *   `Deeper_Hub.Core.Logger` e `Core.Metrics`: Para observabilidade.
+        *   `DeeperHub.Security.DataMasking`: Para aplicar regras de mascaramento a campos específicos.
+        *   `DeeperHub.Core.ConfigManager` / `SecurityPolicyManager`: Para obter a lista de campos sensíveis por contexto, cabeçalhos a serem removidos/modificados, e outras políticas de sanitização.
+        *   `DeeperHub.Core.Logger` e `Core.Metrics`: Para observabilidade.
 2.  **Configurações (via `Core.ConfigManager` / `SecurityPolicyManager`):**
     *   Listas de chaves sensíveis globais e por endpoint/tipo de resposta.
     *   Lista de cabeçalhos HTTP a serem removidos ou com valores fixos.
@@ -83,13 +83,13 @@ security/response_sanitizer/
 1.  **Controller Prepara Dados:** O Controller de API prepara um mapa `response_data` para ser enviado como JSON.
 2.  **Plug `ResponseSanitizerPlug` (no final do pipeline, antes da serialização JSON):**
     *   Recebe a `conn` e o `response_data` (talvez armazenado em `conn.assigns.response_body` pelo controller).
-    *   Chama `Deeper_Hub.Security.ResponseSanitizer.sanitize_response(response_data, %{context: conn.request_path, endpoint_config_key: \"api.users.get_details\"})`.
+    *   Chama `DeeperHub.Security.ResponseSanitizer.sanitize_response(response_data, %{context: conn.request_path, endpoint_config_key: \"api.users.get_details\"})`.
 3.  **`ResponseSanitizer.sanitize_response/2`:**
     *   Obtém as regras de sanitização para o `context` ou `endpoint_config_key` do `ConfigManager` (ex: lista de campos sensíveis a serem removidos/mascarados).
     *   Itera sobre o `response_data`.
-    *   Para campos marcados como sensíveis e que devem ser mascarados, chama `Deeper_Hub.Security.DataMasking` (ex: `DataMasking.mask_email(value)`).
+    *   Para campos marcados como sensíveis e que devem ser mascarados, chama `DeeperHub.Security.DataMasking` (ex: `DataMasking.mask_email(value)`).
     *   Para campos marcados como sensíveis e que devem ser removidos, os remove do mapa.
-    *   Chama `Deeper_Hub.Security.ResponseSanitizer.sanitize_headers(conn.resp_headers, opts)` para limpar cabeçalhos.
+    *   Chama `DeeperHub.Security.ResponseSanitizer.sanitize_headers(conn.resp_headers, opts)` para limpar cabeçalhos.
 4.  **Plug `ResponseSanitizerPlug`:**
     *   Atualiza `conn.assigns.response_body` com os dados sanitizados.
     *   Atualiza `conn.resp_headers` com os cabeçalhos sanitizados.
@@ -97,7 +97,7 @@ security/response_sanitizer/
 
 ## 📡 6. API (Funções Públicas da Fachada)
 
-### 6.1. `Deeper_Hub.Security.ResponseSanitizer.sanitize_response(data :: map() | list() | String.t(), opts :: keyword()) :: {:ok, sanitized_data :: term()} | {:error, term()}`
+### 6.1. `DeeperHub.Security.ResponseSanitizer.sanitize_response(data :: map() | list() | String.t(), opts :: keyword()) :: {:ok, sanitized_data :: term()} | {:error, term()}`
 
 *   **Descrição:** Sanitiza o corpo de uma resposta. Se for um mapa ou lista, aplica `filter_sensitive_fields` e `DataMasking`. Se for uma string HTML (menos comum para APIs), pode aplicar `XssProtection.sanitize_html`.
 *   **`opts`:**
@@ -106,12 +106,12 @@ security/response_sanitizer/
     *   `:masking_options_for_key` (map): `%{key => data_masking_opts}` para aplicar opções de mascaramento específicas por chave.
     *   `:html_sanitize_options` (keyword): Opções para `XssProtection.sanitize_html` se for uma resposta HTML.
 
-### 6.2. `Deeper_Hub.Security.ResponseSanitizer.filter_sensitive_fields(data :: map() | list(), keys_to_filter :: list(atom() | String.t()), replacement_value :: String.t() | nil) :: map() | list()`
+### 6.2. `DeeperHub.Security.ResponseSanitizer.filter_sensitive_fields(data :: map() | list(), keys_to_filter :: list(atom() | String.t()), replacement_value :: String.t() | nil) :: map() | list()`
 
 *   **Descrição:** Remove (se `replacement_value` for `nil`) ou substitui os valores das chaves especificadas em `keys_to_filter`.
 *   **`replacement_value`:** (Padrão: `\"[FILTERED]\"`)
 
-### 6.3. `Deeper_Hub.Security.ResponseSanitizer.sanitize_headers(headers :: list({String.t(), String.t()}), opts :: keyword()) :: list({String.t(), String.t()})`
+### 6.3. `DeeperHub.Security.ResponseSanitizer.sanitize_headers(headers :: list({String.t(), String.t()}), opts :: keyword()) :: list({String.t(), String.t()})`
 
 *   **Descrição:** Remove ou modifica cabeçalhos HTTP sensíveis da lista de cabeçalhos de resposta.
 *   **`opts`:**
@@ -120,7 +120,7 @@ security/response_sanitizer/
 
 ## ⚙️ 7. Configuração
 
-Via `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPolicyManager`:
+Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolicyManager`:
 
 *   **`[:security, :response_sanitizer, :enabled]`** (Boolean): Habilita/desabilita a sanitização de respostas. (Padrão: `true`)
 *   **`[:security, :response_sanitizer, :default_sensitive_keys]`** (List de Strings/Atoms): Lista global de chaves que devem ser filtradas/mascaradas em respostas JSON/mapa, a menos que um contexto específico diga o contrário.
@@ -136,10 +136,10 @@ Via `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPol
 
 ### 8.1. Módulos Internos
 
-*   `Deeper_Hub.Core.ConfigManager`: Para obter políticas e listas de campos sensíveis.
-*   `Deeper_Hub.Core.Logger`: Para logar ações de sanitização.
-*   `Deeper_Hub.Security.DataMasking`: Para aplicar mascaramento específico a tipos de dados.
-*   `Deeper_Hub.Security.XssProtection`: Se for necessário sanitizar respostas HTML.
+*   `DeeperHub.Core.ConfigManager`: Para obter políticas e listas de campos sensíveis.
+*   `DeeperHub.Core.Logger`: Para logar ações de sanitização.
+*   `DeeperHub.Security.DataMasking`: Para aplicar mascaramento específico a tipos de dados.
+*   `DeeperHub.Security.XssProtection`: Se for necessário sanitizar respostas HTML.
 
 ### 8.2. Bibliotecas Externas
 
@@ -150,9 +150,9 @@ Via `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPol
 *   **Plug Phoenix:** A forma mais comum de integrar é através de um Plug no final do pipeline de API, antes da resposta ser enviada.
     ```elixir
     # lib/deeper_hub_web/plugs/response_sanitizer_plug.ex
-    defmodule Deeper_HubWeb.Plugs.ResponseSanitizerPlug do
+    defmodule DeeperHubWeb.Plugs.ResponseSanitizerPlug do
       import Plug.Conn
-      alias Deeper_Hub.Security.ResponseSanitizer
+      alias DeeperHub.Security.ResponseSanitizer
 
       def init(opts), do: opts
 
@@ -180,8 +180,8 @@ Via `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPol
     end
 
     # No APIResponder
-    defmodule Deeper_Hub.Core.APIResponder do
-      alias Deeper_Hub.Security.ResponseSanitizer
+    defmodule DeeperHub.Core.APIResponder do
+      alias DeeperHub.Security.ResponseSanitizer
       # ...
       def send_success(conn, status, data_map) do
         # Supondo que 'data_map' são os dados ANTES de qualquer mascaramento para o cliente
@@ -255,7 +255,7 @@ Via `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPol
 
 Com isso, temos uma boa cobertura da sanitização de respostas.
 
-Para o próximo, que tal `Deeper_Hub.Core.BackgroundTaskManager` para explorarmos a execução de tarefas assíncronas, ou prefere continuar com algum outro módulo de segurança como `HashingService` ou `AtRestEncryptionService` (que já tocamos um pouco)?"""),
+Para o próximo, que tal `DeeperHub.Core.BackgroundTaskManager` para explorarmos a execução de tarefas assíncronas, ou prefere continuar com algum outro módulo de segurança como `HashingService` ou `AtRestEncryptionService` (que já tocamos um pouco)?"""),
             ],
         ),
         types.Content(
@@ -267,7 +267,7 @@ Para o próximo, que tal `Deeper_Hub.Core.BackgroundTaskManager` para explorarmo
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Entendido! Vamos detalhar o `Deeper_Hub.Core.BackgroundTaskManager`. Este é um componente de infraestrutura vital para executar operações que não precisam bloquear o ciclo de requisição-resposta ou que são de longa duração.
+                types.Part.from_text(text="""Entendido! Vamos detalhar o `DeeperHub.Core.BackgroundTaskManager`. Este é um componente de infraestrutura vital para executar operações que não precisam bloquear o ciclo de requisição-resposta ou que são de longa duração.
 
 ---
 

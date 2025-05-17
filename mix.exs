@@ -1,4 +1,4 @@
-defmodule Deeper_Hub.MixProject do
+defmodule DeeperHub.MixProject do
   use Mix.Project
 
   def project do
@@ -9,11 +9,11 @@ defmodule Deeper_Hub.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       # Configurações para ExDoc
-      name: "Deeper_Hub",
+      name: "DeeperHub",
       source_url: "https://github.com/yourusername/deeper_hub",
       homepage_url: "https://yourdomain.com",
       docs: [
-        main: "Deeper_Hub",
+        main: "DeeperHub",
         extras: [
           "README.md",
           {"../Coding.md", [title: "Diretrizes de Codificação"]}
@@ -39,14 +39,16 @@ defmodule Deeper_Hub.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger, :mnesia],
-      mod: {Deeper_Hub.Application, []}
+      extra_applications: [:logger],
+      mod: {DeeperHub.Application, []}
     ]
   end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      # {:dep_from_hexpm, "~> 0.3.0"},
+      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
       {:uuid, "~> 1.1"},       # Para geração de UUIDs
       {:jason, "~> 1.4"},      # Para codificação/decodificação JSON
 
@@ -54,34 +56,26 @@ defmodule Deeper_Hub.MixProject do
       {:credo, "~> 1.7"},
       {:ex_doc, "~> 0.38.1"},
 
-      # Data
-      {:ecto, "~> 3.12"},
-      {:ecto_sqlite3, "~> 0.17"},
+      # Tests
+      {:ex_machina, "~> 2.8.0", only: :test},
+
+      # DBConnection
       {:db_connection, "~> 2.7"},
-      {:scrivener, "~> 2.7"},
-      {:scrivener_ecto, "~> 3.1"},
+      {:exqlite, "~> 0.30"},
 
       # Telemetria e observabilidade
       {:telemetry, "~> 1.3"},
       {:telemetry_metrics, "~> 1.1"},
       {:telemetry_poller, "~> 1.2"},
 
-      # Eventos
-      {:event_bus, "~> 1.7"},
-
       # Cache
       {:cachex, "~> 4.1"},
 
-      # Circuit Break
-      {:ex_break, "~> 0.0"},
+      # Event Bus
+      {:event_bus, "~> 1.7.0"},
 
-      # Protocol Buffers
-      {:protobuf, "~> 0.14.1"},
-
-      # Phoenix para WebSocket
-      {:phoenix, "~> 1.7"},
-      {:phoenix_pubsub, "~> 2.1"},
-      {:plug_cowboy, "~> 2.7.3"},
+      # WebSockets
+      {:ranch, "~> 2.2"}
     ]
   end
 end

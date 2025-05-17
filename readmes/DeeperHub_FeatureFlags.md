@@ -1,8 +1,8 @@
-# Módulo: `Deeper_Hub.FeatureFlags` 🚩
+# Módulo: `DeeperHub.FeatureFlags` 🚩
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.FeatureFlags`
+## 📜 1. Visão Geral do Módulo `DeeperHub.FeatureFlags`
 
-O módulo `Deeper_Hub.FeatureFlags` é responsável pelo gerenciamento e avaliação de feature flags (também conhecidas como feature toggles) dentro do sistema Deeper_Hub. Ele permite que funcionalidades sejam habilitadas ou desabilitadas dinamicamente em tempo de execução, sem a necessidade de um novo deploy de código. Isso facilita o lançamento gradual de novas features (canary releases, A/B testing), o controle de acesso a funcionalidades beta, a rápida desativação de features problemáticas e a personalização da experiência do usuário. 😊
+O módulo `DeeperHub.FeatureFlags` é responsável pelo gerenciamento e avaliação de feature flags (também conhecidas como feature toggles) dentro do sistema DeeperHub. Ele permite que funcionalidades sejam habilitadas ou desabilitadas dinamicamente em tempo de execução, sem a necessidade de um novo deploy de código. Isso facilita o lançamento gradual de novas features (canary releases, A/B testing), o controle de acesso a funcionalidades beta, a rápida desativação de features problemáticas e a personalização da experiência do usuário. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -22,29 +22,29 @@ O módulo `Deeper_Hub.FeatureFlags` é responsável pelo gerenciamento e avalia�
 *   **Notificação de Mudanças:**
     *   Publicar eventos (via `Core.EventBus`) quando o estado de uma flag é alterado, permitindo que componentes interessados reajam.
 *   **Integração com RBAC (Role-Based Access Control):**
-    *   Permitir que o acesso a certas features seja controlado por papéis de usuário definidos no `Deeper_Hub.RBAC`.
+    *   Permitir que o acesso a certas features seja controlado por papéis de usuário definidos no `DeeperHub.RBAC`.
 *   **Auditoria:**
-    *   Registrar todas as alterações no estado das feature flags (quem alterou, quando, qual flag, qual o novo estado) no `Deeper_Hub.Audit`.
+    *   Registrar todas as alterações no estado das feature flags (quem alterou, quando, qual flag, qual o novo estado) no `DeeperHub.Audit`.
 *   **Interface de Gerenciamento (Opcional):**
-    *   Fornecer uma interface (via `Deeper_Hub.Console` ou UI de admin) para gerenciar as flags.
+    *   Fornecer uma interface (via `DeeperHub.Console` ou UI de admin) para gerenciar as flags.
 
 ## 🏗️ 3. Arquitetura e Design
 
-O `Deeper_Hub.FeatureFlags` atuará como uma fachada que interage com um serviço de gerenciamento de flags e um sistema de cache.
+O `DeeperHub.FeatureFlags` atuará como uma fachada que interage com um serviço de gerenciamento de flags e um sistema de cache.
 
-*   **Interface Pública (`Deeper_Hub.FeatureFlags.FeatureFlagFacade` ou `Deeper_Hub.FeatureFlags`):** Funções como `enabled?/3`, `register_feature/3`, `enable/3`.
-*   **Serviço de Feature Flags (`Deeper_Hub.FeatureFlags.Services.DefaultFeatureFlagService`):**
+*   **Interface Pública (`DeeperHub.FeatureFlags.FeatureFlagFacade` ou `DeeperHub.FeatureFlags`):** Funções como `enabled?/3`, `register_feature/3`, `enable/3`.
+*   **Serviço de Feature Flags (`DeeperHub.FeatureFlags.Services.DefaultFeatureFlagService`):**
     *   Implementa a lógica de negócio para gerenciar e avaliar flags.
     *   Lida com a persistência das configurações das flags (possivelmente via `Core.ConfigManager` para configurações mais estáticas ou um banco de dados para configurações dinâmicas).
     *   Contém a lógica para avaliar regras de segmentação.
-*   **Cache de Flags (`Deeper_Hub.FeatureFlags.Cache.FlagCache`):**
+*   **Cache de Flags (`DeeperHub.FeatureFlags.Cache.FlagCache`):**
     *   Armazena o estado avaliado das flags para contextos específicos para acesso rápido.
-    *   Utiliza o `Deeper_Hub.Core.Cache` ou uma implementação ETS dedicada.
+    *   Utiliza o `DeeperHub.Core.Cache` ou uma implementação ETS dedicada.
 *   **Integrações:**
-    *   `Deeper_Hub.Core.ConfigManager`: Para armazenar/recuperar configurações de flags.
-    *   `Deeper_Hub.Core.EventBus`: Para notificar mudanças.
-    *   `Deeper_Hub.Audit`: Para registrar alterações.
-    *   `Deeper_Hub.RBAC`: Para controle de acesso baseado em papéis.
+    *   `DeeperHub.Core.ConfigManager`: Para armazenar/recuperar configurações de flags.
+    *   `DeeperHub.Core.EventBus`: Para notificar mudanças.
+    *   `DeeperHub.Audit`: Para registrar alterações.
+    *   `DeeperHub.RBAC`: Para controle de acesso baseado em papéis.
 
 **Padrões de Design:**
 
@@ -54,13 +54,13 @@ O `Deeper_Hub.FeatureFlags` atuará como uma fachada que interage com um serviç
 
 ### 3.1. Componentes Principais
 
-*   **`Deeper_Hub.FeatureFlags.FeatureFlagFacade` (ou `Deeper_Hub.FeatureFlags`):** O ponto de entrada principal.
-*   **`Deeper_Hub.FeatureFlags.Services.DefaultFeatureFlagService`:** O motor de gerenciamento e avaliação de flags.
-*   **`Deeper_Hub.FeatureFlags.Cache.FlagCache`:** Cache para avaliações de flags.
-*   **`Deeper_Hub.FeatureFlags.Schema.FeatureFlag` (se persistido em DB):** Schema para armazenar a definição da flag.
-*   **`Deeper_Hub.FeatureFlags.Schema.FeatureRule` (se persistido em DB):** Schema para armazenar regras de segmentação.
-*   **`Deeper_Hub.FeatureFlags.Integrations.*`:** Módulos para integração com Auditoria, Eventos, RBAC.
-*   **`Deeper_Hub.FeatureFlags.Supervisor`:** Supervisiona os processos do módulo.
+*   **`DeeperHub.FeatureFlags.FeatureFlagFacade` (ou `DeeperHub.FeatureFlags`):** O ponto de entrada principal.
+*   **`DeeperHub.FeatureFlags.Services.DefaultFeatureFlagService`:** O motor de gerenciamento e avaliação de flags.
+*   **`DeeperHub.FeatureFlags.Cache.FlagCache`:** Cache para avaliações de flags.
+*   **`DeeperHub.FeatureFlags.Schema.FeatureFlag` (se persistido em DB):** Schema para armazenar a definição da flag.
+*   **`DeeperHub.FeatureFlags.Schema.FeatureRule` (se persistido em DB):** Schema para armazenar regras de segmentação.
+*   **`DeeperHub.FeatureFlags.Integrations.*`:** Módulos para integração com Auditoria, Eventos, RBAC.
+*   **`DeeperHub.FeatureFlags.Supervisor`:** Supervisiona os processos do módulo.
 
 ### 3.3. Decisões de Design Importantes
 
@@ -82,8 +82,8 @@ O `Deeper_Hub.FeatureFlags` atuará como uma fachada que interage com um serviç
 
 **Fluxo de Avaliação de uma Feature Flag (`enabled?/3`):**
 
-1.  O código da aplicação chama `Deeper_Hub.FeatureFlags.enabled?(\"feature_x\", context_map, default_value)`.
-2.  A fachada delega para `Deeper_Hub.FeatureFlags.Services.DefaultFeatureFlagService.is_enabled?/3`.
+1.  O código da aplicação chama `DeeperHub.FeatureFlags.enabled?(\"feature_x\", context_map, default_value)`.
+2.  A fachada delega para `DeeperHub.FeatureFlags.Services.DefaultFeatureFlagService.is_enabled?/3`.
 3.  O serviço primeiro tenta buscar o resultado da avaliação do `FlagCache` usando a `feature_name` e uma chave derivada do `context_map`.
 4.  **Cache Hit:** Se encontrado e não expirado, o valor booleano é retornado.
 5.  **Cache Miss:**
@@ -97,7 +97,7 @@ O `Deeper_Hub.FeatureFlags` atuará como uma fachada que interage com um serviç
 
 ## 📡 6. API (Se Aplicável)
 
-### 6.1. `Deeper_Hub.FeatureFlags.enabled?/2` ou `enabled?/3`
+### 6.1. `DeeperHub.FeatureFlags.enabled?/2` ou `enabled?/3`
 
 *   **Descrição:** Verifica se uma feature flag está habilitada para um determinado contexto.
 *   **`@spec`:**
@@ -111,17 +111,17 @@ O `Deeper_Hub.FeatureFlags` atuará como uma fachada que interage com um serviç
 *   **Exemplo de Uso (Elixir):**
     ```elixir
     user_context = %{user_id: current_user.id, country: current_user.country}
-    if Deeper_Hub.FeatureFlags.enabled?(:new_billing_page, user_context) do
+    if DeeperHub.FeatureFlags.enabled?(:new_billing_page, user_context) do
       # Mostrar nova página de faturamento
     else
       # Mostrar página antiga
     end
 
     # Usando com valor padrão
-    show_beta_feature = Deeper_Hub.FeatureFlags.enabled?(:super_beta_feature, %{}, false)
+    show_beta_feature = DeeperHub.FeatureFlags.enabled?(:super_beta_feature, %{}, false)
     ```
 
-### 6.2. `Deeper_Hub.FeatureFlags.register_feature/3` (Para Admin/Dev)
+### 6.2. `DeeperHub.FeatureFlags.register_feature/3` (Para Admin/Dev)
 
 *   **Descrição:** Registra uma nova feature flag no sistema.
 *   **`@spec`:** `register_feature(feature_name :: atom() | String.t(), description :: String.t(), opts :: Keyword.t()) :: :ok | {:error, reason}`
@@ -134,10 +134,10 @@ O `Deeper_Hub.FeatureFlags` atuará como uma fachada que interage com um serviç
 *   **Retorno:** `:ok` ou `{:error, reason}`.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    Deeper_Hub.FeatureFlags.register_feature(:new_dashboard, \"Nova dashboard com widgets personalizáveis\", default_state: true)
+    DeeperHub.FeatureFlags.register_feature(:new_dashboard, \"Nova dashboard com widgets personalizáveis\", default_state: true)
     ```
 
-### 6.3. `Deeper_Hub.FeatureFlags.enable/3` (Para Admin/Dev)
+### 6.3. `DeeperHub.FeatureFlags.enable/3` (Para Admin/Dev)
 
 *   **Descrição:** Habilita uma feature flag para um contexto específico ou globalmente.
 *   **`@spec`:** `enable(feature_name :: atom() | String.t(), context_rules :: map() | :global, opts :: Keyword.t()) :: :ok | {:error, reason}`
@@ -149,10 +149,10 @@ O `Deeper_Hub.FeatureFlags` atuará como uma fachada que interage com um serviç
 *   **Exemplo de Uso (Elixir):**
     ```elixir
     # Habilitar globalmente
-    Deeper_Hub.FeatureFlags.enable(:new_dashboard, :global)
+    DeeperHub.FeatureFlags.enable(:new_dashboard, :global)
 
     # Habilitar para um grupo de usuários
-    Deeper_Hub.FeatureFlags.enable(:beta_feature, %{user_group: \"testers\"})
+    DeeperHub.FeatureFlags.enable(:beta_feature, %{user_group: \"testers\"})
     ```
 
 *(Funções `disable/3`, `update_rules/3`, etc., seriam documentadas similarmente)*
@@ -162,19 +162,19 @@ O `Deeper_Hub.FeatureFlags` atuará como uma fachada que interage com um serviç
 *   **ConfigManager:**
     *   `[:feature_flags, :default_evaluation_result]`: Resultado padrão se uma flag não for encontrada. (Padrão: `false`)
     *   `[:feature_flags, :cache_ttl_seconds]`: TTL para o cache de avaliação de flags. (Padrão: `60`)
-    *   `[:feature_flags, :storage_backend]`: Módulo backend para persistência das configurações de flags (ex: `Deeper_Hub.FeatureFlags.Backends.DatabaseBackend` ou `Deeper_Hub.FeatureFlags.Backends.ConfigManagerBackend`).
+    *   `[:feature_flags, :storage_backend]`: Módulo backend para persistência das configurações de flags (ex: `DeeperHub.FeatureFlags.Backends.DatabaseBackend` ou `DeeperHub.FeatureFlags.Backends.ConfigManagerBackend`).
     *   `[:feature_flags, :log_evaluation_level]`: Nível de log para avaliações de flags (ex: `:debug`, `:info`). (Padrão: `:info`)
 
 ## 🔗 8. Dependências
 
 ### 8.1. Módulos Internos
 
-*   `Deeper_Hub.Core.ConfigManager`: Para configurações e/ou armazenamento de flags.
-*   `Deeper_Hub.Core.Cache`: Para cache de avaliações.
-*   `Deeper_Hub.Core.EventBus`: Para notificar sobre mudanças de flags.
-*   `Deeper_Hub.Core.Logger`: Para logging.
-*   `Deeper_Hub.Audit`: Para registrar alterações nas flags.
-*   `Deeper_Hub.RBAC` (Opcional): Para integração com controle de acesso.
+*   `DeeperHub.Core.ConfigManager`: Para configurações e/ou armazenamento de flags.
+*   `DeeperHub.Core.Cache`: Para cache de avaliações.
+*   `DeeperHub.Core.EventBus`: Para notificar sobre mudanças de flags.
+*   `DeeperHub.Core.Logger`: Para logging.
+*   `DeeperHub.Audit`: Para registrar alterações nas flags.
+*   `DeeperHub.RBAC` (Opcional): Para integração com controle de acesso.
 
 ### 8.2. Bibliotecas Externas
 
@@ -185,8 +185,8 @@ O `Deeper_Hub.FeatureFlags` atuará como uma fachada que interage com um serviç
 O uso primário é verificar se uma feature está habilitada antes de executar um bloco de código.
 
 ```elixir
-defmodule Deeper_Hub.MyModule.MyFeature do
-  alias Deeper_Hub.FeatureFlags
+defmodule DeeperHub.MyModule.MyFeature do
+  alias DeeperHub.FeatureFlags
 
   def render_component(user_context) do
     if FeatureFlags.enabled?(:shiny_new_button, user_context) do
@@ -222,8 +222,8 @@ Outros módulos podem se inscrever a eventos de mudança de flags via `Core.Even
 
 ### 10.3. Logs
 
-*   `Logger.info(\"Feature flag '#{name}' avaliada como '#{result}' para o contexto #{inspect(context)}\", module: Deeper_Hub.FeatureFlags.Services.DefaultFeatureFlagService)`
-*   `Logger.info(\"Feature flag '#{name}' alterada para '#{new_state}' por '#{admin_id}'\", module: Deeper_Hub.FeatureFlags.Services.DefaultFeatureFlagService)`
+*   `Logger.info(\"Feature flag '#{name}' avaliada como '#{result}' para o contexto #{inspect(context)}\", module: DeeperHub.FeatureFlags.Services.DefaultFeatureFlagService)`
+*   `Logger.info(\"Feature flag '#{name}' alterada para '#{new_state}' por '#{admin_id}'\", module: DeeperHub.FeatureFlags.Services.DefaultFeatureFlagService)`
 
 ### 10.4. Telemetria
 
@@ -261,7 +261,7 @@ Outros módulos podem se inscrever a eventos de mudança de flags via `Core.Even
 
 ---
 
-Seguimos para `Deeper_Hub.Console`?"""),
+Seguimos para `DeeperHub.Console`?"""),
             ],
         ),
         types.Content(
@@ -273,7 +273,7 @@ Seguimos para `Deeper_Hub.Console`?"""),
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Perfeito! Vamos agora detalhar o README para o módulo `Deeper_Hub.Console`.
+                types.Part.from_text(text="""Perfeito! Vamos agora detalhar o README para o módulo `DeeperHub.Console`.
 
 ---
 

@@ -1,4 +1,4 @@
-defmodule Deeper_Hub.Inspector.TypeSpec do
+defmodule DeeperHub.Inspector.TypeSpec do
   @moduledoc """
   Schema Ecto para informações de typespecs (@type, @opaque, @spec, @callback). 📋
   """
@@ -17,7 +17,7 @@ defmodule Deeper_Hub.Inspector.TypeSpec do
     # Representação textual da definição/spec
     field :definition, :string
 
-    # belongs_to :module, Deeper_Hub.Inspector.Module, foreign_key: :module_name, references: :name, type: :string
+    # belongs_to :module, DeeperHub.Inspector.Module, foreign_key: :module_name, references: :name, type: :string
 
     timestamps(type: :utc_datetime)
   end

@@ -1,8 +1,8 @@
-# Módulo: `Deeper_Hub.ServerUpdateMessages` 🚀
+# Módulo: `DeeperHub.ServerUpdateMessages` 🚀
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.ServerUpdateMessages`
+## 📜 1. Visão Geral do Módulo `DeeperHub.ServerUpdateMessages`
 
-O módulo `Deeper_Hub.ServerUpdateMessages` gerencia as **mensagens de atualização, notas de patch e anúncios importantes** publicados pelos proprietários de servidores na plataforma Deeper_Hub. Ele serve como um canal de comunicação oficial do servidor para sua comunidade, permitindo informar sobre novas funcionalidades, correções de bugs, mudanças no jogo, ou qualquer outra notícia relevante.
+O módulo `DeeperHub.ServerUpdateMessages` gerencia as **mensagens de atualização, notas de patch e anúncios importantes** publicados pelos proprietários de servidores na plataforma DeeperHub. Ele serve como um canal de comunicação oficial do servidor para sua comunidade, permitindo informar sobre novas funcionalidades, correções de bugs, mudanças no jogo, ou qualquer outra notícia relevante.
 
 Este módulo lida com:
 *   A criação, edição e exclusão de mensagens de atualização por proprietários de servidores.
@@ -11,7 +11,7 @@ Este módulo lida com:
 
 O objetivo é manter os jogadores informados sobre o desenvolvimento e as novidades de seus servidores favoritos. 😊
 
-*(Nota: Na documentação original, este era `Deeper_Hub.Services.ServerUpdateMessages`. Será tratado como `Deeper_Hub.ServerUpdateMessages`.)*
+*(Nota: Na documentação original, este era `DeeperHub.Services.ServerUpdateMessages`. Será tratado como `DeeperHub.ServerUpdateMessages`.)*
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -24,8 +24,8 @@ O objetivo é manter os jogadores informados sobre o desenvolvimento e as novida
     *   Obter a última mensagem de atualização de um servidor (`get_latest_update_message/2`).
     *   Suportar paginação para o histórico de mensagens.
 *   **Formatação de Conteúdo:**
-    *   Suportar Markdown ou um subconjunto seguro de HTML para o corpo da mensagem, com sanitização rigorosa (via `Deeper_Hub.Security.XssProtection` e `Shared.ContentValidation`).
-*   **Notificações (Integração com `Deeper_Hub.Notifications` e `UserInteractions`):**
+    *   Suportar Markdown ou um subconjunto seguro de HTML para o corpo da mensagem, com sanitização rigorosa (via `DeeperHub.Security.XssProtection` e `Shared.ContentValidation`).
+*   **Notificações (Integração com `DeeperHub.Notifications` e `UserInteractions`):**
     *   Notificar usuários que seguem um servidor (ou que optaram por receber essas notificações) quando uma nova mensagem de atualização é publicada.
 *   **Visibilidade e Publicação:**
     *   Permitir que mensagens sejam salvas como rascunho antes de serem publicadas.
@@ -41,25 +41,25 @@ O objetivo é manter os jogadores informados sobre o desenvolvimento e as novida
 
 ### 3.1. Componentes Principais
 
-1.  **`Deeper_Hub.ServerUpdateMessages` (Fachada Pública):**
+1.  **`DeeperHub.ServerUpdateMessages` (Fachada Pública):**
     *   Ponto de entrada para todas as operações relacionadas a mensagens de atualização.
     *   Delega para o `ServerUpdateMessagesService`.
-2.  **`Deeper_Hub.ServerUpdateMessages.Services.ServerUpdateMessagesService` (ou `DefaultServerUpdateMessagesService`):**
+2.  **`DeeperHub.ServerUpdateMessages.Services.ServerUpdateMessagesService` (ou `DefaultServerUpdateMessagesService`):**
     *   **Responsabilidade:** Orquestra a lógica de negócio para as mensagens de atualização.
     *   **Interações:**
-        *   `Deeper_Hub.Core.Repo`: Para CRUD com `UpdateMessageSchema`.
-        *   `Deeper_Hub.Servers`: Para validar `server_id` e associar mensagens.
-        *   `Deeper_Hub.Accounts`: Para `user_id` do autor (proprietário/admin).
-        *   `Deeper_Hub.Auth`/`RBAC`: Para permissões de gerenciamento de mensagens.
-        *   `Deeper_Hub.Security.XssProtection` / `Shared.ContentValidation`: Para sanitizar o conteúdo das mensagens.
-        *   `Deeper_Hub.Core.EventBus`: Para publicar eventos.
-        *   `Deeper_Hub.Core.Cache`: Para cachear mensagens.
-        *   `Deeper_Hub.Notifications`: Para enviar notificações sobre novas mensagens.
-3.  **`Deeper_Hub.ServerUpdateMessages.Schemas.UpdateMessageSchema` (ex-`UpdateMessage`):**
+        *   `DeeperHub.Core.Repo`: Para CRUD com `UpdateMessageSchema`.
+        *   `DeeperHub.Servers`: Para validar `server_id` e associar mensagens.
+        *   `DeeperHub.Accounts`: Para `user_id` do autor (proprietário/admin).
+        *   `DeeperHub.Auth`/`RBAC`: Para permissões de gerenciamento de mensagens.
+        *   `DeeperHub.Security.XssProtection` / `Shared.ContentValidation`: Para sanitizar o conteúdo das mensagens.
+        *   `DeeperHub.Core.EventBus`: Para publicar eventos.
+        *   `DeeperHub.Core.Cache`: Para cachear mensagens.
+        *   `DeeperHub.Notifications`: Para enviar notificações sobre novas mensagens.
+3.  **`DeeperHub.ServerUpdateMessages.Schemas.UpdateMessageSchema` (ex-`UpdateMessage`):**
     *   Campos: `id`, `server_id`, `author_user_id`, `title` (string), `content` (text, armazena o markdown/html sanitizado), `published_at` (DateTime UTC), `version_tag` (string, opcional, ex: \"v1.2.3\"), `status` (`:draft`, `:published`, `:archived`), `inserted_at`, `updated_at`.
-4.  **`Deeper_Hub.ServerUpdateMessages.Storage` (ou lógica no `ServerUpdateMessagesService`):**
+4.  **`DeeperHub.ServerUpdateMessages.Storage` (ou lógica no `ServerUpdateMessagesService`):**
     *   Encapsula as queries Ecto.
-5.  **`Deeper_Hub.ServerUpdateMessages.CachedAdapter` (Opcional):**
+5.  **`DeeperHub.ServerUpdateMessages.CachedAdapter` (Opcional):**
     *   Camada de cache explícita.
 
 ### 3.2. Estrutura de Diretórios (Proposta)
@@ -103,39 +103,39 @@ server_update_messages/
 ### Fluxo de Publicação de Nova Mensagem de Atualização
 
 1.  **Proprietário (UI):** Submete o formulário da nova mensagem de atualização, marcando para \"Publicar Agora\".
-2.  **Controller API:** Valida autenticação e autorização. Chama `Deeper_Hub.ServerUpdateMessages.create_update_message(current_user.id, server_id, params[\"message_attrs\"])`.
+2.  **Controller API:** Valida autenticação e autorização. Chama `DeeperHub.ServerUpdateMessages.create_update_message(current_user.id, server_id, params[\"message_attrs\"])`.
 3.  **`ServerUpdateMessagesService.create_update_message/3`:**
     *   Valida se `current_user.id` pode postar no `server_id`.
-    *   Chama `Deeper_Hub.Services.Shared.ContentValidation.validate_user_content(attrs.content, :update_message_content)` para sanitizar o corpo da mensagem.
+    *   Chama `DeeperHub.Services.Shared.ContentValidation.validate_user_content(attrs.content, :update_message_content)` para sanitizar o corpo da mensagem.
     *   Cria um `UpdateMessageSchema` changeset com `status: :published` e `published_at: DateTime.utc_now()`.
     *   Se válido, `Core.Repo.insert(changeset)`.
     *   Se sucesso:
         *   Publica evento `server_update_message.published` no `Core.EventBus` (`%{message_id: msg.id, server_id: ..., title: ...}`).
-        *   (Assíncrono) Enfileira notificações para seguidores do servidor via `Deeper_Hub.Notifications`.
+        *   (Assíncrono) Enfileira notificações para seguidores do servidor via `DeeperHub.Notifications`.
         *   Invalida caches relevantes.
         *   Retorna `{:ok, message_struct}`.
     *   Se falha, retorna erro.
 
-## 📡 6. API (Funções Públicas da Fachada `Deeper_Hub.ServerUpdateMessages`)
+## 📡 6. API (Funções Públicas da Fachada `DeeperHub.ServerUpdateMessages`)
 
 ### 6.1. Gerenciamento de Mensagens (Proprietário/Admin)
 
-*   **`Deeper_Hub.ServerUpdateMessages.create_update_message(author_user_id :: String.t(), server_id :: String.t(), attrs :: map()) :: {:ok, UpdateMessage.t()} | {:error, Ecto.Changeset.t()}`**
+*   **`DeeperHub.ServerUpdateMessages.create_update_message(author_user_id :: String.t(), server_id :: String.t(), attrs :: map()) :: {:ok, UpdateMessage.t()} | {:error, Ecto.Changeset.t()}`**
     *   `attrs`: `%{title: String.t(), content: String.t(), version_tag: String.t() | nil, status: :draft | :published, publish_at: DateTime.t() | nil}`.
-*   **`Deeper_Hub.ServerUpdateMessages.update_update_message(message_id :: String.t(), attrs :: map(), current_user_id :: String.t()) :: {:ok, UpdateMessage.t()} | {:error, Ecto.Changeset.t() | :unauthorized}`**
-*   **`Deeper_Hub.ServerUpdateMessages.delete_update_message(message_id :: String.t(), current_user_id :: String.t()) :: :ok | {:error, :unauthorized | :not_found}`**
+*   **`DeeperHub.ServerUpdateMessages.update_update_message(message_id :: String.t(), attrs :: map(), current_user_id :: String.t()) :: {:ok, UpdateMessage.t()} | {:error, Ecto.Changeset.t() | :unauthorized}`**
+*   **`DeeperHub.ServerUpdateMessages.delete_update_message(message_id :: String.t(), current_user_id :: String.t()) :: :ok | {:error, :unauthorized | :not_found}`**
 
 ### 6.2. Consulta de Mensagens
 
-*   **`Deeper_Hub.ServerUpdateMessages.get_update_message(message_id :: String.t()) :: {:ok, UpdateMessage.t() | nil}`**
-*   **`Deeper_Hub.ServerUpdateMessages.list_update_messages_by_server(server_id :: String.t(), opts :: keyword()) :: {:ok, list(UpdateMessage.t()), Pagination.t()}`**
+*   **`DeeperHub.ServerUpdateMessages.get_update_message(message_id :: String.t()) :: {:ok, UpdateMessage.t() | nil}`**
+*   **`DeeperHub.ServerUpdateMessages.list_update_messages_by_server(server_id :: String.t(), opts :: keyword()) :: {:ok, list(UpdateMessage.t()), Pagination.t()}`**
     *   `opts`: `:status` (`:published`, `:draft`), `:page`, `:per_page`, `:sort_by` (`:published_at_desc`, `:updated_at_desc`).
-*   **`Deeper_Hub.ServerUpdateMessages.get_latest_update_message(server_id :: String.t(), opts :: keyword()) :: {:ok, UpdateMessage.t() | nil}`**
+*   **`DeeperHub.ServerUpdateMessages.get_latest_update_message(server_id :: String.t(), opts :: keyword()) :: {:ok, UpdateMessage.t() | nil}`**
     *   Retorna a última mensagem com status `:published`.
 
 ## ⚙️ 7. Configuração
 
-Via `Deeper_Hub.Core.ConfigManager`:
+Via `DeeperHub.Core.ConfigManager`:
 
 *   **`[:server_update_messages, :enabled]`** (Boolean).
 *   **`[:server_update_messages, :max_title_length]`** (Integer). (Padrão: `150`)
@@ -149,13 +149,13 @@ Via `Deeper_Hub.Core.ConfigManager`:
 
 ### 8.1. Módulos Internos
 
-*   `Deeper_Hub.Core.*`.
-*   `Deeper_Hub.Servers`: Para `server_id`.
-*   `Deeper_Hub.Accounts`: Para `author_user_id`.
-*   `Deeper_Hub.Auth`/`RBAC`: Para permissões.
-*   `Deeper_Hub.Notifications`: Para notificar sobre novas mensagens.
-*   `Deeper_Hub.Security.XssProtection` e `Deeper_Hub.Services.Shared.ContentValidation`: Para sanitizar conteúdo.
-*   `Deeper_Hub.UserInteractions` (especificamente a funcionalidade de \"seguir servidor\" para notificações).
+*   `DeeperHub.Core.*`.
+*   `DeeperHub.Servers`: Para `server_id`.
+*   `DeeperHub.Accounts`: Para `author_user_id`.
+*   `DeeperHub.Auth`/`RBAC`: Para permissões.
+*   `DeeperHub.Notifications`: Para notificar sobre novas mensagens.
+*   `DeeperHub.Security.XssProtection` e `DeeperHub.Services.Shared.ContentValidation`: Para sanitizar conteúdo.
+*   `DeeperHub.UserInteractions` (especificamente a funcionalidade de \"seguir servidor\" para notificações).
 
 ### 8.2. Bibliotecas Externas
 
@@ -229,7 +229,7 @@ Via `Deeper_Hub.Core.ConfigManager`:
 
 Este módulo ajuda os proprietários de servidores a manterem suas comunidades informadas!
 
-O próximo poderia ser `Deeper_Hub.ServerPackages` (para itens/VIPs de servidor) ou `Deeper_Hub.ServerAlerts` (para anúncios mais urgentes), ou podemos mudar para `Deeper_Hub.Lists` que parece ser um módulo de listagem genérico?"""),
+O próximo poderia ser `DeeperHub.ServerPackages` (para itens/VIPs de servidor) ou `DeeperHub.ServerAlerts` (para anúncios mais urgentes), ou podemos mudar para `DeeperHub.Lists` que parece ser um módulo de listagem genérico?"""),
             ],
         ),
         types.Content(
@@ -241,7 +241,7 @@ O próximo poderia ser `Deeper_Hub.ServerPackages` (para itens/VIPs de servidor)
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ok, vamos continuar com os módulos relacionados a `Servers` e detalhar o `Deeper_Hub.ServerPackages`. Este módulo lida com pacotes ou itens que podem ser oferecidos pelos servidores, como passes VIP, itens virtuais, etc.
+                types.Part.from_text(text="""Ok, vamos continuar com os módulos relacionados a `Servers` e detalhar o `DeeperHub.ServerPackages`. Este módulo lida com pacotes ou itens que podem ser oferecidos pelos servidores, como passes VIP, itens virtuais, etc.
 
 ---
 

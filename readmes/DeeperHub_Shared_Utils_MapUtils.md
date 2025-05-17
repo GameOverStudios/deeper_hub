@@ -1,10 +1,10 @@
-# Módulo: `Deeper_Hub.Shared.Utils.MapUtils` 🚀
+# Módulo: `DeeperHub.Shared.Utils.MapUtils` 🚀
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.Shared.Utils.MapUtils`
+## 📜 1. Visão Geral do Módulo `DeeperHub.Shared.Utils.MapUtils`
 
-O módulo `Deeper_Hub.Shared.Utils.MapUtils` fornece um conjunto de **funções utilitárias para manipulação e transformação de mapas (maps)** e, por extensão, de structs Elixir (que são baseados em mapas). Estas funções são projetadas para simplificar operações comuns em mapas, como conversão de tipos de chave, mesclagem profunda, filtragem de entradas, e acesso seguro a valores aninhados.
+O módulo `DeeperHub.Shared.Utils.MapUtils` fornece um conjunto de **funções utilitárias para manipulação e transformação de mapas (maps)** e, por extensão, de structs Elixir (que são baseados em mapas). Estas funções são projetadas para simplificar operações comuns em mapas, como conversão de tipos de chave, mesclagem profunda, filtragem de entradas, e acesso seguro a valores aninhados.
 
-Sendo um módulo puramente funcional, ele não gerencia estado e suas funções visam ser robustas e reutilizáveis em diversas partes do sistema Deeper_Hub. 😊
+Sendo um módulo puramente funcional, ele não gerencia estado e suas funções visam ser robustas e reutilizáveis em diversas partes do sistema DeeperHub. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -30,7 +30,7 @@ Sendo um módulo puramente funcional, ele não gerencia estado e suas funções 
 
 ### 3.1. Componentes Principais
 
-*   **`Deeper_Hub.Shared.Utils.MapUtils` (Módulo Funcional):**
+*   **`DeeperHub.Shared.Utils.MapUtils` (Módulo Funcional):**
     *   Contém todas as funções de utilidade para mapas.
     *   Utiliza principalmente funções dos módulos `Map`, `Enum` e `Kernel` do Elixir.
 
@@ -68,23 +68,23 @@ Não aplicável no mesmo sentido que módulos com estado. O fluxo é a execuçã
 
 *(Baseado na documentação original e mantendo a consistência)*
 
-### 6.1. `Deeper_Hub.Shared.Utils.MapUtils.atom_keys_to_strings(map_data :: map(), recursive :: boolean() \\\\ false) :: map()`
+### 6.1. `DeeperHub.Shared.Utils.MapUtils.atom_keys_to_strings(map_data :: map(), recursive :: boolean() \\\\ false) :: map()`
 
 *   **Descrição:** Converte todas as chaves de átomo em `map_data` para strings.
 *   **`recursive`:** Se `true`, aplica a conversão a todos os mapas aninhados.
 
-### 6.2. `Deeper_Hub.Shared.Utils.MapUtils.string_keys_to_atoms(map_data :: map(), recursive :: boolean() \\\\ false) :: map()`
+### 6.2. `DeeperHub.Shared.Utils.MapUtils.string_keys_to_atoms(map_data :: map(), recursive :: boolean() \\\\ false) :: map()`
 
 *   **Descrição:** Converte todas as chaves de string em `map_data` para átomos.
 *   **`recursive`:** Se `true`, aplica a conversão a todos os mapas aninhados.
 *   **Cuidado:** Usar com cautela, pois a criação excessiva de átomos pode levar ao esgotamento da tabela de átomos do Erlang. Preferível para chaves conhecidas.
 
-### 6.3. `Deeper_Hub.Shared.Utils.MapUtils.compact(map_data :: map(), recursive :: boolean() \\\\ false) :: map()`
+### 6.3. `DeeperHub.Shared.Utils.MapUtils.compact(map_data :: map(), recursive :: boolean() \\\\ false) :: map()`
 
 *   **Descrição:** Remove todas as chaves de `map_data` cujos valores são `nil`.
 *   **`recursive`:** Se `true`, aplica a compactação a todos os mapas aninhados.
 
-### 6.4. `Deeper_Hub.Shared.Utils.MapUtils.deep_merge(map1 :: map(), map2 :: map()) :: map()`
+### 6.4. `DeeperHub.Shared.Utils.MapUtils.deep_merge(map1 :: map(), map2 :: map()) :: map()`
 
 *   **Descrição:** Mescla `map2` em `map1`. Se uma chave existir em ambos, o valor de `map2` é usado. Se os valores para uma chave comum forem ambos mapas, eles são mesclados recursivamente.
 *   **Exemplo:**
@@ -95,24 +95,24 @@ Não aplicável no mesmo sentido que módulos com estado. O fluxo é a execuçã
     #=> %{a: 1, b: %{c: 2, d: 4, e: 5}, f: 6}
     ```
 
-### 6.5. `Deeper_Hub.Shared.Utils.MapUtils.filter_map(map_data :: map(), predicate_fun :: ((key :: term(), value :: term()) -> boolean())) :: map()`
+### 6.5. `DeeperHub.Shared.Utils.MapUtils.filter_map(map_data :: map(), predicate_fun :: ((key :: term(), value :: term()) -> boolean())) :: map()`
 
 *   **Descrição:** Retorna um novo mapa contendo apenas as entradas de `map_data` para as quais `predicate_fun` retorna `true`.
 
-### 6.6. `Deeper_Hub.Shared.Utils.MapUtils.get_in_path(map_data :: map(), path :: list(atom() | String.t()), default_value :: term() \\\\ nil) :: term()`
+### 6.6. `DeeperHub.Shared.Utils.MapUtils.get_in_path(map_data :: map(), path :: list(atom() | String.t()), default_value :: term() \\\\ nil) :: term()`
 
 *   **Descrição:** Acessa um valor aninhado em `map_data` usando uma `path` (lista de chaves). Retorna `default_value` se qualquer parte do caminho não existir. (Similar a `get_in/2` do Kernel, mas com um `default_value` explícito e talvez mais flexibilidade nos tipos de chave no path).
 
-### 6.7. `Deeper_Hub.Shared.Utils.MapUtils.update_in_path(map_data :: map(), path :: list(atom() | String.t()), new_value :: term()) :: map()`
+### 6.7. `DeeperHub.Shared.Utils.MapUtils.update_in_path(map_data :: map(), path :: list(atom() | String.t()), new_value :: term()) :: map()`
 
 *   **Descrição:** Atualiza um valor em um caminho aninhado. Se o caminho não existir completamente, ele pode ser criado (dependendo da implementação exata, ou pode falhar). (Similar a `put_in/3` ou `update_in/3` do Kernel).
 
-### 6.8. `Deeper_Hub.Shared.Utils.MapUtils.map_values(map_data :: map(), transform_fun :: ((value :: term()) -> term()), recursive :: boolean() \\\\ false) :: map()`
+### 6.8. `DeeperHub.Shared.Utils.MapUtils.map_values(map_data :: map(), transform_fun :: ((value :: term()) -> term()), recursive :: boolean() \\\\ false) :: map()`
 
 *   **Descrição:** Cria um novo mapa aplicando `transform_fun` a cada valor do `map_data` original.
 *   **`recursive`:** Se `true`, e um valor for um mapa, aplica `map_values` a esse mapa aninhado.
 
-### 6.9. `Deeper_Hub.Shared.Utils.MapUtils.to_key_value_list(map_data :: map(), key_field_name :: atom() \\\\ :key, value_field_name :: atom() \\\\ :value) :: list(map())`
+### 6.9. `DeeperHub.Shared.Utils.MapUtils.to_key_value_list(map_data :: map(), key_field_name :: atom() \\\\ :key, value_field_name :: atom() \\\\ :value) :: list(map())`
 
 *   **Descrição:** Converte um mapa em uma lista de mapas, onde cada mapa na lista tem duas chaves: `key_field_name` (contendo a chave original) e `value_field_name` (contendo o valor original).
 *   **Exemplo:**
@@ -140,7 +140,7 @@ Este módulo, sendo puramente funcional e genérico, geralmente não requer conf
 Importar ou usar alias e chamar as funções diretamente.
 
 ```elixir
-alias Deeper_Hub.Shared.Utils.MapUtils
+alias DeeperHub.Shared.Utils.MapUtils
 
 def process_user_input(params) do
   string_keyed_params = MapUtils.atom_keys_to_strings(params)
@@ -199,7 +199,7 @@ Não aplicável para um módulo de utilitários puros. A instrumentação ocorre
 
 Utilitários de mapa são sempre bem-vindos para manter o código limpo!
 
-Próximo? Podemos fazer `Deeper_Hub.Shared.Utils.ListUtils` ou `ValidationUtils` para continuar com os utilitários, ou saltar para um módulo de domínio ou outro Core?"""),
+Próximo? Podemos fazer `DeeperHub.Shared.Utils.ListUtils` ou `ValidationUtils` para continuar com os utilitários, ou saltar para um módulo de domínio ou outro Core?"""),
             ],
         ),
         types.Content(
@@ -211,7 +211,7 @@ Próximo? Podemos fazer `Deeper_Hub.Shared.Utils.ListUtils` ou `ValidationUtils`
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ótimo! Vamos continuar com os utilitários e detalhar o `Deeper_Hub.Shared.Utils.ListUtils`. Manipular listas é uma tarefa onipresente em Elixir.
+                types.Part.from_text(text="""Ótimo! Vamos continuar com os utilitários e detalhar o `DeeperHub.Shared.Utils.ListUtils`. Manipular listas é uma tarefa onipresente em Elixir.
 
 ---
 

@@ -1,8 +1,8 @@
-# Módulo: `Deeper_Hub.Security.FraudDetection` 🚀
+# Módulo: `DeeperHub.Security.FraudDetection` 🚀
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.Security.FraudDetection`
+## 📜 1. Visão Geral do Módulo `DeeperHub.Security.FraudDetection`
 
-O módulo `Deeper_Hub.Security.FraudDetection` é dedicado a identificar, prevenir e gerenciar atividades fraudulentas dentro do sistema Deeper_Hub. Ele analisa diversos tipos de interações e transações dos usuários, aplicando um conjunto de regras, heurísticas e, potencialmente, modelos de aprendizado de máquina para detectar comportamentos que se desviam do normal ou que correspondem a padrões de fraude conhecidos.
+O módulo `DeeperHub.Security.FraudDetection` é dedicado a identificar, prevenir e gerenciar atividades fraudulentas dentro do sistema DeeperHub. Ele analisa diversos tipos de interações e transações dos usuários, aplicando um conjunto de regras, heurísticas e, potencialmente, modelos de aprendizado de máquina para detectar comportamentos que se desviam do normal ou que correspondem a padrões de fraude conhecidos.
 
 As principais áreas de análise incluem tentativas de login, alterações de perfil, transações financeiras (se aplicável), uso da API e anomalias biométricas. O objetivo é minimizar perdas financeiras, proteger contas de usuários contra comprometimento e manter a integridade da plataforma. 😊
 
@@ -13,7 +13,7 @@ As principais áreas de análise incluem tentativas de login, alterações de pe
     *   **Alterações de Perfil (`analyze_profile_changes/1`):** Detectar alterações suspeitas em dados críticos do perfil (ex: email, telefone, senha, endereço) feitas rapidamente ou de locais/dispositivos incomuns.
     *   **Transações (se aplicável):** Monitorar transações financeiras ou de itens de valor para padrões fraudulentos (ex: valores incomuns, frequência, destinatários suspeitos).
     *   **Uso de API (`analyze_api_usage/1`):** Identificar abuso de API, scraping ou atividades automatizadas maliciosas.
-    *   **Anomalias Biométricas (`record_biometric_anomaly/1`):** Receber e processar alertas do módulo `Deeper_Hub.Biometrics` sobre desvios comportamentais.
+    *   **Anomalias Biométricas (`record_biometric_anomaly/1`):** Receber e processar alertas do módulo `DeeperHub.Biometrics` sobre desvios comportamentais.
 *   **Gerenciamento de Regras de Detecção:**
     *   Permitir a criação, atualização, exclusão e consulta de regras de detecção de fraude (via `RulesManagerService`).
     *   Suportar diferentes tipos de condições e pesos para as regras.
@@ -25,7 +25,7 @@ As principais áreas de análise incluem tentativas de login, alterações de pe
 *   **Gerenciamento de Casos de Fraude:**
     *   Permitir que analistas de segurança revisem detecções, adicionem notas e atualizem o status (ex: falso positivo, fraude confirmada, resolvido) (via `Core` ou `DetectionRecorderService`).
 *   **Notificações e Alertas:**
-    *   Notificar a equipe de segurança e/ou usuários sobre detecções de fraude de alta criticidade (via `FraudNotifierService` e `Deeper_Hub.Notifications`).
+    *   Notificar a equipe de segurança e/ou usuários sobre detecções de fraude de alta criticidade (via `FraudNotifierService` e `DeeperHub.Notifications`).
 *   **Integração com Outros Módulos de Segurança:**
     *   Utilizar dados do `LoginLocation`, `DeviceFingerprint`, `BehavioralAnalysis` para enriquecer a análise.
     *   Fornecer informações para o `SecurityManager` tomar decisões (ex: bloquear usuário, exigir MFA adicional).
@@ -35,30 +35,30 @@ As principais áreas de análise incluem tentativas de login, alterações de pe
 
 ## 🏗️ 3. Arquitetura e Design
 
-O `Deeper_Hub.Security.FraudDetection` é um módulo complexo que geralmente é composto por vários serviços e componentes especializados.
+O `DeeperHub.Security.FraudDetection` é um módulo complexo que geralmente é composto por vários serviços e componentes especializados.
 
 ### 3.1. Componentes Principais
 
-1.  **`Deeper_Hub.Security.FraudDetection` (Fachada Pública):**
+1.  **`DeeperHub.Security.FraudDetection` (Fachada Pública):**
     *   Ponto de entrada para o sistema de detecção de fraude.
     *   Delega chamadas para o `FraudDetectionService` ou diretamente para serviços especializados.
-2.  **`Deeper_Hub.Security.FraudDetection.Services.DefaultFraudDetectionService` (ou `FraudDetectionCoreService`):**
+2.  **`DeeperHub.Security.FraudDetection.Services.DefaultFraudDetectionService` (ou `FraudDetectionCoreService`):**
     *   Serviço central que orquestra o processo de análise.
     *   Recebe dados de eventos, aplica regras, calcula riscos e registra detecções.
     *   Pode ser um GenServer para gerenciar estado ou executar tarefas assíncronas.
-3.  **`Deeper_Hub.Security.FraudDetection.Services.RulesManagerService` (GenServer):**
+3.  **`DeeperHub.Security.FraudDetection.Services.RulesManagerService` (GenServer):**
     *   Responsável por carregar, armazenar e fornecer acesso às regras de detecção de fraude.
     *   Permite a atualização dinâmica de regras.
-4.  **`Deeper_Hub.Security.FraudDetection.Services.RiskCalculatorService` (GenServer ou Módulo Funcional):**
+4.  **`DeeperHub.Security.FraudDetection.Services.RiskCalculatorService` (GenServer ou Módulo Funcional):**
     *   Contém a lógica para calcular a pontuação de risco com base nos fatores identificados e nos pesos das regras.
-5.  **`Deeper_Hub.Security.FraudDetection.Services.DetectionRecorderService` (GenServer):**
+5.  **`DeeperHub.Security.FraudDetection.Services.DetectionRecorderService` (GenServer):**
     *   Responsável por persistir os registros de detecções de fraude.
     *   Gerencia o ciclo de vida das detecções (status, notas).
-6.  **`Deeper_Hub.Security.FraudDetection.Services.FraudNotifierService` (GenServer):**
+6.  **`DeeperHub.Security.FraudDetection.Services.FraudNotifierService` (GenServer):**
     *   Responsável por enviar notificações e alertas com base nas detecções.
-7.  **`Deeper_Hub.Security.FraudDetection.Schema.FraudDetectionSchema`:**
+7.  **`DeeperHub.Security.FraudDetection.Schema.FraudDetectionSchema`:**
     *   Schema Ecto para armazenar os registros de detecção de fraude.
-8.  **`Deeper_Hub.Security.FraudDetection.Schema.RiskFactors` e `RiskScore` (Opcional):**
+8.  **`DeeperHub.Security.FraudDetection.Schema.RiskFactors` e `RiskScore` (Opcional):**
     *   Schemas para detalhar os fatores que contribuíram para uma pontuação de risco.
 9.  **Workers (`AnalysisWorker`, `CleanupWorker`):**
     *   `AnalysisWorker`: Para análises periódicas de padrões de fraude mais complexos ou em lote.
@@ -111,15 +111,15 @@ security/fraud_detection/
 ## 🛠️ 4. Casos de Uso Principais
 
 *   **Tentativa de Login de um Novo Dispositivo e Localização:**
-    *   `Deeper_Hub.Auth` envia dados do login para `FraudDetection.analyze_login/1`.
+    *   `DeeperHub.Auth` envia dados do login para `FraudDetection.analyze_login/1`.
     *   O serviço aplica regras como \"novo dispositivo\", \"nova localização\", \"viagem impossível\".
     *   Calcula um score de risco. Se alto, pode recomendar MFA adicional ou bloquear temporariamente.
 *   **Usuário Altera Email e Senha Rapidamente:**
-    *   `Deeper_Hub.Accounts` envia dados das alterações para `FraudDetection.analyze_profile_changes/1`.
+    *   `DeeperHub.Accounts` envia dados das alterações para `FraudDetection.analyze_profile_changes/1`.
     *   Regras para \"múltiplas alterações sensíveis em curto período\" são acionadas.
     *   Score de risco alto -> notificação para o usuário sobre as alterações.
 *   **Detecção de Padrão de Abuso de API:**
-    *   `Deeper_Hub.API` envia dados de uso para `FraudDetection.analyze_api_usage/1`.
+    *   `DeeperHub.API` envia dados de uso para `FraudDetection.analyze_api_usage/1`.
     *   Regras de \"alta frequência de requisições\" ou \"acesso a endpoints sensíveis de forma incomum\" são acionadas.
     *   Risco alto -> pode levar a rate limiting mais agressivo ou bloqueio temporário do cliente API.
 
@@ -140,14 +140,14 @@ security/fraud_detection/
 5.  **`DetectionRecorderService`:**
     *   Se a pontuação de risco exceder um limiar mínimo para registro, um novo `FraudDetectionSchema` é criado e persistido com todos os detalhes.
 6.  **`FraudNotifierService`:**
-    *   Se o nível de risco for alto o suficiente para justificar uma notificação imediata, envia alertas para a equipe de segurança ou para o usuário (via `Deeper_Hub.Notifications`).
+    *   Se o nível de risco for alto o suficiente para justificar uma notificação imediata, envia alertas para a equipe de segurança ou para o usuário (via `DeeperHub.Notifications`).
 7.  **Resposta:** O `DefaultFraudDetectionService` retorna o resultado da análise (nível de risco, ID da detecção, ações recomendadas) para o chamador.
 
-## 📡 6. API (Funções Públicas da Fachada `Deeper_Hub.Security.FraudDetection`)
+## 📡 6. API (Funções Públicas da Fachada `DeeperHub.Security.FraudDetection`)
 
 *(Muitas já foram descritas na documentação original. Foco em clareza e exemplos.)*
 
-### 6.1. `Deeper_Hub.Security.FraudDetection.analyze_login(login_info :: map()) :: {:ok, FraudAnalysisResult.t()} | {:error, term()}`
+### 6.1. `DeeperHub.Security.FraudDetection.analyze_login(login_info :: map()) :: {:ok, FraudAnalysisResult.t()} | {:error, term()}`
 
 *   **Descrição:** Analisa uma tentativa de login para detectar fraude.
 *   **`login_info`:** `%{user_id: String.t(), ip_address: String.t(), user_agent: String.t(), location: map() | nil, success: boolean()}`
@@ -161,7 +161,7 @@ security/fraud_detection/
     end
     ```
 
-### 6.2. `Deeper_Hub.Security.FraudDetection.add_rule(rule_definition :: map()) :: {:ok, Rule.t()} | {:error, term()}`
+### 6.2. `DeeperHub.Security.FraudDetection.add_rule(rule_definition :: map()) :: {:ok, Rule.t()} | {:error, term()}`
 
 *   **Descrição:** Adiciona uma nova regra de detecção de fraude.
 *   **`rule_definition`:** `%{name: String.t(), detection_type: atom(), conditions: list(map()), action_score: integer(), enabled: boolean()}`
@@ -171,7 +171,7 @@ security/fraud_detection/
     FraudDetection.add_rule(rule)
     ```
 
-### 6.3. `Deeper_Hub.Security.FraudDetection.update_detection_status(detection_id :: String.t(), status :: atom(), reviewer_id :: String.t(), notes :: String.t() | nil) :: {:ok, FraudDetectionSchema.t()} | {:error, term()}`
+### 6.3. `DeeperHub.Security.FraudDetection.update_detection_status(detection_id :: String.t(), status :: atom(), reviewer_id :: String.t(), notes :: String.t() | nil) :: {:ok, FraudDetectionSchema.t()} | {:error, term()}`
 
 *   **Descrição:** Atualiza o status de uma detecção (ex: `:reviewed`, `:false_positive`, `:confirmed_fraud`).
 
@@ -179,7 +179,7 @@ security/fraud_detection/
 
 ## ⚙️ 7. Configuração
 
-Configurações gerenciadas pelo `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPolicyManager`:
+Configurações gerenciadas pelo `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolicyManager`:
 
 *   **`[:security, :fraud_detection, :enabled]`** (Boolean): Habilita/desabilita o sistema de detecção de fraude. (Padrão: `true`)
 *   **`[:security, :fraud_detection, :default_risk_thresholds]`** (Map): Limiares padrão para classificar scores de risco (ex: `%{low: 20, medium: 50, high: 75, critical: 90}`).
@@ -195,16 +195,16 @@ Configurações gerenciadas pelo `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hu
 
 ### 8.1. Módulos Internos
 
-*   `Deeper_Hub.Core.ConfigManager`, `Core.EventBus`, `Core.Logger`, `Core.Metrics`, `Core.Repo`.
-*   `Deeper_Hub.Auth`: Para informações de usuário e sessão.
-*   `Deeper_Hub.Accounts`: Para dados de perfil.
-*   `Deeper_Hub.API`: Para dados de uso da API.
-*   `Deeper_Hub.Biometrics`: Para dados de anomalias biométricas.
-*   `Deeper_Hub.Security.LoginLocation`: Para dados de localização.
-*   `Deeper_Hub.Security.DeviceFingerprint`: Para dados de dispositivo.
-*   `Deeper_Hub.Security.RiskAssessment`: Pode ser usado como um dos insumos para a pontuação de fraude ou ser o resultado dela.
-*   `Deeper_Hub.Notifications`: Para enviar alertas.
-*   `Deeper_Hub.Audit`: Para registrar detecções e ações.
+*   `DeeperHub.Core.ConfigManager`, `Core.EventBus`, `Core.Logger`, `Core.Metrics`, `Core.Repo`.
+*   `DeeperHub.Auth`: Para informações de usuário e sessão.
+*   `DeeperHub.Accounts`: Para dados de perfil.
+*   `DeeperHub.API`: Para dados de uso da API.
+*   `DeeperHub.Biometrics`: Para dados de anomalias biométricas.
+*   `DeeperHub.Security.LoginLocation`: Para dados de localização.
+*   `DeeperHub.Security.DeviceFingerprint`: Para dados de dispositivo.
+*   `DeeperHub.Security.RiskAssessment`: Pode ser usado como um dos insumos para a pontuação de fraude ou ser o resultado dela.
+*   `DeeperHub.Notifications`: Para enviar alertas.
+*   `DeeperHub.Audit`: Para registrar detecções e ações.
 
 ### 8.2. Bibliotecas Externas
 
@@ -213,9 +213,9 @@ Configurações gerenciadas pelo `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hu
 
 ## 🤝 9. Como Usar / Integração
 
-Os módulos de domínio (Accounts, API, etc.) devem chamar as funções `analyze_*` da fachada `Deeper_Hub.Security.FraudDetection` quando eventos relevantes ocorrem.
+Os módulos de domínio (Accounts, API, etc.) devem chamar as funções `analyze_*` da fachada `DeeperHub.Security.FraudDetection` quando eventos relevantes ocorrem.
 
-**Exemplo em `Deeper_Hub.Accounts` ao atualizar email:**
+**Exemplo em `DeeperHub.Accounts` ao atualizar email:**
 ```elixir
 def update_email(user, new_email, context_info) do
   # ... (lógica de atualização do email) ...
@@ -227,7 +227,7 @@ def update_email(user, new_email, context_info) do
     ip_address: context_info.ip_address,
     # ... outros dados de contexto
   }
-  case Deeper_Hub.Security.FraudDetection.analyze_profile_changes(profile_change_info) do
+  case DeeperHub.Security.FraudDetection.analyze_profile_changes(profile_change_info) do
     {:ok, %{risk_level: risk_level, detection_id: detection_id}} when risk_level in [:high, :critical] ->
       Logger.warn(\"Alta suspeita de fraude na alteração de email para user_id: #{user.id}\", detection_id: detection_id)
       # Pode-se optar por bloquear a alteração, exigir verificação adicional, etc.
@@ -313,7 +313,7 @@ end
 
 Este módulo de Detecção de Fraude é bastante abrangente e interage com muitos outros.
 
-Onde gostaria de focar agora? Talvez `Deeper_Hub.Security.BruteForceProtection` ou `Deeper_Hub.Security.RiskAssessment`? Ou podemos ir para um módulo Core como `Deeper_Hub.Core.Repo`?"""),
+Onde gostaria de focar agora? Talvez `DeeperHub.Security.BruteForceProtection` ou `DeeperHub.Security.RiskAssessment`? Ou podemos ir para um módulo Core como `DeeperHub.Core.Repo`?"""),
             ],
         ),
         types.Content(
@@ -325,7 +325,7 @@ Onde gostaria de focar agora? Talvez `Deeper_Hub.Security.BruteForceProtection` 
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ok, vamos seguir com outro componente importante da camada de segurança: `Deeper_Hub.Security.BruteForceProtection`.
+                types.Part.from_text(text="""Ok, vamos seguir com outro componente importante da camada de segurança: `DeeperHub.Security.BruteForceProtection`.
 
 ---
 

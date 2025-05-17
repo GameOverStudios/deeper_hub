@@ -1,8 +1,8 @@
-# Módulo: `Deeper_Hub.ServerAlerts` 🚨
+# Módulo: `DeeperHub.ServerAlerts` 🚨
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.ServerAlerts`
+## 📜 1. Visão Geral do Módulo `DeeperHub.ServerAlerts`
 
-O módulo `Deeper_Hub.ServerAlerts` é responsável por gerenciar e disseminar alertas relacionados a servidores específicos dentro da plataforma Deeper_Hub. Estes alertas são mensagens importantes que os proprietários de servidores ou administradores da plataforma podem querer comunicar aos usuários de um servidor ou a todos os usuários da plataforma sobre um servidor específico. Exemplos incluem anúncios de manutenção, status do servidor, problemas técnicos urgentes, ou notificações sobre eventos importantes relacionados a um servidor. 😊
+O módulo `DeeperHub.ServerAlerts` é responsável por gerenciar e disseminar alertas relacionados a servidores específicos dentro da plataforma DeeperHub. Estes alertas são mensagens importantes que os proprietários de servidores ou administradores da plataforma podem querer comunicar aos usuários de um servidor ou a todos os usuários da plataforma sobre um servidor específico. Exemplos incluem anúncios de manutenção, status do servidor, problemas técnicos urgentes, ou notificações sobre eventos importantes relacionados a um servidor. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -15,7 +15,7 @@ O módulo `Deeper_Hub.ServerAlerts` é responsável por gerenciar e disseminar a
     *   Fornecer uma API para que a UI ou outros sistemas possam buscar alertas ativos para serem exibidos aos usuários relevantes.
     *   Formas de exibição podem incluir banners no site, notificações in-app, ou pop-ups.
 *   **Notificações (Integração):**
-    *   Integrar com `Deeper_Hub.Notifications` para enviar alertas urgentes por canais como email ou push, dependendo das preferências do usuário e da severidade do alerta.
+    *   Integrar com `DeeperHub.Notifications` para enviar alertas urgentes por canais como email ou push, dependendo das preferências do usuário e da severidade do alerta.
 *   **Controle de Ativação e Visibilidade:**
     *   Habilitar/desabilitar alertas.
     *   Marcar alertas como \"lidos\" por usuário (se necessário para alertas persistentes).
@@ -25,23 +25,23 @@ O módulo `Deeper_Hub.ServerAlerts` é responsável por gerenciar e disseminar a
 
 ## 🏗️ 3. Arquitetura e Design
 
-`Deeper_Hub.ServerAlerts` atuará como uma fachada para um serviço de lógica de negócio e componentes de persistência.
+`DeeperHub.ServerAlerts` atuará como uma fachada para um serviço de lógica de negócio e componentes de persistência.
 
-*   **Interface Pública (`Deeper_Hub.ServerAlerts.ServerAlertsFacade` ou `Deeper_Hub.ServerAlerts`):** Funções como `create_alert/1`, `list_active_alerts_for_server/1`, `list_active_alerts_for_user/1`.
-*   **Serviço de Alertas de Servidor (`Deeper_Hub.ServerAlerts.Services.AlertService`):**
+*   **Interface Pública (`DeeperHub.ServerAlerts.ServerAlertsFacade` ou `DeeperHub.ServerAlerts`):** Funções como `create_alert/1`, `list_active_alerts_for_server/1`, `list_active_alerts_for_user/1`.
+*   **Serviço de Alertas de Servidor (`DeeperHub.ServerAlerts.Services.AlertService`):**
     *   Contém a lógica de negócio principal para definir, gerenciar e disseminar alertas.
 *   **Schemas Ecto:**
-    *   `Deeper_Hub.ServerAlerts.Schema.Alert`: Define um alerta de servidor.
-    *   `Deeper_Hub.ServerAlerts.Schema.UserAlertView` (Opcional): Para rastrear quais usuários visualizaram/dispensaram quais alertas.
-*   **Cache (`Deeper_Hub.ServerAlerts.Cache` ou via `Core.Cache`):**
+    *   `DeeperHub.ServerAlerts.Schema.Alert`: Define um alerta de servidor.
+    *   `DeeperHub.ServerAlerts.Schema.UserAlertView` (Opcional): Para rastrear quais usuários visualizaram/dispensaram quais alertas.
+*   **Cache (`DeeperHub.ServerAlerts.Cache` ou via `Core.Cache`):**
     *   Cache para alertas ativos frequentemente requisitados para exibição.
 *   **Workers (via `Core.BackgroundTaskManager`):**
     *   Worker para gerenciar o ciclo de vida dos alertas (ativar alertas agendados, expirar alertas).
 *   **Integrações:**
-    *   `Deeper_Hub.Core.Repo`: Para persistência.
-    *   `Deeper_Hub.Servers`: Para associar alertas a servidores.
-    *   `Deeper_Hub.Accounts`: Para associar alertas a usuários criadores e para determinar o público alvo.
-    *   `Deeper_Hub.Notifications`: Para enviar alertas por canais de notificação.
+    *   `DeeperHub.Core.Repo`: Para persistência.
+    *   `DeeperHub.Servers`: Para associar alertas a servidores.
+    *   `DeeperHub.Accounts`: Para associar alertas a usuários criadores e para determinar o público alvo.
+    *   `DeeperHub.Notifications`: Para enviar alertas por canais de notificação.
 
 **Padrões de Design:**
 
@@ -50,10 +50,10 @@ O módulo `Deeper_Hub.ServerAlerts` é responsável por gerenciar e disseminar a
 
 ### 3.1. Componentes Principais
 
-*   **`Deeper_Hub.ServerAlerts.ServerAlertsFacade`:** Ponto de entrada.
-*   **`Deeper_Hub.ServerAlerts.Services.AlertService`:** Lógica de negócio.
-*   **`Deeper_Hub.ServerAlerts.Schema.Alert`:** Schema do alerta.
-*   **`Deeper_Hub.ServerAlerts.Supervisor`:** Supervisiona processos.
+*   **`DeeperHub.ServerAlerts.ServerAlertsFacade`:** Ponto de entrada.
+*   **`DeeperHub.ServerAlerts.Services.AlertService`:** Lógica de negócio.
+*   **`DeeperHub.ServerAlerts.Schema.Alert`:** Schema do alerta.
+*   **`DeeperHub.ServerAlerts.Supervisor`:** Supervisiona processos.
 *   **Workers (ex: `AlertLifecycleWorker`).**
 
 ### 3.3. Decisões de Design Importantes
@@ -74,16 +74,16 @@ O módulo `Deeper_Hub.ServerAlerts` é responsável por gerenciar e disseminar a
 **Fluxo de Criação e Notificação de um Alerta Crítico:**
 
 1.  Proprietário do servidor (ou admin) submete dados de um novo alerta crítico via API/UI.
-2.  `Deeper_Hub.API` (Controller) chama `Deeper_Hub.ServerAlerts.create_alert(params)`.
+2.  `DeeperHub.API` (Controller) chama `DeeperHub.ServerAlerts.create_alert(params)`.
 3.  `AlertService` valida os dados e cria um registro `Alert` com status `active` e severidade `critical`.
 4.  Um evento `ServerAlertCreatedEvent` é publicado no `Core.EventBus`.
-5.  `Deeper_Hub.Notifications` (ou um handler de evento específico) escuta este evento.
+5.  `DeeperHub.Notifications` (ou um handler de evento específico) escuta este evento.
 6.  Com base na criticidade e no público alvo do alerta, `Notifications` envia notificações por canais apropriados (ex: push notification para seguidores do servidor).
 7.  A UI que exibe alertas busca os alertas ativos para o servidor/usuário e exibe a nova mensagem.
 
 ## 📡 6. API (Se Aplicável)
 
-### 6.1. `Deeper_Hub.ServerAlerts.create_alert/1`
+### 6.1. `DeeperHub.ServerAlerts.create_alert/1`
 
 *   **Descrição:** Cria um novo alerta para um servidor.
 *   **`@spec`:** `create_alert(attrs :: map()) :: {:ok, Alert.t()} | {:error, Ecto.Changeset.t() | reason}`
@@ -108,13 +108,13 @@ O módulo `Deeper_Hub.ServerAlerts` é responsável por gerenciar e disseminar a
       severity: :critical,
       expires_at: DateTime.add(DateTime.utc_now(), 1, :hour)
     }
-    case Deeper_Hub.ServerAlerts.create_alert(alert_attrs) do
+    case DeeperHub.ServerAlerts.create_alert(alert_attrs) do
       {:ok, alert} -> Logger.info(\"Alerta #{alert.id} criado: #{alert.title}\")
       {:error, reason} -> Logger.error(\"Falha ao criar alerta: #{inspect(reason)}\")
     end
     ```
 
-### 6.2. `Deeper_Hub.ServerAlerts.list_active_alerts_for_user/2`
+### 6.2. `DeeperHub.ServerAlerts.list_active_alerts_for_user/2`
 
 *   **Descrição:** Lista todos os alertas ativos que são relevantes para um usuário específico (ex: para servidores que ele segue ou alertas globais sobre servidores).
 *   **`@spec`:** `list_active_alerts_for_user(user_id :: String.t(), opts :: Keyword.t()) :: {:ok, list(Alert.t())} | {:error, reason}`
@@ -124,14 +124,14 @@ O módulo `Deeper_Hub.ServerAlerts` é responsável por gerenciar e disseminar a
 *   **Retorno:** Lista de alertas ativos relevantes para o usuário.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    {:ok, user_alerts} = Deeper_Hub.ServerAlerts.list_active_alerts_for_user(current_user.id)
+    {:ok, user_alerts} = DeeperHub.ServerAlerts.list_active_alerts_for_user(current_user.id)
     ```
 
 *(Outras funções como `get_alert/1`, `update_alert/2`, `delete_alert/1`, `list_alerts_by_server/2` seriam documentadas aqui).*
 
 ## ⚙️ 7. Configuração
 
-*   **ConfigManager (`Deeper_Hub.Core.ConfigManager`):**
+*   **ConfigManager (`DeeperHub.Core.ConfigManager`):**
     *   `[:server_alerts, :default_severity]`: Severidade padrão para novos alertas. (Padrão: `:info`)
     *   `[:server_alerts, :default_expiration_hours]`: Duração padrão em horas para alertas sem `expires_at` explícito. (Padrão: `24`)
     *   `[:server_alerts, :worker, :lifecycle_check_interval_minutes]`: Intervalo para o worker verificar e atualizar status de alertas. (Padrão: `5`)
@@ -141,14 +141,14 @@ O módulo `Deeper_Hub.ServerAlerts` é responsável por gerenciar e disseminar a
 
 ### 8.1. Módulos Internos
 
-*   `Deeper_Hub.Core.Repo`
-*   `Deeper_Hub.Core.ConfigManager`
-*   `Deeper_Hub.Core.EventBus`
-*   `Deeper_Hub.Core.BackgroundTaskManager`
-*   `Deeper_Hub.Notifications`
-*   `Deeper_Hub.Servers`
-*   `Deeper_Hub.Accounts`
-*   `Deeper_Hub.Core.Logger`, `Deeper_Hub.Core.Metrics`
+*   `DeeperHub.Core.Repo`
+*   `DeeperHub.Core.ConfigManager`
+*   `DeeperHub.Core.EventBus`
+*   `DeeperHub.Core.BackgroundTaskManager`
+*   `DeeperHub.Notifications`
+*   `DeeperHub.Servers`
+*   `DeeperHub.Accounts`
+*   `DeeperHub.Core.Logger`, `DeeperHub.Core.Metrics`
 
 ### 8.2. Bibliotecas Externas
 
@@ -179,8 +179,8 @@ O módulo `Deeper_Hub.ServerAlerts` é responsável por gerenciar e disseminar a
 
 ### 10.3. Logs
 
-*   `Logger.info(\"Alerta '#{title}' (ID: #{id}) criado para o servidor #{server_id}\", module: Deeper_Hub.ServerAlerts.Services.AlertService)`
-*   `Logger.info(\"Alerta #{id} ativado/expirado.\", module: Deeper_Hub.ServerAlerts.Workers.AlertLifecycleWorker)`
+*   `Logger.info(\"Alerta '#{title}' (ID: #{id}) criado para o servidor #{server_id}\", module: DeeperHub.ServerAlerts.Services.AlertService)`
+*   `Logger.info(\"Alerta #{id} ativado/expirado.\", module: DeeperHub.ServerAlerts.Workers.AlertLifecycleWorker)`
 
 ### 10.4. Telemetria
 
@@ -219,7 +219,7 @@ O módulo `Deeper_Hub.ServerAlerts` é responsável por gerenciar e disseminar a
 
 ---
 
-O próximo da lista de \"Services\" seria `Deeper_Hub.ServerTags`. Você mencionou que já tem um README para ele (`Deeper_Hub_ServerTags.md`). Quer que eu crie um novo seguindo este padrão detalhado, ou prefere que eu revise o que você já tem e sugira adições/alterações com base neste template? Ou podemos pular para o próximo item inédito?"""),
+O próximo da lista de \"Services\" seria `DeeperHub.ServerTags`. Você mencionou que já tem um README para ele (`DeeperHub_ServerTags.md`). Quer que eu crie um novo seguindo este padrão detalhado, ou prefere que eu revise o que você já tem e sugira adições/alterações com base neste template? Ou podemos pular para o próximo item inédito?"""),
             ],
         ),
         types.Content(
@@ -232,7 +232,7 @@ O próximo da lista de \"Services\" seria `Deeper_Hub.ServerTags`. Você mencion
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Entendido! Vamos criar um README novo e completo para `Deeper_Hub.ServerTags`, seguindo o padrão que estabelecemos.
+                types.Part.from_text(text="""Entendido! Vamos criar um README novo e completo para `DeeperHub.ServerTags`, seguindo o padrão que estabelecemos.
 
 ---
 

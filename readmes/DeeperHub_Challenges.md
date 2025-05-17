@@ -1,8 +1,8 @@
-# Módulo: `Deeper_Hub.Challenges` 🎯
+# Módulo: `DeeperHub.Challenges` 🎯
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.Challenges`
+## 📜 1. Visão Geral do Módulo `DeeperHub.Challenges`
 
-O módulo `Deeper_Hub.Challenges` é responsável por gerenciar desafios e competições dentro da plataforma Deeper_Hub. Ele permite a criação de desafios com objetivos específicos, prazos, e recompensas, incentivando o engajamento e a participação ativa dos usuários. Os usuários podem participar dos desafios, submeter suas participações (quando aplicável) e serem reconhecidos por completá-los. 😊
+O módulo `DeeperHub.Challenges` é responsável por gerenciar desafios e competições dentro da plataforma DeeperHub. Ele permite a criação de desafios com objetivos específicos, prazos, e recompensas, incentivando o engajamento e a participação ativa dos usuários. Os usuários podem participar dos desafios, submeter suas participações (quando aplicável) e serem reconhecidos por completá-los. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -21,33 +21,33 @@ O módulo `Deeper_Hub.Challenges` é responsável por gerenciar desafios e compe
     *   Verificar automaticamente (ou após avaliação manual) se um usuário completou um desafio.
     *   Marcar um desafio como concluído para um usuário e registrar a data de conclusão.
 *   **Recompensas e Reconhecimento:**
-    *   Integrar com `Deeper_Hub.Rewards` para conceder recompensas aos usuários que completam desafios.
-    *   Potencialmente, desbloquear conquistas (`Deeper_Hub.Achievements`) pela participação ou conclusão de desafios.
+    *   Integrar com `DeeperHub.Rewards` para conceder recompensas aos usuários que completam desafios.
+    *   Potencialmente, desbloquear conquistas (`DeeperHub.Achievements`) pela participação ou conclusão de desafios.
     *   Exibição de \"hall da fama\" ou leaderboards para desafios competitivos.
 *   **Notificações:**
-    *   Notificar usuários sobre novos desafios, lembretes de prazo, status de participação e conclusão (via `Deeper_Hub.Notifications`).
+    *   Notificar usuários sobre novos desafios, lembretes de prazo, status de participação e conclusão (via `DeeperHub.Notifications`).
 *   **Administração de Desafios:**
     *   Interface para administradores criarem, modificarem, ativarem/desativarem e monitorarem desafios.
 
 ## 🏗️ 3. Arquitetura e Design
 
-`Deeper_Hub.Challenges` será uma fachada que interage com um serviço de lógica de negócio e componentes de persistência.
+`DeeperHub.Challenges` será uma fachada que interage com um serviço de lógica de negócio e componentes de persistência.
 
-*   **Interface Pública (`Deeper_Hub.Challenges.ChallengesFacade` ou `Deeper_Hub.Challenges`):** Funções como `list_active_challenges/1`, `join_challenge/2`, `complete_challenge/3`.
-*   **Serviço de Desafios (`Deeper_Hub.Challenges.Services.ChallengesService`):**
+*   **Interface Pública (`DeeperHub.Challenges.ChallengesFacade` ou `DeeperHub.Challenges`):** Funções como `list_active_challenges/1`, `join_challenge/2`, `complete_challenge/3`.
+*   **Serviço de Desafios (`DeeperHub.Challenges.Services.ChallengesService`):**
     *   Contém a lógica de negócio principal para gerenciar definições de desafios, participação de usuários, avaliação de progresso/conclusão.
 *   **Schemas Ecto:**
-    *   `Deeper_Hub.Challenges.Schema.Challenge`: Define um desafio.
-    *   `Deeper_Hub.Challenges.Schema.UserChallenge`: Rastreia a participação e o status de um usuário em um desafio.
-    *   `Deeper_Hub.Challenges.Schema.ChallengeSubmission` (Opcional): Para desafios que requerem submissão.
+    *   `DeeperHub.Challenges.Schema.Challenge`: Define um desafio.
+    *   `DeeperHub.Challenges.Schema.UserChallenge`: Rastreia a participação e o status de um usuário em um desafio.
+    *   `DeeperHub.Challenges.Schema.ChallengeSubmission` (Opcional): Para desafios que requerem submissão.
 *   **Processamento de Eventos/Tarefas Agendadas:**
     *   Workers (via `Core.BackgroundTaskManager`) para verificar prazos de desafios, processar conclusões em lote, ou atualizar leaderboards.
 *   **Integrações:**
-    *   `Deeper_Hub.Core.Repo`: Para persistência.
-    *   `Deeper_Hub.Core.EventBus`: Para publicar eventos (ex: `ChallengeCompletedEvent`) e escutar eventos que podem influenciar o progresso de desafios.
-    *   `Deeper_Hub.Notifications`: Para notificar usuários.
-    *   `Deeper_Hub.Rewards`: Para conceder recompensas.
-    *   `Deeper_Hub.Achievements`: Para desbloquear conquistas relacionadas a desafios.
+    *   `DeeperHub.Core.Repo`: Para persistência.
+    *   `DeeperHub.Core.EventBus`: Para publicar eventos (ex: `ChallengeCompletedEvent`) e escutar eventos que podem influenciar o progresso de desafios.
+    *   `DeeperHub.Notifications`: Para notificar usuários.
+    *   `DeeperHub.Rewards`: Para conceder recompensas.
+    *   `DeeperHub.Achievements`: Para desbloquear conquistas relacionadas a desafios.
 
 **Padrões de Design:**
 
@@ -57,11 +57,11 @@ O módulo `Deeper_Hub.Challenges` é responsável por gerenciar desafios e compe
 
 ### 3.1. Componentes Principais
 
-*   **`Deeper_Hub.Challenges.ChallengesFacade`:** Ponto de entrada.
-*   **`Deeper_Hub.Challenges.Services.ChallengesService`:** Lógica de negócio.
-*   **`Deeper_Hub.Challenges.Schema.Challenge`:** Schema do desafio.
-*   **`Deeper_Hub.Challenges.Schema.UserChallenge`:** Schema da participação do usuário.
-*   **`Deeper_Hub.Challenges.Supervisor`:** Supervisiona processos.
+*   **`DeeperHub.Challenges.ChallengesFacade`:** Ponto de entrada.
+*   **`DeeperHub.Challenges.Services.ChallengesService`:** Lógica de negócio.
+*   **`DeeperHub.Challenges.Schema.Challenge`:** Schema do desafio.
+*   **`DeeperHub.Challenges.Schema.UserChallenge`:** Schema da participação do usuário.
+*   **`DeeperHub.Challenges.Supervisor`:** Supervisiona processos.
 *   **Workers (ex: `ChallengeDeadlineWorker`):** Para tarefas periódicas.
 
 ### 3.3. Decisões de Design Importantes
@@ -91,13 +91,13 @@ O módulo `Deeper_Hub.Challenges` é responsável por gerenciar desafios e compe
 7.  Se concluído:
     *   Marca `UserChallenge` como `status: :completed`, preenche `completed_at`.
     *   Emite um evento `ChallengeCompletedEvent`.
-    *   (Opcional) Chama `Deeper_Hub.Rewards.grant_reward_for_challenge/2`.
-    *   (Opcional) Enfileira uma notificação via `Deeper_Hub.Notifications`.
+    *   (Opcional) Chama `DeeperHub.Rewards.grant_reward_for_challenge/2`.
+    *   (Opcional) Enfileira uma notificação via `DeeperHub.Notifications`.
 8.  O `EventHandler` confirma o processamento do evento.
 
 ## 📡 6. API (Se Aplicável)
 
-### 6.1. `Deeper_Hub.Challenges.list_active_challenges/1`
+### 6.1. `DeeperHub.Challenges.list_active_challenges/1`
 
 *   **Descrição:** Lista todos os desafios atualmente ativos e disponíveis para participação.
 *   **`@spec`:** `list_active_challenges(opts :: Keyword.t()) :: {:ok, list(Challenge.t())} | {:error, reason}`
@@ -106,10 +106,10 @@ O módulo `Deeper_Hub.Challenges` é responsável por gerenciar desafios e compe
 *   **Retorno:** Lista de structs `Challenge.t()`.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    {:ok, active_challenges} = Deeper_Hub.Challenges.list_active_challenges(category: \"community\")
+    {:ok, active_challenges} = DeeperHub.Challenges.list_active_challenges(category: \"community\")
     ```
 
-### 6.2. `Deeper_Hub.Challenges.join_challenge/2`
+### 6.2. `DeeperHub.Challenges.join_challenge/2`
 
 *   **Descrição:** Permite que um usuário se inscreva para participar de um desafio.
 *   **`@spec`:** `join_challenge(user_id :: String.t(), challenge_id :: String.t()) :: {:ok, UserChallenge.t()} | {:error, reason}`
@@ -121,13 +121,13 @@ O módulo `Deeper_Hub.Challenges` é responsável por gerenciar desafios e compe
     *   `{:error, :already_joined | :not_eligible | :challenge_not_active | :not_found | reason}`.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    case Deeper_Hub.Challenges.join_challenge(current_user.id, \"challenge_xyz\") do
+    case DeeperHub.Challenges.join_challenge(current_user.id, \"challenge_xyz\") do
       {:ok, participation} -> Logger.info(\"Usuário #{current_user.id} juntou-se ao desafio #{participation.challenge_id}\")
       {:error, reason} -> Logger.warning(\"Falha ao entrar no desafio: #{reason}\")
     end
     ```
 
-### 6.3. `Deeper_Hub.Challenges.get_user_challenge_status/2`
+### 6.3. `DeeperHub.Challenges.get_user_challenge_status/2`
 
 *   **Descrição:** Obtém o status e progresso de um usuário em um desafio específico.
 *   **`@spec`:** `get_user_challenge_status(user_id :: String.t(), challenge_id :: String.t()) :: {:ok, UserChallenge.t()} | {:error, :not_joined | :not_found | reason}`
@@ -137,14 +137,14 @@ O módulo `Deeper_Hub.Challenges` é responsável por gerenciar desafios e compe
 *   **Retorno:** A struct `UserChallenge.t()` com o status e progresso, ou erro.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    {:ok, status} = Deeper_Hub.Challenges.get_user_challenge_status(current_user.id, \"challenge_xyz\")
+    {:ok, status} = DeeperHub.Challenges.get_user_challenge_status(current_user.id, \"challenge_xyz\")
     ```
 
 *(Outras funções como `submit_for_challenge/3`, `list_user_challenges/1` seriam documentadas aqui).*
 
 ## ⚙️ 7. Configuração
 
-*   **ConfigManager (`Deeper_Hub.Core.ConfigManager`):**
+*   **ConfigManager (`DeeperHub.Core.ConfigManager`):**
     *   `[:challenges, :default_reward_type]`: Tipo de recompensa padrão para desafios (ex: `:points`).
     *   `[:challenges, :max_active_challenges_per_user]`: Número máximo de desafios que um usuário pode participar simultaneamente. (Padrão: `5`)
     *   `[:challenges, :worker, :deadline_check_interval_hours]`: Intervalo para o worker verificar desafios expirados. (Padrão: `1`)
@@ -154,14 +154,14 @@ O módulo `Deeper_Hub.Challenges` é responsável por gerenciar desafios e compe
 
 ### 8.1. Módulos Internos
 
-*   `Deeper_Hub.Core.Repo`
-*   `Deeper_Hub.Core.ConfigManager`
-*   `Deeper_Hub.Core.EventBus`
-*   `Deeper_Hub.Core.BackgroundTaskManager`
-*   `Deeper_Hub.Notifications`
-*   `Deeper_Hub.Rewards`
-*   `Deeper_Hub.Achievements` (Potencial)
-*   `Deeper_Hub.Core.Logger`, `Deeper_Hub.Core.Metrics`
+*   `DeeperHub.Core.Repo`
+*   `DeeperHub.Core.ConfigManager`
+*   `DeeperHub.Core.EventBus`
+*   `DeeperHub.Core.BackgroundTaskManager`
+*   `DeeperHub.Notifications`
+*   `DeeperHub.Rewards`
+*   `DeeperHub.Achievements` (Potencial)
+*   `DeeperHub.Core.Logger`, `DeeperHub.Core.Metrics`
 
 ### 8.2. Bibliotecas Externas
 
@@ -194,9 +194,9 @@ O módulo `Deeper_Hub.Challenges` é responsável por gerenciar desafios e compe
 
 ### 10.3. Logs
 
-*   `Logger.info(\"Desafio '#{name}' criado.\", module: Deeper_Hub.Challenges.Services.ChallengesService)`
-*   `Logger.info(\"Usuário #{user_id} participou do desafio '#{challenge_id}'.\", module: Deeper_Hub.Challenges.Services.ChallengesService)`
-*   `Logger.info(\"Usuário #{user_id} completou o desafio '#{challenge_id}'.\", module: Deeper_Hub.Challenges.Services.ChallengesService)`
+*   `Logger.info(\"Desafio '#{name}' criado.\", module: DeeperHub.Challenges.Services.ChallengesService)`
+*   `Logger.info(\"Usuário #{user_id} participou do desafio '#{challenge_id}'.\", module: DeeperHub.Challenges.Services.ChallengesService)`
+*   `Logger.info(\"Usuário #{user_id} completou o desafio '#{challenge_id}'.\", module: DeeperHub.Challenges.Services.ChallengesService)`
 
 ### 10.4. Telemetria
 
@@ -238,7 +238,7 @@ O módulo `Deeper_Hub.Challenges` é responsável por gerenciar desafios e compe
 
 ---
 
-Próximo da lista de \"Services\" é `Deeper_Hub.Rewards`. Vamos a ele?"""),
+Próximo da lista de \"Services\" é `DeeperHub.Rewards`. Vamos a ele?"""),
             ],
         ),
         types.Content(
@@ -250,7 +250,7 @@ Próximo da lista de \"Services\" é `Deeper_Hub.Rewards`. Vamos a ele?"""),
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ótimo! Seguimos com o README para `Deeper_Hub.Rewards`.
+                types.Part.from_text(text="""Ótimo! Seguimos com o README para `DeeperHub.Rewards`.
 
 ---
 

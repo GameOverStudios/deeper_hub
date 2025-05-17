@@ -1,12 +1,12 @@
-# Módulo: `Deeper_Hub.Core.Cache` 🚀
+# Módulo: `DeeperHub.Core.Cache` 🚀
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.Core.Cache`
+## 📜 1. Visão Geral do Módulo `DeeperHub.Core.Cache`
 
-O módulo `Deeper_Hub.Core.Cache` fornece uma **fachada e um serviço de caching genérico** para o sistema Deeper_Hub. Seu propósito é melhorar o desempenho da aplicação armazenando temporariamente dados frequentemente acessados ou resultados de operações custosas, reduzindo a latência e a carga sobre fontes de dados primárias (como bancos de dados ou APIs externas).
+O módulo `DeeperHub.Core.Cache` fornece uma **fachada e um serviço de caching genérico** para o sistema DeeperHub. Seu propósito é melhorar o desempenho da aplicação armazenando temporariamente dados frequentemente acessados ou resultados de operações custosas, reduzindo a latência e a carga sobre fontes de dados primárias (como bancos de dados ou APIs externas).
 
 Ele oferece uma API simples para operações de cache como `put`, `get`, `delete`, e `get_or_store`, abstraindo a implementação de cache subjacente (que pode ser ETS, Redis, Memcached, etc., através de um `CacheAdapter`). 😊
 
-*(Nota: A documentação original tem `Deeper_Hub.Shared.Cache` e `Deeper_Hub.Shared.Cache.CacheService` e `CacheAdapter`. Esta documentação consolida a fachada principal em `Deeper_Hub.Core.Cache` e assume que a lógica de serviço e adaptação reside em `Deeper_Hub.Shared.Cache.*` ou é diretamente gerenciada pela fachada se for uma implementação simples como ETS.)*
+*(Nota: A documentação original tem `DeeperHub.Shared.Cache` e `DeeperHub.Shared.Cache.CacheService` e `CacheAdapter`. Esta documentação consolida a fachada principal em `DeeperHub.Core.Cache` e assume que a lógica de serviço e adaptação reside em `DeeperHub.Shared.Cache.*` ou é diretamente gerenciada pela fachada se for uma implementação simples como ETS.)*
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -38,28 +38,28 @@ Ele oferece uma API simples para operações de cache como `put`, `get`, `delete
 
 ### 3.1. Componentes Principais
 
-1.  **`Deeper_Hub.Core.Cache` (Fachada Pública):**
+1.  **`DeeperHub.Core.Cache` (Fachada Pública):**
     *   Ponto de entrada para todas as operações de cache.
-    *   Delega chamadas para o `Deeper_Hub.Shared.Cache.CacheAdapter` configurado.
-2.  **`Deeper_Hub.Shared.Cache.CacheAdapter` (GenServer):**
+    *   Delega chamadas para o `DeeperHub.Shared.Cache.CacheAdapter` configurado.
+2.  **`DeeperHub.Shared.Cache.CacheAdapter` (GenServer):**
     *   **Responsabilidade:** Gerencia a lógica de interação com a implementação de cache escolhida.
     *   **Interações:** Recebe chamadas da fachada e as traduz para operações no backend de cache (ex: `EtsCache`).
     *   Pode lidar com a lógica de serialização/desserialização se o backend de cache exigir.
-3.  **`Deeper_Hub.Shared.Cache.CacheBehaviour` (Behaviour):**
+3.  **`DeeperHub.Shared.Cache.CacheBehaviour` (Behaviour):**
     *   Define a interface que todas as implementações de backend de cache devem seguir.
 4.  **Implementações de Backend de Cache (Exemplos):**
-    *   **`Deeper_Hub.Shared.Cache.Implementations.EtsCache` (GenServer ou módulo funcional usando ETS):**
+    *   **`DeeperHub.Shared.Cache.Implementations.EtsCache` (GenServer ou módulo funcional usando ETS):**
         *   Implementação de cache em memória usando tabelas ETS.
         *   Gerencia TTLs e limpeza de entradas expiradas.
-    *   **`Deeper_Hub.Shared.Cache.Implementations.RedisAdapter` (Módulo):**
+    *   **`DeeperHub.Shared.Cache.Implementations.RedisAdapter` (Módulo):**
         *   Adaptador para interagir com um servidor Redis externo (usando uma biblioteca como `Redix`).
-    *   **`Deeper_Hub.Shared.Cache.Implementations.NoOpCache` (Módulo Funcional):**
+    *   **`DeeperHub.Shared.Cache.Implementations.NoOpCache` (Módulo Funcional):**
         *   Uma implementação que não faz nada, efetivamente desabilitando o cache. Útil para desenvolvimento ou testes.
-5.  **`Deeper_Hub.Shared.Cache.MetricsReporter` (GenServer):**
+5.  **`DeeperHub.Shared.Cache.MetricsReporter` (GenServer):**
     *   Coleta e armazena métricas sobre o desempenho do cache.
-6.  **`Deeper_Hub.Shared.Cache.Supervisor`:**
+6.  **`DeeperHub.Shared.Cache.Supervisor`:**
     *   Supervisiona os processos relacionados ao cache (ex: `CacheAdapter`, `EtsCache GenServer`, `MetricsReporter`).
-7.  **Configurações (via `Deeper_Hub.Core.ConfigManager`):**
+7.  **Configurações (via `DeeperHub.Core.ConfigManager`):**
     *   Qual adaptador de cache usar, TTL padrão, configurações específicas do backend (ex: URL do Redis).
 
 ### 3.2. Estrutura de Diretórios (Proposta para `Shared.Cache`)
@@ -93,21 +93,21 @@ core/cache.ex        # Fachada Pública
 ## 🛠️ 4. Casos de Uso Principais
 
 *   **Caching de Dados de Usuário Frequentemente Acessados:**
-    *   Ao buscar o perfil de um usuário, o `Deeper_Hub.Accounts.ProfileService` primeiro verifica o cache: `Cache.get(\"user_profile:#{user_id}\")`.
+    *   Ao buscar o perfil de um usuário, o `DeeperHub.Accounts.ProfileService` primeiro verifica o cache: `Cache.get(\"user_profile:#{user_id}\")`.
     *   Se for um \"miss\", busca no DB, e depois armazena no cache: `Cache.put(\"user_profile:#{user_id}\", profile_data, ttl: 3600)`.
 *   **Caching de Resultados de Consultas Complexas:**
     *   Um serviço que gera um relatório custoso pode usar `Cache.get_or_store(\"reports:monthly_sales:#{month}\", fn -> generate_sales_report(month) end, ttl: 86400)`.
 *   **Contadores em Cache:**
     *   Rastrear o número de visualizações de um post: `Cache.increment(\"post_views:#{post_id}\")`.
 *   **Invalidação de Cache Baseada em Eventos:**
-    *   O `Deeper_Hub.Accounts.ProfileService`, ao atualizar um perfil, publica um evento `profile_updated`.
+    *   O `DeeperHub.Accounts.ProfileService`, ao atualizar um perfil, publica um evento `profile_updated`.
     *   Um assinante desse evento (poderia ser o próprio `ProfileService` ou um worker dedicado) chama `Cache.delete(\"user_profile:#{updated_user_id}\")`.
 
 ## 🌊 5. Fluxos Importantes
 
 ### Fluxo de `get_or_store/4`
 
-1.  **Chamador:** Um serviço chama `Deeper_Hub.Core.Cache.get_or_store(key, generator_fun, opts)`.
+1.  **Chamador:** Um serviço chama `DeeperHub.Core.Cache.get_or_store(key, generator_fun, opts)`.
     *   `opts` pode conter `:ttl_seconds` e `:namespace`.
 2.  **`Core.Cache` (Fachada):** Delega para `Shared.Cache.CacheAdapter.get_or_store(...)`.
 3.  **`Shared.Cache.CacheAdapter`:**
@@ -128,62 +128,62 @@ core/cache.ex        # Fachada Pública
             *   Retorna `{:error, reason}` para a fachada (e não armazena no cache).
 6.  **`Core.Cache` (Fachada):** Retorna o valor (do cache ou gerado) ou o erro para o chamador.
 
-## 📡 6. API (Funções Públicas da Fachada `Deeper_Hub.Core.Cache`)
+## 📡 6. API (Funções Públicas da Fachada `DeeperHub.Core.Cache`)
 
-*(Baseado na API do `Deeper_Hub.Shared.Cache.CacheService` e `CacheAdapter` da documentação original, consolidando e usando TTLs em segundos para consistência).*
+*(Baseado na API do `DeeperHub.Shared.Cache.CacheService` e `CacheAdapter` da documentação original, consolidando e usando TTLs em segundos para consistência).*
 
-### 6.1. `Deeper_Hub.Core.Cache.get(key :: String.t() | atom(), default_value :: term() | nil, opts :: keyword()) :: {:ok, term()} | {:error, :not_found | term()}`
+### 6.1. `DeeperHub.Core.Cache.get(key :: String.t() | atom(), default_value :: term() | nil, opts :: keyword()) :: {:ok, term()} | {:error, :not_found | term()}`
 
 *   **Descrição:** Recupera um valor do cache.
 *   **`opts`:**
     *   `:namespace` (atom | String.t): Namespace opcional para a chave.
 *   **Retorno:** `{:ok, value}` se encontrado e não expirado, `{:ok, default_value}` se não encontrado e default fornecido, senão `{:error, :not_found}`.
 
-### 6.2. `Deeper_Hub.Core.Cache.put(key :: String.t() | atom(), value :: term(), opts :: keyword()) :: :ok | {:error, term()}`
+### 6.2. `DeeperHub.Core.Cache.put(key :: String.t() | atom(), value :: term(), opts :: keyword()) :: :ok | {:error, term()}`
 
 *   **Descrição:** Armazena um valor no cache.
 *   **`opts`:**
     *   `:ttl_seconds` (integer | `:infinity`): Tempo de vida em segundos. (Padrão: config global `cache.default_ttl_seconds`)
     *   `:namespace` (atom | String.t): Namespace opcional.
 
-### 6.3. `Deeper_Hub.Core.Cache.delete(key :: String.t() | atom(), opts :: keyword()) :: :ok | {:error, term()}`
+### 6.3. `DeeperHub.Core.Cache.delete(key :: String.t() | atom(), opts :: keyword()) :: :ok | {:error, term()}`
 
 *   **Descrição:** Remove uma entrada do cache.
 *   **`opts`:** `:namespace`.
 
-### 6.4. `Deeper_Hub.Core.Cache.get_or_store(key :: String.t() | atom(), generator_fun :: (() -> {:ok, term()} | {:error, term()}), opts :: keyword()) :: {:ok, term()} | {:error, term()}`
+### 6.4. `DeeperHub.Core.Cache.get_or_store(key :: String.t() | atom(), generator_fun :: (() -> {:ok, term()} | {:error, term()}), opts :: keyword()) :: {:ok, term()} | {:error, term()}`
 
 *   **Descrição:** Obtém do cache ou executa `generator_fun`, armazena e retorna o resultado.
 *   **`opts`:** `:ttl_seconds`, `:namespace`.
 *   **Retorno:** `{:ok, value}` ou `{:error, reason_from_generator_or_cache_error}`.
 
-### 6.5. `Deeper_Hub.Core.Cache.increment(key :: String.t() | atom(), amount :: integer() | nil, opts :: keyword()) :: {:ok, new_value :: integer()} | {:error, term()}`
+### 6.5. `DeeperHub.Core.Cache.increment(key :: String.t() | atom(), amount :: integer() | nil, opts :: keyword()) :: {:ok, new_value :: integer()} | {:error, term()}`
 
 *   **Descrição:** Incrementa atomicamente um valor numérico no cache. Se a chave não existir, geralmente é inicializada com `amount`.
 *   **`amount`:** (Padrão: `1`)
 *   **`opts`:** `:ttl_seconds`, `:namespace`.
 
-### 6.6. `Deeper_Hub.Core.Cache.decrement(key :: String.t() | atom(), amount :: integer() | nil, opts :: keyword()) :: {:ok, new_value :: integer()} | {:error, term()}`
+### 6.6. `DeeperHub.Core.Cache.decrement(key :: String.t() | atom(), amount :: integer() | nil, opts :: keyword()) :: {:ok, new_value :: integer()} | {:error, term()}`
 
 *   **Descrição:** Decrementa atomicamente um valor numérico.
 *   *(Parâmetros e retorno similares a `increment/4`)*
 
-### 6.7. `Deeper_Hub.Core.Cache.clear(opts :: keyword()) :: :ok | {:error, term()}`
+### 6.7. `DeeperHub.Core.Cache.clear(opts :: keyword()) :: :ok | {:error, term()}`
 
 *   **Descrição:** Limpa o cache.
 *   **`opts`:** `:namespace` (para limpar apenas um namespace).
 
-### 6.8. `Deeper_Hub.Core.Cache.delete_pattern(key_pattern :: String.t(), opts :: keyword()) :: {:ok, count_deleted :: integer()} | {:error, term()}`
+### 6.8. `DeeperHub.Core.Cache.delete_pattern(key_pattern :: String.t(), opts :: keyword()) :: {:ok, count_deleted :: integer()} | {:error, term()}`
 
 *   **Descrição:** Remove entradas do cache que correspondem a um padrão de chave (ex: `\"user_profiles:*\"`, a sintaxe do padrão depende do backend).
 *   **`opts`:** `:namespace`.
 
 ## ⚙️ 7. Configuração
 
-Via `Deeper_Hub.Core.ConfigManager`:
+Via `DeeperHub.Core.ConfigManager`:
 
 *   **`[:core, :cache, :enabled]`** (Boolean): Habilita/desabilita o sistema de cache globalmente. (Padrão: `true`)
-*   **`[:core, :cache, :default_adapter]`** (Module): Módulo adaptador de cache padrão a ser usado (ex: `Deeper_Hub.Shared.Cache.Implementations.EtsCache`, `Deeper_Hub.Shared.Cache.Implementations.RedisAdapter`).
+*   **`[:core, :cache, :default_adapter]`** (Module): Módulo adaptador de cache padrão a ser usado (ex: `DeeperHub.Shared.Cache.Implementations.EtsCache`, `DeeperHub.Shared.Cache.Implementations.RedisAdapter`).
 *   **`[:core, :cache, :default_ttl_seconds]`** (Integer): TTL padrão em segundos para novas entradas de cache se não especificado. (Padrão: `3600` - 1 hora)
 *   **`[:core, :cache, :ets_cache, :cleanup_interval_ms]`** (Integer): Intervalo para limpeza de entradas expiradas no `EtsCache`. (Padrão: `60000`)
 *   **`[:core, :cache, :redis_adapter, :url]`** (String): URL de conexão para o Redis, se usado.
@@ -194,10 +194,10 @@ Via `Deeper_Hub.Core.ConfigManager`:
 
 ### 8.1. Módulos Internos
 
-*   `Deeper_Hub.Core.ConfigManager`: Para obter configurações do cache.
-*   `Deeper_Hub.Core.Logger`: Para logging de operações e erros do cache.
-*   `Deeper_Hub.Core.Metrics`: Para registrar métricas de desempenho do cache.
-*   `Deeper_Hub.Core.Supervisor` (indireta): Para supervisionar os processos do `Shared.Cache`.
+*   `DeeperHub.Core.ConfigManager`: Para obter configurações do cache.
+*   `DeeperHub.Core.Logger`: Para logging de operações e erros do cache.
+*   `DeeperHub.Core.Metrics`: Para registrar métricas de desempenho do cache.
+*   `DeeperHub.Core.Supervisor` (indireta): Para supervisionar os processos do `Shared.Cache`.
 
 ### 8.2. Bibliotecas Externas
 
@@ -208,12 +208,12 @@ Via `Deeper_Hub.Core.ConfigManager`:
 
 ## 🤝 9. Como Usar / Integração
 
-Qualquer módulo que precise de caching pode usar a fachada `Deeper_Hub.Core.Cache`.
+Qualquer módulo que precise de caching pode usar a fachada `DeeperHub.Core.Cache`.
 
 ```elixir
 defmodule MyApp.UserProfileService do
-  alias Deeper_Hub.Core.Cache
-  alias Deeper_Hub.Core.Repo
+  alias DeeperHub.Core.Cache
+  alias DeeperHub.Core.Repo
   alias MyApp.User
 
   def get_user_profile(user_id) do
@@ -308,7 +308,7 @@ end
 
 Caching é fundamental para aplicações de alta performance.
 
-O próximo módulo? Talvez `Deeper_Hub.Core.Repo` para fechar a parte de infraestrutura básica, ou podemos voltar para algum módulo de segurança como `DDoSProtection`?"""),
+O próximo módulo? Talvez `DeeperHub.Core.Repo` para fechar a parte de infraestrutura básica, ou podemos voltar para algum módulo de segurança como `DDoSProtection`?"""),
             ],
         ),
         types.Content(
@@ -320,7 +320,7 @@ O próximo módulo? Talvez `Deeper_Hub.Core.Repo` para fechar a parte de infraes
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Perfeito! Vamos então ao `Deeper_Hub.Core.Repo`, o coração da persistência de dados no sistema.
+                types.Part.from_text(text="""Perfeito! Vamos então ao `DeeperHub.Core.Repo`, o coração da persistência de dados no sistema.
 
 ---
 

@@ -1,10 +1,10 @@
-# Módulo: `Deeper_Hub.Security.BehavioralAnalysis` 🚀
+# Módulo: `DeeperHub.Security.BehavioralAnalysis` 🚀
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.Security.BehavioralAnalysis`
+## 📜 1. Visão Geral do Módulo `DeeperHub.Security.BehavioralAnalysis`
 
-O módulo `Deeper_Hub.Security.BehavioralAnalysis` é dedicado a analisar os padrões de comportamento dos usuários ao longo do tempo para construir perfis individuais e detectar desvios que possam indicar comprometimento de conta, fraude ou outras atividades maliciosas. Ele vai além das regras estáticas, aprendendo o \"normal\" para cada usuário e sinalizando atividades que fogem desse padrão.
+O módulo `DeeperHub.Security.BehavioralAnalysis` é dedicado a analisar os padrões de comportamento dos usuários ao longo do tempo para construir perfis individuais e detectar desvios que possam indicar comprometimento de conta, fraude ou outras atividades maliciosas. Ele vai além das regras estáticas, aprendendo o \"normal\" para cada usuário e sinalizando atividades que fogem desse padrão.
 
-Este módulo coleta e processa uma variedade de eventos de usuário, como padrões de login (horários, dispositivos, localizações), padrões de navegação na interface, tipos de transações realizadas e até mesmo padrões de digitação (se integrado com `Deeper_Hub.Biometrics`). O objetivo é identificar anomalias sutis que seriam difíceis de capturar com regras de segurança tradicionais. 😊
+Este módulo coleta e processa uma variedade de eventos de usuário, como padrões de login (horários, dispositivos, localizações), padrões de navegação na interface, tipos de transações realizadas e até mesmo padrões de digitação (se integrado com `DeeperHub.Biometrics`). O objetivo é identificar anomalias sutis que seriam difíceis de capturar com regras de segurança tradicionais. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -40,31 +40,31 @@ Este módulo coleta e processa uma variedade de eventos de usuário, como padrõ
 
 ### 3.1. Componentes Principais
 
-1.  **`Deeper_Hub.Security.BehavioralAnalysis` (Fachada Pública):**
+1.  **`DeeperHub.Security.BehavioralAnalysis` (Fachada Pública):**
     *   Ponto de entrada para registrar eventos e solicitar análises.
     *   Delega para o `BehavioralAnalysisService`.
-2.  **`Deeper_Hub.Security.BehavioralAnalysis.Services.DefaultBehavioralAnalysisService` (GenServer ou Serviço Coordenador):**
+2.  **`DeeperHub.Security.BehavioralAnalysis.Services.DefaultBehavioralAnalysisService` (GenServer ou Serviço Coordenador):**
     *   Orquestra a coleta, processamento e análise de dados comportamentais.
     *   Interage com o `EventStore` (para eventos de comportamento), `ProfileStore` (para perfis), `PatternAnalysisService` e `AnomalyDetectionService`.
-3.  **`Deeper_Hub.Security.BehavioralAnalysis.Services.EventStore` (Adapter/Behaviour):**
+3.  **`DeeperHub.Security.BehavioralAnalysis.Services.EventStore` (Adapter/Behaviour):**
     *   **Responsabilidade:** Armazenar e recuperar eventos de comportamento brutos.
     *   **Implementação:** Pode ser uma tabela Ecto, um sistema de séries temporais, ou integrado com o `Core.EventBus` se os eventos relevantes já passarem por lá.
-4.  **`Deeper_Hub.Security.BehavioralAnalysis.Services.ProfileStore` (Adapter/Behaviour):**
+4.  **`DeeperHub.Security.BehavioralAnalysis.Services.ProfileStore` (Adapter/Behaviour):**
     *   **Responsabilidade:** Armazenar e recuperar os perfis comportamentais construídos para cada usuário.
     *   **Implementação:** Pode ser uma tabela Ecto ou um armazenamento NoSQL otimizado para perfis.
-5.  **`Deeper_Hub.Security.BehavioralAnalysis.Services.PatternAnalysisService` (Módulo Funcional):**
+5.  **`DeeperHub.Security.BehavioralAnalysis.Services.PatternAnalysisService` (Módulo Funcional):**
     *   Contém algoritmos para extrair e identificar padrões dos dados de comportamento (ex: `extract_login_patterns`, `detect_temporal_patterns`).
-6.  **`Deeper_Hub.Security.BehavioralAnalysis.Services.AnomalyDetectionService` (Módulo Funcional ou ML Model Service):**
+6.  **`DeeperHub.Security.BehavioralAnalysis.Services.AnomalyDetectionService` (Módulo Funcional ou ML Model Service):**
     *   Contém algoritmos para comparar o comportamento atual com o perfil e detectar anomalias (ex: `analyze_events` para análise em lote, `analyze_realtime_event`).
     *   Pode usar métodos estatísticos (Z-score, desvio padrão) ou modelos de aprendizado de máquina (ex: Isolation Forest, Autoencoders).
-7.  **`Deeper_Hub.Security.BehavioralAnalysis.Schemas.BehaviorProfileSchema` (Ecto Schema):**
+7.  **`DeeperHub.Security.BehavioralAnalysis.Schemas.BehaviorProfileSchema` (Ecto Schema):**
     *   Define a estrutura para armazenar os perfis comportamentais.
-8.  **`Deeper_Hub.Security.BehavioralAnalysis.Schemas.BehaviorEventSchema` (Ecto Schema, opcional):**
+8.  **`DeeperHub.Security.BehavioralAnalysis.Schemas.BehaviorEventSchema` (Ecto Schema, opcional):**
     *   Define a estrutura para armazenar os eventos de comportamento brutos, se um `EventStore` baseado em Ecto for usado.
 9.  **Workers (Opcional):**
     *   `ProfileBuilderWorker`: Para construir ou reconstruir perfis em background.
     *   `BatchAnalysisWorker`: Para análises de anomalias em lote sobre dados históricos.
-10. **Configurações (via `Deeper_Hub.Core.ConfigManager` e `Deeper_Hub.Security.Policy.SecurityPolicyManager`):**
+10. **Configurações (via `DeeperHub.Core.ConfigManager` e `DeeperHub.Security.Policy.SecurityPolicyManager`):**
     *   Limiares de anomalia, janelas de tempo, pesos de características.
 
 ### 3.2. Estrutura de Diretórios (Proposta)
@@ -121,8 +121,8 @@ security/behavioral_analysis/
 
 ### Fluxo de Registro e Processamento de Evento Comportamental
 
-1.  **Módulo de Domínio:** Realiza uma ação (ex: `Deeper_Hub.Accounts` processa um login).
-2.  **Registro do Evento:** O módulo de domínio chama `Deeper_Hub.Security.BehavioralAnalysis.record_behavior_event(user_id, :login, %{ip: \"...\", device_type: \"...\"}, context)`.
+1.  **Módulo de Domínio:** Realiza uma ação (ex: `DeeperHub.Accounts` processa um login).
+2.  **Registro do Evento:** O módulo de domínio chama `DeeperHub.Security.BehavioralAnalysis.record_behavior_event(user_id, :login, %{ip: \"...\", device_type: \"...\"}, context)`.
 3.  **`DefaultBehavioralAnalysisService`:**
     *   Recebe o evento.
     *   Chama o `EventStore` para persistir o evento bruto.
@@ -143,11 +143,11 @@ security/behavioral_analysis/
     *   Se anomalias significativas forem encontradas:
         *   Registra as anomalias (ex: em uma tabela de \"anomalias comportamentais\" ou atualizando o `BehaviorProfileSchema`).
         *   Publica um evento `behavioral_anomaly_detected` no `Core.EventBus`.
-        *   Notifica o `Deeper_Hub.Security.Monitoring` ou `RiskAssessment`.
+        *   Notifica o `DeeperHub.Security.Monitoring` ou `RiskAssessment`.
 
 ## 📡 6. API (Funções Públicas da Fachada)
 
-### 6.1. `Deeper_Hub.Security.BehavioralAnalysis.record_behavior_event(user_id :: String.t(), event_type :: atom(), event_data :: map(), context :: map() | nil) :: :ok | {:error, term()}`
+### 6.1. `DeeperHub.Security.BehavioralAnalysis.record_behavior_event(user_id :: String.t(), event_type :: atom(), event_data :: map(), context :: map() | nil) :: :ok | {:error, term()}`
 
 *   **Descrição:** Registra um evento de comportamento do usuário para análise subsequente.
 *   **`event_type`:** Ex: `:login_success`, `:login_failure`, `:page_view`, `:profile_update_attempt`, `:transaction_initiated`, `:api_call`.
@@ -155,7 +155,7 @@ security/behavioral_analysis/
 *   **`context`:** Informações como IP, User-Agent, Session ID.
 *   **Retorno:** `:ok` se o evento foi aceito para processamento.
 
-### 6.2. `Deeper_Hub.Security.BehavioralAnalysis.analyze_user_behavior(user_id :: String.t(), opts :: keyword()) :: {:ok, AnomalyReport.t()} | {:error, term()}`
+### 6.2. `DeeperHub.Security.BehavioralAnalysis.analyze_user_behavior(user_id :: String.t(), opts :: keyword()) :: {:ok, AnomalyReport.t()} | {:error, term()}`
 
 *   **Descrição:** Realiza uma análise sob demanda do comportamento recente de um usuário em comparação com seu perfil.
 *   **`opts`:**
@@ -163,12 +163,12 @@ security/behavioral_analysis/
     *   `:sensitivity` (Float): Nível de sensibilidade para detecção de anomalias (0.0 a 1.0).
 *   **`AnomalyReport.t()`:** `%{user_id: String.t(), anomaly_score: float(), anomalies_detected: list(map()), profile_confidence: float()}`.
 
-### 6.3. `Deeper_Hub.Security.BehavioralAnalysis.get_user_behavioral_profile(user_id :: String.t()) :: {:ok, BehaviorProfile.t()} | {:error, :not_found | term()}`
+### 6.3. `DeeperHub.Security.BehavioralAnalysis.get_user_behavioral_profile(user_id :: String.t()) :: {:ok, BehaviorProfile.t()} | {:error, :not_found | term()}`
 
 *   **Descrição:** Recupera o perfil comportamental consolidado de um usuário.
 *   **`BehaviorProfile.t()`:** `%{common_login_times: list(), common_devices: list(), typical_navigation_paths: list(), ...}`.
 
-### 6.4. `Deeper_Hub.Security.BehavioralAnalysis.update_user_profile(user_id :: String.t(), opts :: keyword()) :: {:ok, BehaviorProfile.t()} | {:error, term()}` (Nova Sugestão)
+### 6.4. `DeeperHub.Security.BehavioralAnalysis.update_user_profile(user_id :: String.t(), opts :: keyword()) :: {:ok, BehaviorProfile.t()} | {:error, term()}` (Nova Sugestão)
 
 *   **Descrição:** Força a reconstrução ou atualização do perfil comportamental de um usuário com base nos eventos armazenados.
 *   **`opts`:**
@@ -176,7 +176,7 @@ security/behavioral_analysis/
 
 ## ⚙️ 7. Configuração
 
-Via `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPolicyManager`:
+Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolicyManager`:
 
 *   **`[:security, :behavioral_analysis, :enabled]`** (Boolean): Habilita/desabilita o módulo. (Padrão: `true`)
 *   **`[:security, :behavioral_analysis, :event_retention_days]`** (Integer): Por quantos dias manter eventos de comportamento brutos. (Padrão: `30`)
@@ -190,11 +190,11 @@ Via `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPol
 
 ### 8.1. Módulos Internos
 
-*   `Deeper_Hub.Core.ConfigManager`, `Core.EventBus`, `Core.Logger`, `Core.Metrics`, `Core.Repo`.
-*   `Deeper_Hub.Security.LoginLocation`: Para dados de localização.
-*   `Deeper_Hub.Security.DeviceFingerprint`: Para dados de dispositivo.
-*   `Deeper_Hub.Biometrics` (Opcional): Para dados de anomalias biométricas.
-*   `Deeper_Hub.Accounts`: Para informações básicas do usuário.
+*   `DeeperHub.Core.ConfigManager`, `Core.EventBus`, `Core.Logger`, `Core.Metrics`, `Core.Repo`.
+*   `DeeperHub.Security.LoginLocation`: Para dados de localização.
+*   `DeeperHub.Security.DeviceFingerprint`: Para dados de dispositivo.
+*   `DeeperHub.Biometrics` (Opcional): Para dados de anomalias biométricas.
+*   `DeeperHub.Accounts`: Para informações básicas do usuário.
 
 ### 8.2. Bibliotecas Externas
 
@@ -208,7 +208,7 @@ Via `Deeper_Hub.Core.ConfigManager` e/ou `Deeper_Hub.Security.Policy.SecurityPol
 # Exemplo no controller de Profile
 def update(conn, params) do
   # ... lógica de atualização ...
-  Deeper_Hub.Security.BehavioralAnalysis.record_behavior_event(
+  DeeperHub.Security.BehavioralAnalysis.record_behavior_event(
     conn.assigns.current_user.id,
     :profile_field_updated,
     %{field: \"email\", old_value_hash: \"...\", new_value_hash: \"...\"}, # Hashear valores sensíveis
@@ -221,7 +221,7 @@ end
 **Consumindo Análises (Ex: pelo `RiskAssessment`):**
 ```elixir
 def get_behavioral_risk_factor(user_id, current_context) do
-  case Deeper_Hub.Security.BehavioralAnalysis.analyze_user_behavior(user_id, time_window_hours: 24) do
+  case DeeperHub.Security.BehavioralAnalysis.analyze_user_behavior(user_id, time_window_hours: 24) do
     {:ok, %{anomaly_score: score}} -> score # Normalizar para a escala de fatores de risco
     _ -> 0.0 # Risco neutro se análise falhar ou não houver dados
   end
@@ -300,7 +300,7 @@ end
 
 A análise comportamental é um campo fascinante e complexo!
 
-Qual será o próximo módulo? Podemos continuar na área de segurança com `Deeper_Hub.Security.RiskAssessment` (que consome os dados daqui) ou `Deeper_Hub.Security.DeviceFingerprint`, ou mudar para um módulo Core como `Deeper_Hub.Core.Repo`?"""),
+Qual será o próximo módulo? Podemos continuar na área de segurança com `DeeperHub.Security.RiskAssessment` (que consome os dados daqui) ou `DeeperHub.Security.DeviceFingerprint`, ou mudar para um módulo Core como `DeeperHub.Core.Repo`?"""),
             ],
         ),
         types.Content(
@@ -312,7 +312,7 @@ Qual será o próximo módulo? Podemos continuar na área de segurança com `Dee
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Entendido! Vamos detalhar agora o `Deeper_Hub.Security.RiskAssessment`, que se conecta diretamente com o `BehavioralAnalysis` e outros módulos de segurança para fornecer uma visão consolidada do risco.
+                types.Part.from_text(text="""Entendido! Vamos detalhar agora o `DeeperHub.Security.RiskAssessment`, que se conecta diretamente com o `BehavioralAnalysis` e outros módulos de segurança para fornecer uma visão consolidada do risco.
 
 ---
 

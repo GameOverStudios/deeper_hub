@@ -1,4 +1,4 @@
-defmodule Deeper_Hub.Inspector.Supervisor do
+defmodule DeeperHub.Inspector.Supervisor do
   @moduledoc """
   Supervisor para o sistema de inspeção 🔍
 

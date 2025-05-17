@@ -1,12 +1,12 @@
-# Módulo: `Deeper_Hub.Notifications` 🚀
+# Módulo: `DeeperHub.Notifications` 🚀
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.Notifications`
+## 📜 1. Visão Geral do Módulo `DeeperHub.Notifications`
 
-O módulo `Deeper_Hub.Notifications` é o sistema centralizado para **gerenciar e entregar notificações** aos usuários do Deeper_Hub através de múltiplos canais. Ele permite que diferentes partes da aplicação enviem mensagens importantes, alertas, lembretes ou atualizações para os usuários de forma consistente e configurável.
+O módulo `DeeperHub.Notifications` é o sistema centralizado para **gerenciar e entregar notificações** aos usuários do DeeperHub através de múltiplos canais. Ele permite que diferentes partes da aplicação enviem mensagens importantes, alertas, lembretes ou atualizações para os usuários de forma consistente e configurável.
 
-As notificações podem ser enviadas por canais como email, SMS (opcional), notificações push para aplicativos móveis, e notificações in-app (dentro da própria interface web/mobile do Deeper_Hub). O sistema também gerencia as preferências de notificação dos usuários, permitindo que eles escolham quais tipos de notificações desejam receber e por quais canais. 😊
+As notificações podem ser enviadas por canais como email, SMS (opcional), notificações push para aplicativos móveis, e notificações in-app (dentro da própria interface web/mobile do DeeperHub). O sistema também gerencia as preferências de notificação dos usuários, permitindo que eles escolham quais tipos de notificações desejam receber e por quais canais. 😊
 
-*(Nota: A documentação original tem `Deeper_Hub.Core.NotificationsFacade`, `Deeper_Hub.Notifications` (módulo principal), `Services.DefaultNotificationService`, `Channels`, `Cache`, `Templates`, `Workers`, etc. Esta documentação consolida a fachada em `Deeper_Hub.Notifications` e organiza os componentes internos.)*
+*(Nota: A documentação original tem `DeeperHub.Core.NotificationsFacade`, `DeeperHub.Notifications` (módulo principal), `Services.DefaultNotificationService`, `Channels`, `Cache`, `Templates`, `Workers`, etc. Esta documentação consolida a fachada em `DeeperHub.Notifications` e organiza os componentes internos.)*
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -45,10 +45,10 @@ As notificações podem ser enviadas por canais como email, SMS (opcional), noti
 
 ### 3.1. Componentes Principais
 
-1.  **`Deeper_Hub.Notifications` (Fachada Pública):**
+1.  **`DeeperHub.Notifications` (Fachada Pública):**
     *   Ponto de entrada principal para enviar notificações e gerenciar preferências.
     *   Delega para `NotificationService` (ou `DefaultNotificationService`).
-2.  **`Deeper_Hub.Notifications.Services.DefaultNotificationService` (GenServer ou Serviço Coordenador):**
+2.  **`DeeperHub.Notifications.Services.DefaultNotificationService` (GenServer ou Serviço Coordenador):**
     *   **Responsabilidade:** Orquestra o processo de envio de notificações.
     *   **Interações:**
         *   `PreferencesService`: Para verificar as preferências do usuário.
@@ -57,27 +57,27 @@ As notificações podem ser enviadas por canais como email, SMS (opcional), noti
         *   `Core.BackgroundTaskManager`: Para enfileirar o envio de notificações assíncronas.
         *   `HistoryService`: Para registrar a notificação enviada.
         *   `Core.ConfigManager`: Para configurações do sistema de notificações.
-3.  **`Deeper_Hub.Notifications.Services.PreferencesService`:**
+3.  **`DeeperHub.Notifications.Services.PreferencesService`:**
     *   Gerencia as preferências de notificação dos usuários (CRUD e consulta).
-    *   Utiliza `Deeper_Hub.Notifications.Cache.PreferencesCache`.
-4.  **`Deeper_Hub.Notifications.Services.HistoryService`:**
+    *   Utiliza `DeeperHub.Notifications.Cache.PreferencesCache`.
+4.  **`DeeperHub.Notifications.Services.HistoryService`:**
     *   Gerencia o histórico de notificações (CRUD e consulta).
-5.  **`Deeper_Hub.Notifications.Templates.TemplateManager`:**
+5.  **`DeeperHub.Notifications.Templates.TemplateManager`:**
     *   Responsável por carregar, renderizar e cachear templates de notificação.
     *   Usa `Templates.I18n.Translator` para internacionalização.
-6.  **`Deeper_Hub.Notifications.Channels.<ChannelName>Channel` (Behaviours e Implementações):**
+6.  **`DeeperHub.Notifications.Channels.<ChannelName>Channel` (Behaviours e Implementações):**
     *   Cada canal (Email, Push, InApp, SMS) tem seu próprio módulo que implementa um `NotificationChannelBehaviour`.
-    *   Ex: `EmailChannel` usa `Deeper_Hub.Mailer` para enviar emails.
+    *   Ex: `EmailChannel` usa `DeeperHub.Mailer` para enviar emails.
     *   Ex: `PushChannel` interage com serviços como FCM/APNS.
-7.  **`Deeper_Hub.Core.Notifications.Scheduler` (GenServer):**
+7.  **`DeeperHub.Core.Notifications.Scheduler` (GenServer):**
     *   Gerencia o agendamento e disparo de notificações futuras.
 8.  **Workers (`EmailWorker`, `PushWorker`, `InAppWorker`, `RetentionWorker`, `MetricsWorker`):**
     *   Processam o envio real de notificações, coletam métricas, limpam dados antigos.
 9.  **Schemas Ecto:**
-    *   `Deeper_Hub.Notifications.Schema.Notification`: Entidade principal da notificação.
-    *   `Deeper_Hub.Notifications.Schema.NotificationPreference`: Preferências do usuário.
-    *   `Deeper_Hub.Notifications.Schema.ScheduledNotification`: Notificações agendadas.
-    *   `Deeper_Hub.Notifications.Schema.NotificationDelivery`: (Opcional) Para rastrear o status de entrega por canal.
+    *   `DeeperHub.Notifications.Schema.Notification`: Entidade principal da notificação.
+    *   `DeeperHub.Notifications.Schema.NotificationPreference`: Preferências do usuário.
+    *   `DeeperHub.Notifications.Schema.ScheduledNotification`: Notificações agendadas.
+    *   `DeeperHub.Notifications.Schema.NotificationDelivery`: (Opcional) Para rastrear o status de entrega por canal.
 10. **Cache (`PreferencesCache`, `TemplateCache`):**
     *   Para otimizar o acesso a preferências e templates renderizados.
 11. **Integrações (`AuditIntegration`, `EventIntegration`):**
@@ -148,12 +148,12 @@ notifications/
 ## 🛠️ 4. Casos de Uso Principais
 
 *   **Novo Usuário se Registra:**
-    *   `Deeper_Hub.Accounts` publica evento `user.created`.
+    *   `DeeperHub.Accounts` publica evento `user.created`.
     *   `Notifications.Integrations.EventIntegration` (ou um listener específico) recebe o evento.
     *   Chama `Notifications.send_notification(user_id, :welcome_email, %{name: user.name}, opts)` (o tipo `:welcome_email` define o template e canais padrão).
     *   `DefaultNotificationService` verifica preferências, renderiza o template e enfileira a tarefa de envio para `EmailWorker`.
 *   **Alerta de Segurança: Login de Novo Dispositivo:**
-    *   `Deeper_Hub.Security` detecta o novo dispositivo.
+    *   `DeeperHub.Security` detecta o novo dispositivo.
     *   Chama `Notifications.Services.SecurityNotificationService.notify_new_device(user_id, device_info, opts)`.
     *   Esta função pode ter canais prioritários (ex: email e push) e um template específico.
 *   **Lembrete de Tarefa Agendada:**
@@ -169,7 +169,7 @@ notifications/
 
 ### Fluxo de Envio de Notificação (Exemplo: Email)
 
-1.  **Chamador (ex: `AccountsService`):** Chama `Deeper_Hub.Notifications.send_notification(user_id, :user_registered, %{user_name: \"John\"}, opts)`.
+1.  **Chamador (ex: `AccountsService`):** Chama `DeeperHub.Notifications.send_notification(user_id, :user_registered, %{user_name: \"John\"}, opts)`.
 2.  **`Notifications` (Fachada):** Delega para `DefaultNotificationService`.
 3.  **`DefaultNotificationService`:**
     *   Chama `PreferencesService.get_user_preferences(user_id)` para ver se o usuário quer receber notificações do tipo `:user_registered` e por quais canais.
@@ -178,19 +178,19 @@ notifications/
         *   Chama `TemplateManager.get_email_subject(\"user_registered_email\", locale)`.
         *   Cria uma struct `Notification` com os detalhes.
         *   Persiste a `Notification` via `HistoryService` (ou diretamente via Repo).
-        *   Enfileira uma tarefa para `Deeper_Hub.Notifications.Workers.EmailWorker` via `Core.BackgroundTaskManager` passando o `notification_id` ou todos os dados do email.
+        *   Enfileira uma tarefa para `DeeperHub.Notifications.Workers.EmailWorker` via `Core.BackgroundTaskManager` passando o `notification_id` ou todos os dados do email.
 4.  **`EmailWorker` (Background Task):**
     *   Recebe a tarefa.
     *   Busca os detalhes da notificação (se apenas o ID foi passado).
-    *   Chama `Deeper_Hub.Mailer.send_email(%{to: user.email, subject: ..., body: ...})`.
+    *   Chama `DeeperHub.Mailer.send_email(%{to: user.email, subject: ..., body: ...})`.
     *   Atualiza o status da `Notification` (e/ou `NotificationDelivery`) para `:sent` ou `:failed` via `HistoryService`.
     *   Publica evento `notification.sent` ou `notification.failed` via `Core.EventBus`.
 
-## 📡 6. API (Funções Públicas da Fachada `Deeper_Hub.Notifications`)
+## 📡 6. API (Funções Públicas da Fachada `DeeperHub.Notifications`)
 
 *(Muitas já foram vistas na documentação original de `NotificationsFacade` e `Core.NotificationsFacade`. Consolidando e refinando.)*
 
-### 6.1. `Deeper_Hub.Notifications.send_notification(user_id :: String.t(), notification_type :: atom(), content_data :: map(), opts :: keyword()) :: {:ok, Notification.t() | list(Notification.t())} | {:error, term()}`
+### 6.1. `DeeperHub.Notifications.send_notification(user_id :: String.t(), notification_type :: atom(), content_data :: map(), opts :: keyword()) :: {:ok, Notification.t() | list(Notification.t())} | {:error, term()}`
 
 *   **Descrição:** Envia uma notificação para um usuário. O `notification_type` é usado para buscar o template, determinar os canais padrão e respeitar as preferências do usuário.
 *   **`content_data`:** Mapa com variáveis para o template.
@@ -200,44 +200,44 @@ notifications/
     *   `:metadata` (map): Metadados adicionais.
 *   **Retorno:** Pode retornar a `Notification` criada ou uma lista se for para múltiplos canais/entregas.
 
-### 6.2. `Deeper_Hub.Notifications.send_bulk_notification(user_ids :: list(String.t()), notification_type :: atom(), content_data :: map(), opts :: keyword()) :: {:ok, BulkNotificationJob.t()} | {:error, term()}`
+### 6.2. `DeeperHub.Notifications.send_bulk_notification(user_ids :: list(String.t()), notification_type :: atom(), content_data :: map(), opts :: keyword()) :: {:ok, BulkNotificationJob.t()} | {:error, term()}`
 
 *   **Descrição:** Envia a mesma notificação para múltiplos usuários. Geralmente enfileira um job de background.
 *   **`BulkNotificationJob.t()`:** Uma struct com informações sobre o job em lote.
 
-### 6.3. `Deeper_Hub.Notifications.schedule_notification(user_id :: String.t(), notification_type :: atom(), content_data :: map(), scheduled_at :: DateTime.t(), opts :: keyword()) :: {:ok, ScheduledNotification.t()} | {:error, term()}`
+### 6.3. `DeeperHub.Notifications.schedule_notification(user_id :: String.t(), notification_type :: atom(), content_data :: map(), scheduled_at :: DateTime.t(), opts :: keyword()) :: {:ok, ScheduledNotification.t()} | {:error, term()}`
 
 *   **Descrição:** Agenda uma notificação para envio futuro.
 
-### 6.4. `Deeper_Hub.Notifications.cancel_scheduled_notification(scheduled_notification_id :: String.t(), opts :: keyword()) :: :ok | {:error, :not_found | term()}`
+### 6.4. `DeeperHub.Notifications.cancel_scheduled_notification(scheduled_notification_id :: String.t(), opts :: keyword()) :: :ok | {:error, :not_found | term()}`
 
 *   **Descrição:** Cancela uma notificação agendada.
 
-### 6.5. `Deeper_Hub.Notifications.get_user_notification_preferences(user_id :: String.t()) :: {:ok, NotificationPreference.t()} | {:error, term()}`
+### 6.5. `DeeperHub.Notifications.get_user_notification_preferences(user_id :: String.t()) :: {:ok, NotificationPreference.t()} | {:error, term()}`
 
 *   **Descrição:** Obtém as preferências de notificação de um usuário.
 
-### 6.6. `Deeper_Hub.Notifications.update_user_notification_preferences(user_id :: String.t(), preferences_map :: map()) :: {:ok, NotificationPreference.t()} | {:error, Ecto.Changeset.t()}`
+### 6.6. `DeeperHub.Notifications.update_user_notification_preferences(user_id :: String.t(), preferences_map :: map()) :: {:ok, NotificationPreference.t()} | {:error, Ecto.Changeset.t()}`
 
 *   **Descrição:** Atualiza as preferências de notificação de um usuário.
 *   **`preferences_map`:** Ex: `%{email: %{marketing_updates: false, security_alerts: true}, push: %{all_enabled: true}}`.
 
-### 6.7. `Deeper_Hub.Notifications.get_unread_notifications(user_id :: String.t(), opts :: keyword()) :: {:ok, list(Notification.t()), Pagination.t()}`
+### 6.7. `DeeperHub.Notifications.get_unread_notifications(user_id :: String.t(), opts :: keyword()) :: {:ok, list(Notification.t()), Pagination.t()}`
 
 *   **Descrição:** Obtém notificações in-app não lidas para um usuário.
 *   **`opts`:** `:channel` (se houver múltiplos tipos de in-app), `:limit`, `:page`.
 
-### 6.8. `Deeper_Hub.Notifications.mark_notification_as_read(notification_id :: String.t(), user_id :: String.t()) :: :ok | {:error, :not_found | :unauthorized}`
+### 6.8. `DeeperHub.Notifications.mark_notification_as_read(notification_id :: String.t(), user_id :: String.t()) :: :ok | {:error, :not_found | :unauthorized}`
 
 *   **Descrição:** Marca uma notificação específica (geralmente in-app) como lida.
 
 ## ⚙️ 7. Configuração
 
-Via `Deeper_Hub.Core.ConfigManager`:
+Via `DeeperHub.Core.ConfigManager`:
 
 *   **`[:notifications, :enabled]`** (Boolean): Habilita/desabilita o sistema de notificações.
 *   **`[:notifications, :default_channels, <notification_type>]`** (List de Atoms): Canais padrão para um tipo de notificação se o usuário não tiver preferências (ex: `%{user_registered: [:email, :in_app]}`).
-*   **`[:notifications, :channels, :email, :adapter]`** (Module): Adaptador para envio de email (ex: `Deeper_Hub.Mailer`).
+*   **`[:notifications, :channels, :email, :adapter]`** (Module): Adaptador para envio de email (ex: `DeeperHub.Mailer`).
 *   **`[:notifications, :channels, :email, :from_address]`** (String).
 *   **`[:notifications, :channels, :push, :fcm_api_key]`** (String).
 *   **`[:notifications, :channels, :sms, :provider_api_key]`** (String).
@@ -252,10 +252,10 @@ Via `Deeper_Hub.Core.ConfigManager`:
 
 ### 8.1. Módulos Internos
 
-*   `Deeper_Hub.Core.ConfigManager`, `Core.EventBus`, `Core.Logger`, `Core.Metrics`, `Core.Repo`, `Core.Cache`, `Core.BackgroundTaskManager`.
-*   `Deeper_Hub.Mailer`: Para o canal de email.
-*   `Deeper_Hub.Accounts`: Para obter informações do usuário (email, device tokens para push).
-*   `Deeper_Hub.Audit` (via `Integrations.AuditIntegration`).
+*   `DeeperHub.Core.ConfigManager`, `Core.EventBus`, `Core.Logger`, `Core.Metrics`, `Core.Repo`, `Core.Cache`, `Core.BackgroundTaskManager`.
+*   `DeeperHub.Mailer`: Para o canal de email.
+*   `DeeperHub.Accounts`: Para obter informações do usuário (email, device tokens para push).
+*   `DeeperHub.Audit` (via `Integrations.AuditIntegration`).
 
 ### 8.2. Bibliotecas Externas
 
@@ -269,7 +269,7 @@ Via `Deeper_Hub.Core.ConfigManager`:
     ```elixir
     # Em um módulo listener
     def handle_event(\"user.password_reset_requested\", %{user_id: user_id, reset_token: token}, _metadata) do
-      Deeper_Hub.Notifications.send_notification(
+      DeeperHub.Notifications.send_notification(
         user_id, 
         :password_reset_instruction, 
         %{reset_link: \"https://.../#{token}\"}
@@ -278,10 +278,10 @@ Via `Deeper_Hub.Core.ConfigManager`:
     ```
 *   **Envio Direto de Serviços:**
     ```elixir
-    # Em Deeper_Hub.Support.TicketService
+    # Em DeeperHub.Support.TicketService
     def assign_ticket_to_agent(ticket_id, agent_id) do
       # ... lógica ...
-      Deeper_Hub.Notifications.send_notification(
+      DeeperHub.Notifications.send_notification(
         agent_id, 
         :ticket_assigned_to_you, 
         %{ticket_id: ticket_id, ticket_subject: ticket.subject}
@@ -365,7 +365,7 @@ Via `Deeper_Hub.Core.ConfigManager`:
 
 O sistema de notificações é um componente complexo e muito importante para a experiência do usuário e para a operação do sistema.
 
-Agora, para onde vamos? Podemos detalhar os submódulos do `Deeper_Hub.Notifications` como o `TemplateManager` ou o `Scheduler`, ou mudar para outro módulo Core, como `Deeper_Hub.Core.CircuitBreakerFactory` ou `Deeper_Hub.Core.EncryptionService`?"""),
+Agora, para onde vamos? Podemos detalhar os submódulos do `DeeperHub.Notifications` como o `TemplateManager` ou o `Scheduler`, ou mudar para outro módulo Core, como `DeeperHub.Core.CircuitBreakerFactory` ou `DeeperHub.Core.EncryptionService`?"""),
             ],
         ),
         types.Content(
@@ -377,7 +377,7 @@ Agora, para onde vamos? Podemos detalhar os submódulos do `Deeper_Hub.Notificat
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ok! Dado que o `Deeper_Hub.Core.CircuitBreakerFactory` (ou apenas `CircuitBreaker`) foi mencionado como uma dependência para interações com serviços externos (como GeoIP, SMTP, e potencialmente o próprio `Deeper_Hub.Notifications` se ele usar provedores externos de push/SMS), vamos detalhá-lo agora. Ele é crucial para a resiliência do sistema.
+                types.Part.from_text(text="""Ok! Dado que o `DeeperHub.Core.CircuitBreakerFactory` (ou apenas `CircuitBreaker`) foi mencionado como uma dependência para interações com serviços externos (como GeoIP, SMTP, e potencialmente o próprio `DeeperHub.Notifications` se ele usar provedores externos de push/SMS), vamos detalhá-lo agora. Ele é crucial para a resiliência do sistema.
 
 ---
 

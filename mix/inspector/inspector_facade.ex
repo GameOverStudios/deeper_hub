@@ -1,4 +1,4 @@
-defmodule Deeper_Hub.Inspector.InspectorFacade do
+defmodule DeeperHub.Inspector.InspectorFacade do
   @moduledoc """
   Fachada para o sistema de inspeção de código 🔍
 
@@ -7,9 +7,9 @@ defmodule Deeper_Hub.Inspector.InspectorFacade do
   elementos do código como funções, módulos e especificações de tipo.
   """
 
-  alias Deeper_Hub.Inspector.FunctionInspector
-  alias Deeper_Hub.Inspector.ModuleInspector
-  alias Deeper_Hub.Inspector.TypeSpecInspector
+  alias DeeperHub.Inspector.FunctionInspector
+  alias DeeperHub.Inspector.ModuleInspector
+  alias DeeperHub.Inspector.TypeSpecInspector
 
   @doc """
   Inspeciona um elemento e retorna informações detalhadas sobre ele 🔎
@@ -27,10 +27,10 @@ defmodule Deeper_Hub.Inspector.InspectorFacade do
 
   ## Exemplos
 
-      iex> Deeper_Hub.Inspector.InspectorFacade.inspect_element(Enum)
+      iex> DeeperHub.Inspector.InspectorFacade.inspect_element(Enum)
       %{type: :module, name: Enum, ...}
-
-      iex> Deeper_Hub.Inspector.InspectorFacade.inspect_element({Enum, :map, 2})
+      
+      iex> DeeperHub.Inspector.InspectorFacade.inspect_element({Enum, :map, 2})
       %{type: :function, module: Enum, name: :map, ...}
   """
   @spec inspect_element(any(), keyword()) :: map() | {:error, String.t()}
@@ -65,8 +65,8 @@ defmodule Deeper_Hub.Inspector.InspectorFacade do
 
   ## Exemplos
 
-      iex> result = Deeper_Hub.Inspector.InspectorFacade.inspect_element(Enum)
-      iex> Deeper_Hub.Inspector.InspectorFacade.format_result(result, :text)
+      iex> result = DeeperHub.Inspector.InspectorFacade.inspect_element(Enum)
+      iex> DeeperHub.Inspector.InspectorFacade.format_result(result, :text)
       "Módulo: Enum\n..."
   """
   @spec format_result(map() | {:error, String.t()}, atom()) :: String.t()
@@ -98,7 +98,7 @@ defmodule Deeper_Hub.Inspector.InspectorFacade do
 
   ## Exemplos
 
-      iex> Deeper_Hub.Inspector.InspectorFacade.list_inspectors()
+      iex> DeeperHub.Inspector.InspectorFacade.list_inspectors()
       [
         %{name: "ModuleInspector", type: :module, description: "..."},
         %{name: "FunctionInspector", type: :function, description: "..."},
@@ -139,8 +139,8 @@ defmodule Deeper_Hub.Inspector.InspectorFacade do
 
   ## Exemplos
 
-      iex> Deeper_Hub.Inspector.InspectorFacade.get_inspector_for(:module)
-      Deeper_Hub.Inspector.ModuleInspector
+      iex> DeeperHub.Inspector.InspectorFacade.get_inspector_for(:module)
+      DeeperHub.Inspector.ModuleInspector
   """
   @spec get_inspector_for(atom()) :: module() | nil
   def get_inspector_for(element_type) do
@@ -165,10 +165,10 @@ defmodule Deeper_Hub.Inspector.InspectorFacade do
 
   ## Exemplos
 
-      iex> Deeper_Hub.Inspector.InspectorFacade.supported?(Enum)
+      iex> DeeperHub.Inspector.InspectorFacade.supported?(Enum)
       true
-
-      iex> Deeper_Hub.Inspector.InspectorFacade.supported?({:not, :supported})
+      
+      iex> DeeperHub.Inspector.InspectorFacade.supported?({:not, :supported})
       false
   """
   @spec supported?(any()) :: boolean()

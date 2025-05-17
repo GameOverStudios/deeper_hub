@@ -1,6 +1,6 @@
 defmodule Deeper_Hub.Core.Logger do
   @moduledoc """
-  Módulo de logging para o Deeper_Hub, responsável por gerenciar
+  Módulo de logging para o DeeperHub, responsável por gerenciar
   mensagens de log com suporte a diferentes níveis de severidade
   e formatação colorida.
 

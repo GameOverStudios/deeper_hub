@@ -1,12 +1,12 @@
-# Módulo: `Deeper_Hub.Core.Metrics` 🚀
+# Módulo: `DeeperHub.Core.Metrics` 🚀
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.Core.Metrics`
+## 📜 1. Visão Geral do Módulo `DeeperHub.Core.Metrics`
 
-O módulo `Deeper_Hub.Core.Metrics` é a fachada centralizada para a coleta, registro e exposição de métricas de desempenho e saúde do sistema Deeper_Hub. Ele fornece uma API unificada para que todos os outros módulos possam registrar métricas de forma consistente, abstraindo a implementação do backend de métricas (ex: Prometheus, StatsD, InfluxDB, ou um coletor ETS interno).
+O módulo `DeeperHub.Core.Metrics` é a fachada centralizada para a coleta, registro e exposição de métricas de desempenho e saúde do sistema DeeperHub. Ele fornece uma API unificada para que todos os outros módulos possam registrar métricas de forma consistente, abstraindo a implementação do backend de métricas (ex: Prometheus, StatsD, InfluxDB, ou um coletor ETS interno).
 
 O objetivo principal é fornecer dados quantitativos sobre o comportamento da aplicação, permitindo monitoramento em tempo real, alertas sobre anomalias, análise de tendências de desempenho e otimização de recursos. 😊
 
-*(Nota: A documentação original menciona `Deeper_Hub.Core.MetricsFacade` e `Deeper_Hub.Shared.Metrics.MetricsFacade`. Esta documentação consolida em `Deeper_Hub.Core.Metrics` como a fachada principal, que delegaria para uma implementação mais robusta como `Deeper_Hub.Shared.Metrics.Services.EtsMetricsService` ou um adaptador para um sistema externo.)*
+*(Nota: A documentação original menciona `DeeperHub.Core.MetricsFacade` e `DeeperHub.Shared.Metrics.MetricsFacade`. Esta documentação consolida em `DeeperHub.Core.Metrics` como a fachada principal, que delegaria para uma implementação mais robusta como `DeeperHub.Shared.Metrics.Services.EtsMetricsService` ou um adaptador para um sistema externo.)*
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -29,36 +29,36 @@ O objetivo principal é fornecer dados quantitativos sobre o comportamento da ap
 *   **Exportação de Métricas (via Adaptador):**
     *   Permitir que os adaptadores exponham as métricas em formatos padronizados (ex: formato Prometheus).
 *   **Alertas Baseados em Métricas (Integração):**
-    *   Fornecer os dados para um sistema de alertas (`Deeper_Hub.Shared.Metrics.AlertsSystem`) que monitora métricas e dispara alertas quando limiares são cruzados.
+    *   Fornecer os dados para um sistema de alertas (`DeeperHub.Shared.Metrics.AlertsSystem`) que monitora métricas e dispara alertas quando limiares são cruzados.
 
 ## 🏗️ 3. Arquitetura e Design
 
 ### 3.1. Componentes Principais
 
-1.  **`Deeper_Hub.Core.Metrics` (Fachada Pública):**
+1.  **`DeeperHub.Core.Metrics` (Fachada Pública):**
     *   **Responsabilidade:** Ponto de entrada para todos os módulos registrarem métricas.
-    *   **Interações:** Formata nomes de métricas e tags, e delega para o `Deeper_Hub.Core.Metrics.Adapter`.
-2.  **`Deeper_Hub.Core.Metrics.Adapter` (Behaviour e Implementação Padrão):**
+    *   **Interações:** Formata nomes de métricas e tags, e delega para o `DeeperHub.Core.Metrics.Adapter`.
+2.  **`DeeperHub.Core.Metrics.Adapter` (Behaviour e Implementação Padrão):**
     *   **Responsabilidade:** Abstrair a lógica de interação com o backend de métricas.
     *   **Comportamento (`MetricsBehaviour`):** Define a interface que os adaptadores devem implementar.
-    *   **Implementação Padrão (`DefaultMetricsAdapter` que usa `Deeper_Hub.Shared.Metrics.Services.EtsMetricsService` ou similar):**
+    *   **Implementação Padrão (`DefaultMetricsAdapter` que usa `DeeperHub.Shared.Metrics.Services.EtsMetricsService` ou similar):**
         *   Recebe as chamadas da fachada.
         *   Interage com o sistema de armazenamento de métricas (ex: ETS, ou um cliente para Prometheus/StatsD).
         *   Pode envolver um GenServer para operações assíncronas ou agregação em lote, dependendo do backend.
-3.  **`Deeper_Hub.Shared.Metrics.Services.EtsMetricsService` (Exemplo de Backend em Memória):**
+3.  **`DeeperHub.Shared.Metrics.Services.EtsMetricsService` (Exemplo de Backend em Memória):**
     *   **Responsabilidade:** Armazenar e agregar métricas em tabelas ETS.
     *   **Componentes Internos (como visto na documentação original):**
         *   `EtsMetricsCounter`: Para contadores.
         *   `EtsMetricsHistogram`: Para gauges e histogramas.
-4.  **`Deeper_Hub.Shared.Metrics.ModuleMetrics`:**
+4.  **`DeeperHub.Shared.Metrics.ModuleMetrics`:**
     *   **Responsabilidade:** Coletar métricas específicas de diferentes módulos do sistema (ex: número de usuários ativos do módulo `Accounts`). Pode ser chamado por um `CollectorWorker`.
-5.  **`Deeper_Hub.Shared.Metrics.CollectorWorker` (GenServer):**
+5.  **`DeeperHub.Shared.Metrics.CollectorWorker` (GenServer):**
     *   **Responsabilidade:** Executar tarefas de coleta de métricas periodicamente (ex: chamar `ModuleMetrics.collect_all_module_metrics`).
-6.  **`Deeper_Hub.Shared.Metrics.AlertsSystem` (GenServer):**
+6.  **`DeeperHub.Shared.Metrics.AlertsSystem` (GenServer):**
     *   **Responsabilidade:** Monitorar métricas contra limiares definidos e gerenciar alertas.
-7.  **`Deeper_Hub.Shared.Metrics.ApiExporter`:**
+7.  **`DeeperHub.Shared.Metrics.ApiExporter`:**
     *   **Responsabilidade:** Formatar métricas para serem expostas via uma API (ex: endpoint `/metrics` no formato Prometheus).
-8.  **`Deeper_Hub.Shared.Metrics.ExportWorker` (GenServer):**
+8.  **`DeeperHub.Shared.Metrics.ExportWorker` (GenServer):**
     *   **Responsabilidade:** Exportar métricas periodicamente para sistemas externos (se configurado).
 
 ### 3.2. Estrutura de Diretórios (Proposta)
@@ -100,38 +100,38 @@ shared/metrics/    # Componentes compartilhados do sistema de métricas
 ## 🛠️ 4. Casos de Uso Principais
 
 *   **Monitorar Taxa de Requisições HTTP:**
-    *   Um plug na pipeline Phoenix chama `Deeper_Hub.Core.Metrics.increment([:http, :requests, :total], 1, %{path: \"/api/users\", method: \"GET\"})`.
-    *   Outro contador é incrementado para o status code: `Deeper_Hub.Core.Metrics.increment([:http, :requests, :status_codes], 1, %{code: \"200\"})`.
+    *   Um plug na pipeline Phoenix chama `DeeperHub.Core.Metrics.increment([:http, :requests, :total], 1, %{path: \"/api/users\", method: \"GET\"})`.
+    *   Outro contador é incrementado para o status code: `DeeperHub.Core.Metrics.increment([:http, :requests, :status_codes], 1, %{code: \"200\"})`.
 *   **Medir Latência de Banco de Dados:**
-    *   `stop_timer_fn = Deeper_Hub.Core.Metrics.start_timer([:database, :query, :duration_ms], %{query_name: \"get_user_by_id\"})`
+    *   `stop_timer_fn = DeeperHub.Core.Metrics.start_timer([:database, :query, :duration_ms], %{query_name: \"get_user_by_id\"})`
     *   Executa a query.
     *   `stop_timer_fn.()`
 *   **Rastrear Número de Usuários Ativos:**
     *   Um worker periódico chama uma função no módulo `Accounts` que retorna o número de usuários ativos.
-    *   O worker então chama `Deeper_Hub.Core.Metrics.gauge([:application, :users, :active_count], count)`.
+    *   O worker então chama `DeeperHub.Core.Metrics.gauge([:application, :users, :active_count], count)`.
 *   **Alertar sobre Alto Uso de CPU:**
-    *   `Deeper_Hub.Shared.Metrics.SystemMonitor` coleta o uso de CPU.
-    *   `Deeper_Hub.Shared.Metrics.AlertsSystem` verifica essa métrica contra um limiar e, se excedido, dispara um alerta que pode ser enviado via `Deeper_Hub.Notifications`.
+    *   `DeeperHub.Shared.Metrics.SystemMonitor` coleta o uso de CPU.
+    *   `DeeperHub.Shared.Metrics.AlertsSystem` verifica essa métrica contra um limiar e, se excedido, dispara um alerta que pode ser enviado via `DeeperHub.Notifications`.
 
 ## 🌊 5. Fluxos Importantes
 
 ### Fluxo de Registro de Métrica (Ex: Contador)
 
-1.  **Módulo Chamador:** Chama `Deeper_Hub.Core.Metrics.increment([:my_service, :event_processed], 1, %{type: \"A\"})`.
-2.  **`Deeper_Hub.Core.Metrics` (Fachada):**
+1.  **Módulo Chamador:** Chama `DeeperHub.Core.Metrics.increment([:my_service, :event_processed], 1, %{type: \"A\"})`.
+2.  **`DeeperHub.Core.Metrics` (Fachada):**
     *   Normaliza o nome da métrica (ex: para `\"deeper_hub.my_service.event_processed.count\"`).
     *   Normaliza as tags.
-    *   Delega para `Deeper_Hub.Core.Metrics.Adapter.increment(normalized_name, value, normalized_tags)`.
-3.  **`Deeper_Hub.Core.Metrics.Adapter` (ex: `DefaultMetricsAdapter` usando `EtsMetricsService`):**
-    *   Chama `Deeper_Hub.Shared.Metrics.Services.EtsMetricsService.increment(normalized_name, value, normalized_tags)`.
-4.  **`Deeper_Hub.Shared.Metrics.Services.EtsMetricsService`:**
+    *   Delega para `DeeperHub.Core.Metrics.Adapter.increment(normalized_name, value, normalized_tags)`.
+3.  **`DeeperHub.Core.Metrics.Adapter` (ex: `DefaultMetricsAdapter` usando `EtsMetricsService`):**
+    *   Chama `DeeperHub.Shared.Metrics.Services.EtsMetricsService.increment(normalized_name, value, normalized_tags)`.
+4.  **`DeeperHub.Shared.Metrics.Services.EtsMetricsService`:**
     *   Usa `EtsMetricsCounter` para encontrar ou criar a entrada ETS para a métrica (combinando nome e tags) e incrementa seu valor.
 
 ## 📡 6. API (Funções Públicas da Fachada)
 
-*(A documentação original de `Deeper_Hub.Core.MetricsFacade` e `Deeper_Hub.Shared.Metrics.MetricsFacade` já lista a maioria das funções necessárias. A ideia é consolidá-las sob `Deeper_Hub.Core.Metrics` e garantir clareza.)*
+*(A documentação original de `DeeperHub.Core.MetricsFacade` e `DeeperHub.Shared.Metrics.MetricsFacade` já lista a maioria das funções necessárias. A ideia é consolidá-las sob `DeeperHub.Core.Metrics` e garantir clareza.)*
 
-### 6.1. `Deeper_Hub.Core.Metrics.increment(name :: list(atom()) | String.t(), value :: integer() | nil, tags :: map() | nil) :: :ok`
+### 6.1. `DeeperHub.Core.Metrics.increment(name :: list(atom()) | String.t(), value :: integer() | nil, tags :: map() | nil) :: :ok`
 
 *   **Descrição:** Incrementa uma métrica de contador.
 *   **`@spec`:** `increment(name :: list(atom()) | String.t(), value :: integer() | nil, tags :: map() | nil) :: :ok`
@@ -141,27 +141,27 @@ shared/metrics/    # Componentes compartilhados do sistema de métricas
     *   `tags`: Mapa de tags para dimensionalidade. (Padrão: `%{}`)
 *   **Exemplo:** `Metrics.increment([:orders, :processed], 1, %{region: \"us-east\"})`
 
-### 6.2. `Deeper_Hub.Core.Metrics.decrement(name :: list(atom()) | String.t(), value :: integer() | nil, tags :: map() | nil) :: :ok`
+### 6.2. `DeeperHub.Core.Metrics.decrement(name :: list(atom()) | String.t(), value :: integer() | nil, tags :: map() | nil) :: :ok`
 
 *   **Descrição:** Decrementa uma métrica de contador.
 *   *(Parâmetros e exemplo similares a `increment/3`)*
 
-### 6.3. `Deeper_Hub.Core.Metrics.gauge(name :: list(atom()) | String.t(), value :: number(), tags :: map() | nil) :: :ok`
+### 6.3. `DeeperHub.Core.Metrics.gauge(name :: list(atom()) | String.t(), value :: number(), tags :: map() | nil) :: :ok`
 
 *   **Descrição:** Define o valor de uma métrica do tipo gauge.
 *   **Exemplo:** `Metrics.gauge([:system, :memory, :usage_mb], 512.5, %{server_id: \"app-01\"})`
 
-### 6.4. `Deeper_Hub.Core.Metrics.histogram(name :: list(atom()) | String.t(), value :: number(), tags :: map() | nil) :: :ok`
+### 6.4. `DeeperHub.Core.Metrics.histogram(name :: list(atom()) | String.t(), value :: number(), tags :: map() | nil) :: :ok`
 
 *   **Descrição:** Registra um valor em uma métrica de histograma (ou distribuição).
 *   **Exemplo:** `Metrics.histogram([:api, :request_latency_ms], 123.4, %{endpoint: \"/users\"})`
 
-### 6.5. `Deeper_Hub.Core.Metrics.record_timing(name :: list(atom()) | String.t(), value_microseconds :: non_neg_integer(), tags :: map() | nil) :: :ok`
+### 6.5. `DeeperHub.Core.Metrics.record_timing(name :: list(atom()) | String.t(), value_microseconds :: non_neg_integer(), tags :: map() | nil) :: :ok`
 
 *   **Descrição:** Atalho para registrar uma duração em um histograma, tipicamente em microssegundos ou milissegundos.
 *   **Exemplo:** `Metrics.record_timing([:db, :query, :duration_us], 56789, %{query_name: \"get_user\"})`
 
-### 6.6. `Deeper_Hub.Core.Metrics.start_timer(name :: list(atom()) | String.t(), tags :: map() | nil) :: function()`
+### 6.6. `DeeperHub.Core.Metrics.start_timer(name :: list(atom()) | String.t(), tags :: map() | nil) :: function()`
 
 *   **Descrição:** Inicia um timer e retorna uma função. Chamar a função retornada para o timer e registra a duração. A duração é geralmente registrada em microssegundos.
 *   **Exemplo:**
@@ -171,21 +171,21 @@ shared/metrics/    # Componentes compartilhados do sistema de métricas
     stop_fn.()
     ```
 
-### 6.7. `Deeper_Hub.Core.Metrics.get_metric(name :: String.t(), tags :: map() | nil) :: {:ok, value :: term()} | {:error, :not_found}`
+### 6.7. `DeeperHub.Core.Metrics.get_metric(name :: String.t(), tags :: map() | nil) :: {:ok, value :: term()} | {:error, :not_found}`
 
 *   **Descrição:** Obtém o valor atual de uma métrica específica (principalmente para backends em memória).
 *   *(`name` aqui seria a string normalizada completa, ex: `\"deeper_hub.http.requests.total.count\"`)*
 
-### 6.8. `Deeper_Hub.Core.Metrics.get_metrics_summary(prefix :: String.t() | nil) :: {:ok, map()}`
+### 6.8. `DeeperHub.Core.Metrics.get_metrics_summary(prefix :: String.t() | nil) :: {:ok, map()}`
 
 *   **Descrição:** Obtém um resumo das métricas, opcionalmente filtrado por um prefixo.
 
 ## ⚙️ 7. Configuração
 
-Configurações gerenciadas pelo `Deeper_Hub.Core.ConfigManager`:
+Configurações gerenciadas pelo `DeeperHub.Core.ConfigManager`:
 
 *   `[:core, :metrics, :enabled]` (Boolean): Habilita/desabilita todo o sistema de métricas. (Padrão: `true`)
-*   `[:core, :metrics, :adapter]` (Module): Módulo adaptador de métricas a ser usado (ex: `Deeper_Hub.Shared.Metrics.Services.EtsMetricsService`, `MyApp.PrometheusAdapter`). (Padrão: `Deeper_Hub.Shared.Metrics.Services.EtsMetricsService`)
+*   `[:core, :metrics, :adapter]` (Module): Módulo adaptador de métricas a ser usado (ex: `DeeperHub.Shared.Metrics.Services.EtsMetricsService`, `MyApp.PrometheusAdapter`). (Padrão: `DeeperHub.Shared.Metrics.Services.EtsMetricsService`)
 *   `[:core, :metrics, :default_prefix]` (String): Prefixo padrão para todos os nomes de métricas (ex: `\"deeper_hub\"`). (Padrão: `\"deeper_hub\"`)
 *   `[:core, :metrics, :ets_metrics_service, :cleanup_interval_ms]` (Integer): Intervalo para limpeza de métricas antigas no `EtsMetricsService`.
 *   `[:core, :metrics, :collector_worker, :collection_interval_ms]` (Integer): Intervalo para o `CollectorWorker` coletar métricas de módulos. (Padrão: `60000`)
@@ -198,10 +198,10 @@ Configurações gerenciadas pelo `Deeper_Hub.Core.ConfigManager`:
 
 ### 8.1. Módulos Internos
 
-*   `Deeper_Hub.Core.ConfigManager`: Para obter configurações do sistema de métricas.
-*   `Deeper_Hub.Core.Logger`: Para logging de operações internas do sistema de métricas.
-*   `Deeper_Hub.Core.Supervisor` (indireta): Para supervisionar os processos de métricas (workers, GenServers).
-*   `Deeper_Hub.Shared.Utils`: Para utilitários de nomeação e manipulação de tags.
+*   `DeeperHub.Core.ConfigManager`: Para obter configurações do sistema de métricas.
+*   `DeeperHub.Core.Logger`: Para logging de operações internas do sistema de métricas.
+*   `DeeperHub.Core.Supervisor` (indireta): Para supervisionar os processos de métricas (workers, GenServers).
+*   `DeeperHub.Shared.Utils`: Para utilitários de nomeação e manipulação de tags.
 
 ### 8.2. Bibliotecas Externas
 
@@ -212,7 +212,7 @@ Configurações gerenciadas pelo `Deeper_Hub.Core.ConfigManager`:
 
 **Registrando um contador:**
 ```elixir
-alias Deeper_Hub.Core.Metrics
+alias DeeperHub.Core.Metrics
 
 def handle_new_user(params) do
   # ... lógica ...
@@ -222,7 +222,7 @@ end
 
 **Medindo a duração de uma função:**
 ```elixir
-alias Deeper_Hub.Core.Metrics
+alias DeeperHub.Core.Metrics
 
 def process_payment(payment_id) do
   stop_timer_fn = Metrics.start_timer([:payments, :processing, :duration_us], %{payment_id: payment_id})
@@ -236,7 +236,7 @@ end
 
 **Definindo um gauge:**
 ```elixir
-alias Deeper_Hub.Core.Metrics
+alias DeeperHub.Core.Metrics
 
 def update_active_connections_gauge(count) do
   Metrics.gauge([:connections, :active_total], count, %{type: \"websocket\"})
@@ -312,7 +312,7 @@ O próprio sistema de métricas pode emitir eventos Telemetry sobre suas operaç
 
 ---
 
-Pronto para o próximo? Talvez `Deeper_Hub.Auth` ou `Deeper_Hub.API`?"""),
+Pronto para o próximo? Talvez `DeeperHub.Auth` ou `DeeperHub.API`?"""),
             ],
         ),
         types.Content(
@@ -324,7 +324,7 @@ Pronto para o próximo? Talvez `Deeper_Hub.Auth` ou `Deeper_Hub.API`?"""),
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ok, vamos mergulhar no `Deeper_Hub.Auth`, um dos módulos mais complexos e críticos do sistema. Dada a quantidade de submódulos e funcionalidades já descritas na documentação original, este será um README extenso.
+                types.Part.from_text(text="""Ok, vamos mergulhar no `DeeperHub.Auth`, um dos módulos mais complexos e críticos do sistema. Dada a quantidade de submódulos e funcionalidades já descritas na documentação original, este será um README extenso.
 
 ---
 

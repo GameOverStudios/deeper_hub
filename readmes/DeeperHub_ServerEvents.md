@@ -1,8 +1,8 @@
-# Módulo: `Deeper_Hub.ServerEvents` 📅
+# Módulo: `DeeperHub.ServerEvents` 📅
 
-## 📜 1. Visão Geral do Módulo `Deeper_Hub.ServerEvents`
+## 📜 1. Visão Geral do Módulo `DeeperHub.ServerEvents`
 
-O módulo `Deeper_Hub.ServerEvents` é responsável por gerenciar eventos que ocorrem dentro dos servidores listados na plataforma Deeper_Hub. Ele permite que proprietários de servidores criem, agendem e anunciem eventos para suas comunidades, como torneios, manutenções programadas, eventos temáticos, transmissões ao vivo, etc. Os usuários podem visualizar os eventos futuros e ativos dos servidores que lhes interessam. 😊
+O módulo `DeeperHub.ServerEvents` é responsável por gerenciar eventos que ocorrem dentro dos servidores listados na plataforma DeeperHub. Ele permite que proprietários de servidores criem, agendem e anunciem eventos para suas comunidades, como torneios, manutenções programadas, eventos temáticos, transmissões ao vivo, etc. Os usuários podem visualizar os eventos futuros e ativos dos servidores que lhes interessam. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -22,7 +22,7 @@ O módulo `Deeper_Hub.ServerEvents` é responsável por gerenciar eventos que oc
 *   **RSVP / Manifestação de Interesse (Opcional):**
     *   Permitir que usuários marquem interesse ou confirmem presença em eventos.
 *   **Notificações:**
-    *   Notificar usuários (que seguem o servidor ou marcaram interesse) sobre o início de eventos, alterações ou cancelamentos (via `Deeper_Hub.Notifications`).
+    *   Notificar usuários (que seguem o servidor ou marcaram interesse) sobre o início de eventos, alterações ou cancelamentos (via `DeeperHub.Notifications`).
 *   **Recorrência de Eventos (Opcional):**
     *   Suporte para criar eventos que se repetem (diariamente, semanalmente, mensalmente).
 *   **Administração e Moderação:**
@@ -31,24 +31,24 @@ O módulo `Deeper_Hub.ServerEvents` é responsável por gerenciar eventos que oc
 
 ## 🏗️ 3. Arquitetura e Design
 
-`Deeper_Hub.ServerEvents` atuará como uma fachada para um serviço de lógica de negócio e componentes de persistência.
+`DeeperHub.ServerEvents` atuará como uma fachada para um serviço de lógica de negócio e componentes de persistência.
 
-*   **Interface Pública (`Deeper_Hub.ServerEvents.ServerEventsFacade` ou `Deeper_Hub.ServerEvents`):** Funções como `create_event/1`, `list_active_events_for_server/2`, `get_upcoming_events/1`.
-*   **Serviço de Eventos de Servidor (`Deeper_Hub.ServerEvents.Services.EventService`):**
+*   **Interface Pública (`DeeperHub.ServerEvents.ServerEventsFacade` ou `DeeperHub.ServerEvents`):** Funções como `create_event/1`, `list_active_events_for_server/2`, `get_upcoming_events/1`.
+*   **Serviço de Eventos de Servidor (`DeeperHub.ServerEvents.Services.EventService`):**
     *   Contém a lógica de negócio principal para gerenciar definições, agendamento, e ciclo de vida dos eventos.
 *   **Schemas Ecto:**
-    *   `Deeper_Hub.ServerEvents.Schema.Event`: Define um evento de servidor.
-    *   `Deeper_Hub.ServerEvents.Schema.UserEventInterest` (Opcional): Para rastrear interesse/RSVP dos usuários.
-*   **Cache (`Deeper_Hub.ServerEvents.Cache` ou via `Core.Cache`):**
+    *   `DeeperHub.ServerEvents.Schema.Event`: Define um evento de servidor.
+    *   `DeeperHub.ServerEvents.Schema.UserEventInterest` (Opcional): Para rastrear interesse/RSVP dos usuários.
+*   **Cache (`DeeperHub.ServerEvents.Cache` ou via `Core.Cache`):**
     *   Cache para eventos ativos ou futuros frequentemente requisitados.
 *   **Workers (via `Core.BackgroundTaskManager`):**
     *   Worker para atualizar o status de eventos (ex: de agendado para em andamento, de em andamento para concluído).
     *   Worker para enviar lembretes de eventos.
 *   **Integrações:**
-    *   `Deeper_Hub.Core.Repo`: Para persistência.
-    *   `Deeper_Hub.Servers`: Para associar eventos a servidores.
-    *   `Deeper_Hub.Accounts`: Para associar eventos a usuários criadores.
-    *   `Deeper_Hub.Notifications`: Para enviar notificações e lembretes.
+    *   `DeeperHub.Core.Repo`: Para persistência.
+    *   `DeeperHub.Servers`: Para associar eventos a servidores.
+    *   `DeeperHub.Accounts`: Para associar eventos a usuários criadores.
+    *   `DeeperHub.Notifications`: Para enviar notificações e lembretes.
 
 **Padrões de Design:**
 
@@ -57,10 +57,10 @@ O módulo `Deeper_Hub.ServerEvents` é responsável por gerenciar eventos que oc
 
 ### 3.1. Componentes Principais
 
-*   **`Deeper_Hub.ServerEvents.ServerEventsFacade`:** Ponto de entrada.
-*   **`Deeper_Hub.ServerEvents.Services.EventService`:** Lógica de negócio.
-*   **`Deeper_Hub.ServerEvents.Schema.Event`:** Schema do evento.
-*   **`Deeper_Hub.ServerEvents.Supervisor`:** Supervisiona processos.
+*   **`DeeperHub.ServerEvents.ServerEventsFacade`:** Ponto de entrada.
+*   **`DeeperHub.ServerEvents.Services.EventService`:** Lógica de negócio.
+*   **`DeeperHub.ServerEvents.Schema.Event`:** Schema do evento.
+*   **`DeeperHub.ServerEvents.Supervisor`:** Supervisiona processos.
 *   **Workers (ex: `EventStatusUpdaterWorker`, `EventReminderWorker`).**
 
 ### 3.3. Decisões de Design Importantes
@@ -95,7 +95,7 @@ O módulo `Deeper_Hub.ServerEvents` é responsável por gerenciar eventos que oc
 
 ## 📡 6. API (Se Aplicável)
 
-### 6.1. `Deeper_Hub.ServerEvents.create_event/1`
+### 6.1. `DeeperHub.ServerEvents.create_event/1`
 
 *   **Descrição:** Cria um novo evento para um servidor.
 *   **`@spec`:** `create_event(attrs :: map()) :: {:ok, Event.t()} | {:error, Ecto.Changeset.t() | reason}`
@@ -120,13 +120,13 @@ O módulo `Deeper_Hub.ServerEvents` é responsável por gerenciar eventos que oc
       end_time: ~U[2025-07-15 22:00:00Z],
       event_type: \"torneio\"
     }
-    case Deeper_Hub.ServerEvents.create_event(event_attrs) do
+    case DeeperHub.ServerEvents.create_event(event_attrs) do
       {:ok, event} -> Logger.info(\"Evento #{event.id} criado para o servidor #{event.server_id}\")
       {:error, reason} -> Logger.error(\"Falha ao criar evento: #{inspect(reason)}\")
     end
     ```
 
-### 6.2. `Deeper_Hub.ServerEvents.list_events_by_server/2`
+### 6.2. `DeeperHub.ServerEvents.list_events_by_server/2`
 
 *   **Descrição:** Lista eventos para um servidor específico, com opções de filtro.
 *   **`@spec`:** `list_events_by_server(server_id :: String.t(), opts :: Keyword.t()) :: {:ok, list(Event.t())} | {:error, reason}`
@@ -140,14 +140,14 @@ O módulo `Deeper_Hub.ServerEvents` é responsável por gerenciar eventos que oc
 *   **Retorno:** Lista de eventos do servidor.
 *   **Exemplo de Uso (Elixir):**
     ```elixir
-    {:ok, upcoming_events} = Deeper_Hub.ServerEvents.list_events_by_server(\"server_123\", upcoming_only: true, limit: 5)
+    {:ok, upcoming_events} = DeeperHub.ServerEvents.list_events_by_server(\"server_123\", upcoming_only: true, limit: 5)
     ```
 
 *(Outras funções como `get_event/1`, `update_event/2`, `cancel_event/1`, `mark_interest_in_event/2` seriam documentadas aqui).*
 
 ## ⚙️ 7. Configuração
 
-*   **ConfigManager (`Deeper_Hub.Core.ConfigManager`):**
+*   **ConfigManager (`DeeperHub.Core.ConfigManager`):**
     *   `[:server_events, :default_event_duration_hours]`: Duração padrão para eventos sem `end_time` explícito. (Padrão: `2`)
     *   `[:server_events, :reminder_before_minutes]`: Com quantos minutos de antecedência enviar lembretes. (Padrão: `60`)
     *   `[:server_events, :worker, :status_update_interval_minutes]`: Intervalo para o worker atualizar status de eventos. (Padrão: `1`)
@@ -157,14 +157,14 @@ O módulo `Deeper_Hub.ServerEvents` é responsável por gerenciar eventos que oc
 
 ### 8.1. Módulos Internos
 
-*   `Deeper_Hub.Core.Repo`
-*   `Deeper_Hub.Core.ConfigManager`
-*   `Deeper_Hub.Core.EventBus`
-*   `Deeper_Hub.Core.BackgroundTaskManager`
-*   `Deeper_Hub.Notifications`
-*   `Deeper_Hub.Servers`
-*   `Deeper_Hub.Accounts`
-*   `Deeper_Hub.Core.Logger`, `Deeper_Hub.Core.Metrics`
+*   `DeeperHub.Core.Repo`
+*   `DeeperHub.Core.ConfigManager`
+*   `DeeperHub.Core.EventBus`
+*   `DeeperHub.Core.BackgroundTaskManager`
+*   `DeeperHub.Notifications`
+*   `DeeperHub.Servers`
+*   `DeeperHub.Accounts`
+*   `DeeperHub.Core.Logger`, `DeeperHub.Core.Metrics`
 
 ### 8.2. Bibliotecas Externas
 
@@ -195,8 +195,8 @@ O módulo `Deeper_Hub.ServerEvents` é responsável por gerenciar eventos que oc
 
 ### 10.3. Logs
 
-*   `Logger.info(\"Evento '#{title}' (ID: #{id}) criado para o servidor #{server_id}\", module: Deeper_Hub.ServerEvents.Services.EventService)`
-*   `Logger.info(\"Status do evento #{id} alterado para #{status}\", module: Deeper_Hub.ServerEvents.Workers.EventStatusUpdaterWorker)`
+*   `Logger.info(\"Evento '#{title}' (ID: #{id}) criado para o servidor #{server_id}\", module: DeeperHub.ServerEvents.Services.EventService)`
+*   `Logger.info(\"Status do evento #{id} alterado para #{status}\", module: DeeperHub.ServerEvents.Workers.EventStatusUpdaterWorker)`
 
 ### 10.4. Telemetria
 
@@ -236,7 +236,7 @@ O módulo `Deeper_Hub.ServerEvents` é responsável por gerenciar eventos que oc
 
 ---
 
-Próximo na lista é `Deeper_Hub.ServerPackages`. Continuamos?"""),
+Próximo na lista é `DeeperHub.ServerPackages`. Continuamos?"""),
             ],
         ),
         types.Content(
@@ -248,7 +248,7 @@ Próximo na lista é `Deeper_Hub.ServerPackages`. Continuamos?"""),
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Beleza! Vamos para o README do `Deeper_Hub.ServerPackages`.
+                types.Part.from_text(text="""Beleza! Vamos para o README do `DeeperHub.ServerPackages`.
 
 ---
 
