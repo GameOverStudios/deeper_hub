@@ -1,1 +1,1 @@
-cls & mix run --no-halt
+cls & mix run

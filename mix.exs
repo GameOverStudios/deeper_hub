@@ -50,7 +50,6 @@ defmodule DeeperHub.MixProject do
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
       {:uuid, "~> 1.1"},       # Para geração de UUIDs
-      {:jason, "~> 1.4"},      # Para codificação/decodificação JSON
 
       # Source Code
       {:credo, "~> 1.7"},
@@ -74,8 +73,11 @@ defmodule DeeperHub.MixProject do
       # Event Bus
       {:event_bus, "~> 1.7.0"},
 
-      # WebSockets
-      {:ranch, "~> 2.2"}
+      # WebSockets e HTTP
+      {:cowboy, "~> 2.13"},
+      {:plug, "~> 1.17"},
+      {:plug_cowboy, "~> 2.7"},
+      {:jason, "~> 1.4"}
     ]
   end
 end

@@ -23,136 +23,169 @@ void testWebSocketConnection() {
     if (client.connect("localhost", 8080)) {
         std::cout << "Conexão estabelecida com sucesso!\n";
         
-        // Teste 1: Enviar mensagem de echo usando formato simplificado
+        // Teste 1: Enviar mensagem de echo usando o formato correto
         std::cout << "\n----- Teste 1: Enviar mensagem de echo -----\n";
         json echoMessage = {
             {"event", "message"},
-            {"topic", "websocket"},
             {"payload", {
                 {"action", "echo"},
-                {"message", "Olá, servidor!"},
-                {"request_id", "12345"}
-            }},
-            {"ref", "1"} // Referência para correlacionar respostas
+                {"data", {
+                    {"message", "Olá, servidor!"},
+                    {"timestamp", static_cast<long long>(time(nullptr))}
+                }}
+            }}
         };
+        
+        std::cout << "Enviando mensagem: " << echoMessage.dump() << "\n";
         
         if (client.sendTextMessage(echoMessage)) {
             std::string response;
             if (client.receiveMessage(response)) {
                 std::cout << "Resposta recebida: " << response << "\n";
+            } else {
+                std::cerr << "Erro ao receber resposta do servidor\n";
             }
         }
         
         // Pequena pausa para garantir que a mensagem seja processada
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         
-        // Teste 2: Enviar mensagem para criar um usuário usando formato simplificado
+        // Teste 2: Enviar mensagem para criar um usuário
         std::cout << "\n----- Teste 2: Criar um novo usuário -----\n";
         json createUserMessage = {
             {"event", "message"},
-            {"topic", "websocket"},
             {"payload", {
-                {"action", "create_user"},
-                {"username", "testuser"},
-                {"email", "test@example.com"},
-                {"password", "password123"},
-                {"request_id", "12346"}
-            }},
-            {"ref", "2"} // Referência para correlacionar respostas
+                {"action", "user"},
+                {"data", {
+                    {"operation", "create"},
+                    {"username", "testuser"},
+                    {"email", "test@example.com"},
+                    {"password", "password123"}
+                }}
+            }}
         };
+        
+        std::cout << "Enviando mensagem: " << createUserMessage.dump() << "\n";
         
         if (client.sendTextMessage(createUserMessage)) {
             std::string response;
             if (client.receiveMessage(response)) {
                 std::cout << "Resposta recebida: " << response << "\n";
+            } else {
+                std::cerr << "Erro ao receber resposta do servidor\n";
             }
         }
         
         // Pequena pausa para garantir que a mensagem seja processada
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         
-        // Teste 3: Enviar mensagem para autenticar um usuário
-        std::cout << "\n----- Teste 3: Autenticar usuário -----\n";
-        json authUserMessage = {
-            {"topic", "user"},
-            {"event", "authenticate"},
+        // Teste 3: Enviar mensagem para listar usuários
+        std::cout << "\n----- Teste 3: Listar usuários -----\n";
+        json listUsersMessage = {
+            {"event", "message"},
             {"payload", {
-                {"username", "testuser"},
-                {"password", "password123"}
-            }},
-            {"ref", "3"}
+                {"action", "user"},
+                {"data", {
+                    {"operation", "list"}
+                }}
+            }}
         };
         
-        if (client.sendTextMessage(authUserMessage)) {
+        std::cout << "Enviando mensagem: " << listUsersMessage.dump() << "\n";
+        
+        if (client.sendTextMessage(listUsersMessage)) {
             std::string response;
             if (client.receiveMessage(response)) {
                 std::cout << "Resposta recebida: " << response << "\n";
+            } else {
+                std::cerr << "Erro ao receber resposta do servidor\n";
             }
         }
         
         // Pequena pausa para garantir que a mensagem seja processada
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         
-        // Teste 4: Enviar mensagem para atualizar um usuário
-        std::cout << "\n----- Teste 4: Atualizar usuário -----\n";
-        json updateUserMessage = {
-            {"topic", "user"},
-            {"event", "update"},
-            {"payload", {
-                {"username", "testuser"},
-                {"email", "updated@example.com"}
-            }},
-            {"ref", "4"}
-        };
-        
-        if (client.sendTextMessage(updateUserMessage)) {
-            std::string response;
-            if (client.receiveMessage(response)) {
-                std::cout << "Resposta recebida: " << response << "\n";
-            }
-        }
-        
-        // Pequena pausa para garantir que a mensagem seja processada
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        
-        // Teste 5: Enviar mensagem para buscar um usuário
-        std::cout << "\n----- Teste 5: Buscar usuário -----\n";
+        // Teste 4: Enviar mensagem para buscar um usuário
+        std::cout << "\n----- Teste 4: Buscar usuário -----\n";
         json getUserMessage = {
-            {"topic", "user"},
-            {"event", "get"},
+            {"event", "message"},
             {"payload", {
-                {"username", "testuser"}
-            }},
-            {"ref", "5"}
+                {"action", "user"},
+                {"data", {
+                    {"operation", "get"},
+                    {"id", "1"}
+                }}
+            }}
         };
+        
+        std::cout << "Enviando mensagem: " << getUserMessage.dump() << "\n";
         
         if (client.sendTextMessage(getUserMessage)) {
             std::string response;
             if (client.receiveMessage(response)) {
                 std::cout << "Resposta recebida: " << response << "\n";
+            } else {
+                std::cerr << "Erro ao receber resposta do servidor\n";
             }
         }
         
         // Pequena pausa para garantir que a mensagem seja processada
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        
+        // Teste 5: Enviar mensagem para atualizar um usuário
+        std::cout << "\n----- Teste 5: Atualizar usuário -----\n";
+        json updateUserMessage = {
+            {"event", "message"},
+            {"payload", {
+                {"action", "user"},
+                {"data", {
+                    {"operation", "update"},
+                    {"id", "1"},
+                    {"email", "updated@example.com"}
+                }}
+            }}
+        };
+        
+        std::cout << "Enviando mensagem: " << updateUserMessage.dump() << "\n";
+        
+        if (client.sendTextMessage(updateUserMessage)) {
+            std::string response;
+            if (client.receiveMessage(response)) {
+                std::cout << "Resposta recebida: " << response << "\n";
+            } else {
+                std::cerr << "Erro ao receber resposta do servidor\n";
+            }
+        }
+        
+        // Pequena pausa para garantir que a mensagem seja processada
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         
         // Teste 6: Enviar mensagem para excluir um usuário
         std::cout << "\n----- Teste 6: Excluir usuário -----\n";
         json deleteUserMessage = {
-            {"topic", "user"},
-            {"event", "delete"},
+            {"event", "message"},
             {"payload", {
-                {"username", "testuser"}
-            }},
-            {"ref", "6"}
+                {"action", "user"},
+                {"data", {
+                    {"operation", "delete"},
+                    {"id", "1"}
+                }}
+            }}
         };
+        
+        std::cout << "Enviando mensagem: " << deleteUserMessage.dump() << "\n";
         
         if (client.sendTextMessage(deleteUserMessage)) {
             std::string response;
             if (client.receiveMessage(response)) {
                 std::cout << "Resposta recebida: " << response << "\n";
+            } else {
+                std::cerr << "Erro ao receber resposta do servidor\n";
             }
         }
+        
+        // Aguarda um pouco antes de fechar a conexão
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         
         // Fechando a conexão
         std::cout << "\nFechando conexão...\n";

@@ -151,8 +151,6 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
   @impl true
   def ping(%{db_ref: db_ref} = state) do
     case Exqlite.Sqlite3.execute(db_ref, "SELECT 1") do
-      :ok ->
-        {:ok, state}
       {:ok, _} ->
         {:ok, state}
       {:error, reason} ->
@@ -188,7 +186,14 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
     
     case Exqlite.Sqlite3.execute(db_ref, "BEGIN TRANSACTION") do
       {:ok, _} ->
-        {:ok, %{}, %{state | transaction: true}}
+        # Atualiza o estado para indicar que estamos em uma transação
+        state = %{state | transaction: true}
+        {:ok, state}
+      :ok ->
+        # Alguns métodos do Exqlite podem retornar :ok em vez de {:ok, _}
+        # Atualiza o estado para indicar que estamos em uma transação
+        state = %{state | transaction: true}
+        {:ok, state}
       {:error, reason} ->
         Logger.error("Falha ao iniciar transação", %{
           module: __MODULE__,

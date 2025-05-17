@@ -2,11 +2,17 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <algorithm>
+#include <ctime>
+#include <wincrypt.h>
 
 #pragma comment(lib, "winhttp.lib")
+#pragma comment(lib, "crypt32.lib")
 
 WebSocketClient::WebSocketClient() 
     : m_hSession(NULL), m_hConnection(NULL), m_hRequest(NULL), m_hWebSocket(NULL), m_connected(false) {
+    // Inicializa a semente para geração de números aleatórios
+    srand(static_cast<unsigned int>(time(nullptr)));
 }
 
 WebSocketClient::~WebSocketClient() {
@@ -65,9 +71,9 @@ bool WebSocketClient::connect(const std::string& host, int port) {
         
     // IMPORTANTE: Desativa o Keep-Alive que o WinHTTP adiciona por padrão
     // Isso é crucial porque o servidor Elixir espera "Connection: Upgrade"
-    BOOL disable_keep_alive = TRUE;
+    DWORD disable_features = WINHTTP_DISABLE_KEEP_ALIVE;
     if (!WinHttpSetOption(m_hRequest, WINHTTP_OPTION_DISABLE_FEATURE, 
-                         &disable_keep_alive, sizeof(disable_keep_alive))) {
+                         &disable_features, sizeof(disable_features))) {
         std::cerr << "Erro ao desativar Keep-Alive: " << GetLastError() << std::endl;
     }
 
@@ -85,45 +91,27 @@ bool WebSocketClient::connect(const std::string& host, int port) {
     // IMPORTANTE: O Elixir espera os nomes dos cabeçalhos em minúsculas, mas o WinHTTP pode normalizá-los
     // Vamos tentar diferentes formatos para garantir que pelo menos um funcione
     
-    // IMPORTANTE: O servidor Elixir verifica se o cabeçalho Connection contém a palavra "upgrade"
-    // Vamos forçar este cabeçalho com WINHTTP_ADDREQ_FLAG_REPLACE para garantir que substitua o Keep-Alive
+    // Adicionar os cabeçalhos necessários para o handshake WebSocket um por um
+    // Isso é mais confiável do que usar uma string única
+    
+    // Connection: Upgrade - essencial para o handshake WebSocket
     if (!WinHttpAddRequestHeaders(m_hRequest, L"Connection: Upgrade", -1, WINHTTP_ADDREQ_FLAG_REPLACE)) {
         std::cerr << "Erro ao adicionar cabeçalho Connection: " << GetLastError() << std::endl;
     }
     
-    // Também em minúsculas para garantir
-    if (!WinHttpAddRequestHeaders(m_hRequest, L"connection: upgrade", -1, WINHTTP_ADDREQ_FLAG_REPLACE)) {
-        std::cerr << "Erro ao adicionar cabeçalho connection: " << GetLastError() << std::endl;
-    }
-    
-    // O cabeçalho Upgrade também é verificado pelo servidor
+    // Upgrade: websocket - especifica o protocolo para upgrade
     if (!WinHttpAddRequestHeaders(m_hRequest, L"Upgrade: websocket", -1, WINHTTP_ADDREQ_FLAG_ADD)) {
         std::cerr << "Erro ao adicionar cabeçalho Upgrade: " << GetLastError() << std::endl;
     }
     
-    // Também em minúsculas
-    if (!WinHttpAddRequestHeaders(m_hRequest, L"upgrade: websocket", -1, WINHTTP_ADDREQ_FLAG_ADD)) {
-        std::cerr << "Erro ao adicionar cabeçalho upgrade: " << GetLastError() << std::endl;
-    }
-    
-    // Headers WebSocket específicos
+    // Sec-WebSocket-Version: 13 - versão do protocolo WebSocket (RFC 6455)
     if (!WinHttpAddRequestHeaders(m_hRequest, L"Sec-WebSocket-Version: 13", -1, WINHTTP_ADDREQ_FLAG_ADD)) {
         std::cerr << "Erro ao adicionar cabeçalho Sec-WebSocket-Version: " << GetLastError() << std::endl;
     }
     
-    // Também em minúsculas
-    if (!WinHttpAddRequestHeaders(m_hRequest, L"sec-websocket-version: 13", -1, WINHTTP_ADDREQ_FLAG_ADD)) {
-        std::cerr << "Erro ao adicionar cabeçalho sec-websocket-version: " << GetLastError() << std::endl;
-    }
-    
-    // O protocolo deve ser exatamente como o servidor espera
+    // Sec-WebSocket-Protocol: phoenix-v1 - protocolo específico para o Phoenix Framework
     if (!WinHttpAddRequestHeaders(m_hRequest, L"Sec-WebSocket-Protocol: phoenix-v1", -1, WINHTTP_ADDREQ_FLAG_ADD)) {
         std::cerr << "Erro ao adicionar cabeçalho Sec-WebSocket-Protocol: " << GetLastError() << std::endl;
-    }
-    
-    // Também em minúsculas
-    if (!WinHttpAddRequestHeaders(m_hRequest, L"sec-websocket-protocol: phoenix-v1", -1, WINHTTP_ADDREQ_FLAG_ADD)) {
-        std::cerr << "Erro ao adicionar cabeçalho sec-websocket-protocol: " << GetLastError() << std::endl;
     }
     
     // Adiciona o Host e Origin para ajudar no roteamento
@@ -139,34 +127,28 @@ bool WebSocketClient::connect(const std::string& host, int port) {
 
     // Adicionamos os cabeçalhos individualmente acima
 
-    // Usa a mesma chave que funcionou no teste com curl
-    // Esta chave é válida conforme RFC 6455 (base64 de 16 bytes)
-    std::wstring key = L"dGhlIHNhbXBsZSBub25jZQ=="; // "the sample nonce" em base64
-
-    // Adiciona o cabeçalho Sec-WebSocket-Key que é OBRIGATÓRIO para o handshake
-    // O servidor verifica explicitamente a presença deste cabeçalho
-    // Tentamos com diferentes formatos de nome de cabeçalho para garantir que funcione
     
-    // Formato 1: Padrão com primeira letra maiúscula
-    std::wstring keyHeader = L"Sec-WebSocket-Key: " + key;
-    if (!WinHttpAddRequestHeaders(
-        m_hRequest,
-        keyHeader.c_str(),
-        -1,
-        WINHTTP_ADDREQ_FLAG_ADD)) {
-        DWORD error = GetLastError();
-        std::cerr << "Erro ao adicionar cabeçalho Sec-WebSocket-Key: " << error << std::endl;
+    // Gera 16 bytes aleatórios
+    BYTE randomBytes[16];
+    for (int i = 0; i < 16; i++) {
+        randomBytes[i] = static_cast<BYTE>(rand() % 256);
     }
     
-    // Formato 2: Tudo em minúsculas (como o Elixir espera)
-    std::wstring keyHeaderLower = L"sec-websocket-key: " + key;
-    if (!WinHttpAddRequestHeaders(
-        m_hRequest,
-        keyHeaderLower.c_str(),
-        -1,
-        WINHTTP_ADDREQ_FLAG_ADD)) {
+    // Converte para base64
+    DWORD base64Length = 0;
+    CryptBinaryToStringW(randomBytes, 16, CRYPT_STRING_BASE64, NULL, &base64Length);
+    std::vector<wchar_t> base64Buffer(base64Length);
+    CryptBinaryToStringW(randomBytes, 16, CRYPT_STRING_BASE64, base64Buffer.data(), &base64Length);
+    
+    // Remove quebras de linha e espaços da string base64
+    std::wstring key(base64Buffer.data());
+    key.erase(std::remove_if(key.begin(), key.end(), [](wchar_t c) { return c == '\r' || c == '\n' || c == ' '; }), key.end());
+    
+    // Adiciona o cabeçalho Sec-WebSocket-Key
+    std::wstring keyHeader = L"Sec-WebSocket-Key: " + key;
+    if (!WinHttpAddRequestHeaders(m_hRequest, keyHeader.c_str(), -1, WINHTTP_ADDREQ_FLAG_ADD)) {
         DWORD error = GetLastError();
-        std::cerr << "Erro ao adicionar cabeçalho sec-websocket-key: " << error << std::endl;
+        std::cerr << "Erro ao adicionar cabeçalho Sec-WebSocket-Key: " << error << std::endl;
     }
 
     // Envia a requisição
@@ -278,9 +260,52 @@ bool WebSocketClient::connect(const std::string& host, int port) {
     // A conexão WebSocket está estabelecida e pronta para uso
     m_connected = true;
     std::cout << "Conexão WebSocket estabelecida com sucesso!" << std::endl;
-    return true;
+    
+    // Aguarda um pouco antes de enviar a mensagem para garantir que a conexão esteja estável
+    Sleep(500);
+    
+    // Envia uma mensagem de teste para o servidor no formato esperado pelo router.ex
+    try {
+        nlohmann::json testMessage = {
+            {"event", "message"},
+            {"payload", {
+                {"action", "echo"},
+                {"data", {
+                    {"message", "Hello from C++ client!"},
+                    {"timestamp", static_cast<long long>(time(nullptr))}
+                }}
+            }}
+        };
+        
+        std::string messageStr = testMessage.dump();
+        std::cout << "Enviando mensagem de teste: " << messageStr << std::endl;
+        
+        DWORD result = WinHttpWebSocketSend(
+            m_hWebSocket,
+            WINHTTP_WEB_SOCKET_UTF8_MESSAGE_BUFFER_TYPE,
+            (PVOID)messageStr.c_str(),
+            messageStr.length());
+
+        if (result != ERROR_SUCCESS) {
+            std::cerr << "Erro ao enviar mensagem de teste: " << result << std::endl;
+        } else {
+            std::cout << "Mensagem de teste enviada com sucesso!" << std::endl;
+            
+            // Aguarda pela resposta
+            std::string response;
+            if (receiveMessage(response)) {
+                std::cout << "Resposta recebida: " << response << std::endl;
+            } else {
+                std::cerr << "Erro ao receber resposta" << std::endl;
+            }
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Erro ao criar mensagem de teste: " << e.what() << std::endl;
     }
+    
+    return true;
 }
+
 
 bool WebSocketClient::sendTextMessage(const nlohmann::json& jsonMessage) {
     if (!m_connected) {
@@ -288,19 +313,48 @@ bool WebSocketClient::sendTextMessage(const nlohmann::json& jsonMessage) {
         return false;
     }
 
-    std::string message = jsonMessage.dump();
-    DWORD result = WinHttpWebSocketSend(
-        m_hWebSocket,
-        WINHTTP_WEB_SOCKET_UTF8_MESSAGE_BUFFER_TYPE,
-        (PVOID)message.c_str(),
-        message.length());
+    // Formata a mensagem JSON
+    std::string message;
+    try {
+        message = jsonMessage.dump();
+    } catch (const std::exception& e) {
+        std::cerr << "Erro ao serializar mensagem JSON: " << e.what() << std::endl;
+        return false;
+    }
+    
+    // Configura timeout para envio
+    DWORD timeout = 5000; // 5 segundos
+    WinHttpSetOption(m_hWebSocket, WINHTTP_OPTION_SEND_TIMEOUT, &timeout, sizeof(timeout));
+    
+    // Tenta enviar a mensagem com retry
+    int retryCount = 3;
+    DWORD result = ERROR_SUCCESS;
+    
+    while (retryCount > 0) {
+        result = WinHttpWebSocketSend(
+            m_hWebSocket,
+            WINHTTP_WEB_SOCKET_UTF8_MESSAGE_BUFFER_TYPE,
+            (PVOID)message.c_str(),
+            message.length());
 
+        if (result == ERROR_SUCCESS) {
+            break; // Enviou com sucesso
+        } else if (result == ERROR_WINHTTP_TIMEOUT) {
+            std::cerr << "Timeout ao enviar mensagem, tentando novamente... " << retryCount-1 << " tentativas restantes" << std::endl;
+            retryCount--;
+            Sleep(500); // Aguarda 500ms antes de tentar novamente
+        } else {
+            std::cerr << "Erro ao enviar mensagem WebSocket: " << result << std::endl;
+            return false;
+        }
+    }
+    
     if (result != ERROR_SUCCESS) {
-        std::cerr << "Erro ao enviar mensagem WebSocket: " << result << std::endl;
+        std::cerr << "Falha após várias tentativas de enviar mensagem" << std::endl;
         return false;
     }
 
-    std::cout << "Mensagem enviada: " << message << std::endl;
+    std::cout << "Mensagem enviada com sucesso: " << message << std::endl;
     return true;
 }
 
@@ -331,22 +385,43 @@ bool WebSocketClient::receiveMessage(std::string& message) {
         return false;
     }
 
-    const int bufferSize = 4096;
+    const int bufferSize = 8192; // Aumentamos o tamanho do buffer para mensagens maiores
     char buffer[bufferSize];
     BYTE* pbBuffer = (BYTE*)buffer;
     DWORD dwBufferLength = bufferSize - 1;
     DWORD dwBytesTransferred = 0;
     WINHTTP_WEB_SOCKET_BUFFER_TYPE eBufferType;
+    
+    // Configura um timeout para a operação de recebimento
+    DWORD timeout = 5000; // 5 segundos
+    WinHttpSetOption(m_hWebSocket, WINHTTP_OPTION_RECEIVE_TIMEOUT, &timeout, sizeof(timeout));
 
-    DWORD result = WinHttpWebSocketReceive(
-        m_hWebSocket,
-        pbBuffer,
-        dwBufferLength,
-        &dwBytesTransferred,
-        &eBufferType);
+    // Tenta receber a mensagem com retry
+    int retryCount = 3;
+    DWORD result = ERROR_SUCCESS;
+    
+    while (retryCount > 0) {
+        result = WinHttpWebSocketReceive(
+            m_hWebSocket,
+            pbBuffer,
+            dwBufferLength,
+            &dwBytesTransferred,
+            &eBufferType);
 
+        if (result == ERROR_SUCCESS) {
+            break; // Recebeu com sucesso
+        } else if (result == ERROR_WINHTTP_TIMEOUT) {
+            std::cerr << "Timeout ao receber mensagem, tentando novamente... " << retryCount-1 << " tentativas restantes" << std::endl;
+            retryCount--;
+            Sleep(500); // Aguarda 500ms antes de tentar novamente
+        } else {
+            std::cerr << "Erro ao receber mensagem WebSocket: " << result << std::endl;
+            return false;
+        }
+    }
+    
     if (result != ERROR_SUCCESS) {
-        std::cerr << "Erro ao receber mensagem WebSocket: " << result << std::endl;
+        std::cerr << "Falha após várias tentativas de receber mensagem" << std::endl;
         return false;
     }
 

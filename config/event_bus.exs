@@ -20,13 +20,5 @@ config :event_bus, topics: [
   :transaction_completed,
   
   # Eventos relacionados a erros
-  :error_occurred,
-  
-  # Eventos relacionados ao WebSocket
-  :websocket_connected,
-  :websocket_disconnected,
-  :websocket_message_received,
-  :websocket_message_sent,
-  :websocket_binary_received,
-  :websocket_error
+  :error_occurred
 ]

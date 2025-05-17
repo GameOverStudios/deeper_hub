@@ -8,6 +8,7 @@ defmodule DeeperHub.Application do
   alias Deeper_Hub.Core.Logger
   alias Deeper_Hub.Core.Data.DBConnection.Config
   alias Deeper_Hub.Core.Data.DBConnection.Migrations
+  alias Deeper_Hub.Core.Data.DBConnection.Migrations.Registry, as: MigrationsRegistry
   alias Deeper_Hub.Core.Data.DBConnection.Telemetry
   alias Deeper_Hub.Core.Data.DBConnection.Facade, as: DB
   alias Deeper_Hub.Core.Supervisor, as: CoreSupervisor
@@ -70,7 +71,10 @@ defmodule DeeperHub.Application do
         ]) do
           {:ok, _} ->
 
-            # Em ambos os casos, executamos as migrações para garantir que o banco está atualizado
+            # Registramos as migrações disponíveis
+            MigrationsRegistry.register_migrations()
+            
+            # Em seguida, executamos as migrações para garantir que o banco está atualizado
             case Migrations.run_migrations() do
               :ok -> Logger.info("Migrações executadas com sucesso", %{module: __MODULE__})
               {:error, reason} -> Logger.error("Falha ao executar migrações", %{module: __MODULE__, error: reason})
