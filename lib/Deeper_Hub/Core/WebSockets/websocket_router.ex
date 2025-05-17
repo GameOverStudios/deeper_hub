@@ -78,27 +78,16 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketRouter do
     EchoHandler.handle(payload)
   end
 
-  defp do_route("user.get", payload) do
-    UserHandler.get(payload)
-  end
-
-  defp do_route("user.create", payload) do
-    UserHandler.create(payload)
-  end
-
-  defp do_route("user.update", payload) do
-    UserHandler.update(payload)
-  end
-
-  defp do_route("user.delete", payload) do
-    UserHandler.delete(payload)
+  # Rotas para mensagens de usuários
+  defp do_route("user." <> action, payload) do
+    UserHandler.handle_message(action, payload, Process.get(:websocket_state, %{}))
   end
 
   # Rotas para mensagens de canais
   defp do_route("channel." <> action, payload) do
     ChannelHandler.handle_message(action, payload, Process.get(:websocket_state, %{}))
   end
-  
+
   # Rotas para mensagens diretas
   defp do_route("message." <> action, payload) do
     MessageHandler.handle_message(action, payload, Process.get(:websocket_state, %{}))

@@ -10,6 +10,44 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
   alias Deeper_Hub.Core.Data.DBConnection.Schemas.User
   
   @doc """
+  Processa uma mensagem WebSocket relacionada a usuários.
+  
+  ## Parâmetros
+  
+    - `action`: Ação a ser executada
+    - `payload`: Dados da mensagem
+    - `state`: Estado da conexão WebSocket
+  
+  ## Retorno
+  
+    - `{:ok, response}` em caso de sucesso
+    - `{:error, reason}` em caso de falha
+  """
+  def handle_message(action, payload, state) do
+    Logger.debug("Processando mensagem de usuário", %{
+      module: __MODULE__,
+      action: action,
+      user_id: state[:user_id]
+    })
+    
+    case do_handle_message(action, payload, state) do
+      {:ok, response} ->
+        {:ok, response}
+      {:error, reason} ->
+        Logger.error("Erro ao processar mensagem de usuário", %{
+          module: __MODULE__,
+          action: action,
+          user_id: state[:user_id],
+          error: reason
+        })
+        
+        {:error, %{message: "Erro ao processar mensagem de usuário: #{reason}"}}
+    end
+  end
+  
+  # Handlers específicos para cada tipo de ação
+  
+  @doc """
   Busca um usuário pelo ID.
   
   ## Parâmetros
@@ -21,7 +59,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
     - `{:ok, response}` em caso de sucesso
     - `{:error, reason}` em caso de falha
   """
-  def get(%{"id" => id}) when is_binary(id) do
+  defp do_handle_message("get", %{"id" => id}, _state) when is_binary(id) do
     Logger.info("Buscando usuário via WebSocket", %{
       module: __MODULE__,
       user_id: id
@@ -58,7 +96,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
     end
   end
   
-  def get(_payload) do
+  defp do_handle_message("get", _payload, _state) do
     {:error, :invalid_payload}
   end
   
@@ -74,7 +112,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
     - `{:ok, response}` em caso de sucesso
     - `{:error, reason}` em caso de falha
   """
-  def create(%{"username" => username, "email" => email, "password" => password}) 
+  defp do_handle_message("create", %{"username" => username, "email" => email, "password" => password}, _state) 
     when is_binary(username) and is_binary(email) and is_binary(password) do
     
     Logger.info("Criando usuário via WebSocket", %{
@@ -133,7 +171,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
     end
   end
   
-  def create(_payload) do
+  defp do_handle_message("create", _payload, _state) do
     {:error, :invalid_payload}
   end
   
@@ -149,7 +187,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
     - `{:ok, response}` em caso de sucesso
     - `{:error, reason}` em caso de falha
   """
-  def update(%{"id" => id} = payload) when is_binary(id) do
+  defp do_handle_message("update", %{"id" => id} = payload, _state) when is_binary(id) do
     Logger.info("Atualizando usuário via WebSocket", %{
       module: __MODULE__,
       user_id: id,
@@ -228,7 +266,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
     end
   end
   
-  def update(_payload) do
+  defp do_handle_message("update", _payload, _state) do
     {:error, :invalid_payload}
   end
   
@@ -244,7 +282,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
     - `{:ok, response}` em caso de sucesso
     - `{:error, reason}` em caso de falha
   """
-  def delete(%{"id" => id}) when is_binary(id) do
+  defp do_handle_message("delete", %{"id" => id}, _state) when is_binary(id) do
     Logger.info("Excluindo usuário via WebSocket", %{
       module: __MODULE__,
       user_id: id
@@ -274,7 +312,12 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
     end
   end
   
-  def delete(_payload) do
+  defp do_handle_message("delete", _payload, _state) do
     {:error, :invalid_payload}
+  end
+  
+  # Ação desconhecida
+  defp do_handle_message(action, _payload, _state) do
+    {:error, "Ação desconhecida: #{action}"}
   end
 end
