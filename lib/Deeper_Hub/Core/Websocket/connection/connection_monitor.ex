@@ -41,6 +41,29 @@ defmodule Deeper_Hub.Core.Websocket.ConnectionMonitor do
     GenServer.call(__MODULE__, :get_active)
   end
 
+  @doc """
+  Inicia o monitoramento de uma conexão WebSocket.
+  
+  ## Parâmetros
+  
+  - `socket`: Socket Phoenix a ser monitorado
+  
+  ## Retorno
+  
+  - `{:ok, pid}`: PID do processo de monitoramento
+  - `{:error, reason}`: Erro ao iniciar monitoramento
+  """
+  def start_monitoring(socket) do
+    socket_id = socket.id
+    metadata = %{
+      user_id: socket.assigns[:user_id],
+      connected_at: DateTime.utc_now()
+    }
+    
+    register_connection(socket_id, metadata)
+    {:ok, self()}
+  end
+
   # Callbacks do GenServer
 
   @impl true

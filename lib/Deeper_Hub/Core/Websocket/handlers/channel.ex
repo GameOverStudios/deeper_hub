@@ -59,7 +59,7 @@ defmodule Deeper_Hub.Core.Websocket.Channel do
           # Extrai os dados do usuário
           username = Map.get(payload, "username")
           email = Map.get(payload, "email")
-          password = Map.get(payload, "password")
+          _password = Map.get(payload, "password")
           
           # Log dos dados recebidos
           Logger.info("Tentativa de criação de usuário: #{username} (#{email})")

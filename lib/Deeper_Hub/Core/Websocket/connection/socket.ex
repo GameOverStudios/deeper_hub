@@ -23,4 +23,22 @@ defmodule Deeper_Hub.Core.Websocket.Socket do
 
   @impl true
   def id(socket), do: "socket:#{socket.assigns.user_id}"
+  
+  @doc """
+  Verifica se um socket é válido e ativo.
+  
+  ## Parâmetros
+  
+  - `socket`: Socket Phoenix a ser verificado
+  
+  ## Retorno
+  
+  - `true`: Socket válido e ativo
+  - `false`: Socket inválido ou inativo
+  """
+  def valid?(socket) do
+    is_struct(socket, Phoenix.Socket) && 
+    Map.has_key?(socket.assigns, :user_id) && 
+    socket.assigns.user_id != nil
+  end
 end

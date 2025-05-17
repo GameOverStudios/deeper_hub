@@ -8,9 +8,7 @@ defmodule Deeper_Hub.Core.Websocket.Connection do
   - Encapsula a implementação de monitoramento e presença
   """
   
-  alias Deeper_Hub.Core.Websocket.Connection.ConnectionMonitor
-  alias Deeper_Hub.Core.Websocket.Connection.Presence
-  alias Deeper_Hub.Core.Websocket.Connection.Socket
+  # Módulos utilizados com nomes completos
   
   @doc """
   Inicializa o monitoramento de uma conexão.
@@ -24,7 +22,7 @@ defmodule Deeper_Hub.Core.Websocket.Connection do
   - `{:ok, pid}`: PID do processo de monitoramento
   - `{:error, reason}`: Erro ao iniciar monitoramento
   """
-  defdelegate monitor_connection(socket), to: ConnectionMonitor, as: :start_monitoring
+  defdelegate monitor_connection(socket), to: Deeper_Hub.Core.Websocket.ConnectionMonitor, as: :start_monitoring
   
   @doc """
   Registra a presença de um usuário.
@@ -40,7 +38,7 @@ defmodule Deeper_Hub.Core.Websocket.Connection do
   - `:ok`: Presença registrada com sucesso
   """
   def track_presence(socket, user_id, metadata \\ %{}) do
-    Presence.track(socket, user_id, metadata)
+    Deeper_Hub.Core.Websocket.Presence.track(socket, user_id, metadata)
   end
   
   @doc """
@@ -51,7 +49,7 @@ defmodule Deeper_Hub.Core.Websocket.Connection do
   - Mapa de usuários presentes e seus metadados
   """
   def list_present_users do
-    Presence.list("websocket")
+    Deeper_Hub.Core.Websocket.Presence.list("websocket")
   end
   
   @doc """
@@ -67,6 +65,6 @@ defmodule Deeper_Hub.Core.Websocket.Connection do
   - `false`: Socket inválido ou inativo
   """
   def valid_socket?(socket) do
-    Socket.valid?(socket)
+    Deeper_Hub.Core.Websocket.Socket.valid?(socket)
   end
 end
