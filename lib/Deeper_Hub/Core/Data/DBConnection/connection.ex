@@ -153,6 +153,9 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
     case Exqlite.Sqlite3.execute(db_ref, "SELECT 1") do
       {:ok, _} ->
         {:ok, state}
+      :ok ->
+        # Alguns comandos SQLite podem retornar :ok diretamente
+        {:ok, state}
       {:error, reason} ->
         Logger.error("Falha ao verificar conexão", %{
           module: __MODULE__,
