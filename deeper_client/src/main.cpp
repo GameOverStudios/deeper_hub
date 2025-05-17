@@ -23,13 +23,15 @@ void testWebSocketConnection() {
     if (client.connect("localhost", 8080)) {
         std::cout << "Conexão estabelecida com sucesso!\n";
         
-        // Teste 1: Enviar mensagem de echo
+        // Teste 1: Enviar mensagem de echo usando formato simplificado
         std::cout << "\n----- Teste 1: Enviar mensagem de echo -----\n";
         json echoMessage = {
-            {"topic", "phoenix"}, // Tópico Phoenix
-            {"event", "echo"}, // Evento
+            {"event", "message"},
+            {"topic", "websocket"},
             {"payload", {
-                {"message", "Olá, servidor!"}
+                {"action", "echo"},
+                {"message", "Olá, servidor!"},
+                {"request_id", "12345"}
             }},
             {"ref", "1"} // Referência para correlacionar respostas
         };
@@ -44,15 +46,17 @@ void testWebSocketConnection() {
         // Pequena pausa para garantir que a mensagem seja processada
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
         
-        // Teste 2: Enviar mensagem para criar um usuário
+        // Teste 2: Enviar mensagem para criar um usuário usando formato simplificado
         std::cout << "\n----- Teste 2: Criar um novo usuário -----\n";
         json createUserMessage = {
-            {"topic", "user"}, // Tópico para operações de usuário
-            {"event", "create"}, // Evento de criação
+            {"event", "message"},
+            {"topic", "websocket"},
             {"payload", {
+                {"action", "create_user"},
                 {"username", "testuser"},
                 {"email", "test@example.com"},
-                {"password", "password123"}
+                {"password", "password123"},
+                {"request_id", "12346"}
             }},
             {"ref", "2"} // Referência para correlacionar respostas
         };

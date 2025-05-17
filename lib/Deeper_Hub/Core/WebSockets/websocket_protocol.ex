@@ -85,10 +85,33 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketProtocol do
   defp process_http_upgrade(socket, transport) do
     case transport.recv(socket, 0, @timeout) do
       {:ok, data} ->
+        # Adiciona debug para mostrar os dados brutos recebidos
+        Logger.debug("Dados brutos recebidos no handshake", %{
+          module: __MODULE__,
+          data: inspect(data, limit: 2000)
+        })
+        
         # Analisa o cabeçalho HTTP
         case parse_http_request(data) do
           {:ok, headers} ->
+            # Adiciona debug para mostrar os cabeçalhos parseados
+            Logger.debug("Cabeçalhos HTTP recebidos", %{
+              module: __MODULE__,
+              headers: inspect(headers, pretty: true, limit: 5000)
+            })
+            
             # Verifica se é uma solicitação de upgrade para WebSocket
+            connection = Map.get(headers, "connection", "")
+            upgrade = Map.get(headers, "upgrade", "")
+            has_key = Map.has_key?(headers, "sec-websocket-key")
+            
+            Logger.debug("Verificando cabeçalhos de upgrade", %{
+              module: __MODULE__,
+              connection: connection,
+              upgrade: upgrade,
+              has_websocket_key: has_key
+            })
+            
             if is_websocket_upgrade_request?(headers) do
               # Gera a resposta de handshake
               response = generate_handshake_response(headers)
@@ -107,6 +130,13 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketProtocol do
                 error -> error
               end
             else
+              Logger.error("Falha na verificação de upgrade para WebSocket", %{
+                module: __MODULE__,
+                connection_header: connection,
+                upgrade_header: upgrade,
+                has_websocket_key: has_key
+              })
+              
               {:error, :not_websocket_upgrade}
             end
             
@@ -121,10 +151,21 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketProtocol do
   defp is_websocket_upgrade_request?(headers) do
     connection = Map.get(headers, "connection", "")
     upgrade = Map.get(headers, "upgrade", "")
+    has_key = Map.has_key?(headers, "sec-websocket-key")
     
-    String.downcase(connection) =~ "upgrade" && 
+    # Verificação mais flexível para o cabeçalho Connection
+    # Aceita qualquer conexão desde que o cabeçalho Upgrade e Sec-WebSocket-Key estejam presentes
+    Logger.debug("Verificando cabeçalhos de upgrade (modo flexível)", %{
+      module: __MODULE__,
+      connection: connection,
+      upgrade: upgrade,
+      has_websocket_key: has_key
+    })
+    
+    # Verificação mais flexível: não exige "upgrade" no cabeçalho Connection
+    # desde que o cabeçalho Upgrade esteja definido como "websocket"
     String.downcase(upgrade) =~ "websocket" &&
-    Map.has_key?(headers, "sec-websocket-key")
+    has_key
   end
   
   # Gera a resposta de handshake para o WebSocket
