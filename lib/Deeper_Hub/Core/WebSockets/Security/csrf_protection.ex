@@ -22,8 +22,8 @@ defmodule Deeper_Hub.Core.WebSockets.Security.CsrfProtection do
     - `{:error, reason}` se a requisição for suspeita
   """
   def validate_request(req, state) do
-    with {:ok, origin} <- validate_origin(req),
-         {:ok, token} <- validate_csrf_token(req) do
+    with {:ok, _origin} <- validate_origin(req),
+         {:ok, _token} <- validate_csrf_token(req) do
       {:ok, state}
     else
       {:error, reason} ->

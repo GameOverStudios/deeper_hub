@@ -10,6 +10,7 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketSupervisor do
   alias Deeper_Hub.Core.WebSockets.Auth.Session.SessionManager
   alias Deeper_Hub.Core.WebSockets.Auth.Session.SessionCleanupWorker
   alias Deeper_Hub.Core.WebSockets.Auth.Token.OpaqueTokenService
+  alias Deeper_Hub.Core.WebSockets.Security.SecuritySupervisor
 
   @doc """
   Inicia o supervisor do WebSocket.
@@ -36,6 +37,9 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketSupervisor do
     OpaqueTokenService.init()
 
     children = [
+      # Supervisor de segurança WebSocket
+      {SecuritySupervisor, []},
+      
       # Gerenciador de sessões
       {SessionManager, []},
 

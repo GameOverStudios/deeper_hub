@@ -211,7 +211,7 @@ defmodule Deeper_Hub.Core.WebSockets.Security.BruteForceProtection do
     window_start = current_time - @default_window_time
     
     case :ets.lookup(@ets_table, {:attempts, identifier}) do
-      [{_, attempts, timestamps}] ->
+      [{_, _attempts, timestamps}] ->
         # Filtra timestamps dentro da janela atual
         current_timestamps = Enum.filter(timestamps, fn ts -> ts >= window_start end)
         length(current_timestamps)
@@ -229,7 +229,7 @@ defmodule Deeper_Hub.Core.WebSockets.Security.BruteForceProtection do
     
     # Obtém ou cria o contador para este identificador
     {attempts, timestamps} = case :ets.lookup(@ets_table, {:attempts, identifier}) do
-      [{_, count, ts}] -> 
+      [{_, _count, ts}] -> 
         # Filtra timestamps dentro da janela atual
         current_ts = Enum.filter(ts, fn t -> t >= window_start end)
         {length(current_ts), current_ts}

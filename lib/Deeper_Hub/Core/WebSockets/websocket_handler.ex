@@ -10,6 +10,7 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
 
   alias Deeper_Hub.Core.Logger
   alias Deeper_Hub.Core.WebSockets.WebSocketRouter
+  alias Deeper_Hub.Core.WebSockets.Security.SecuritySupervisor
 
   # Tempo limite de inatividade em milissegundos (5 minutos)
   @timeout 300_000
@@ -32,10 +33,34 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
       path: path
     })
 
-    # Removemos variáveis não utilizadas
-
-    # Atualiza para protocolo WebSocket
-    {:cowboy_websocket, req, state, %{idle_timeout: @timeout}}
+    # Verifica segurança da requisição
+    case SecuritySupervisor.check_request(req, state) do
+      {:ok, secured_state} ->
+        # Atualiza para protocolo WebSocket
+        {:cowboy_websocket, req, secured_state, %{idle_timeout: @timeout}}
+        
+      {:error, reason} ->
+        # Rejeita a conexão por motivos de segurança
+        Logger.warning("Conexão WebSocket rejeitada por motivos de segurança", %{
+          module: __MODULE__,
+          reason: reason,
+          peer: peer
+        })
+        
+        # Publica evento de segurança
+        if Code.ensure_loaded?(Deeper_Hub.Core.EventBus) do
+          Deeper_Hub.Core.EventBus.publish(:security_violation, %{
+            type: :connection_rejected,
+            reason: reason,
+            peer: peer,
+            path: path,
+            timestamp: :os.system_time(:millisecond)
+          })
+        end
+        
+        {:ok, req2} = :cowboy_req.reply(403, %{}, "Acesso negado: #{reason}", req)
+        {:ok, req2, state}
+    end
   end
 
   @doc """
@@ -76,8 +101,41 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
     # Tenta decodificar a mensagem JSON
     case Jason.decode(message) do
       {:ok, decoded_message} ->
-        # Processa a mensagem através do router
-        handle_json_message(decoded_message, state)
+        # Verifica segurança da mensagem
+        case SecuritySupervisor.check_message(decoded_message, state) do
+          {:ok, sanitized_message} ->
+            # Processa a mensagem sanitizada através do router
+            handle_json_message(sanitized_message, state)
+            
+          {:error, reason} ->
+            # Mensagem bloqueada por motivos de segurança
+            Logger.warning("Mensagem WebSocket bloqueada por motivos de segurança", %{
+              module: __MODULE__,
+              reason: reason,
+              user_id: state[:user_id]
+            })
+            
+            # Publica evento de segurança
+            if Code.ensure_loaded?(Deeper_Hub.Core.EventBus) do
+              Deeper_Hub.Core.EventBus.publish(:security_violation, %{
+                type: :message_blocked,
+                reason: reason,
+                user_id: state[:user_id],
+                timestamp: :os.system_time(:millisecond)
+              })
+            end
+            
+            # Retorna mensagem de erro
+            error_response = Jason.encode!(%{
+              type: "error",
+              payload: %{
+                message: "Mensagem bloqueada por motivos de segurança",
+                details: reason
+              }
+            })
+            
+            {:reply, {:text, error_response}, state}
+        end
 
       {:error, reason} ->
         Logger.error("Erro ao decodificar mensagem JSON", %{
