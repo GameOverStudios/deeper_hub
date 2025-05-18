@@ -9,9 +9,9 @@ defmodule Deeper_Hub.Core.WebSockets.Auth.JwtService do
   # Importa as funções necessárias da biblioteca Joken
   use Joken.Config
 
+  alias Deeper_Hub.Core.Logger
   alias Deeper_Hub.Core.WebSockets.Auth.TokenBlacklist
   alias Deeper_Hub.Core.EventBus
-  alias Deeper_Hub.Core.Logger
 
   # Configuração padrão de claims
   @impl true
@@ -35,13 +35,15 @@ defmodule Deeper_Hub.Core.WebSockets.Auth.JwtService do
     * `{:ok, token, claims}` - Token gerado com sucesso
     * `{:error, reason}` - Erro ao gerar token
   """
-  def generate_access_token(user_id, extra_claims \\ %{}) do
-    # Configuração para token de acesso (1 hora de duração)
+  def generate_access_token(user_id, expiry \\ nil, extra_claims \\ %{}) do
+    # Configuração para token de acesso (1 hora de duração por padrão)
+    expiry_seconds = expiry || 60 * 60  # 1 hora
+
     access_config =
       default_claims(
         iss: "deeper_hub",
         aud: "deeper_hub_websocket",
-        default_exp: 60 * 60  # 1 hora
+        default_exp: expiry_seconds
       )
       |> add_claim("typ", fn -> "access" end, &(&1 == "access"))
 
@@ -74,13 +76,15 @@ defmodule Deeper_Hub.Core.WebSockets.Auth.JwtService do
     * `{:ok, token, claims}` - Token gerado com sucesso
     * `{:error, reason}` - Erro ao gerar token
   """
-  def generate_refresh_token(user_id, extra_claims \\ %{}) do
-    # Configuração para token de refresh (7 dias de duração)
+  def generate_refresh_token(user_id, expiry \\ nil, extra_claims \\ %{}) do
+    # Configuração para token de refresh (7 dias de duração por padrão)
+    expiry_seconds = expiry || 7 * 24 * 60 * 60  # 7 dias
+
     refresh_config =
       default_claims(
         iss: "deeper_hub",
         aud: "deeper_hub_websocket",
-        default_exp: 7 * 24 * 60 * 60  # 7 dias
+        default_exp: expiry_seconds
       )
       |> add_claim("typ", fn -> "refresh" end, &(&1 == "refresh"))
 
@@ -114,7 +118,7 @@ defmodule Deeper_Hub.Core.WebSockets.Auth.JwtService do
   """
   def verify_token(token) do
     with {:ok, claims} <- validate_token(token),
-         false <- TokenBlacklist.is_blacklisted?(token) do
+         false <- TokenBlacklist.contains?(token) do
       Logger.debug("Token verificado com sucesso", %{module: __MODULE__, claims: claims})
       {:ok, claims}
     else
@@ -155,9 +159,10 @@ defmodule Deeper_Hub.Core.WebSockets.Auth.JwtService do
     * `{:ok, access_token, refresh_token, claims}` - Tokens gerados com sucesso
     * `{:error, reason}` - Erro ao gerar tokens
   """
-  def generate_token_pair(user_id, extra_claims \\ %{}) do
-    with {:ok, access_token, access_claims} <- generate_access_token(user_id, extra_claims),
-         {:ok, refresh_token, refresh_claims} <- generate_refresh_token(user_id, extra_claims) do
+  def generate_token_pair(user_id, expiry \\ nil, extra_claims \\ %{}) do
+    # Expiry é para o token de refresh, o token de acesso sempre usa o padrão
+    with {:ok, access_token, access_claims} <- generate_access_token(user_id, nil, extra_claims),
+         {:ok, refresh_token, refresh_claims} <- generate_refresh_token(user_id, expiry, extra_claims) do
       {:ok, access_token, refresh_token, %{access: access_claims, refresh: refresh_claims}}
     end
   end

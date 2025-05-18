@@ -206,7 +206,7 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
             {:reply, {:text, error_response}, state}
         end
 
-      {:error, %{message: message, type: error_type, payload: error_payload}} when is_map(error_payload) ->
+      {:error, %{message: _message, type: error_type, payload: error_payload}} when is_map(error_payload) ->
         Logger.error("Erro ao processar mensagem", %{
           module: __MODULE__,
           type: type,

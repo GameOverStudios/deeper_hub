@@ -7,6 +7,10 @@ defmodule Deeper_Hub.Core.WebSockets.Auth.AuthService do
   """
 
   alias Deeper_Hub.Core.WebSockets.Auth.JwtService
+  alias Deeper_Hub.Core.WebSockets.Auth.Session.SessionManager
+  alias Deeper_Hub.Core.WebSockets.Auth.Session.SessionPolicy
+  alias Deeper_Hub.Core.WebSockets.Auth.Token.TokenService
+  alias Deeper_Hub.Core.WebSockets.Auth.Token.TokenRotationService
   alias Deeper_Hub.Core.Data.DBConnection.Repositories.UserRepository
   alias Deeper_Hub.Core.EventBus
   alias Deeper_Hub.Core.Logger
@@ -22,28 +26,30 @@ defmodule Deeper_Hub.Core.WebSockets.Auth.AuthService do
     * `{:ok, user, tokens}` - Autenticação bem-sucedida com dados do usuário e tokens
     * `{:error, reason}` - Erro na autenticação
   """
-  def authenticate(username, password) do
+  def authenticate(username, password, remember_me \\ false, metadata \\ %{}) do
     with {:ok, user} <- UserRepository.get_by_username(username),
          true <- verify_password(user, password) do
 
       user_id = Map.get(user, "id")
-
-      case JwtService.generate_token_pair(user_id) do
-        {:ok, access_token, refresh_token, claims} ->
+      
+      # Cria uma sessão para o usuário
+      case SessionManager.create_session(user_id, remember_me, metadata) do
+        {:ok, session} ->
           Logger.info("Usuário autenticado com sucesso", %{module: __MODULE__, user_id: user_id})
           EventBus.publish(:user_authenticated, %{user_id: user_id})
 
           tokens = %{
-            access_token: access_token,
-            refresh_token: refresh_token,
-            expires_in: Map.get(claims.access, "exp") - Map.get(claims.access, "iat")
+            access_token: session.access_token,
+            refresh_token: session.refresh_token,
+            session_id: session.id,
+            expires_in: SessionPolicy.access_token_expiry()
           }
 
           {:ok, user, tokens}
 
         error ->
-          Logger.error("Erro ao gerar tokens", %{module: __MODULE__, error: error})
-          {:error, :token_generation_failed}
+          Logger.error("Erro ao criar sessão", %{module: __MODULE__, error: error})
+          {:error, :session_creation_failed}
       end
     else
       {:error, :not_found} ->
@@ -106,25 +112,12 @@ defmodule Deeper_Hub.Core.WebSockets.Auth.AuthService do
     * `{:error, reason}` - Erro ao atualizar tokens
   """
   def refresh_tokens(refresh_token) do
-    with {:ok, claims} <- JwtService.verify_token(refresh_token),
-         "refresh" <- Map.get(claims, "typ"),
-         user_id = Map.get(claims, "user_id"),
-         {:ok, access_token, refresh_token, claims} <- JwtService.generate_token_pair(user_id) do
-
-      Logger.info("Tokens atualizados com sucesso", %{module: __MODULE__, user_id: user_id})
-
-      tokens = %{
-        access_token: access_token,
-        refresh_token: refresh_token,
-        expires_in: Map.get(claims.access, "exp") - Map.get(claims.access, "iat")
-      }
-
-      {:ok, tokens}
-    else
-      "access" ->
-        Logger.warning("Tentativa de refresh com token de acesso", %{module: __MODULE__})
-        {:error, :invalid_token_type}
-
+    # Usa o serviço de rotação de tokens para renovar os tokens
+    case TokenRotationService.rotate_tokens(refresh_token) do
+      {:ok, tokens} ->
+        Logger.info("Tokens atualizados com sucesso", %{module: __MODULE__})
+        {:ok, tokens}
+        
       error ->
         Logger.error("Erro ao atualizar tokens", %{module: __MODULE__, error: error})
         {:error, :invalid_refresh_token}
@@ -143,20 +136,103 @@ defmodule Deeper_Hub.Core.WebSockets.Auth.AuthService do
     * `{:error, reason}` - Erro ao realizar logout
   """
   def logout(access_token, refresh_token) do
-    # Revoga ambos os tokens
-    JwtService.revoke_token(access_token)
-    JwtService.revoke_token(refresh_token)
-
-    case JwtService.verify_token(access_token) do
-      {:ok, claims} ->
-        user_id = Map.get(claims, "user_id")
-        Logger.info("Logout realizado com sucesso", %{module: __MODULE__, user_id: user_id})
-        EventBus.publish(:user_logged_out, %{user_id: user_id})
+    # Encerra a sessão do usuário
+    case SessionManager.end_session(access_token, refresh_token) do
+      :ok ->
+        # Tenta obter o ID do usuário para fins de log
+        case JwtService.verify_token(access_token) do
+          {:ok, claims} ->
+            user_id = Map.get(claims, "user_id")
+            Logger.info("Logout realizado com sucesso", %{module: __MODULE__, user_id: user_id})
+            EventBus.publish(:user_logged_out, %{user_id: user_id})
+          _ ->
+            Logger.info("Logout realizado com sucesso (token já inválido)", %{module: __MODULE__})
+        end
         :ok
 
-      _ ->
-        Logger.warning("Logout com token inválido", %{module: __MODULE__})
+      error ->
+        Logger.warning("Erro ao encerrar sessão", %{module: __MODULE__, error: error})
+        {:error, :session_end_failed}
+    end
+  end
+
+  @doc """
+  Gera um token opaco para recuperação de senha.
+  
+  ## Parâmetros
+  
+    - `email`: Email do usuário
+    
+  ## Retorno
+  
+    - `{:ok, token, expires_at}` em caso de sucesso
+    - `{:error, reason}` em caso de falha
+  """
+  def generate_password_reset_token(email) do
+    with {:ok, user} <- UserRepository.get_by_email(email) do
+      user_id = Map.get(user, "id")
+      TokenService.generate_opaque_token(:password_reset, user_id)
+    else
+      error ->
+        Logger.error("Erro ao gerar token de recuperação de senha", %{module: __MODULE__, email: email, error: error})
+        {:error, :user_not_found}
+    end
+  end
+  
+  @doc """
+  Verifica um token de recuperação de senha.
+  
+  ## Parâmetros
+  
+    - `token`: Token de recuperação de senha
+    
+  ## Retorno
+  
+    - `{:ok, user_id}` em caso de sucesso
+    - `{:error, reason}` em caso de falha
+  """
+  def verify_password_reset_token(token) do
+    case TokenService.verify_opaque_token(token, :password_reset) do
+      {:ok, data} ->
+        {:ok, data.identifier}
+        
+      error ->
+        Logger.error("Erro ao verificar token de recuperação de senha", %{module: __MODULE__, error: error})
         {:error, :invalid_token}
+    end
+  end
+  
+  @doc """
+  Redefine a senha de um usuário usando um token de recuperação.
+  
+  ## Parâmetros
+  
+    - `token`: Token de recuperação de senha
+    - `new_password`: Nova senha
+    
+  ## Retorno
+  
+    - `{:ok, user}` em caso de sucesso
+    - `{:error, reason}` em caso de falha
+  """
+  def reset_password(token, new_password) do
+    with {:ok, user_id} <- verify_password_reset_token(token),
+         {:ok, user} <- UserRepository.get_by_id(user_id),
+         # Atualiza a senha
+         updated_user = Map.put(user, :password_hash, new_password),
+         {:ok, saved_user} <- UserRepository.update(updated_user) do
+      
+      # Revoga o token usado
+      TokenService.revoke_opaque_token(token)
+      
+      # Encerra todas as sessões existentes do usuário
+      SessionManager.end_all_user_sessions(user_id)
+      
+      {:ok, saved_user}
+    else
+      error ->
+        Logger.error("Erro ao redefinir senha", %{module: __MODULE__, error: error})
+        {:error, :password_reset_failed}
     end
   end
 

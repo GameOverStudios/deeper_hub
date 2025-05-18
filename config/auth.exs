@@ -8,5 +8,5 @@ config :joken,
   ]
 
 # Configurações para o TokenBlacklist
-config :deeper_hub, Deeper_Hub.Core.WebSockets.Auth.TokenBlacklist,
+config :deeper_hub, Deeper_Hub.Core.WebSockets.Auth.Token.TokenBlacklist,
   cleanup_interval: 60 * 60 * 1000  # 1 hora em milissegundos

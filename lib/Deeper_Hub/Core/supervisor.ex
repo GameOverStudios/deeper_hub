@@ -92,13 +92,13 @@ defmodule Deeper_Hub.Core.Supervisor do
         start: {Task, :start_link, [fn ->
           # Verifica se as tabelas já existem antes de tentar criá-las
           alias Deeper_Hub.Core.Data.DBConnection.Connection
-          
+
           # Verifica se a tabela de mensagens existe
           messages_exists = Connection.query_exists?("messages")
           unless messages_exists do
             Deeper_Hub.Core.Communications.Messages.MessageStorage.create_table_if_not_exists()
           end
-          
+
           # Verifica se a tabela de canais existe
           channels_exists = Connection.query_exists?("channels")
           unless channels_exists do
