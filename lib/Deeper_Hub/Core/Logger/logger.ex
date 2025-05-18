@@ -1,135 +1,146 @@
-defmodule Deeper_Hub.Core.Logger do
+# lib/deeper_hub/core/logger/logger.ex
+defmodule DeeperHub.Core.Logger do
   @moduledoc """
-  Módulo de logging para o DeeperHub, responsável por gerenciar
-  mensagens de log com suporte a diferentes níveis de severidade
-  e formatação colorida.
-
-  Segue os princípios SOLID:
-  - Single Responsibility: Gerencia exclusivamente o logging
-  - Open/Closed: Extensível para novos níveis de log
-  - Interface segregada para diferentes tipos de log
+  Módulo responsável pelo sistema de logging centralizado do DeeperHub.
+  Ele fornece funcionalidades para registrar mensagens de log em diferentes níveis,
+  com formatação customizável e integração com diferentes coletores de log (sinks).
   """
 
-  # Timestamp de inicialização do servidor para nomear os arquivos de log
-  @server_start_timestamp DateTime.utc_now() |> DateTime.to_iso8601(:basic) |> String.replace(~r/[:\+\-]/, "_")
-
-  @colors %{
-    info: :green,
-    warning: :yellow,
-    error: :red,
-    debug: :cyan,
-    success: :light_green
-  }
+  require Logger
+  import IO.ANSI
 
   @doc """
-  Gera uma mensagem de log colorida para um determinado nível.
+  Registra uma mensagem de log no nível :debug.
+  A mensagem incluirá a data, o nome do módulo chamador e será colorida.
 
-  ## Parâmetros
-    - level: Nível do log (:info, :warning, :error, etc.)
-    - message: Mensagem a ser logada
-    - metadata: Metadados opcionais para enriquecer o log
+  ## Examples
 
-  ## Retorna
-    - String formatada e colorida
+      iex> DeeperHub.Core.Logger.debug("Mensagem de debug")
+      :ok
   """
-  @spec log(atom(), String.t(), map()) :: :ok
-  def log(level, message, metadata \\ %{}) do
-    color = Map.get(@colors, level, :white)
-    formatted_message = format_message(level, message, metadata, color)
+  defmacro debug(message, metadata \\ []) do
+    caller_module_atom = __CALLER__.module
+    quote do
+      DeeperHub.Core.Logger.__log__(:debug, unquote(message), Keyword.put(unquote(metadata), :module, unquote(caller_module_atom)))
+    end
+  end
 
-    # Correção: Usar apply/3 para chamada dinâmica da função de cor
-    colored_output = apply(IO.ANSI, color, []) <> formatted_message <> IO.ANSI.reset()
-    IO.puts(colored_output)
+  @doc """
+  Registra uma mensagem de log no nível :info.
+  A mensagem incluirá a data, o nome do módulo chamador e será colorida.
 
-    # Opcional: Adicionar logging em arquivo
-    log_to_file(level, formatted_message)
+  ## Examples
+
+      iex> DeeperHub.Core.Logger.info("Mensagem informativa")
+      :ok
+  """
+  defmacro info(message, metadata \\ []) do
+    caller_module_atom = __CALLER__.module
+    quote do
+      DeeperHub.Core.Logger.__log__(:info, unquote(message), Keyword.put(unquote(metadata), :module, unquote(caller_module_atom)))
+    end
+  end
+
+  @doc """
+  Registra uma mensagem de log no nível :warn.
+  A mensagem incluirá a data, o nome do módulo chamador e será colorida.
+
+  ## Examples
+
+      iex> DeeperHub.Core.Logger.warn("Alerta importante")
+      :ok
+  """
+  defmacro warn(message, metadata \\ []) do
+    caller_module_atom = __CALLER__.module
+    quote do
+      DeeperHub.Core.Logger.__log__(:warn, unquote(message), Keyword.put(unquote(metadata), :module, unquote(caller_module_atom)))
+    end
+  end
+
+  @doc """
+  Registra uma mensagem de log no nível :error.
+  A mensagem incluirá a data, o nome do módulo chamador e será colorida.
+
+  ## Examples
+
+      iex> DeeperHub.Core.Logger.error("Ocorreu um erro grave")
+      :ok
+  """
+  defmacro error(message, metadata \\ []) do
+    caller_module_atom = __CALLER__.module
+    quote do
+      DeeperHub.Core.Logger.__log__(:error, unquote(message), Keyword.put(unquote(metadata), :module, unquote(caller_module_atom)))
+    end
+  end
+
+  @doc """
+  Registra uma mensagem de log no nível :critical.
+  Este nível é usado para erros que exigem atenção imediata.
+  A mensagem incluirá a data, o nome do módulo chamador e será colorida.
+
+  ## Examples
+
+      iex> DeeperHub.Core.Logger.critical("Falha crítica no sistema!")
+      :ok
+  """
+  defmacro critical(message, metadata \\ []) do
+    caller_module_atom = __CALLER__.module
+    quote do
+      DeeperHub.Core.Logger.__log__(:critical, unquote(message), Keyword.put(unquote(metadata), :module, unquote(caller_module_atom)))
+    end
+  end
+
+  # --- Funções Privadas ---
+
+  # Função de log interna, não deve ser chamada diretamente.
+  # É prefixada com __ para indicar seu uso interno pelas macros.
+  @doc false
+  def __log__(level, message_content, metadata) do
+    # Respeita o nível de log configurado globalmente
+    if Logger.compare_levels(level, Logger.level()) != :lt do
+      date_str = Date.utc_today() |> Date.to_string()
+      module_name_atom = metadata[:module] || :UnknownModule
+      module_name_str = Atom.to_string(module_name_atom)
+
+      date_color = yellow()
+      module_text_color = blue() <> bright()
+      reset = reset()
+
+      level_message_color_map = %{
+        :debug => cyan(),
+        :info => green(),
+        # Alterado de amarelo para magenta para diferenciar da data
+        :warn => magenta(),
+        :error => red(),
+        :critical => red() <> bright()
+      }
+
+      # Usa default se nível desconhecido
+      message_color = Map.get(level_message_color_map, level, default_color())
+
+      log_parts = [
+        date_color,
+        date_str,
+        reset,
+        " ",
+        "[",
+        module_text_color,
+        module_name_str,
+        reset,
+        "]",
+        " ",
+        message_color,
+        formatar_conteudo_mensagem(message_content),
+        reset
+      ]
+
+      IO.puts(log_parts)
+    end
 
     :ok
   end
 
-  @doc """
-  Atalhos para diferentes níveis de log
-  """
-  def info(message, metadata \\ %{}) do
-    log(:info, message, Map.put(metadata, :module, get_caller_module()))
-  end
-
-  def warning(message, metadata \\ %{}) do
-    log(:warning, message, Map.put(metadata, :module, get_caller_module()))
-  end
-
-  def error(message, metadata \\ %{}) do
-    log(:error, message, Map.put(metadata, :module, get_caller_module()))
-  end
-
-  def debug(message, metadata \\ %{}) do
-    log(:debug, message, Map.put(metadata, :module, get_caller_module()))
-  end
-
-  def success(message, metadata \\ %{}) do
-    log(:success, message, Map.put(metadata, :module, get_caller_module()))
-  end
-
-  @spec get_caller_module() :: module()
-  defp get_caller_module do
-    {:current_stacktrace, stacktrace} = Process.info(self(), :current_stacktrace)
-
-    # Procura o primeiro módulo que não seja o Logger, Process, ou Enum
-    Enum.find_value(stacktrace, :unknown, fn
-      {module, _function, _, _} when module not in [__MODULE__, Process, Enum] -> module
-      _ -> nil
-    end)
-  end
-
-  @spec format_message(atom(), String.t(), map(), atom()) :: String.t()
-  defp format_message(_level, message, metadata, color) do
-    timestamp = DateTime.utc_now() |> DateTime.to_time() |> Time.to_string() |> String.slice(0..7)
-
-    # Obtém o nome do módulo que chamou o log
-    module_name =
-      case metadata[:module] do
-        nil -> "Unknown"
-        mod -> mod |> Atom.to_string() |> String.replace("Elixir.", "")
-      end
-
-    metadata_str =
-      metadata
-      |> Map.delete(:module)
-      |> Enum.map(fn {k, v} -> "#{k}=#{inspect(v)}" end)
-      |> Enum.join(" ")
-
-    # Azul marinho para o nome do módulo (combinando blue() com bright())
-    module_color = IO.ANSI.blue() <> IO.ANSI.bright()
-    # Correção: Usar apply/3 para chamada dinâmica da função de cor
-    message_color = apply(IO.ANSI, color, [])
-
-    "[#{timestamp}] #{module_color}[#{module_name}]#{IO.ANSI.reset()} #{message_color}#{message}#{IO.ANSI.reset()}#{if metadata_str != "", do: " #{metadata_str}", else: ""}"
-  end
-
-  @spec log_to_file(atom(), String.t()) :: :ok
-  defp log_to_file(level, message) do
-    # Implementação de log em arquivo com nome baseado em timestamp de inicialização
-    log_dir = Path.join([File.cwd!(), "logs"])
-    File.mkdir_p!(log_dir)
-
-    # Remove códigos ANSI de cores para os arquivos de log
-    clean_message = remove_ansi_codes(message)
-
-    # Usa o timestamp de inicialização do servidor para nomear o arquivo de log
-    log_file = Path.join([log_dir, "#{@server_start_timestamp}_#{level}.log"])
-    File.write!(log_file, clean_message <> "\n", [:append])
-
-    # Também escreve em um arquivo de debug geral para facilitar a depuração
-    if level == :debug do
-      debug_file = Path.join([log_dir, "#{@server_start_timestamp}_debug.log"])
-      File.write!(debug_file, clean_message <> "\n", [:append])
-    end
-  end
-
-  # Remove códigos ANSI de cores de uma string
-  defp remove_ansi_codes(string) do
-    # Regex para remover códigos ANSI de cores
-    # Isso remove qualquer sequência que comece com ESC [ e termine com m
-    Regex.replace(~r/\e\[[0-9;]*[mK]/, string, "")
-  end
+  @doc false
+  defp formatar_conteudo_mensagem(message) when is_binary(message), do: message
+  defp formatar_conteudo_mensagem(message), do: inspect(message)
 end

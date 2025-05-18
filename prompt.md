@@ -1,150 +1,210 @@
-# Diretrizes de Codificação para o Projeto DeeperHub 🚀
+# Diretrizes de Desenvolvimento Elixir para o Projeto DeeperHub (Guia para IA)
 
-## Introdução
+## 1. Introdução
 
-Este documento estabelece as diretrizes e práticas recomendadas para o desenvolvimento do projeto DeeperHub. Seu objetivo é minimizar erros de desenvolvimento, garantir consistência no código e assegurar que todas as implementações sigam fielmente as especificações descritas nos arquivos README de cada módulo.
+Este documento serve como um guia para o desenvolvimento de software Elixir no projeto DeeperHub, especialmente quando assistido por uma Inteligência Artificial. O objetivo é garantir a produção de código de alta qualidade, manutenível, robusto e que siga as melhores práticas da linguagem Elixir e da plataforma OTP.
 
-## 🔍 Conformidade com Especificações
+**Responda sempre em Português do Brasil.**
 
-### Antes de Iniciar o Desenvolvimento
+## 2. Filosofia de Desenvolvimento
 
-1. **Leia completamente o README do módulo**: Antes de iniciar qualquer implementação, leia integralmente o README do módulo para compreender:
-   - Responsabilidades e funcionalidades esperadas
-   - Estrutura de diretórios recomendada
-   - Dependências e integrações com outros módulos
-   - Padrões de design a serem seguidos
+Adote as seguintes filosofias e princípios:
 
-2. **Não crie módulos não especificados**: 
-   - ⚠️ **IMPORTANTE**: Não crie novos módulos que não estejam previamente especificados nos documentos de requisitos ou READMEs.
-   - Se identificar a necessidade de um novo módulo, documente a proposta e discuta com a equipe antes da implementação.
+*   **OTP (Open Telecom Platform):**
+    *   **Concorrência:** Utilize processos leves (`Task`, `Agent`, `GenServer`) para máxima concorrência e escalabilidade.
+    *   **Tolerância a Falhas:** Projete com árvores de supervisão ("let it crash"). Supervisores devem reiniciar componentes problemáticos.
+    *   **Distribuição:** Esteja preparado para construir sistemas distribuídos, se a necessidade surgir.
+*   **Programação Funcional:**
+    *   **Imutabilidade:** Dados são imutáveis.
+    *   **Funções Puras:** Prefira funções sem efeitos colaterais.
+    *   **Composição:** Construa funcionalidades complexas compondo funções menores, usando o operador pipe (`|>`).
+*   **Explicitude e Clareza:** O código deve ser fácil de ler e entender. Evite "mágica" excessiva.
+*   **Resolução de Erros:** **NUNCA** simplifique erros após uma tentativa de desenvolvimento falhar. Esforce-se para identificar a causa raiz, resolver o problema e garantir que a funcionalidade opere corretamente. Consulte o arquivo `Debug.md` para evitar erros já conhecidos.
 
-3. **Respeite a arquitetura definida**:
-   - Mantenha a separação de responsabilidades conforme definido na arquitetura
-   - Não adicione dependências desnecessárias entre módulos
-   - Siga os padrões de design especificados (ex: Facade, Repository, Service)
+## 3. Estrutura do Projeto e Nomenclatura
 
-### Durante o Desenvolvimento
+Siga esta estrutura para organizar o código:
 
-1. **Implemente todas as funcionalidades especificadas**:
-   - Verifique cada item listado nas seções "Responsabilidades" e "Funcionalidades Chave"
-   - Garanta que todos os casos de uso descritos sejam implementados
+*   **Raiz dos Módulos da Aplicação:** `lib/deeper_hub/`
+*   **Categorias de Módulos (Primeiro Nível):**
+    *   Dentro de `lib/deeper_hub/`, crie diretórios para as principais categorias funcionais do sistema.
+    *   Exemplos: `core/`, `accounts/`, `data_access/`, `web_interface/`, `services/`.
+    *   Estrutura: `lib/deeper_hub/<categoria>/`
+*   **Módulos Principais (Subdiretórios):**
+    *   Dentro de cada diretório de categoria, crie subdiretórios para cada módulo principal ou contexto.
+    *   O nome do subdiretório deve corresponder à parte final do nome do módulo Elixir.
+    *   Exemplo: Para o módulo `DeeperHub.Core.Log`, a estrutura será `lib/deeper_hub/core/log/`.
+    *   Arquivos Elixir relacionados a este módulo (e.g., `logger.ex`, `formatter.ex`) residirão diretamente dentro deste diretório.
+*   **Submódulos:**
+    *   Se um módulo principal tiver submódulos logicamente agrupados, crie diretórios adicionais dentro do diretório do módulo principal.
+    *   Exemplo: Para `DeeperHub.Core.Log.Sinks.FileSink`, a estrutura seria `lib/deeper_hub/core/log/sinks/file_sink.ex`.
+*   **Nomenclatura de Arquivos:**
+    *   Use `snake_case` para nomes de arquivos (e.g., `user_service.ex`, `cache_manager.ex`).
+*   **Nomenclatura de Módulos Elixir:**
+    *   Use `PascalCase` (e.g., `DeeperHub.Core.Log`, `DeeperHub.Accounts.User`).
 
-2. **Mantenha a consistência com a documentação**:
-   - Use os mesmos nomes de funções, parâmetros e tipos mencionados na documentação
-   - Implemente as interfaces públicas conforme especificado
-   - Documente quaisquer desvios necessários das especificações originais
+## 4. Construção de Código
 
-3. **Siga as convenções de nomenclatura**:
-   - Use nomes descritivos e significativos
-   - Siga o padrão de nomenclatura do Elixir (snake_case para variáveis e funções)
-   - Mantenha consistência com os nomes já utilizados no projeto
+*   **Módulos e Funções:**
+    *   **Coesão:** Módulos com propósito único e bem definido.
+    *   **Tamanho:** Funções curtas, fazendo uma única coisa.
+    *   **Nomes:** Descritivos para módulos, funções e variáveis.
+    *   **Privacidade:** Use `defp` para funções auxiliares internas ao módulo.
+*   **Structs (`defstruct`):** Use para estruturas de dados com campos conhecidos.
+*   **Pattern Matching:** Utilize extensivamente em cabeçalhos de função, `case`, `with`, e atribuições.
+*   **Guard Clauses (`when`):** Para adicionar condições ao pattern matching.
+*   **`with` Statement:** Para sequências de operações que podem falhar, evitando `case` aninhados.
+*   **Tratamento de Erros:**
+    *   Padrão: `{:ok, value}` e `{:error, reason}`.
+    *   Exceções: Para erros verdadeiramente excepcionais, não para controle de fluxo.
+*   **Documentação:**
+    *   `@moduledoc`: Para todos os módulos.
+    *   `@doc`: Para todas as funções públicas.
+    *   Inclua exemplos executáveis (doctests) sempre que possível.
+*   **Testes (ExUnit):**
+    *   Escreva testes abrangentes: unidade, integração.
+    *   Doctests são uma forma de teste.
+*   **Concorrência:**
+    *   `Task`: Para operações concorrentes de curta duração.
+    *   `Agent`: Para gerenciar estado simples concorrentemente.
+    *   `GenServer`: Para lógica de servidor mais complexa e estado.
+*   **Limite de Linhas por Arquivo:**
+    *   Mantenha arquivos com aproximadamente **300 linhas no máximo**.
+    *   Se um arquivo exceder este limite, avalie a divisão em múltiplos arquivos ou submódulos, agrupados por funcionalidade específica.
+*   **Foco no Essencial:**
+    *   Crie **somente** módulos, funções e funcionalidades que o sistema efetivamente utilizará.
+    *   Evite código extra, "over-engineering" ou funcionalidades "para o futuro" que não tenham uma demanda imediata. O objetivo é um sistema enxuto e otimizado.
+*   **Coesão e Baixo Acoplamento:**
+    *   Garanta que os módulos sejam bem relacionados, mas com o menor acoplamento possível. Interfaces claras entre contextos/módulos são cruciais.
 
-## 🧹 Revisão de Código e Limpeza
+## 5. Template de Módulo Elixir
 
-### ⚠️ EXTREMAMENTE IMPORTANTE: Revisão Pós-Implementação
+Use o seguinte template como base para a criação de novos módulos. Adapte conforme a necessidade (e.g., se for um `GenServer`, `Supervisor`, ou um módulo simples).
 
-**Após concluir a implementação de cada arquivo, realize uma revisão rigorosa para:**
+```elixir
+# lib/deeper_hub/categoria/nome_do_modulo/arquivo_principal.ex
+defmodule DeeperHub.Categoria.NomeDoModulo do
+  @moduledoc """
+  Descrição concisa do que este módulo faz.
+  Este módulo é responsável por [objetivo principal].
 
-1. **Remover código não utilizado**:
-   - Variáveis declaradas mas não utilizadas
-   - Funções definidas mas nunca chamadas
-   - Importações e aliases não utilizados
-   - Parâmetros de funções que não são utilizados no corpo da função
+  Ele interage com [outros módulos/contextos, se aplicável] e gerencia [tipos de dados/recursos].
+  """
 
-2. **Verificar implementações incompletas**:
-   - Funções declaradas mas não implementadas
-   - Chamadas a funções que não existem
-   - TODOs ou FIXMEs deixados no código
-   - Implementações parciais de interfaces ou comportamentos
+  # import ModuloExternoOuHelper, only: [funcao_especifica: 1]
+  # alias DeeperHub.OutraCategoria.OutroModulo
 
-3. **Corrigir problemas de tipagem**:
-   - Especificações de tipo (@spec) incorretas ou incompletas
-   - Retornos de função incompatíveis com a especificação
-   - Parâmetros com tipos incorretos
+  # @behaviour MeuComportamento # Se estiver implementando um comportamento
 
-4. **Eliminar avisos de compilação**:
-   - Resolver todos os warnings do compilador
-   - Corrigir problemas de depreciação
-   - Eliminar avisos de dialyzer
+  @typedoc """
+  Descrição do tipo principal que este módulo manipula ou define.
+  """
+  # @type t :: %__MODULE__{
+  #         id: String.t() | nil,
+  #         name: String.t(),
+  #         created_at: DateTime.t() | nil,
+  #         # ... outros campos
+  #       }
 
-### Checklist de Revisão
+  # defstruct id: nil,
+  #           name: "",
+  #           created_at: nil
+            # ... outros campos com valores padrão
 
-Utilize esta checklist após cada implementação ou correção:
+  @doc """
+  Descrição da função pública.
+  Recebe [parâmetros] e retorna [resultado ou {:ok, resultado} / {:error, razao}].
 
-- [ ] Todas as variáveis declaradas são utilizadas
-- [ ] Todos os imports e aliases são necessários
-- [ ] Todos os parâmetros de funções são utilizados
-- [ ] Todas as funções declaradas estão implementadas
-- [ ] Não existem chamadas a funções inexistentes
-- [ ] Todas as especificações de tipo estão corretas
-- [ ] Não há avisos de compilação
-- [ ] O código está formatado de acordo com o estilo do projeto
-- [ ] Os testes cobrem todas as funcionalidades implementadas
-- [ ] A documentação está atualizada e reflete a implementação atual
+  ## Examples
 
-## 🧪 Testes
+      iex> DeeperHub.Categoria.NomeDoModulo.funcao_publica(argumento)
+      :resultado_esperado_ou_ok_tupla
 
-1. **Teste todas as funcionalidades implementadas**:
-   - Crie testes unitários para cada função pública
-   - Implemente testes de integração para fluxos completos
-   - Verifique casos de borda e condições de erro
+  """
+  @spec funcao_publica(tipo_parametro :: any()) :: {:ok, any()} | {:error, atom() | String.t()} | any()
+  def funcao_publica(parametro) do
+    # Lógica da função
+    processar_internamente(parametro)
+  end
 
-2. **Mantenha a cobertura de testes alta**:
-   - Busque uma cobertura de código de pelo menos 80%
-   - Priorize testar lógica complexa e tratamento de erros
-   - Não deixe funções públicas sem testes
+  # --- Funções Privadas ---
 
-3. **Testes devem ser independentes e determinísticos**:
-   - Cada teste deve poder ser executado isoladamente
-   - Evite dependências entre testes
-   - Use mocks e stubs para isolar o código sendo testado
+  @doc false
+  # @specp processar_internamente(tipo_parametro :: any()) :: {:ok, any()} | {:error, atom()}
+  defp processar_internamente(parametro) do
+    # Lógica interna
+    {:ok, "Resultado para: #{inspect(parametro)}"}
+  end
 
-## 📝 Documentação
+  # Se for um GenServer, adicione callbacks:
+  # --- GenServer Callbacks ---
+  # @impl GenServer
+  # def init(args) do
+  #   {:ok, %{}} # Estado inicial
+  # end
 
-1. **Mantenha a documentação atualizada**:
-   - Atualize a documentação quando alterar interfaces públicas
-   - Adicione exemplos de uso para novas funcionalidades
-   - Documente comportamentos não óbvios ou complexos
+  # @impl GenServer
+  # def handle_call(:minha_chamada, _from, state) do
+  #   reply = {:ok, "resposta"}
+  #   {:reply, reply, state}
+  # end
 
-2. **Documente todas as funções públicas**:
-   - Use @moduledoc para documentar módulos
-   - Use @doc para documentar funções públicas
-   - Inclua exemplos de uso quando apropriado
-   - Documente parâmetros e valores de retorno
+  # @impl GenServer
+  # def handle_cast({:meu_cast, dados}, state) do
+  #   # Processar dados
+  #   new_state = Map.put(state, :dados, dados)
+  #   {:noreply, new_state}
+  # end
+end
+```
 
-## 🔄 Processo de Desenvolvimento
+## 6. Processo de Revisão e Qualidade
 
-1. **Desenvolvimento Iterativo**:
-   - Implemente uma funcionalidade por vez
-   - Teste cada funcionalidade antes de passar para a próxima
-   - Refatore conforme necessário para manter a qualidade do código
+**Após concluir a implementação ou modificação de CADA arquivo, realize uma revisão rigorosa seguindo os pontos abaixo:**
 
-2. **Revisão Regular**:
-   - Revise o código após cada implementação significativa
-   - Use ferramentas automáticas de análise de código
-   - Solicite revisões de código de outros desenvolvedores quando possível
+1.  **Remover código não utilizado:**
+    *   Variáveis declaradas mas não utilizadas.
+    *   Funções (`def` ou `defp`) definidas mas nunca chamadas (verifique chamadas locais e de outros módulos, se aplicável).
+    *   Importações (`import`) e aliases (`alias`) não utilizados.
+    *   Parâmetros de funções que não são utilizados no corpo da função (considere se o parâmetro é realmente necessário ou se a assinatura da função pode ser simplificada).
 
-3. **Integração Contínua**:
-   - Execute os testes automatizados frequentemente
-   - Verifique a cobertura de código regularmente
-   - Corrija falhas de teste imediatamente
+2.  **Verificar implementações incompletas:**
+    *   Funções declaradas (assinatura existe) mas não implementadas (corpo faltando ou apenas `raise "Not implemented"`).
+    *   Chamadas a funções que não existem (verifique typos e disponibilidade das funções).
+    *   Comentários `TODO:`, `FIXME:`, ou similares deixados no código que indicam trabalho pendente.
+    *   Implementações parciais de interfaces ou comportamentos (`@behaviour`). Garanta que todos os callbacks obrigatórios estão implementados.
 
-## 🛠️ Ferramentas Recomendadas
+3.  **Corrigir problemas de tipagem (se usando `@spec`):**
+    *   Especificações de tipo (`@spec`) incorretas ou incompletas para funções públicas e privadas (`@specp`).
+    *   Tipos de retorno de função incompatíveis com a especificação declarada.
+    *   Parâmetros passados para funções com tipos incorretos, ou tipos de parâmetros nas especificações que não correspondem à lógica da função.
 
-1. **Análise Estática**:
-   - Credo: Para verificar estilo e boas práticas de código Elixir
-   - Dialyxir: Para análise de tipos
-   - ExDoc: Para geração de documentação
+4.  **Eliminar avisos de compilação e análise estática:**
+    *   Resolva **todos** os warnings emitidos pelo compilador Elixir (`mix compile`).
+    *   Corrija quaisquer problemas de depreciação indicados.
+    *   Se o Dialyzer estiver configurado, elimine todos os seus avisos.
 
-2. **Formatação de Código**:
-   - mix format: Para manter o código formatado consistentemente
+**Checklist Rápido Pós-Implementação/Modificação:**
 
-3. **Testes**:
-   - ExUnit: Framework de testes padrão do Elixir
-   - ExCoveralls: Para análise de cobertura de código
+Use esta checklist após cada implementação ou correção significativa:
 
-## Conclusão
+- [ ] Todas as variáveis declaradas são utilizadas?
+- [ ] Todos os `import` e `alias` são necessários e utilizados?
+- [ ] Todos os parâmetros de todas as funções são utilizados dentro delas?
+- [ ] Todas as funções declaradas (especialmente as públicas e callbacks) estão completamente implementadas?
+- [ ] Não existem chamadas a funções inexistentes ou com typos?
+- [ ] Todas as especificações de tipo (`@spec`) estão corretas e consistentes com a implementação?
+- [ ] O comando `mix compile` executa sem NENHUM warning?
+- [ ] O código está formatado corretamente (execute `mix format`)?
+- [ ] Os testes (novos ou existentes) cobrem todas as funcionalidades implementadas/modificadas e estão passando?
+- [ ] A documentação (`@moduledoc`, `@doc`) está atualizada e reflete a implementação atual, incluindo exemplos?
 
-Seguir estas diretrizes rigorosamente ajudará a manter a qualidade do código, minimizar erros e garantir que o projeto DeeperHub seja desenvolvido de acordo com as especificações. A revisão pós-implementação é **EXTREMAMENTE IMPORTANTE** e deve ser realizada após cada desenvolvimento ou correção para evitar a acumulação de problemas técnicos e garantir um código limpo e funcional.
+**Consulta ao `Debug.md`:**
+Antes de iniciar uma nova tarefa de desenvolvimento ou correção, **consulte o arquivo `Debug.md`** na raiz do projeto. Ele contém um histórico de erros já encontrados e suas soluções, ajudando a evitar a repetição de problemas.
 
-Lembre-se: Um código limpo e bem estruturado é mais fácil de manter, estender e depurar. Invista tempo na qualidade agora para economizar tempo no futuro.
+
+***IMPORTANTE*** Execute comandos para o prompt do widnows e antes de criar um arquivo dentro de uma pasta que não existe execute um comando no prommt do windows para a criação da pasta
+
+***IMPORTANTE*** Nunca use mock para testes
+
+***IMPORTANTE*** todas as vezes antes de criar um arquivo precisa verificar se já nao existe o diretorio e executar um comando prompt do widnows para criação do diretorio caso nao exista

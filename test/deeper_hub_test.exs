@@ -1,11 +1,8 @@
-defmodule Deeper_HubTest do
+defmodule DeeperHubTest do
   use ExUnit.Case
-  
-  # Removido doctest que estava causando erro
-  # doctest Deeper_Hub
+  doctest DeeperHub
 
-  # Teste básico para verificar se a aplicação está funcionando
-  test "aplicação inicializa corretamente" do
-    assert Application.spec(:deeper_hub) != nil
+  test "greets the world" do
+    assert DeeperHub.hello() == :world
   end
 end
