@@ -43,17 +43,20 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
 
     case AuthService.authenticate(username, password, remember_me, metadata) do
       {:ok, user, tokens} ->
-        user_id = Map.get(user, "id")
+        # Obter o ID do usuário diretamente do campo id (não usando Map.get)
+        user_id = user.id
 
         # Atualiza o estado da conexão com o ID do usuário
         state = Map.put(state, :user_id, user_id)
         state = Map.put(state, :authenticated, true)
+        # Armazenar session_id no estado para uso posterior (ex: logout)
+        state = Map.put(state, :session_id, tokens.session_id)
 
         response = %{
           type: "auth.login.success",
           payload: %{
             user_id: user_id,
-            username: Map.get(user, "username"),
+            username: user.username,
             access_token: tokens.access_token,
             refresh_token: tokens.refresh_token,
             session_id: tokens.session_id,
@@ -94,9 +97,15 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
 
     case AuthService.logout(access_token, refresh_token) do
       :ok ->
-        # Remove as informações de autenticação do estado
-        state = Map.delete(state, :user_id)
-        state = Map.put(state, :authenticated, false)
+        # Remove as informações de autenticação do estado, mas mantém outros campos
+        # Criar um novo estado com valores atualizados em vez de remover campos
+        new_state = %{
+          user_agent: state.user_agent,
+          ip_address: state.ip_address,
+          session_id: state.session_id,
+          authenticated: false,
+          user_id: nil  # Definir explicitamente user_id como nil
+        }
 
         response = %{
           type: "auth.logout.success",
@@ -107,7 +116,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
 
         Logger.info("Logout bem-sucedido", %{module: __MODULE__, user_id: user_id})
 
-        {:reply, response, state}
+        {:reply, response, new_state}
 
       {:error, reason} ->
         response = %{
@@ -211,11 +220,11 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
           type: "auth.password_reset.success",
           payload: %{
             message: "Senha redefinida com sucesso",
-            username: Map.get(user, "username")
+            username: user.username
           }
         }
         
-        Logger.info("Senha redefinida com sucesso", %{module: __MODULE__, user_id: Map.get(user, "id")})
+        Logger.info("Senha redefinida com sucesso", %{module: __MODULE__, user_id: user.id})
         
         {:reply, response, state}
         

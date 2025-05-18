@@ -62,6 +62,70 @@ defmodule Deeper_Hub.Factory do
   end
   
   @doc """
+  Factory para tokens JWT.
+  
+  ## Retorno
+  
+    - Mapa representando um token JWT
+  """
+  def jwt_token_factory do
+    user = build(:user)
+    
+    %{
+      user_id: user.id,
+      token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiI#{user.id}",
+      expires_at: DateTime.utc_now() |> DateTime.add(3600, :second),
+      type: "access",
+      metadata: %{ip_address: "127.0.0.1", user_agent: "Mozilla/5.0"}
+    }
+  end
+  
+  @doc """
+  Factory para tokens opacos.
+  
+  ## Retorno
+  
+    - Mapa representando um token opaco
+  """
+  def opaque_token_factory do
+    user = build(:user)
+    
+    %{
+      token: sequence(:token, &"opaque_token_#{&1}"),
+      purpose: :password_reset,
+      identifier: user.id,
+      expires_at: DateTime.utc_now() |> DateTime.add(3600, :second),
+      metadata: %{},
+      created_at: DateTime.utc_now()
+    }
+  end
+  
+  @doc """
+  Factory para sessões de usuário.
+  
+  ## Retorno
+  
+    - Mapa representando uma sessão de usuário
+  """
+  def session_factory do
+    user = build(:user)
+    
+    %{
+      id: sequence(:session_id, &"session_#{&1}"),
+      user_id: user.id,
+      access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiI#{user.id}",
+      refresh_token: "refresh_#{sequence(:refresh_token, &"token_#{&1}")}",
+      expires_at: DateTime.utc_now() |> DateTime.add(86400, :second),
+      last_activity: DateTime.utc_now(),
+      metadata: %{
+        ip_address: "127.0.0.1",
+        user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+      },
+      created_at: DateTime.utc_now()
+    }
+  end
+  
+  @doc """
   Função personalizada para inserir um usuário no banco de dados.
   
   ## Parâmetros
