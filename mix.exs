@@ -77,7 +77,10 @@ defmodule DeeperHub.MixProject do
       {:cowboy, "~> 2.13"},
       {:plug, "~> 1.17"},
       {:plug_cowboy, "~> 2.7"},
-      {:jason, "~> 1.4"}
+      {:jason, "~> 1.4"},
+
+      # Auth
+      {:joken, "~> 2.6"},
     ]
   end
 end

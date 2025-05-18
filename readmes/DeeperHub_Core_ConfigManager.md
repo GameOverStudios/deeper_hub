@@ -216,7 +216,7 @@ core/config_manager/
     ```elixir
     case DeeperHub.Core.ConfigManager.delete(\"old_feature.enabled\", \"global\", deleted_by: \"cleanup_script\") do
       {:ok, _} -> Logger.info(\"Configuração removida.\")
-      {:error, :not_found} -> Logger.warn(\"Configuração não encontrada para remoção.\")
+      {:error, :not_found} -> Logger.warning(\"Configuração não encontrada para remoção.\")
       {:error, reason} -> Logger.error(\"Falha ao remover configuração: #{inspect(reason)}\")
     end
     ```

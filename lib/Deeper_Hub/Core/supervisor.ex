@@ -60,6 +60,9 @@ defmodule Deeper_Hub.Core.Supervisor do
          ]
        ]
       },
+      
+      # Inicia o serviço de blacklist de tokens
+      Deeper_Hub.Core.Auth.TokenBlacklist,
 
       # Inicia o repórter de métricas
       Deeper_Hub.Core.Metrics.Reporter,
