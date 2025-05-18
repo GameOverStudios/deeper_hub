@@ -190,7 +190,7 @@ defmodule Deeper_Hub.Core.Communications.CommunicationsTest do
       ConnectionManager.register("user2", test_pid)
       
       # Publica uma mensagem no canal
-      {:ok, message_id, recipient_count} = ChannelManager.publish("announcement", "admin", "Anúncio importante", %{})
+      {:ok, _message_id, recipient_count} = ChannelManager.publish("announcement", "admin", "Anúncio importante", %{})
       
       # Verifica se a mensagem foi enviada para todos os inscritos
       assert recipient_count == 2

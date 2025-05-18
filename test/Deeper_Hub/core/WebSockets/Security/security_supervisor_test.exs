@@ -7,7 +7,7 @@ defmodule Deeper_Hub.Core.WebSockets.Security.SecuritySupervisorTest do
   # Mock do SecurityMiddleware
   defp mock_security_middleware do
     :meck.new(SecurityMiddleware, [:passthrough])
-    :meck.expect(SecurityMiddleware, :check_request, fn req, state, _opts -> 
+    :meck.expect(SecurityMiddleware, :check_request, fn _req, state, _opts -> 
       {:ok, Map.put(state, :security_checked, true)} 
     end)
     

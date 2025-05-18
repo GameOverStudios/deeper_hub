@@ -1,4 +1,4 @@
-defmodule Deeper_Hub.Core.Schemas.UserTest do
+defmodule Deeper_Hub.Core.Data.DBConnection.Schemas.UserTest do
   @moduledoc """
   Testes para o esquema User.
   
@@ -8,7 +8,7 @@ defmodule Deeper_Hub.Core.Schemas.UserTest do
   
   use ExUnit.Case
   
-  alias Deeper_Hub.Core.Schemas.User
+  alias Deeper_Hub.Core.Data.DBConnection.Schemas.User
   alias Deeper_Hub.Factory
   
   # Configuração para testes

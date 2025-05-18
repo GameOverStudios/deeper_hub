@@ -11,7 +11,12 @@ defmodule Deeper_Hub.Core.WebSockets.Security.CsrfProtectionTest do
   # Mock da função :cowboy_req.header/2
   defp mock_cowboy_req_header do
     :meck.new(:cowboy_req, [:passthrough])
-    :meck.expect(:cowboy_req, :header, fn name, req, default \\ nil ->
+    # Definimos duas funções separadas para lidar com os casos com e sem valor padrão
+    :meck.expect(:cowboy_req, :header, fn name, req ->
+      Map.get(req.headers, name, nil)
+    end)
+    
+    :meck.expect(:cowboy_req, :header, fn name, req, default ->
       Map.get(req.headers, name, default)
     end)
     
