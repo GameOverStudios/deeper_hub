@@ -8,195 +8,157 @@
 #include <thread>
 #include <chrono>
 #include "../include/websocket_client.h"
+#include "../include/cpp_client_adapter.h"
 
 #pragma comment(lib, "winhttp.lib")
 
 using json = nlohmann::json;
 
-// Função para testar a conexão e envio de mensagens WebSocket
-void testWebSocketConnection() {
-    WebSocketClient client;
+// Função para executar os testes de WebSocket
+void runWebSocketTests(const std::string& host, int port, const std::string& userId) {
+    std::cout << "\n===== TESTE DE INTEGRAÇÃO WEBSOCKET C++ COM ELIXIR =====\n";
+    std::cout << "Conectando a " << host << ":" << port << " com usuário " << userId << "\n";
     
-    std::cout << "\n===== TESTE DE CONEXÃO WEBSOCKET =====\n";
-    std::cout << "Conectando ao servidor WebSocket localhost:8080...\n";
+    // Cria o adaptador
+    CppClientAdapter adapter;
     
-    if (client.connect("localhost", 8080)) {
-        std::cout << "Conexão estabelecida com sucesso!\n";
-        
-        // Teste 1: Enviar mensagem de echo usando o formato correto
-        std::cout << "\n----- Teste 1: Enviar mensagem de echo -----\n";
-        json echoMessage = {
-            {"event", "message"},
-            {"payload", {
-                {"action", "echo"},
-                {"data", {
-                    {"message", "Olá, servidor!"},
-                    {"timestamp", static_cast<long long>(time(nullptr))}
-                }}
-            }}
-        };
-        
-        std::cout << "Enviando mensagem: " << echoMessage.dump() << "\n";
-        
-        if (client.sendTextMessage(echoMessage)) {
-            std::string response;
-            if (client.receiveMessage(response)) {
-                std::cout << "Resposta recebida: " << response << "\n";
-            } else {
-                std::cerr << "Erro ao receber resposta do servidor\n";
-            }
-        }
-        
-        // Pequena pausa para garantir que a mensagem seja processada
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        
-        // Teste 2: Enviar mensagem para criar um usuário
-        std::cout << "\n----- Teste 2: Criar um novo usuário -----\n";
-        json createUserMessage = {
-            {"event", "message"},
-            {"payload", {
-                {"action", "user"},
-                {"data", {
-                    {"operation", "create"},
-                    {"username", "testuser"},
-                    {"email", "test@example.com"},
-                    {"password", "password123"}
-                }}
-            }}
-        };
-        
-        std::cout << "Enviando mensagem: " << createUserMessage.dump() << "\n";
-        
-        if (client.sendTextMessage(createUserMessage)) {
-            std::string response;
-            if (client.receiveMessage(response)) {
-                std::cout << "Resposta recebida: " << response << "\n";
-            } else {
-                std::cerr << "Erro ao receber resposta do servidor\n";
-            }
-        }
-        
-        // Pequena pausa para garantir que a mensagem seja processada
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        
-        // Teste 3: Enviar mensagem para listar usuários
-        std::cout << "\n----- Teste 3: Listar usuários -----\n";
-        json listUsersMessage = {
-            {"event", "message"},
-            {"payload", {
-                {"action", "user"},
-                {"data", {
-                    {"operation", "list"}
-                }}
-            }}
-        };
-        
-        std::cout << "Enviando mensagem: " << listUsersMessage.dump() << "\n";
-        
-        if (client.sendTextMessage(listUsersMessage)) {
-            std::string response;
-            if (client.receiveMessage(response)) {
-                std::cout << "Resposta recebida: " << response << "\n";
-            } else {
-                std::cerr << "Erro ao receber resposta do servidor\n";
-            }
-        }
-        
-        // Pequena pausa para garantir que a mensagem seja processada
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        
-        // Teste 4: Enviar mensagem para buscar um usuário
-        std::cout << "\n----- Teste 4: Buscar usuário -----\n";
-        json getUserMessage = {
-            {"event", "message"},
-            {"payload", {
-                {"action", "user"},
-                {"data", {
-                    {"operation", "get"},
-                    {"id", "1"}
-                }}
-            }}
-        };
-        
-        std::cout << "Enviando mensagem: " << getUserMessage.dump() << "\n";
-        
-        if (client.sendTextMessage(getUserMessage)) {
-            std::string response;
-            if (client.receiveMessage(response)) {
-                std::cout << "Resposta recebida: " << response << "\n";
-            } else {
-                std::cerr << "Erro ao receber resposta do servidor\n";
-            }
-        }
-        
-        // Pequena pausa para garantir que a mensagem seja processada
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        
-        // Teste 5: Enviar mensagem para atualizar um usuário
-        std::cout << "\n----- Teste 5: Atualizar usuário -----\n";
-        json updateUserMessage = {
-            {"event", "message"},
-            {"payload", {
-                {"action", "user"},
-                {"data", {
-                    {"operation", "update"},
-                    {"id", "1"},
-                    {"email", "updated@example.com"}
-                }}
-            }}
-        };
-        
-        std::cout << "Enviando mensagem: " << updateUserMessage.dump() << "\n";
-        
-        if (client.sendTextMessage(updateUserMessage)) {
-            std::string response;
-            if (client.receiveMessage(response)) {
-                std::cout << "Resposta recebida: " << response << "\n";
-            } else {
-                std::cerr << "Erro ao receber resposta do servidor\n";
-            }
-        }
-        
-        // Pequena pausa para garantir que a mensagem seja processada
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        
-        // Teste 6: Enviar mensagem para excluir um usuário
-        std::cout << "\n----- Teste 6: Excluir usuário -----\n";
-        json deleteUserMessage = {
-            {"event", "message"},
-            {"payload", {
-                {"action", "user"},
-                {"data", {
-                    {"operation", "delete"},
-                    {"id", "1"}
-                }}
-            }}
-        };
-        
-        std::cout << "Enviando mensagem: " << deleteUserMessage.dump() << "\n";
-        
-        if (client.sendTextMessage(deleteUserMessage)) {
-            std::string response;
-            if (client.receiveMessage(response)) {
-                std::cout << "Resposta recebida: " << response << "\n";
-            } else {
-                std::cerr << "Erro ao receber resposta do servidor\n";
-            }
-        }
-        
-        // Aguarda um pouco antes de fechar a conexão
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        
-        // Fechando a conexão
-        std::cout << "\nFechando conexão...\n";
-        client.close();
-    } else {
-        std::cerr << "Falha ao conectar ao servidor WebSocket.\n";
+    // Conecta ao servidor
+    if (!adapter.connect(host, port)) {
+        std::cerr << "Falha ao conectar ao servidor. Encerrando.\n";
+        return;
     }
+    
+    // Autentica o usuário
+    if (!adapter.authenticate(userId)) {
+        std::cerr << "Falha na autenticação. Encerrando.\n";
+        adapter.disconnect();
+        return;
+    }
+    
+    std::cout << "\n=== Testando EchoHandler ===\n";
+    adapter.testEchoHandler("Olá do cliente C++!");
+    
+    // Pausa para visualizar resultados
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    
+    // Testa criação de usuário
+    std::cout << "\n=== Testando UserHandler - Criar usuário ===\n";
+    std::string username = "user_" + std::to_string(std::chrono::system_clock::now().time_since_epoch().count() % 10000);
+    std::string email = username + "@example.com";
+    std::string password = "senha123";
+    
+    bool userCreated = adapter.testUserCreate(username, email, password);
+    std::string createdUserId = ""; // Seria preenchido com o ID retornado na resposta real
+    
+    if (userCreated) {
+        // Normalmente extraíriamos o ID do usuário da resposta
+        createdUserId = "user_id_123"; // Exemplo
+        
+        // Testa obtenção de usuário
+        std::cout << "\n=== Testando UserHandler - Obter usuário ===\n";
+        adapter.testUserGet(createdUserId);
+        
+        // Pausa para visualizar resultados
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        
+        // Testa atualização de usuário
+        std::cout << "\n=== Testando UserHandler - Atualizar usuário ===\n";
+        adapter.testUserUpdate(createdUserId, username + "_updated", email);
+        
+        // Pausa para visualizar resultados
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+    
+    // Testa criação de canal
+    std::cout << "\n=== Testando ChannelHandler - Criar canal ===\n";
+    std::string channelName = "channel_" + std::to_string(std::chrono::system_clock::now().time_since_epoch().count() % 10000);
+    bool channelCreated = adapter.testChannelCreate(channelName);
+    
+    if (channelCreated) {
+        // Testa inscrição no canal
+        std::cout << "\n=== Testando ChannelHandler - Inscrever-se no canal ===\n";
+        adapter.testChannelSubscribe(channelName);
+        
+        // Pausa para visualizar resultados
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        
+        // Testa publicação no canal
+        std::cout << "\n=== Testando ChannelHandler - Publicar mensagem no canal ===\n";
+        adapter.testChannelPublish(channelName, "Mensagem de teste para o canal");
+        
+        // Pausa para visualizar resultados
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+    
+    // Testa envio de mensagem direta
+    std::cout << "\n=== Testando MessageHandler - Enviar mensagem direta ===\n";
+    std::string recipientId = "recipient_123"; // ID de destinatário de exemplo
+    bool messageSent = adapter.testMessageSend(recipientId, "Mensagem direta de teste");
+    std::string messageId = ""; // Seria preenchido com o ID retornado na resposta real
+    
+    if (messageSent) {
+        // Normalmente extraíriamos o ID da mensagem da resposta
+        messageId = "message_id_123"; // Exemplo
+        
+        // Testa marcação de mensagem como lida
+        std::cout << "\n=== Testando MessageHandler - Marcar mensagem como lida ===\n";
+        adapter.testMessageMarkRead(messageId);
+        
+        // Pausa para visualizar resultados
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        
+        // Testa obtenção de histórico de mensagens
+        std::cout << "\n=== Testando MessageHandler - Obter histórico de mensagens ===\n";
+        adapter.testMessageHistory(recipientId, 10, 0);
+        
+        // Pausa para visualizar resultados
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+    
+    // Testa exclusão de usuário, se foi criado
+    if (!createdUserId.empty()) {
+        std::cout << "\n=== Testando UserHandler - Excluir usuário ===\n";
+        adapter.testUserDelete(createdUserId);
+        
+        // Pausa para visualizar resultados
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+    
+    // Desconecta
+    std::cout << "\n=== Desconectando do servidor ===\n";
+    adapter.disconnect();
+    
+    std::cout << "\n=== Teste concluído ===\n";
 }
 
 int main(int argc, char* argv[]) {
     std::cout << "Iniciando cliente Deeper_Hub...\n";
+    
+    // Parâmetros padrão
+    std::string host = "localhost";
+    int port = 4000;
+    std::string userId = "test_user_123";
+    
+    // Processamento de argumentos de linha de comando
+    for (int i = 1; i < argc; i++) {
+        std::string arg = argv[i];
+        
+        if (arg == "--host" && i + 1 < argc) {
+            host = argv[++i];
+        } else if (arg == "--port" && i + 1 < argc) {
+            port = std::stoi(argv[++i]);
+        } else if (arg == "--user" && i + 1 < argc) {
+            userId = argv[++i];
+        } else if (arg == "--help") {
+            std::cout << "Uso: deeper_client [opções]\n"
+                      << "Opções:\n"
+                      << "  --host HOSTNAME    Endereço do servidor (padrão: localhost)\n"
+                      << "  --port PORT        Porta do servidor (padrão: 4000)\n"
+                      << "  --user USER_ID     ID do usuário para autenticação (padrão: test_user_123)\n"
+                      << "  --help             Exibe esta ajuda\n";
+            return 0;
+        }
+    }
     
     // Inicializa o COM (necessário para algumas versões do Windows)
     CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
@@ -209,8 +171,9 @@ int main(int argc, char* argv[]) {
     }
     
     try {
-        // Testar a conexão WebSocket
-        testWebSocketConnection();
+        // Executa os testes de WebSocket automaticamente
+        std::cout << "Iniciando testes de WebSocket automaticamente...\n";
+        runWebSocketTests(host, port, userId);
     } catch (const std::exception& e) {
         std::cerr << "Erro: " << e.what() << std::endl;
         WSACleanup();
@@ -222,8 +185,7 @@ int main(int argc, char* argv[]) {
     WSACleanup();
     CoUninitialize();
     
-    std::cout << "Pressione Enter para sair...";
-    std::cin.ignore();
+    std::cout << "Saindo...";
     
     return 0;
 }

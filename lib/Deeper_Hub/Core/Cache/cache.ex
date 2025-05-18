@@ -216,7 +216,8 @@ defmodule Deeper_Hub.Core.Cache do
     - `{:error, reason}` em caso de falha
   """
   def stats do
-    Logger.debug("Obtendo estatísticas do cache", %{module: __MODULE__})
+    # Comentamos o log de debug para reduzir ruído no console
+    # Logger.debug("Obtendo estatísticas do cache", %{module: __MODULE__})
     
     # Usamos nosso hook personalizado para obter estatísticas
     Deeper_Hub.Core.Cache.StatsHook.get_stats(@cache_name)

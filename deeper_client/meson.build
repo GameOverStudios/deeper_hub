@@ -40,7 +40,8 @@ common_cpp_args = [
 src_files = [
   'src/main.cpp',
   'src/http_client.cpp',
-  'src/websocket_client.cpp'
+  'src/websocket_client.cpp',
+  'src/cpp_client_adapter.cpp'
 ]
 
 # Diretórios de inclusão
@@ -96,11 +97,11 @@ else
   dep_list += [json_dep, websocketpp_dep]
 endif
 
-# Configuração do executável
+# Configuração do executável principal
 executable('deeper_client',
   sources: src_files,
-  include_directories: incdir,
   dependencies: dep_list,
+  include_directories: incdir,
   cpp_args: common_cpp_args,
   link_args: ['-pthread'],
   install: true,

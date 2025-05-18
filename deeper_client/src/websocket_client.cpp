@@ -54,28 +54,21 @@ bool WebSocketClient::connect(const std::string& host, int port) {
         return false;
     }
 
-    // Usamos o caminho específico para o Phoenix Framework
-    std::wstring path = L"/socket/websocket";
+    // Usamos o caminho definido no servidor Elixir (websocket_supervisor.ex)
+    std::wstring path = L"/ws";
     
     std::cout << "Conectando ao caminho: " << std::string(path.begin(), path.end()) << std::endl;
     
     // Abre a requisição para upgrade para WebSocket
+    // IMPORTANTE: Usamos HTTP/1.1 explicitamente, pois o protocolo WebSocket requer HTTP/1.1
     m_hRequest = WinHttpOpenRequest(
         m_hConnection,
         L"GET",
         path.c_str(),
-        NULL,  // Usando NULL em vez de HTTP/1.1
+        L"HTTP/1.1",  // Especificamos explicitamente HTTP/1.1 para o protocolo WebSocket
         WINHTTP_NO_REFERER,
         WINHTTP_DEFAULT_ACCEPT_TYPES,
         0);  // Sem WINHTTP_FLAG_SECURE para conexão local
-        
-    // IMPORTANTE: Desativa o Keep-Alive que o WinHTTP adiciona por padrão
-    // Isso é crucial porque o servidor Elixir espera "Connection: Upgrade"
-    DWORD disable_features = WINHTTP_DISABLE_KEEP_ALIVE;
-    if (!WinHttpSetOption(m_hRequest, WINHTTP_OPTION_DISABLE_FEATURE, 
-                         &disable_features, sizeof(disable_features))) {
-        std::cerr << "Erro ao desativar Keep-Alive: " << GetLastError() << std::endl;
-    }
 
     if (!m_hRequest) {
         DWORD error = GetLastError();
@@ -87,48 +80,7 @@ bool WebSocketClient::connect(const std::string& host, int port) {
         return false;
     }
     
-    // Adiciona cada cabeçalho individualmente para garantir que sejam enviados corretamente
-    // IMPORTANTE: O Elixir espera os nomes dos cabeçalhos em minúsculas, mas o WinHTTP pode normalizá-los
-    // Vamos tentar diferentes formatos para garantir que pelo menos um funcione
-    
-    // Adicionar os cabeçalhos necessários para o handshake WebSocket um por um
-    // Isso é mais confiável do que usar uma string única
-    
-    // Connection: Upgrade - essencial para o handshake WebSocket
-    if (!WinHttpAddRequestHeaders(m_hRequest, L"Connection: Upgrade", -1, WINHTTP_ADDREQ_FLAG_REPLACE)) {
-        std::cerr << "Erro ao adicionar cabeçalho Connection: " << GetLastError() << std::endl;
-    }
-    
-    // Upgrade: websocket - especifica o protocolo para upgrade
-    if (!WinHttpAddRequestHeaders(m_hRequest, L"Upgrade: websocket", -1, WINHTTP_ADDREQ_FLAG_ADD)) {
-        std::cerr << "Erro ao adicionar cabeçalho Upgrade: " << GetLastError() << std::endl;
-    }
-    
-    // Sec-WebSocket-Version: 13 - versão do protocolo WebSocket (RFC 6455)
-    if (!WinHttpAddRequestHeaders(m_hRequest, L"Sec-WebSocket-Version: 13", -1, WINHTTP_ADDREQ_FLAG_ADD)) {
-        std::cerr << "Erro ao adicionar cabeçalho Sec-WebSocket-Version: " << GetLastError() << std::endl;
-    }
-    
-    // Sec-WebSocket-Protocol: phoenix-v1 - protocolo específico para o Phoenix Framework
-    if (!WinHttpAddRequestHeaders(m_hRequest, L"Sec-WebSocket-Protocol: phoenix-v1", -1, WINHTTP_ADDREQ_FLAG_ADD)) {
-        std::cerr << "Erro ao adicionar cabeçalho Sec-WebSocket-Protocol: " << GetLastError() << std::endl;
-    }
-    
-    // Adiciona o Host e Origin para ajudar no roteamento
-    std::wstring hostHeader = L"Host: " + wideHost + L":" + std::to_wstring(port);
-    if (!WinHttpAddRequestHeaders(m_hRequest, hostHeader.c_str(), -1, WINHTTP_ADDREQ_FLAG_ADD)) {
-        std::cerr << "Erro ao adicionar cabeçalho Host: " << GetLastError() << std::endl;
-    }
-    
-    std::wstring originHeader = L"Origin: http://" + wideHost + L":" + std::to_wstring(port);
-    if (!WinHttpAddRequestHeaders(m_hRequest, originHeader.c_str(), -1, WINHTTP_ADDREQ_FLAG_ADD)) {
-        std::cerr << "Erro ao adicionar cabeçalho Origin: " << GetLastError() << std::endl;
-    }
-
-    // Adicionamos os cabeçalhos individualmente acima
-
-    
-    // Gera 16 bytes aleatórios
+    // Gera 16 bytes aleatórios para o Sec-WebSocket-Key
     BYTE randomBytes[16];
     for (int i = 0; i < 16; i++) {
         randomBytes[i] = static_cast<BYTE>(rand() % 256);
@@ -144,14 +96,33 @@ bool WebSocketClient::connect(const std::string& host, int port) {
     std::wstring key(base64Buffer.data());
     key.erase(std::remove_if(key.begin(), key.end(), [](wchar_t c) { return c == '\r' || c == '\n' || c == ' '; }), key.end());
     
-    // Adiciona o cabeçalho Sec-WebSocket-Key
+    // Usamos a API nativa do WinHTTP para WebSockets
+    // Indicamos que queremos fazer um upgrade para WebSocket
+    BOOL bResult = WinHttpSetOption(
+        m_hRequest,
+        WINHTTP_OPTION_UPGRADE_TO_WEB_SOCKET,
+        NULL,
+        0);
+    
+    if (!bResult) {
+        DWORD error = GetLastError();
+        std::cerr << "Erro ao configurar opção de upgrade para WebSocket: " << error << std::endl;
+        WinHttpCloseHandle(m_hRequest);
+        WinHttpCloseHandle(m_hConnection);
+        WinHttpCloseHandle(m_hSession);
+        m_hRequest = NULL;
+        m_hConnection = NULL;
+        m_hSession = NULL;
+        return false;
+    }
+    
+    // Adicionamos o cabeçalho Sec-WebSocket-Key manualmente
     std::wstring keyHeader = L"Sec-WebSocket-Key: " + key;
     if (!WinHttpAddRequestHeaders(m_hRequest, keyHeader.c_str(), -1, WINHTTP_ADDREQ_FLAG_ADD)) {
-        DWORD error = GetLastError();
-        std::cerr << "Erro ao adicionar cabeçalho Sec-WebSocket-Key: " << error << std::endl;
+        std::cerr << "Erro ao adicionar cabeçalho Sec-WebSocket-Key: " << GetLastError() << std::endl;
     }
-
-    // Envia a requisição
+    
+    // Envia a requisição sem cabeçalhos adicionais, pois o WinHTTP adicionará os cabeçalhos necessários
     if (!WinHttpSendRequest(
         m_hRequest,
         WINHTTP_NO_ADDITIONAL_HEADERS, 0,
@@ -166,8 +137,8 @@ bool WebSocketClient::connect(const std::string& host, int port) {
         m_hSession = NULL;
         return false;
     }
-
-    // Recebe a resposta
+    
+    // Recebe a resposta do servidor
     if (!WinHttpReceiveResponse(m_hRequest, NULL)) {
         DWORD error = GetLastError();
         std::cerr << "Erro ao receber resposta: " << error << std::endl;
@@ -179,47 +150,73 @@ bool WebSocketClient::connect(const std::string& host, int port) {
         m_hSession = NULL;
         return false;
     }
-    
+
     // Verifica o status da resposta
     DWORD statusCode = 0;
-    DWORD statusCodeSize = sizeof(DWORD);
-    if (WinHttpQueryHeaders(m_hRequest,
-                            WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
-                            WINHTTP_HEADER_NAME_BY_INDEX,
-                            &statusCode,
-                            &statusCodeSize,
-                            WINHTTP_NO_HEADER_INDEX)) {
-        std::cout << "Status da resposta: " << statusCode << std::endl;
-        
-        // Verifica se o status é 101 (Switching Protocols)
-        if (statusCode != 101) {
-            std::cerr << "Resposta inesperada do servidor: " << statusCode << std::endl;
-            // Continuamos mesmo com erro para depuração
-        }
-    }
-    
-    // Imprime todos os cabeçalhos da resposta para depuração
-    DWORD headerSize = 0;
-    WinHttpQueryHeaders(m_hRequest,
-                       WINHTTP_QUERY_RAW_HEADERS_CRLF,
-                       WINHTTP_HEADER_NAME_BY_INDEX,
-                       NULL,
-                       &headerSize,
-                       WINHTTP_NO_HEADER_INDEX);
-    
-    if (headerSize > 0) {
-        std::vector<wchar_t> headerBuffer(headerSize / sizeof(wchar_t));
-        if (WinHttpQueryHeaders(m_hRequest,
-                              WINHTTP_QUERY_RAW_HEADERS_CRLF,
-                              WINHTTP_HEADER_NAME_BY_INDEX,
-                              headerBuffer.data(),
-                              &headerSize,
-                              WINHTTP_NO_HEADER_INDEX)) {
-            std::wcout << L"Cabeçalhos da resposta:\n" << headerBuffer.data() << std::endl;
-        }
+    DWORD statusCodeSize = sizeof(statusCode);
+    WinHttpQueryHeaders(
+        m_hRequest,
+        WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
+        WINHTTP_HEADER_NAME_BY_INDEX,
+        &statusCode,
+        &statusCodeSize,
+        WINHTTP_NO_HEADER_INDEX);
+
+    std::cout << "Status da resposta: " << statusCode << std::endl;
+
+    // Exibe os cabeçalhos da resposta para diagnóstico
+    DWORD headersSize = 0;
+    WinHttpQueryHeaders(
+        m_hRequest,
+        WINHTTP_QUERY_RAW_HEADERS_CRLF,
+        WINHTTP_HEADER_NAME_BY_INDEX,
+        NULL,
+        &headersSize,
+        WINHTTP_NO_HEADER_INDEX);
+
+    if (headersSize > 0) {
+        std::vector<wchar_t> headersBuffer(headersSize / sizeof(wchar_t));
+        WinHttpQueryHeaders(
+            m_hRequest,
+            WINHTTP_QUERY_RAW_HEADERS_CRLF,
+            WINHTTP_HEADER_NAME_BY_INDEX,
+            headersBuffer.data(),
+            &headersSize,
+            WINHTTP_NO_HEADER_INDEX);
+
+        std::wcout << L"Cabeçalhos da resposta:" << std::endl;
+        std::wcout << headersBuffer.data() << std::endl;
     }
 
-    // Completa o handshake WebSocket
+    // Esperamos o código 101 (Switching Protocols) para WebSocket
+    if (statusCode != 101) {
+        std::cerr << "Resposta inesperada do servidor: " << statusCode << std::endl;
+        
+        DWORD error = GetLastError();
+        // Imprime informações adicionais de erro
+        LPVOID lpMsgBuf;
+        FormatMessage(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+            FORMAT_MESSAGE_FROM_SYSTEM |
+            FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL,
+            error,
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+            (LPTSTR) &lpMsgBuf,
+            0, NULL);
+        std::wcerr << L"Mensagem de erro: " << (LPTSTR)lpMsgBuf << std::endl;
+        LocalFree(lpMsgBuf);
+        
+        WinHttpCloseHandle(m_hRequest);
+        WinHttpCloseHandle(m_hConnection);
+        WinHttpCloseHandle(m_hSession);
+        m_hRequest = NULL;
+        m_hConnection = NULL;
+        m_hSession = NULL;
+        return false;
+    }
+    
+    // Completa o upgrade para WebSocket
     m_hWebSocket = WinHttpWebSocketCompleteUpgrade(m_hRequest, 0);
     if (!m_hWebSocket) {
         DWORD error = GetLastError();
@@ -236,7 +233,7 @@ bool WebSocketClient::connect(const std::string& host, int port) {
             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
             (LPTSTR) &lpMsgBuf,
             0, NULL);
-        std::wcerr << L"Mensagem de erro: " << (LPTSTR)lpMsgBuf << std::endl;
+        std::wcerr << L"Mensagem de erro: Falha ao conectar ao servidor WebSocket" << std::endl;
         LocalFree(lpMsgBuf);
         
         WinHttpCloseHandle(m_hRequest);
@@ -267,13 +264,10 @@ bool WebSocketClient::connect(const std::string& host, int port) {
     // Envia uma mensagem de teste para o servidor no formato esperado pelo router.ex
     try {
         nlohmann::json testMessage = {
-            {"event", "message"},
+            {"type", "echo"},  // Usando 'type' em vez de 'event' conforme esperado pelo servidor
             {"payload", {
-                {"action", "echo"},
-                {"data", {
-                    {"message", "Hello from C++ client!"},
-                    {"timestamp", static_cast<long long>(time(nullptr))}
-                }}
+                {"message", "Hello from C++ client!"},
+                {"timestamp", static_cast<long long>(time(nullptr))}
             }}
         };
         
