@@ -24,7 +24,16 @@ defmodule DeeperHub.Application do
     ]
     
     # Configuração do supervisor principal
-    opts = [strategy: :one_for_one, name: DeeperHub.Supervisor]
+    # Obtém configurações de resiliência do ambiente
+    supervisor_config = Application.get_env(:deeper_hub, :supervisor, [])
+    
+    # Define opções do supervisor com valores padrão caso não estejam configurados
+    opts = [
+      strategy: Keyword.get(supervisor_config, :strategy, :one_for_one),
+      name: DeeperHub.Supervisor,
+      max_restarts: Keyword.get(supervisor_config, :max_restarts, 3),
+      max_seconds: Keyword.get(supervisor_config, :max_seconds, 5)
+    ]
     
     # Inicia o supervisor principal
     result = Supervisor.start_link(children, opts)

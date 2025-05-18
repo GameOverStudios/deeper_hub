@@ -80,7 +80,9 @@ defmodule DeeperHub.Core.Data.Migrations do
     
     case Repo.query(sql) do
       {:ok, rows} -> 
-        versions = Enum.map(rows, fn row -> row["version"] end)
+        # O Exqlite retorna os resultados como listas, não como mapas
+        # Cada linha é uma lista onde o primeiro elemento é o valor da coluna 'version'
+        versions = Enum.map(rows, fn [version] -> version end)
         Logger.debug("Migrações aplicadas: #{inspect(versions)}", module: __MODULE__)
         {:ok, versions}
       {:error, reason} -> 
