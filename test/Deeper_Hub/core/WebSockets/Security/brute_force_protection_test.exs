@@ -70,7 +70,7 @@ defmodule Deeper_Hub.Core.WebSockets.Security.BruteForceProtectionTest do
       end
       
       # Verifica que o usuário está bloqueado
-      assert {:error, "Too many failed login attempts", remaining_time} = BruteForceProtection.check_login_allowed(ip, username)
+      assert {:error, "Too many failed login attempts", _remaining_time} = BruteForceProtection.check_login_allowed(ip, username)
       
       # Desbloqueamos manualmente a conta para o teste
       BruteForceProtection.unblock_account("#{ip}:#{username}")

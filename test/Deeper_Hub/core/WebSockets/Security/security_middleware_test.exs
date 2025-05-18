@@ -2,13 +2,8 @@ defmodule Deeper_Hub.Core.WebSockets.Security.SecurityMiddlewareTest do
   use ExUnit.Case
 
   alias Deeper_Hub.Core.WebSockets.Security.SecurityMiddleware
-  alias Deeper_Hub.Core.WebSockets.Security.CsrfProtection
-  alias Deeper_Hub.Core.WebSockets.Security.XssProtection
-  alias Deeper_Hub.Core.WebSockets.Security.SqlInjectionProtection
-  alias Deeper_Hub.Core.WebSockets.Security.PathTraversalProtection
-  alias Deeper_Hub.Core.WebSockets.Security.DdosProtection
-  alias Deeper_Hub.Core.WebSockets.Security.BruteForceProtection
-  alias Deeper_Hub.Core.WebSockets.Security.SecurityConfig
+  # Apenas o alias necessário para os testes
+  alias Deeper_Hub.Core.WebSockets.Security.SecurityMiddleware
 
   setup do
     %{
@@ -19,7 +14,7 @@ defmodule Deeper_Hub.Core.WebSockets.Security.SecurityMiddlewareTest do
   end
 
   describe "check_request/3" do
-    test "middleware de segurança existe", %{req: req, state: state} do
+    test "middleware de segurança existe", %{req: _req, state: _state} do
       # Verificamos apenas que o módulo existe e pode ser chamado
       assert function_exported?(SecurityMiddleware, :check_request, 2)
     end

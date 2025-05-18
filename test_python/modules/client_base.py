@@ -39,7 +39,27 @@ class DeeperHubClient:
         """Estabelece conexão com o servidor WebSocket."""
         try:
             self.logger.info(f"Tentando conectar a {self.server_url}")
-            self.websocket = await websockets.connect(self.server_url)
+            
+            # Obtém configurações de segurança
+            security_config = self.config["security"]
+            origin = f"http://{self.server_url.split('://')[1].split('/')[0]}"
+            
+            # Verifica se a origem é permitida
+            if origin not in security_config["allowed_origins"]:
+                self.logger.warning(f"Origem {origin} não está na lista de origens permitidas")
+            
+            # Headers de segurança
+            headers = {
+                "Origin": origin,
+                "User-Agent": security_config["user_agent"],
+                "Sec-WebSocket-Protocol": security_config["websocket_protocol"]
+            }
+            
+            self.websocket = await websockets.connect(
+                self.server_url,
+                extra_headers=headers,
+                subprotocols=[security_config["websocket_protocol"]]
+            )
             self.logger.info(f"Conexão estabelecida com {self.server_url}")
             return True
         except Exception as e:

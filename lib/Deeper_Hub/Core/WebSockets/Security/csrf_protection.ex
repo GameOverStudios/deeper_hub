@@ -22,18 +22,46 @@ defmodule Deeper_Hub.Core.WebSockets.Security.CsrfProtection do
     - `{:error, reason}` se a requisição for suspeita
   """
   def validate_request(req, state) do
-    with {:ok, _origin} <- validate_origin(req),
-         {:ok, _token} <- validate_csrf_token(req) do
-      {:ok, state}
-    else
-      {:error, reason} ->
+    token = :cowboy_req.header("x-csrf-token", req)
+    session_id = get_session_id(req)
+    origin = :cowboy_req.header("origin", req)
+    referer = :cowboy_req.header("referer", req)
+    
+    # Verificação do token CSRF primeiro
+    token_valid = not is_nil(token) and verify_token(session_id, token)
+    
+    cond do
+      # Caso 1: Se não tem origem nem referer, mas tem token válido
+      is_nil(origin) and is_nil(referer) and token_valid ->
+        Logger.info("Requisição sem origem ou referer, mas com token CSRF válido", %{
+          module: __MODULE__,
+          ip: get_client_ip(req)
+        })
+        {:ok, state}
+      
+      # Caso 2: Se não tem token válido
+      not token_valid ->
+        reason = if is_nil(token), do: "Token CSRF ausente", else: "Token CSRF inválido"
         Logger.warning("Possível ataque CSRF detectado", %{
           module: __MODULE__,
           reason: reason,
           ip: get_client_ip(req)
         })
-        
         {:error, "Requisição inválida: #{reason}"}
+      
+      # Caso 3: Se tem token válido, verifica a origem
+      true ->
+        case validate_origin(req) do
+          {:ok, _origin} -> 
+            {:ok, state}
+          {:error, reason} ->
+            Logger.warning("Possível ataque CSRF detectado", %{
+              module: __MODULE__,
+              reason: reason,
+              ip: get_client_ip(req)
+            })
+            {:error, "Requisição inválida: #{reason}"}
+        end
     end
   end
   
@@ -82,36 +110,21 @@ defmodule Deeper_Hub.Core.WebSockets.Security.CsrfProtection do
   defp validate_origin(req) do
     origin = :cowboy_req.header("origin", req)
     referer = :cowboy_req.header("referer", req)
-    token = :cowboy_req.header("x-csrf-token", req)
     
     allowed_origins = get_allowed_origins()
     
     cond do
-      # Se não tem origem mas tem token, verificamos o token em outra função
-      is_nil(origin) and is_nil(referer) and not is_nil(token) ->
-        # Requisições sem origem mas com token podem ser permitidas
-        # Isso é útil para clientes que não enviam cabeçalhos de origem
-        Logger.info("Requisição sem origem ou referer, mas com token CSRF", %{
-          module: __MODULE__,
-          ip: get_client_ip(req)
-        })
-        {:ok, nil}
-        
-      # Se não tem origem nem token, registramos mas não permitimos
-      is_nil(origin) and is_nil(referer) ->
-        # Requisições sem origem e sem token não são permitidas
-        Logger.warning("Requisição sem origem ou referer e sem token CSRF", %{
-          module: __MODULE__,
-          ip: get_client_ip(req)
-        })
-        {:error, "Origem não permitida"}
-        
-      origin in allowed_origins ->
+      # Caso 1: Se tem origem e está na lista de permitidas
+      not is_nil(origin) and origin in allowed_origins ->
         {:ok, origin}
         
-      String.starts_with?(to_string(referer || ""), allowed_origins) ->
+      # Caso 2: Se tem referer e começa com uma origem permitida
+      not is_nil(referer) and Enum.any?(allowed_origins, fn allowed ->
+        String.starts_with?(to_string(referer), allowed)
+      end) ->
         {:ok, referer}
         
+      # Caso 3: Se não atende nenhuma condição acima
       true ->
         {:error, "Origem não permitida"}
     end

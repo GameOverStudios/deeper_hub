@@ -50,6 +50,21 @@ defmodule Deeper_Hub.Core.WebSockets.Security.XssProtection do
     end
   end
   
+  def sanitize_message(message) when is_list(message) do
+    try do
+      sanitized = sanitize_list(message)
+      {:ok, sanitized}
+    rescue
+      e ->
+        Logger.error("Erro ao sanitizar lista", %{
+          module: __MODULE__,
+          error: inspect(e)
+        })
+        
+        {:error, "Erro ao sanitizar lista"}
+    end
+  end
+  
   def sanitize_message(message) do
     {:ok, message}
   end
@@ -119,23 +134,56 @@ defmodule Deeper_Hub.Core.WebSockets.Security.XssProtection do
   # Funções privadas para sanitização
   
   defp sanitize_map(map) when is_map(map) do
-    Enum.reduce(map, %{}, fn {key, value}, acc ->
-      Map.put(acc, key, sanitize_value(value))
+    # Sanitiza cada valor do mapa
+    Enum.into(map, %{}, fn {key, value} ->
+      sanitized_value = case value do
+        string when is_binary(string) ->
+          # Primeiro, escapar as tags HTML para preservar o formato escapado
+          sanitized = string
+          |> String.replace("<", "&lt;")
+          |> String.replace(">", "&gt;")
+          |> String.replace("\"", "&quot;")
+          |> String.replace("'", "&#x27;")
+          |> String.replace("(", "&#40;")
+          |> String.replace(")", "&#41;")
+          |> String.replace(":", "&#58;")
+          
+          # Depois, remover outros padrões perigosos
+          remove_dangerous_patterns(sanitized)
+        _ ->
+          sanitize_value(value)
+      end
+      
+      {key, sanitized_value}
     end)
   end
   
   defp sanitize_list(list) when is_list(list) do
-    Enum.map(list, &sanitize_value/1)
+    # Sanitiza cada elemento da lista
+    Enum.map(list, fn item ->
+      case item do
+        string when is_binary(string) ->
+          # Primeiro, escapar as tags HTML para preservar o formato escapado
+          sanitized = string
+          |> String.replace("<", "&lt;")
+          |> String.replace(">", "&gt;")
+          |> String.replace("\"", "&quot;")
+          |> String.replace("'", "&#x27;")
+          |> String.replace("(", "&#40;")
+          |> String.replace(")", "&#41;")
+          |> String.replace(":", "&#58;")
+          
+          # Depois, remover outros padrões perigosos
+          remove_dangerous_patterns(sanitized)
+        _ ->
+          sanitize_value(item)
+      end
+    end)
   end
   
   defp sanitize_string(string) when is_binary(string) do
-    # Implementação que sanitiza caracteres HTML e remove atributos perigosos
-    # Primeiro remover padrões de ataque conhecidos
+    # Primeiro, escapar as tags HTML para preservar o formato escapado
     sanitized = string
-    |> remove_dangerous_patterns()
-    
-    # Depois sanitizar caracteres HTML
-    sanitized
     |> String.replace("<", "&lt;")
     |> String.replace(">", "&gt;")
     |> String.replace("\"", "&quot;")
@@ -143,17 +191,31 @@ defmodule Deeper_Hub.Core.WebSockets.Security.XssProtection do
     |> String.replace("(", "&#40;")
     |> String.replace(")", "&#41;")
     |> String.replace(":", "&#58;")
+    
+    # Depois, remover outros padrões perigosos
+    remove_dangerous_patterns(sanitized)
   end
   
   # Remove padrões perigosos conhecidos antes da sanitização de caracteres
   defp remove_dangerous_patterns(string) do
+    # Aplica uma série de substituições para remover padrões perigosos
+    # Importante: a ordem das substituições importa
     string
-    |> String.replace(~r/on\w+\s*=/i, "data-removed=") # Remove atributos de eventos como onclick, onerror
-    |> String.replace(~r/javascript:/i, "removed:") # Remove protocolos javascript:
-    |> String.replace(~r/<script/i, "&lt;script") # Remove tags script
+    # Sanitiza completamente tags script
+    |> String.replace(~r/<script/i, "&lt;script") 
+    |> String.replace(~r/script>/i, "script&gt;") 
+    # Remove atributos de eventos como onclick, onerror
+    |> String.replace(~r/on\w+\s*=/i, "data-removed=") 
+    # Remove protocolos javascript:
+    |> String.replace(~r/javascript:/i, "removed:") 
+    # Remove funções perigosas
     |> String.replace(~r/eval\s*\(/i, "removed(")
     |> String.replace(~r/document\.cookie/i, "removed.cookie")
     |> String.replace(~r/document\.write/i, "removed.write")
+    # Remove outras funções potencialmente perigosas
+    |> String.replace(~r/alert\s*\(/i, "removed(")
+    |> String.replace(~r/prompt\s*\(/i, "removed(")
+    |> String.replace(~r/confirm\s*\(/i, "removed(")
   end
   
   defp sanitize_value(value) when is_map(value), do: sanitize_map(value)

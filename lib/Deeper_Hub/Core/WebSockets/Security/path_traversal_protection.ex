@@ -21,16 +21,19 @@ defmodule Deeper_Hub.Core.WebSockets.Security.PathTraversalProtection do
     - `{:error, reason}` se o caminho contiver sequências suspeitas
   """
   def check_path(path) when is_binary(path) do
+    # Padrões de detecção de Path Traversal adaptados para Windows e Unix
     path_traversal_patterns = [
       ~r/\.\.\//,      # "../"
-      ~r/\.\.\\\\/, # "..\\"
+      ~r/\.\.\\/,     # "..\" - Simplificado para Windows
       ~r/~\//,         # "~/"
-      ~r/~\\\\/, # "~\"
+      ~r/~\\/,        # "~\" - Simplificado para Windows
       ~r/%2e%2e%2f/i,  # "../" URL encoded
+      ~r/%2e%2e%5c/i,  # "..\" URL encoded
       ~r/%2e%2e/i,     # ".." URL encoded
       ~r/%5c/i         # "\" URL encoded
     ]
 
+    # Verifica se o caminho contém padrões suspeitos
     case Enum.find(path_traversal_patterns, fn pattern -> Regex.match?(pattern, path) end) do
       nil ->
         {:ok, path}

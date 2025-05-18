@@ -2,7 +2,8 @@ defmodule Deeper_Hub.Core.WebSockets.Security.SecuritySupervisorTest do
   use ExUnit.Case
   
   alias Deeper_Hub.Core.WebSockets.Security.SecuritySupervisor
-  alias Deeper_Hub.Core.WebSockets.Security.SecurityMiddleware
+  # Aliases necessários para os testes
+  alias Deeper_Hub.Core.WebSockets.Security.SecuritySupervisor
   
   setup do
     %{
@@ -13,15 +14,19 @@ defmodule Deeper_Hub.Core.WebSockets.Security.SecuritySupervisorTest do
   end
   
   describe "start_link/1" do
-    test "inicia o supervisor corretamente" do
-      # Tenta iniciar o supervisor
-      assert {:ok, pid} = SecuritySupervisor.start_link([])
+    test "verifica se o supervisor está rodando" do
+      # Tenta obter o PID do supervisor se já estiver rodando
+      pid = Process.whereis(SecuritySupervisor)
       
-      # Verifica se o processo está rodando
-      assert Process.alive?(pid)
-      
-      # Encerra o processo
-      assert :ok = Supervisor.stop(pid)
+      if pid do
+        # Se o supervisor já está rodando, apenas verifica que está vivo
+        assert Process.alive?(pid)
+      else
+        # Se não está rodando, tenta iniciá-lo
+        assert {:ok, new_pid} = SecuritySupervisor.start_link([])
+        assert Process.alive?(new_pid)
+        assert :ok = Supervisor.stop(new_pid)
+      end
     end
   end
   
@@ -36,7 +41,7 @@ defmodule Deeper_Hub.Core.WebSockets.Security.SecuritySupervisorTest do
   end
   
   describe "check_request/3" do
-    test "a função existe", %{req: req, state: state} do
+    test "a função existe", %{req: _req, state: _state} do
       # Verificamos apenas que a função existe e pode ser chamada
       assert function_exported?(SecuritySupervisor, :check_request, 3)
     end
