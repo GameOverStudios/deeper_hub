@@ -9,6 +9,11 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
   alias Deeper_Hub.Core.WebSockets.Auth.AuthService
   alias Deeper_Hub.Core.EventBus
   alias Deeper_Hub.Core.Logger
+  
+  # Permite substituir o serviço de autenticação durante os testes
+  defp auth_service do
+    Application.get_env(:deeper_hub, :auth_service, AuthService)
+  end
 
   @doc """
   Processa uma mensagem de autenticação.
@@ -41,7 +46,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
 
     Logger.info("Processando solicitação de login", %{module: __MODULE__, username: username})
 
-    case AuthService.authenticate(username, password, remember_me, metadata) do
+    case auth_service().authenticate(username, password, remember_me, metadata) do
       {:ok, user, tokens} ->
         # Obter o ID do usuário diretamente do campo id (não usando Map.get)
         user_id = user.id
@@ -95,7 +100,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
 
     Logger.info("Processando solicitação de logout", %{module: __MODULE__, user_id: user_id})
 
-    case AuthService.logout(access_token, refresh_token) do
+    case auth_service().logout(access_token, refresh_token) do
       :ok ->
         # Remove as informações de autenticação do estado, mas mantém outros campos
         # Criar um novo estado com valores atualizados em vez de remover campos
@@ -139,7 +144,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
 
     Logger.info("Processando solicitação de refresh de tokens", %{module: __MODULE__})
 
-    case AuthService.refresh_tokens(refresh_token) do
+    case auth_service().refresh_tokens(refresh_token) do
       {:ok, tokens} ->
         response = %{
           type: "auth.refresh.success",
@@ -175,7 +180,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
     
     Logger.info("Processando solicitação de recuperação de senha", %{module: __MODULE__, email: email})
     
-    case AuthService.generate_password_reset_token(email) do
+    case auth_service().generate_password_reset_token(email) do
       {:ok, token, expires_at} ->
         # Em um ambiente real, enviaríamos um email com o link de recuperação
         # Para fins de desenvolvimento, retornamos o token diretamente
@@ -214,7 +219,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
     
     Logger.info("Processando solicitação de redefinição de senha", %{module: __MODULE__})
     
-    case AuthService.reset_password(token, new_password) do
+    case auth_service().reset_password(token, new_password) do
       {:ok, user} ->
         response = %{
           type: "auth.password_reset.success",

@@ -57,7 +57,7 @@ defmodule DeeperHub.MixProject do
 
       # Tests
       {:ex_machina, "~> 2.8.0", only: :test},
-      {:mock, "~> 0.3.0", only: :test},
+      {:meck, "~> 0.9.2", only: :test},
 
       # DBConnection
       {:db_connection, "~> 2.7"},
