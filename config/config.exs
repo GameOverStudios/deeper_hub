@@ -27,6 +27,12 @@ config :deeper_hub, DeeperHub.Core.Logger,
   level: :debug # Default log level
   # Other logger specific configurations can go here
 
+# Configuração do Guardian para autenticação JWT
+config :deeper_hub, DeeperHub.Accounts.Auth.Guardian,
+  issuer: "deeper_hub",
+  secret_key: System.get_env("GUARDIAN_SECRET_KEY", "FnRMgZYZlnQWZ7jfLqaZL4yUwIhJ7MvgJSskg/zbC0UglEVWyqIJ3hWJrzJc5AuV"),
+  ttl: {1, :day}
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
