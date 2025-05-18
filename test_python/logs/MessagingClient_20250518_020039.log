@@ -1,0 +1,2 @@
+2025-05-18 02:00:39,671 - MessagingClient - INFO - Tentando conectar a ws://localhost:4000/ws
+2025-05-18 02:00:41,929 - MessagingClient - INFO - Conexão estabelecida com ws://localhost:4000/ws

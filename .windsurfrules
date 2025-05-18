@@ -149,6 +149,6 @@ Seguir estas diretrizes rigorosamente ajudará a manter a qualidade do código, 
 
 Lembre-se: Um código limpo e bem estruturado é mais fácil de manter, estender e depurar. Invista tempo na qualidade agora para economizar tempo no futuro.
 
-
+Responda sempre em Português Brasil
 ***IMPORTANTE:*** Nunca simplifique os erros depois que tentou desenvolver uma funcionalidade e apresentou erros, tente resolver e colocar para funcionar
 ***IMPORTANTE:*** divida os arquios caso passe de 400 linhas e coloque a nomenclatura dos arquivos categorizados 

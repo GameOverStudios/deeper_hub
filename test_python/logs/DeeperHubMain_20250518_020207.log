@@ -1,0 +1,8 @@
+2025-05-18 02:02:07,473 - DeeperHubMain - INFO - Iniciando cliente interativo - Conectando a localhost:4000
+2025-05-18 02:04:41,744 - DeeperHubMain - CRITICAL - Erro inesperado no cliente interativo: 
+2025-05-18 02:04:41,750 - DeeperHubMain - DEBUG - Traceback (most recent call last):
+  File "C:\deeper_hub\test_python\deeper_hub_client.py", line 164, in run_interactive_client
+    
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+EOFError
+

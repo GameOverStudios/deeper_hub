@@ -122,10 +122,50 @@ class DeeperHubClient:
             self.access_token = response["payload"]["access_token"]
             self.refresh_token = response["payload"]["refresh_token"]
             print("✅ Tokens atualizados com sucesso")
-            print(f"🔒 Token expira em: {response['payload']['expires_in']} segundos")
+            print(f"🔒 Novo token expira em: {response['payload']['expires_in']} segundos")
             return True
         else:
             print(f"❌ Falha ao atualizar tokens: {response['payload']['message']}")
+            return False
+            
+    async def request_password_reset(self, email):
+        """Solicita a recuperação de senha para um email."""
+        payload = {
+            "action": "request_password_reset",
+            "email": email
+        }
+        
+        response = await self.send_message("auth", payload)
+        
+        if response["type"] == "auth.password_reset.requested":
+            print("✅ Solicitação de recuperação de senha enviada")
+            # Em ambiente de desenvolvimento, o token é retornado diretamente
+            # Em produção, isso não aconteceria - o token seria enviado por email
+            if "token" in response["payload"]:
+                print(f"🔑 Token de recuperação: {response['payload']['token']}")
+                print(f"⏰ Expira em: {response['payload']['expires_at']}")
+            return True, response["payload"].get("token")
+        else:
+            print(f"❌ Falha na solicitação: {response['payload']['message']}")
+            return False, None
+            
+    async def reset_password(self, token, new_password):
+        """Redefine a senha usando um token de recuperação."""
+        payload = {
+            "action": "reset_password",
+            "token": token,
+            "password": new_password
+        }
+        
+        response = await self.send_message("auth", payload)
+        
+        if response["type"] == "auth.password_reset.success":
+            print("✅ Senha redefinida com sucesso")
+            if "username" in response["payload"]:
+                print(f"👤 Usuário: {response['payload']['username']}")
+            return True
+        else:
+            print(f"❌ Falha ao redefinir senha: {response['payload']['message']}")
             return False
             
     # Operações de usuário
@@ -335,17 +375,12 @@ async def run_interactive_client():
             print("="*50)
             
             if client.username:
-                print(f"Logado como: {client.username} (ID: {client.user_id})")
-            else:
-                print("Não autenticado")
-                
-            print("\nOPÇÕES:")
-            print("1. Login")
-            print("2. Criar usuário")
-            print("3. Listar usuários")
-            
-            if client.username:
-                print("4. Atualizar perfil")
+                print(f"\nLogado como: {client.username} (ID: {client.user_id})")
+                print("\nOpções:")
+                print("1. Criar usuário")
+                print("2. Listar usuários")
+                print("3. Atualizar usuário")
+                print("4. Excluir usuário")
                 print("5. Criar canal")
                 print("6. Inscrever-se em canal")
                 print("7. Publicar mensagem em canal")
@@ -353,43 +388,63 @@ async def run_interactive_client():
                 print("9. Ver histórico de mensagens")
                 print("10. Atualizar tokens (refresh)")
                 print("11. Logout")
+                print("0. Sair")
+            else:
+                print("\nOpções:")
+                print("1. Criar usuário")
+                print("2. Listar usuários")
+                print("3. Login")
+                print("4. Solicitar recuperação de senha")
+                print("5. Redefinir senha")
+                print("0. Sair")
                 
-            print("0. Sair")
-            
             choice = input("\nEscolha uma opção: ")
             
             if choice == "0":
+                print("Encerrando cliente...")
                 break
                 
             elif choice == "1":
-                username = input("Nome de usuário: ")
-                password = input("Senha: ")
-                await client.login(username, password)
-                
-            elif choice == "2":
                 username = input("Nome de usuário: ")
                 email = input("Email: ")
                 password = input("Senha: ")
                 await client.create_user(username, email, password)
                 
-            elif choice == "3":
+            elif choice == "2":
                 await client.list_users()
                 
-            elif choice == "4" and client.username:
-                print("Campos disponíveis para atualização (deixe em branco para não alterar):")
+            elif choice == "3" and not client.username:
+                username = input("Nome de usuário: ")
+                password = input("Senha: ")
+                await client.login(username, password)
+                
+            elif choice == "3" and client.username:
+                user_id = input("ID do usuário a atualizar: ")
+                print("Dados a atualizar (deixe em branco para não alterar):")
                 email = input("Novo email: ")
-                password = input("Nova senha: ")
                 
                 data = {}
                 if email:
                     data["email"] = email
-                if password:
-                    data["password"] = password
                     
-                if data:
-                    await client.update_user(client.user_id, data)
-                else:
-                    print("Nenhum dado fornecido para atualização")
+                await client.update_user(user_id, data)
+                
+            elif choice == "4" and not client.username:
+                email = input("Email para recuperação de senha: ")
+                success, token = await client.request_password_reset(email)
+                if success and token:
+                    print(f"\nGuarde este token para redefinir sua senha: {token}")
+                
+            elif choice == "4" and client.username:
+                user_id = input("ID do usuário a excluir: ")
+                confirm = input(f"Tem certeza que deseja excluir o usuário {user_id}? (s/n): ")
+                if confirm.lower() == "s":
+                    await client.delete_user(user_id)
+                    
+            elif choice == "5" and not client.username:
+                token = input("Token de recuperação: ")
+                new_password = input("Nova senha: ")
+                await client.reset_password(token, new_password)
                     
             elif choice == "5" and client.username:
                 channel_name = input("Nome do canal: ")
@@ -399,7 +454,7 @@ async def run_interactive_client():
                 if description:
                     metadata["description"] = description
                     
-                await client.create_channel(channel_name, metadata if metadata else None)
+                await client.create_channel(channel_name, metadata)
                 
             elif choice == "6" and client.username:
                 channel_name = input("Nome do canal: ")
@@ -428,7 +483,7 @@ async def run_interactive_client():
             else:
                 print("Opção inválida ou não disponível no estado atual")
                 
-            input("\nPressione Enter para continuar...")
+            
             
     except KeyboardInterrupt:
         print("\nOperação interrompida pelo usuário")
@@ -454,6 +509,7 @@ async def run_automated_test(host, port):
         username = f"test_user_{test_id}"
         email = f"test_{test_id}@example.com"
         password = f"password_{test_id}"
+        new_password = f"new_password_{test_id}"
         
         print(f"\n🔍 Criando usuário de teste: {username}")
         if not await client.create_user(username, email, password):
@@ -493,6 +549,23 @@ async def run_automated_test(host, port):
         print("\n🔍 Fazendo logout")
         if not await client.logout():
             print("❌ Teste falhou no logout")
+            
+        # Testes de recuperação de senha
+        print(f"\n🔍 Solicitando recuperação de senha para: {email}")
+        success, reset_token = await client.request_password_reset(email)
+        if not success or not reset_token:
+            print("❌ Teste falhou na solicitação de recuperação de senha")
+        else:
+            print(f"\n🔍 Redefinindo senha com o token recebido")
+            if not await client.reset_password(reset_token, new_password):
+                print("❌ Teste falhou na redefinição de senha")
+            else:
+                print(f"\n🔍 Testando login com a nova senha")
+                if not await client.login(username, new_password):
+                    print("❌ Teste falhou no login após redefinição de senha")
+                else:
+                    print("✅ Login com nova senha bem-sucedido")
+                    await client.logout()
             
         print("\n" + "="*50)
         print("✅ TESTE AUTOMATIZADO CONCLUÍDO")
