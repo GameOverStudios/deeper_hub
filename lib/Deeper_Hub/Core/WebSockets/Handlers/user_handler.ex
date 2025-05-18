@@ -46,13 +46,13 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
   end
   
   # Handlers específicos para cada tipo de ação
-  defp do_handle_message("get", %{"id" => id}, _state) when is_binary(id) do
+  defp do_handle_message("get", %{"user_id" => user_id}, _state) when is_binary(user_id) do
     Logger.info("Buscando usuário via WebSocket", %{
       module: __MODULE__,
-      user_id: id
+      user_id: user_id
     })
     
-    case UserRepository.get_by_id(id) do
+    case UserRepository.get_by_id(user_id) do
       {:ok, user} ->
         # Convertemos o usuário para um mapa sem campos sensíveis
         user_map = %{
@@ -65,7 +65,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
         }
         
         {:ok, %{
-          type: "user.get.response",
+          type: "user.get.success",
           payload: user_map
         }}
         
@@ -75,7 +75,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
       {:error, reason} ->
         Logger.error("Erro ao buscar usuário via WebSocket", %{
           module: __MODULE__,
-          user_id: id,
+          user_id: user_id,
           error: reason
         })
         
@@ -120,7 +120,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
             }
             
             {:ok, %{
-              type: "user.create.response",
+              type: "user.create.success",
               payload: user_map
             }}
             
@@ -152,15 +152,15 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
   end
   
   # Atualiza um usuário existente
-  defp do_handle_message("update", %{"id" => id} = payload, _state) when is_binary(id) do
+  defp do_handle_message("update", %{"user_id" => user_id} = payload, _state) when is_binary(user_id) do
     Logger.info("Atualizando usuário via WebSocket", %{
       module: __MODULE__,
-      user_id: id,
+      user_id: user_id,
       payload: payload
     })
     
     # Primeiro, buscamos o usuário
-    case UserRepository.get_by_id(id) do
+    case UserRepository.get_by_id(user_id) do
       {:ok, user} ->
         # Preparamos os atributos para atualização
         update_attrs = %{}
@@ -193,14 +193,14 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
                 }
                 
                 {:ok, %{
-                  type: "user.update.response",
+                  type: "user.update.success",
                   payload: user_map
                 }}
                 
               {:error, reason} ->
                 Logger.error("Erro ao salvar usuário atualizado via WebSocket", %{
                   module: __MODULE__,
-                  user_id: id,
+                  user_id: user_id,
                   error: reason
                 })
                 
@@ -210,7 +210,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
           {:error, reason} ->
             Logger.error("Erro ao atualizar usuário via WebSocket", %{
               module: __MODULE__,
-              user_id: id,
+              user_id: user_id,
               error: reason
             })
             
@@ -223,7 +223,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
       {:error, reason} ->
         Logger.error("Erro ao buscar usuário para atualização via WebSocket", %{
           module: __MODULE__,
-          user_id: id,
+          user_id: user_id,
           error: reason
         })
         
@@ -236,16 +236,16 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
   end
   
   # Exclui um usuário
-  defp do_handle_message("delete", %{"id" => id}, _state) when is_binary(id) do
+  defp do_handle_message("delete", %{"user_id" => user_id}, _state) when is_binary(user_id) do
     Logger.info("Excluindo usuário via WebSocket", %{
       module: __MODULE__,
-      user_id: id
+      user_id: user_id
     })
     
-    case UserRepository.delete(id) do
+    case UserRepository.delete(user_id) do
       {:ok, deleted_id} ->
         {:ok, %{
-          type: "user.delete.response",
+          type: "user.delete.success",
           payload: %{
             id: deleted_id,
             deleted: true
@@ -258,7 +258,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
       {:error, reason} ->
         Logger.error("Erro ao excluir usuário via WebSocket", %{
           module: __MODULE__,
-          user_id: id,
+          user_id: user_id,
           error: reason
         })
         

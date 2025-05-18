@@ -70,7 +70,7 @@ bool CppClientAdapter::authenticate(const std::string& userId) {
     // Verifica se a autenticação foi bem-sucedida
     try {
         nlohmann::json responseJson = nlohmann::json::parse(response);
-        if (responseJson.contains("type") && responseJson["type"] == "auth.success") {
+        if (responseJson.contains("type") && responseJson["type"] == "auth_success") {
             std::cout << "Autenticação bem-sucedida!" << std::endl;
             m_authenticated = true;
             m_userId = userId;
@@ -83,6 +83,28 @@ bool CppClientAdapter::authenticate(const std::string& userId) {
         std::cerr << "Erro ao processar resposta de autenticação: " << e.what() << std::endl;
         return false;
     }
+}
+
+// Método auxiliar para verificar se está conectado e autenticado
+bool CppClientAdapter::ensureConnected() {
+    if (!m_client.isConnected()) {
+        std::cerr << "Erro: não está conectado ao servidor WebSocket" << std::endl;
+        return false;
+    }
+    
+    if (!m_authenticated) {
+        std::cerr << "Erro: não está autenticado" << std::endl;
+        return false;
+    }
+    
+    return true;
+}
+
+// Método auxiliar para obter o timestamp atual
+int64_t CppClientAdapter::getCurrentTimestamp() {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()
+    ).count();
 }
 
 // Testa o EchoHandler
@@ -130,7 +152,7 @@ bool CppClientAdapter::testEchoHandler(const std::string& message) {
 }
 
 // Testa o UserHandler - Criar usuário
-bool CppClientAdapter::testUserCreate(const std::string& username, const std::string& email, const std::string& password) {
+bool CppClientAdapter::testUserCreate(const std::string& username, const std::string& email, const std::string& password, std::string& userId) {
     if (!ensureConnected()) return false;
     
     std::cout << "Testando UserHandler - Criar usuário: " << username << std::endl;
@@ -142,7 +164,8 @@ bool CppClientAdapter::testUserCreate(const std::string& username, const std::st
             {"action", "create"},
             {"username", username},
             {"email", email},
-            {"password", password}
+            {"password", password},
+            {"timestamp", getCurrentTimestamp()}
         }}
     };
     
@@ -162,8 +185,18 @@ bool CppClientAdapter::testUserCreate(const std::string& username, const std::st
     // Verifica a resposta
     try {
         nlohmann::json responseJson = nlohmann::json::parse(response);
-        if (responseJson.contains("type") && responseJson["type"] == "user.create.response") {
+        if (responseJson.contains("type") && responseJson["type"] == "user.create.success") {
             std::cout << "Usuário criado com sucesso: " << response << std::endl;
+            
+            // Extrai o ID do usuário da resposta
+            if (responseJson.contains("payload") && responseJson["payload"].contains("id")) {
+                userId = responseJson["payload"]["id"].get<std::string>();
+                std::cout << "ID do usuário criado: " << userId << std::endl;
+            } else {
+                std::cerr << "Resposta não contém ID do usuário" << std::endl;
+                userId = "";
+            }
+            
             return true;
         } else {
             std::cerr << "Resposta inesperada: " << response << std::endl;
@@ -186,7 +219,8 @@ bool CppClientAdapter::testUserGet(const std::string& userId) {
         {"type", "user"},
         {"payload", {
             {"action", "get"},
-            {"id", userId}
+            {"user_id", userId},
+            {"timestamp", getCurrentTimestamp()}
         }}
     };
     
@@ -206,7 +240,7 @@ bool CppClientAdapter::testUserGet(const std::string& userId) {
     // Verifica a resposta
     try {
         nlohmann::json responseJson = nlohmann::json::parse(response);
-        if (responseJson.contains("type") && responseJson["type"] == "user.get.response") {
+        if (responseJson.contains("type") && responseJson["type"] == "user.get.success") {
             std::cout << "Usuário obtido com sucesso: " << response << std::endl;
             return true;
         } else {
@@ -230,9 +264,10 @@ bool CppClientAdapter::testUserUpdate(const std::string& userId, const std::stri
         {"type", "user"},
         {"payload", {
             {"action", "update"},
-            {"id", userId},
+            {"user_id", userId},
             {"username", username},
-            {"email", email}
+            {"email", email},
+            {"timestamp", getCurrentTimestamp()}
         }}
     };
     
@@ -252,7 +287,7 @@ bool CppClientAdapter::testUserUpdate(const std::string& userId, const std::stri
     // Verifica a resposta
     try {
         nlohmann::json responseJson = nlohmann::json::parse(response);
-        if (responseJson.contains("type") && responseJson["type"] == "user.update.response") {
+        if (responseJson.contains("type") && responseJson["type"] == "user.update.success") {
             std::cout << "Usuário atualizado com sucesso: " << response << std::endl;
             return true;
         } else {
@@ -276,7 +311,8 @@ bool CppClientAdapter::testUserDelete(const std::string& userId) {
         {"type", "user"},
         {"payload", {
             {"action", "delete"},
-            {"id", userId}
+            {"user_id", userId},
+            {"timestamp", getCurrentTimestamp()}
         }}
     };
     
@@ -296,7 +332,7 @@ bool CppClientAdapter::testUserDelete(const std::string& userId) {
     // Verifica a resposta
     try {
         nlohmann::json responseJson = nlohmann::json::parse(response);
-        if (responseJson.contains("type") && responseJson["type"] == "user.delete.response") {
+        if (responseJson.contains("type") && responseJson["type"] == "user.delete.success") {
             std::cout << "Usuário excluído com sucesso: " << response << std::endl;
             return true;
         } else {
@@ -589,15 +625,6 @@ bool CppClientAdapter::testMessageMarkRead(const std::string& messageId) {
     }
 }
 
-// Métodos auxiliares
-bool CppClientAdapter::ensureConnected() {
-    if (!m_client.isConnected()) {
-        std::cerr << "Erro: não está conectado ao servidor WebSocket" << std::endl;
-        return false;
-    }
-    return true;
-}
-
 bool CppClientAdapter::ensureAuthenticated() {
     if (!ensureConnected()) return false;
     
@@ -606,12 +633,4 @@ bool CppClientAdapter::ensureAuthenticated() {
         return false;
     }
     return true;
-}
-
-std::string CppClientAdapter::getCurrentTimestamp() {
-    auto now = std::chrono::system_clock::now();
-    auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
-    auto epoch = now_ms.time_since_epoch();
-    auto value = std::chrono::duration_cast<std::chrono::milliseconds>(epoch);
-    return std::to_string(value.count());
 }

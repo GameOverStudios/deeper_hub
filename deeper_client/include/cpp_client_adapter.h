@@ -65,9 +65,10 @@ public:
      * @param username Nome de usuário
      * @param email Email do usuário
      * @param password Senha do usuário
+     * @param userId Referência para armazenar o ID do usuário criado
      * @return true se o teste foi bem-sucedido, false caso contrário
      */
-    bool testUserCreate(const std::string& username, const std::string& email, const std::string& password);
+    bool testUserCreate(const std::string& username, const std::string& email, const std::string& password, std::string& userId);
     
     /**
      * @brief Testa a obtenção de usuário
@@ -161,9 +162,9 @@ private:
     
     /**
      * @brief Obtém o timestamp atual em milissegundos
-     * @return Timestamp em string
+     * @return Timestamp como int64_t
      */
-    std::string getCurrentTimestamp();
+    int64_t getCurrentTimestamp();
 };
 
 #endif // DEEPER_CLIENT_CPP_CLIENT_ADAPTER_H

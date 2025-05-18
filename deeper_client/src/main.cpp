@@ -47,26 +47,40 @@ void runWebSocketTests(const std::string& host, int port, const std::string& use
     std::string email = username + "@example.com";
     std::string password = "senha123";
     
-    bool userCreated = adapter.testUserCreate(username, email, password);
-    std::string createdUserId = ""; // Seria preenchido com o ID retornado na resposta real
+    std::string createdUserId = "";
+    bool userCreated = adapter.testUserCreate(username, email, password, createdUserId);
     
-    if (userCreated) {
-        // Normalmente extraíriamos o ID do usuário da resposta
-        createdUserId = "user_id_123"; // Exemplo
+    if (userCreated && !createdUserId.empty()) {
+        std::cout << "Usuário criado com sucesso. ID: " << createdUserId << std::endl;
+        
+        // Pausa para visualizar resultados
+        std::this_thread::sleep_for(std::chrono::seconds(1));
         
         // Testa obtenção de usuário
         std::cout << "\n=== Testando UserHandler - Obter usuário ===\n";
-        adapter.testUserGet(createdUserId);
+        bool userGet = adapter.testUserGet(createdUserId);
+        
+        if (userGet) {
+            std::cout << "Usuário obtido com sucesso. ID: " << createdUserId << std::endl;
+        }
         
         // Pausa para visualizar resultados
         std::this_thread::sleep_for(std::chrono::seconds(1));
         
         // Testa atualização de usuário
         std::cout << "\n=== Testando UserHandler - Atualizar usuário ===\n";
-        adapter.testUserUpdate(createdUserId, username + "_updated", email);
+        std::string updatedUsername = username + "_updated";
+        std::string updatedEmail = updatedUsername + "@example.com";
+        bool userUpdated = adapter.testUserUpdate(createdUserId, updatedUsername, updatedEmail);
+        
+        if (userUpdated) {
+            std::cout << "Usuário atualizado com sucesso. ID: " << createdUserId << std::endl;
+        }
         
         // Pausa para visualizar resultados
         std::this_thread::sleep_for(std::chrono::seconds(1));
+    } else {
+        std::cerr << "Falha ao criar usuário ou ID não retornado" << std::endl;
     }
     
     // Testa criação de canal
@@ -118,7 +132,23 @@ void runWebSocketTests(const std::string& host, int port, const std::string& use
     // Testa exclusão de usuário, se foi criado
     if (!createdUserId.empty()) {
         std::cout << "\n=== Testando UserHandler - Excluir usuário ===\n";
-        adapter.testUserDelete(createdUserId);
+        bool userDeleted = adapter.testUserDelete(createdUserId);
+        
+        if (userDeleted) {
+            std::cout << "Usuário excluído com sucesso. ID: " << createdUserId << std::endl;
+            
+            // Verifica se o usuário foi realmente excluído tentando obtê-lo novamente
+            std::cout << "\n=== Verificando exclusão - Tentando obter usuário excluído ===\n";
+            bool getUserAfterDelete = adapter.testUserGet(createdUserId);
+            
+            if (!getUserAfterDelete) {
+                std::cout << "Confirmação: Usuário não existe mais no sistema" << std::endl;
+            } else {
+                std::cerr << "Erro: Usuário ainda existe após exclusão" << std::endl;
+            }
+        } else {
+            std::cerr << "Falha ao excluir usuário" << std::endl;
+        }
         
         // Pausa para visualizar resultados
         std::this_thread::sleep_for(std::chrono::seconds(1));
