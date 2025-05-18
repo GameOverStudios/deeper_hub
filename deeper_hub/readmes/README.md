@@ -108,8 +108,8 @@ O `DeeperHub.Core.ConfigManager` atua como um ponto centralizado para todas as c
     *   Listar configurações com filtros por escopo, prefixo de chave e sensibilidade (`list/1`).
     *   Listar configurações específicas para um cliente ou usuário, com opção de incluir configurações globais (`list_for_client/2`, `list_for_user/2`).
 *   **Observabilidade de Mudanças:**
-    *   Registrar manipuladores de eventos para serem notificados sobre criação, atualização ou exclusão de configurações (`on_config_change/2`).
-    *   Cancelar o registro de manipuladores de eventos (`off_config_change/2`).
+    *   Registrar coordenadores de eventos para serem notificados sobre criação, atualização ou exclusão de configurações (`on_config_change/2`).
+    *   Cancelar o registro de coordenadores de eventos (`off_config_change/2`).
 *   **Inicialização:** O sistema de configuração é inicializado com um cache (`DeeperHub.Core.ConfigManager.Setting.init_cache/0`).
 *   **Armazenamento:** As configurações são persistidas usando um schema Ecto (`DeeperHub.Core.ConfigManager.Schema.Setting`).
 

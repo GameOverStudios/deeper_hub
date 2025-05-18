@@ -203,7 +203,7 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 ### 8.2. Bibliotecas Externas
 
 *   `Ecto`: Para persistência de regras permanentes.
-*   Pode usar bibliotecas para manipulação de CIDR se não for feito manualmente.
+*   Pode usar bibliotecas para coordenação de CIDR se não for feito manualmente.
 
 ## 🤝 9. Como Usar / Integração
 

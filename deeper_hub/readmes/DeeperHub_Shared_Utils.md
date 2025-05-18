@@ -2,7 +2,7 @@
 
 ## 📜 1. Visão Geral do Módulo `DeeperHub.Shared.Utils`
 
-O módulo (ou namespace) `DeeperHub.Shared.Utils` agrupa um conjunto de **módulos utilitários genéricos** que fornecem funções auxiliares para tarefas comuns em todo o sistema DeeperHub. Essas funções não pertencem a um domínio de negócio específico, mas oferecem funcionalidades reutilizáveis para manipulação de strings, datas, listas, mapas, arquivos, validações básicas e operações de segurança comuns.
+O módulo (ou namespace) `DeeperHub.Shared.Utils` agrupa um conjunto de **módulos utilitários genéricos** que fornecem funções auxiliares para tarefas comuns em todo o sistema DeeperHub. Essas funções não pertencem a um domínio de negócio específico, mas oferecem funcionalidades reutilizáveis para coordenação de strings, datas, listas, mapas, arquivos, validações básicas e operações de segurança comuns.
 
 O objetivo é evitar a duplicação de código, promover a consistência e fornecer um local centralizado para funcionalidades de baixo nível que são amplamente utilizadas. 😊
 
@@ -11,9 +11,9 @@ O objetivo é evitar a duplicação de código, promover a consistência e forne
 Este namespace normalmente contém vários módulos menores, cada um com um foco específico:
 
 *   **`DeeperHub.Shared.Utils.StringUtils`:**
-    *   Manipulação de strings: conversão de case (camelCase, snake_case), truncamento, mascaramento de IDs, geração de IDs/tokens simples, formatação para logs.
+    *   Coordenação de strings: conversão de case (camelCase, snake_case), truncamento, mascaramento de IDs, geração de IDs/tokens simples, formatação para logs.
 *   **`DeeperHub.Shared.Utils.DateUtils`:**
-    *   Manipulação de datas e horas: adição/subtração de tempo, cálculo de diferenças, formatação, verificação de intervalos.
+    *   Coordenação de datas e horas: adição/subtração de tempo, cálculo de diferenças, formatação, verificação de intervalos.
 *   **`DeeperHub.Shared.Utils.ListUtils`:**
     *   Operações em listas: chunking, diff, group_by, interleave, paginação em memória, particionamento, ordenação por múltiplas chaves, remoção de duplicatas.
 *   **`DeeperHub.Shared.Utils.MapUtils`:**

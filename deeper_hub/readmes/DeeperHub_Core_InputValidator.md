@@ -188,7 +188,7 @@ O `DeeperHub.Core.InputValidator` atuará como uma fachada que pode utilizar dif
 
 *   `DeeperHub.Core.ConfigManager`: Para obter configurações globais de validação.
 *   `DeeperHub.Core.Logger`: Para logar tentativas de entrada de dados maliciosos.
-*   `DeeperHub.Shared.Utils.StringUtils`, `DeeperHub.Shared.Utils.ValidationUtils`: Podem ser usados internamente para algumas verificações e manipulações.
+*   `DeeperHub.Shared.Utils.StringUtils`, `DeeperHub.Shared.Utils.ValidationUtils`: Podem ser usados internamente para algumas verificações e coordenações.
 
 ### 8.2. Bibliotecas Externas
 

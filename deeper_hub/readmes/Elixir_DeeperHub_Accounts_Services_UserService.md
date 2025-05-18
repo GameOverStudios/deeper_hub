@@ -33,7 +33,7 @@ Este módulo é um serviço de lógica de negócio.
 *   **Saída:** Retorna resultados padronizados `{:ok, data}` ou `{:error, reason}`.
 *   **Dependências Principais:**
     *   `DeeperHub.Core.Repo`: Para acesso ao banco de dados.
-    *   `DeeperHub.Accounts.Schema.User`: Para changesets e manipulação da struct User.
+    *   `DeeperHub.Accounts.Schema.User`: Para changesets e coordenação da struct User.
     *   `DeeperHub.Auth.Services.PasswordService`: Para hashing de senhas.
     *   `DeeperHub.Accounts.Integrations.EventIntegration`: Para publicar eventos.
     *   `DeeperHub.Core.Logger` e `DeeperHub.Core.Metrics`.

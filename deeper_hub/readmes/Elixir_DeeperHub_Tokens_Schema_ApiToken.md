@@ -74,7 +74,7 @@ Este schema é utilizado pelo `DeeperHub.Tokens.Services.DefaultTokenService` (o
 
 ## ⚙️ 7. Configuração
 
-*   Nenhuma configuração direta neste módulo de schema. Configurações relacionadas (ex: comprimento do prefixo do token) seriam gerenciadas pelo `Core.ConfigManager` e usadas pelos serviços que manipulam este schema.
+*   Nenhuma configuração direta neste módulo de schema. Configurações relacionadas (ex: comprimento do prefixo do token) seriam gerenciadas pelo `Core.ConfigManager` e usadas pelos serviços que coordenam este schema.
 
 ## ✅ 10. Testes e Observabilidade
 

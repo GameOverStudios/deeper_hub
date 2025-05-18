@@ -2,13 +2,13 @@
 
 ## 📜 1. Visão Geral do Módulo `DeeperHub.Shared.Utils.DateUtils`
 
-O módulo `DeeperHub.Shared.Utils.DateUtils` fornece um conjunto de funções utilitárias para **manipulação, cálculo e formatação de datas e horas** no sistema DeeperHub. Ele visa simplificar operações comuns relacionadas ao tempo, como adicionar ou subtrair intervalos, calcular diferenças entre datas, formatar datas para exibição e verificar se uma data está dentro de um determinado período.
+O módulo `DeeperHub.Shared.Utils.DateUtils` fornece um conjunto de funções utilitárias para **coordenação, cálculo e formatação de datas e horas** no sistema DeeperHub. Ele visa simplificar operações comuns relacionadas ao tempo, como adicionar ou subtrair intervalos, calcular diferenças entre datas, formatar datas para exibição e verificar se uma data está dentro de um determinado período.
 
 Este módulo utiliza as estruturas de data e hora nativas do Elixir (`Date`, `Time`, `NaiveDateTime`, `DateTime`) e bibliotecas de calendário para fornecer funcionalidades robustas e conscientes de fuso horário quando necessário. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
-*   **Manipulação de Datas/Horas:**
+*   **Coordenação de Datas/Horas:**
     *   Adicionar ou subtrair unidades de tempo (segundos, minutos, horas, dias, semanas, meses, anos) a uma data/hora (`add/3`).
     *   Obter o início ou fim de um período (dia, semana, mês, ano) para uma data/hora específica.
 *   **Cálculo de Diferenças:**
@@ -33,7 +33,7 @@ Este módulo utiliza as estruturas de data e hora nativas do Elixir (`Date`, `Ti
 *   **`DeeperHub.Shared.Utils.DateUtils` (Módulo Funcional):**
     *   Contém todas as funções de utilidade para datas e horas.
     *   Utiliza os módulos `Date`, `Time`, `NaiveDateTime`, `DateTime` do Elixir.
-    *   Pode usar bibliotecas como `Calendar` ou `Timex` para funcionalidades mais avançadas de manipulação de calendário e fuso horário se as funções nativas não forem suficientes.
+    *   Pode usar bibliotecas como `Calendar` ou `Timex` para funcionalidades mais avançadas de coordenação de calendário e fuso horário se as funções nativas não forem suficientes.
 
 ### 3.2. Estrutura de Diretórios
 
@@ -137,11 +137,11 @@ Este módulo geralmente não tem configurações complexas, mas poderia obter do
 ### 8.2. Bibliotecas Externas
 
 *   `Calendar` (do Elixir): Usado internamente por `Date`, `DateTime`, etc.
-*   `Timex` (opcional): Uma biblioteca popular para manipulação de datas e horas mais avançada, se as funcionalidades nativas não forem suficientes. No entanto, para os utilitários listados, a biblioteca padrão Elixir já oferece bastante.
+*   `Timex` (opcional): Uma biblioteca popular para coordenação de datas e horas mais avançada, se as funcionalidades nativas não forem suficientes. No entanto, para os utilitários listados, a biblioteca padrão Elixir já oferece bastante.
 
 ## 🤝 9. Como Usar / Integração
 
-Simplesmente chame as funções do módulo onde a manipulação de data/hora for necessária.
+Simplesmente chame as funções do módulo onde a coordenação de data/hora for necessária.
 ```elixir
 alias DeeperHub.Shared.Utils.DateUtils
 

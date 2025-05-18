@@ -276,7 +276,7 @@ Logs gerados pelo módulo `Accounts` seguem o padrão do `DeeperHub.Core.Logger`
 
 ### 10.4. Telemetria
 
-O módulo `Accounts` emite eventos de telemetria através de `DeeperHub.Accounts.Integrations.EventIntegration` que são então manipulados pelo `Core.EventBus`. Eventos principais:
+O módulo `Accounts` emite eventos de telemetria através de `DeeperHub.Accounts.Integrations.EventIntegration` que são então coordenados pelo `Core.EventBus`. Eventos principais:
 
 *   `[:deeper_hub, :accounts, :user, :created]`: Emitido após um novo usuário ser criado. Payload: `%{user: user_struct}`.
 *   `[:deeper_hub, :accounts, :user, :updated]`: Emitido após um usuário ser atualizado. Payload: `%{user: user_struct, changes: changes_map}`.

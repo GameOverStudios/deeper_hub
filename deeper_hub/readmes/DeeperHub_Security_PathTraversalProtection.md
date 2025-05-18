@@ -2,7 +2,7 @@
 
 ## 📜 1. Visão Geral do Módulo `DeeperHub.Security.PathTraversalProtection`
 
-O módulo `DeeperHub.Security.PathTraversalProtection` é dedicado a prevenir ataques de **Path Traversal (também conhecido como Directory Traversal)** no sistema DeeperHub. Este tipo de ataque ocorre quando um invasor manipula variáveis de entrada que são usadas para construir caminhos de arquivos, com o objetivo de acessar arquivos ou diretórios fora do diretório raiz pretendido pela aplicação. Sequências como `../` (ponto-ponto-barra) são comumente usadas para \"subir\" na hierarquia de diretórios.
+O módulo `DeeperHub.Security.PathTraversalProtection` é dedicado a prevenir ataques de **Path Traversal (também conhecido como Directory Traversal)** no sistema DeeperHub. Este tipo de ataque ocorre quando um invasor coordena variáveis de entrada que são usadas para construir caminhos de arquivos, com o objetivo de acessar arquivos ou diretórios fora do diretório raiz pretendido pela aplicação. Sequências como `../` (ponto-ponto-barra) são comumente usadas para \"subir\" na hierarquia de diretórios.
 
 Este módulo fornece funcionalidades para:
 1.  Verificar se um caminho fornecido pelo usuário contém sequências de path traversal.
@@ -42,7 +42,7 @@ O objetivo é garantir que o acesso a arquivos seja restrito aos diretórios des
 2.  **`DeeperHub.Security.PathTraversalProtection.Services.PathTraversalProtectionService` (Módulo Funcional):**
     *   **Responsabilidade:** Contém a lógica principal para `check_path`, `sanitize_path`, `normalize_path`, e `verify_path_in_base`.
     *   **Interações:**
-        *   Utiliza funções do módulo `Path` do Elixir para manipulação de caminhos.
+        *   Utiliza funções do módulo `Path` do Elixir para coordenação de caminhos.
         *   Interage com `DeeperHub.Core.ConfigManager` para obter a lista de diretórios base permitidos e outras configurações.
         *   Interage com `DeeperHub.Audit` ou `DeeperHub.Security.Monitoring` para registrar tentativas.
 3.  **Configurações (via `DeeperHub.Core.ConfigManager` e `DeeperHub.Security.Policy.SecurityPolicyManager`):**
@@ -66,7 +66,7 @@ security/path_traversal_protection/
 *   **Normalização Antes da Verificação:** É crucial normalizar os caminhos para sua forma canônica antes de realizar verificações de diretório base. Isso ajuda a evitar bypasses usando diferentes codificações ou sequências de `.` e `..`.
 *   **Verificação de Lista Branca de Diretórios Base:** A abordagem mais segura é definir explicitamente quais diretórios a aplicação pode acessar.
 *   **Cuidado com Symlinks:** A normalização (`Path.expand/1`) resolve symlinks. É importante estar ciente de como isso interage com as verificações de diretório base, para evitar que um symlink aponte para fora de um diretório permitido.
-*   **Contexto do Sistema Operacional:** A manipulação de caminhos pode ter nuances dependendo do sistema operacional (barras vs. contrabarras). O módulo `Path` do Elixir ajuda a abstrair isso.
+*   **Contexto do Sistema Operacional:** A coordenação de caminhos pode ter nuances dependendo do sistema operacional (barras vs. contrabarras). O módulo `Path` do Elixir ajuda a abstrair isso.
 
 ## 🛠️ 4. Casos de Uso Principais
 
@@ -82,7 +82,7 @@ security/path_traversal_protection/
     *   `PathTraversalProtection.check_path(\"../../../../etc/passwd\")` retorna `{:ok, :unsafe}`.
     *   `PathTraversalProtection.record_attempt(\"../../../../etc/passwd\", %{ip: ..., user_id: ...})`.
     *   A requisição é bloqueada.
-*   **Upload de Arquivo com Nome Manipulado:**
+*   **Upload de Arquivo com Nome Coordenado:**
     *   Usuário tenta fazer upload de um arquivo com o nome `../avatar.jpg`.
     *   O serviço de upload, antes de construir o caminho final, deve usar `Path.basename(user_supplied_filename)` para pegar apenas o nome do arquivo e depois juntá-lo com o diretório de upload seguro, ou usar `sanitize_path` no nome do arquivo.
 
@@ -182,7 +182,7 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
           final_path = Path.join(base_upload_dir, safe_filename)
 
           # Verificar se final_path ainda está dentro do base_upload_dir (após Path.join, pode não ser necessário se base_upload_dir for absoluto e safe_filename não tiver barras)
-          # Mas para ser extra seguro, especialmente se base_upload_dir puder ser relativo ou safe_filename puder ser manipulado:
+          # Mas para ser extra seguro, especialmente se base_upload_dir puder ser relativo ou safe_filename puder ser coordenado:
           {:ok, normalized_final_path} = DeeperHub.Security.PathTraversalProtection.normalize_path(final_path)
           case DeeperHub.Security.PathTraversalProtection.verify_path_in_base(normalized_final_path, base_upload_dir) do
             {:ok, :allowed} -> File.write(normalized_final_path, file_binary)

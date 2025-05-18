@@ -97,7 +97,7 @@ defmodule DeeperHub.Categoria.NomeDoModulo do
   # @behaviour MeuComportamento # Se estiver implementando um comportamento
 
   @typedoc """
-  Descrição do tipo principal que este módulo manipula ou define.
+  Descrição do tipo principal que este módulo coordena ou define.
   """
   # @type t :: %__MODULE__{
   #         id: String.t() | nil,

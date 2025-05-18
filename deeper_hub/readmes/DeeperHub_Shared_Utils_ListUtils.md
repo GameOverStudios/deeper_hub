@@ -2,7 +2,7 @@
 
 ## 📜 1. Visão Geral do Módulo `DeeperHub.Shared.Utils.ListUtils`
 
-O módulo `DeeperHub.Shared.Utils.ListUtils` agrupa um conjunto de **funções utilitárias para manipulação e processamento de listas**. Sendo o Elixir uma linguagem funcional que faz uso extensivo de listas, este módulo visa fornecer helpers para operações comuns que podem não estar diretamente disponíveis no módulo `Enum` ou `List` padrão, ou para encapsular combinações comuns dessas funções de forma mais expressiva.
+O módulo `DeeperHub.Shared.Utils.ListUtils` agrupa um conjunto de **funções utilitárias para coordenação e processamento de listas**. Sendo o Elixir uma linguagem funcional que faz uso extensivo de listas, este módulo visa fornecer helpers para operações comuns que podem não estar diretamente disponíveis no módulo `Enum` ou `List` padrão, ou para encapsular combinações comuns dessas funções de forma mais expressiva.
 
 Estas funções são projetadas para serem genéricas, puras e eficientes, auxiliando em tarefas como divisão de listas, comparação, agrupamento, ordenação complexa e garantia de unicidade. 😊
 
@@ -136,7 +136,7 @@ Este módulo, sendo puramente funcional e genérico, geralmente não requer conf
 
 ## 🤝 9. Como Usar / Integração
 
-Importar ou usar alias e chamar as funções diretamente onde a manipulação de listas for necessária.
+Importar ou usar alias e chamar as funções diretamente onde a coordenação de listas for necessária.
 ```elixir
 alias DeeperHub.Shared.Utils.ListUtils
 
@@ -176,7 +176,7 @@ Não aplicável para um módulo de utilitários puros.
 
 ## 🛡️ 12. Considerações de Segurança
 
-*   Geralmente baixo risco de segurança direto, pois são funções de manipulação de dados.
+*   Geralmente baixo risco de segurança direto, pois são funções de coordenação de dados.
 *   Se as listas contiverem dados sensíveis, as funções não os modificarão ou exporão, apenas os reorganizarão ou filtrarão. A segurança dos dados em si é responsabilidade do chamador.
 
 ## 🧑‍💻 13. Contribuição

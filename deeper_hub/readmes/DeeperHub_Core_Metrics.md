@@ -201,7 +201,7 @@ Configurações gerenciadas pelo `DeeperHub.Core.ConfigManager`:
 *   `DeeperHub.Core.ConfigManager`: Para obter configurações do sistema de métricas.
 *   `DeeperHub.Core.Logger`: Para logging de operações internas do sistema de métricas.
 *   `DeeperHub.Core.Supervisor` (indireta): Para supervisionar os processos de métricas (workers, GenServers).
-*   `DeeperHub.Shared.Utils`: Para utilitários de nomeação e manipulação de tags.
+*   `DeeperHub.Shared.Utils`: Para utilitários de nomeação e coordenação de tags.
 
 ### 8.2. Bibliotecas Externas
 

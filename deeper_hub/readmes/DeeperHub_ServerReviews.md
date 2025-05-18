@@ -76,7 +76,7 @@ O módulo `DeeperHub.ServerReviews` é responsável por gerenciar as avaliaçõe
 
 *   **Cálculo da Média de Avaliação:** Se será calculado em tempo real a cada nova review ou por uma tarefa agendada. Atualizar em tempo real no servidor é geralmente preferível, mas pode precisar de otimizações para servidores com muitas reviews.
 *   **Edição de Reviews:** Definir as regras para edição (ex: por quanto tempo, se já houve votos/respostas).
-*   **Prevenção de Reviews Falsas/Manipuladas:** Implementar mecanismos para detectar e mitigar reviews falsas (ex: verificação de participação no servidor, análise de IP, etc.).
+*   **Prevenção de Reviews Falsas/Coordenadas:** Implementar mecanismos para detectar e mitigar reviews falsas (ex: verificação de participação no servidor, análise de IP, etc.).
 
 ## 🛠️ 4. Casos de Uso Principais
 
@@ -242,7 +242,7 @@ O módulo `DeeperHub.ServerReviews` é responsável por gerenciar as avaliaçõe
 
 ## 🛡️ 12. Considerações de Segurança
 
-*   **Reviews Falsas/Manipuladas:** Implementar medidas para detectar e mitigar a criação de reviews falsas ou a manipulação de notas (ex: análise de IP, histórico do usuário, padrões de avaliação).
+*   **Reviews Falsas/Coordenadas:** Implementar medidas para detectar e mitigar a criação de reviews falsas ou a coordenação de notas (ex: análise de IP, histórico do usuário, padrões de avaliação).
 *   **Validação de Conteúdo:** Sanitizar rigorosamente o texto das reviews para prevenir XSS.
 *   **Spam:** Prevenir o uso de reviews para spam.
 *   **Privacidade:** Garantir que as informações do usuário que fez a review sejam exibidas de acordo com suas configurações de privacidade.

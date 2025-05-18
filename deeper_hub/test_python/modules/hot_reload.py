@@ -79,11 +79,11 @@ class ModuleReloader:
                 traceback.print_exc()
                 
 class ModuleChangeHandler(FileSystemEventHandler):
-    """Manipulador de eventos para detectar alterações em arquivos."""
+    """Coordenador de eventos para detectar alterações em arquivos."""
     
     def __init__(self, reloader):
         """
-        Inicializa o manipulador de eventos.
+        Inicializa o coordenador de eventos.
         
         Args:
             reloader (ModuleReloader): Instância do recarregador de módulos

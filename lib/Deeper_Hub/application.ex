@@ -17,10 +17,12 @@ defmodule DeeperHub.Application do
     # Define a árvore de supervisão principal da aplicação
     children = [
       # Inicia o supervisor do repositório para gerenciar o pool de conexões do banco de dados
-      {DeeperHub.Core.Data.Repo.Supervisor, []}
+      {DeeperHub.Core.Data.Repo.Supervisor, []},
+      
+      # Inicia o supervisor do subsistema de rede (WebSockets, PubSub, etc.)
+      {DeeperHub.Core.Network.Supervisor, []}
       
       # Outros supervisores podem ser adicionados aqui conforme necessário
-      # Exemplo: {DeeperHub.AnotherModule.Supervisor, []}
     ]
     
     # Configuração do supervisor principal

@@ -2,7 +2,7 @@
 
 ## 📜 1. Visão Geral do Módulo `DeeperHub.Shared.Utils.MapUtils`
 
-O módulo `DeeperHub.Shared.Utils.MapUtils` fornece um conjunto de **funções utilitárias para manipulação e transformação de mapas (maps)** e, por extensão, de structs Elixir (que são baseados em mapas). Estas funções são projetadas para simplificar operações comuns em mapas, como conversão de tipos de chave, mesclagem profunda, filtragem de entradas, e acesso seguro a valores aninhados.
+O módulo `DeeperHub.Shared.Utils.MapUtils` fornece um conjunto de **funções utilitárias para coordenação e transformação de mapas (maps)** e, por extensão, de structs Elixir (que são baseados em mapas). Estas funções são projetadas para simplificar operações comuns em mapas, como conversão de tipos de chave, mesclagem profunda, filtragem de entradas, e acesso seguro a valores aninhados.
 
 Sendo um módulo puramente funcional, ele não gerencia estado e suas funções visam ser robustas e reutilizáveis em diversas partes do sistema DeeperHub. 😊
 
@@ -12,7 +12,7 @@ Sendo um módulo puramente funcional, ele não gerencia estado e suas funções 
     *   Converter chaves de átomo para string em um mapa (`atom_keys_to_strings/2`).
     *   Converter chaves de string para átomo em um mapa (`string_keys_to_atoms/2`).
     *   Suporte para conversão recursiva em mapas aninhados.
-*   **Manipulação de Valores `nil`:**
+*   **Coordenação de Valores `nil`:**
     *   Remover todas as chaves de um mapa cujos valores são `nil` (`compact/2`), opcionalmente de forma recursiva.
 *   **Mesclagem de Mapas:**
     *   Mesclar dois mapas recursivamente (`deep_merge/2`), onde as chaves do segundo mapa têm precedência em caso de conflito.
@@ -176,7 +176,7 @@ Não aplicável para um módulo de utilitários puros. A instrumentação ocorre
 
 ## 🛡️ 12. Considerações de Segurança
 
-*   Geralmente baixo risco de segurança direto, pois são funções de manipulação de dados.
+*   Geralmente baixo risco de segurança direto, pois são funções de coordenação de dados.
 *   A segurança se torna relevante no contexto de como os mapas resultantes são usados (ex: se um mapa com chaves de átomo convertidas de strings de usuário for usado em `apply/3` de forma insegura, mas isso é um problema do chamador, não do `MapUtils`).
 
 ## 🧑‍💻 13. Contribuição
@@ -211,7 +211,7 @@ Próximo? Podemos fazer `DeeperHub.Shared.Utils.ListUtils` ou `ValidationUtils` 
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ótimo! Vamos continuar com os utilitários e detalhar o `DeeperHub.Shared.Utils.ListUtils`. Manipular listas é uma tarefa onipresente em Elixir.
+                types.Part.from_text(text="""Ótimo! Vamos continuar com os utilitários e detalhar o `DeeperHub.Shared.Utils.ListUtils`. Coordenar listas é uma tarefa onipresente em Elixir.
 
 ---
 

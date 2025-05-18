@@ -42,7 +42,7 @@ Ele fornece funcionalidades para mascarar diferentes tipos de dados, como CPFs, 
 2.  **`DeeperHub.Security.DataMasking.Services.DataMaskingService` (Módulo Funcional):**
     *   **Responsabilidade:** Contém a lógica principal para aplicar as diferentes técnicas de mascaramento.
     *   Não gerencia estado, as regras de mascaramento são obtidas do `Core.ConfigManager` ou passadas como opções.
-    *   Utiliza regex e manipulação de strings para realizar o mascaramento.
+    *   Utiliza regex e coordenação de strings para realizar o mascaramento.
     *   **Interações:**
         *   `DeeperHub.Core.ConfigManager`: Para obter padrões de mascaramento padrão, caracteres de substituição, etc.
 3.  **Configurações (via `DeeperHub.Core.ConfigManager` e `DeeperHub.Security.Policy.SecurityPolicyManager`):**
@@ -169,7 +169,7 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 ### 8.2. Bibliotecas Externas
 
-*   Nenhuma específica é estritamente necessária, mas bibliotecas de manipulação de string ou regex podem ser usadas internamente.
+*   Nenhuma específica é estritamente necessária, mas bibliotecas de coordenação de string ou regex podem ser usadas internamente.
 
 ## 🤝 9. Como Usar / Integração
 

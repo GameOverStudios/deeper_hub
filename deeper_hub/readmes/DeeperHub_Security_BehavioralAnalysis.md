@@ -275,7 +275,7 @@ end
     *   Controle de acesso rigoroso aos dados e resultados da análise.
     *   Políticas claras de retenção e exclusão de dados.
 *   **Viés nos Modelos:** Se modelos de ML forem usados, monitorar e mitigar vieses que possam discriminar injustamente certos grupos de usuários.
-*   **Ataques de Evasão:** Invasores podem tentar manipular seu comportamento para \"treinar\" um perfil falso ou evitar a detecção. O sistema deve ter mecanismos para detectar tais tentativas.
+*   **Ataques de Evasão:** Invasores podem tentar coordenar seu comportamento para \"treinar\" um perfil falso ou evitar a detecção. O sistema deve ter mecanismos para detectar tais tentativas.
 
 ## 🧑‍💻 13. Contribuição
 

@@ -8,7 +8,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.EchoHandler do
   alias Deeper_Hub.Core.Logger
 
   @doc """
-  Manipula uma mensagem de eco.
+  Coordena uma mensagem de eco.
 
   ## Parâmetros
 

@@ -164,7 +164,7 @@ O módulo `DeeperHub.ServerPackages` é responsável por gerenciar os diferentes
 ### 8.2. Bibliotecas Externas
 
 *   `Ecto`
-*   `Decimal` (para manipulação de preços)
+*   `Decimal` (para coordenação de preços)
 
 ## 🤝 9. Como Usar / Integração
 
@@ -207,7 +207,7 @@ O módulo `DeeperHub.ServerPackages` é responsável por gerenciar os diferentes
 
 ## 🛡️ 12. Considerações de Segurança
 
-*   **Validação de Preços:** Garantir que os preços sejam validados corretamente e não possam ser manipulados.
+*   **Validação de Preços:** Garantir que os preços sejam validados corretamente e não possam ser coordenados.
 *   **Permissões:** Apenas proprietários de servidor ou administradores devem poder criar/editar pacotes.
 *   **Descrição do Pacote:** Sanitizar a descrição e nome do pacote para prevenir XSS se exibidos diretamente.
 

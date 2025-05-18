@@ -9,7 +9,7 @@ Este módulo foca em:
 2.  **Validação e Sanitização de Entradas:** Como uma camada secundária, especialmente para entradas usadas em cláusulas `ORDER BY` ou outros contextos onde a parametrização pode ser mais difícil.
 3.  **Detecção de Padrões Maliciosos:** Analisar strings de consulta ou fragmentos para identificar padrões típicos de injeção.
 
-O objetivo é garantir que todas as interações com o banco de dados sejam seguras e que os dados fornecidos pelo usuário não possam ser usados para manipular consultas SQL de forma maliciosa. 😊
+O objetivo é garantir que todas as interações com o banco de dados sejam seguras e que os dados fornecidos pelo usuário não possam ser usados para coordenar consultas SQL de forma maliciosa. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 

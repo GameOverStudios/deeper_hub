@@ -224,7 +224,7 @@ Configurações gerenciadas pelo `DeeperHub.Core.ConfigManager`:
 ### 8.2. Bibliotecas Externas
 
 *   `Phoenix` (se for o framework web): Para routing, controllers, plugs.
-*   `Jason`: Para manipulação de JSON.
+*   `Jason`: Para coordenação de JSON.
 *   `Plug` (Elixir): Para a arquitetura de middleware.
 *   Bibliotecas de validação de parâmetros (ex: `Params`, `Ecto.Changeset` para validação de corpo).
 *   Bibliotecas de OpenAPI/Swagger para geração de documentação (ex: `OpenApiSpex`).

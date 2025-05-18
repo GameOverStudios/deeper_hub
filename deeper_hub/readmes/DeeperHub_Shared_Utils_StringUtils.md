@@ -2,7 +2,7 @@
 
 ## 📜 1. Visão Geral do Módulo `DeeperHub.Shared.Utils.StringUtils`
 
-O módulo `DeeperHub.Shared.Utils.StringUtils` fornece um conjunto de funções utilitárias para **manipulação e formatação de strings**. Estas funções são genéricas e projetadas para serem usadas em várias partes do sistema DeeperHub para tarefas comuns como conversão de case, truncamento, mascaramento de IDs, e geração de identificadores simples. 😊
+O módulo `DeeperHub.Shared.Utils.StringUtils` fornece um conjunto de funções utilitárias para **coordenação e formatação de strings**. Estas funções são genéricas e projetadas para serem usadas em várias partes do sistema DeeperHub para tarefas comuns como conversão de case, truncamento, mascaramento de IDs, e geração de identificadores simples. 😊
 
 ## 🎯 2. Responsabilidades e Funcionalidades Chave
 
@@ -16,7 +16,7 @@ O módulo `DeeperHub.Shared.Utils.StringUtils` fornece um conjunto de funções 
     *   Gerar strings de ID aleatórias, possivelmente com um prefixo (`generate_id/1`). (Nota: Para IDs criptograficamente seguros ou UUIDs, usar `DeeperHub.Shared.Utils.SecurityUtils` ou `UUID`).
 *   **Formatação para Logs:**
     *   Formatar/truncar texto para exibição segura e concisa em logs (`format_for_log/2`).
-*   **Outras Manipulações Comuns:**
+*   **Outras Coordenações Comuns:**
     *   Remoção de acentos.
     *   Geração de \"slugs\" a partir de títulos.
     *   Capitalização.
@@ -114,7 +114,7 @@ Este módulo geralmente não requer configurações externas, mas alguns padrõe
 
 ## 🤝 9. Como Usar / Integração
 
-Simplesmente chame as funções do módulo onde a manipulação de string for necessária.
+Simplesmente chame as funções do módulo onde a coordenação de string for necessária.
 ```elixir
 alias DeeperHub.Shared.Utils.StringUtils
 
@@ -152,7 +152,7 @@ Não aplicável para um módulo de utilitários puros.
 
 ## 🔮 14. Melhorias Futuras e TODOs
 
-*   [ ] Adicionar mais funções de manipulação de string comuns (ex: `strip_tags` mais robusto, `word_wrap`).
+*   [ ] Adicionar mais funções de coordenação de string comuns (ex: `strip_tags` mais robusto, `word_wrap`).
 *   [ ] Melhorar o suporte Unicode em todas as funções, especialmente `slugify` e `humanize`.
 *   [ ] Considerar a performance para funções que podem ser chamadas em loops com strings grandes.
 
@@ -174,7 +174,7 @@ Este detalha o `StringUtils`. Podemos seguir com outro módulo `Utils` como `Dat
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Ótimo! Vamos continuar com os utilitários e detalhar o `DeeperHub.Shared.Utils.DateUtils`. A manipulação de datas e horas é uma necessidade comum em muitas partes de um sistema.
+                types.Part.from_text(text="""Ótimo! Vamos continuar com os utilitários e detalhar o `DeeperHub.Shared.Utils.DateUtils`. A coordenação de datas e horas é uma necessidade comum em muitas partes de um sistema.
 
 ---
 

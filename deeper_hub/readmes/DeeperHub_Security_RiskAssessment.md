@@ -267,7 +267,7 @@ end
 
 *   **Integridade dos Dados de Entrada:** O `RiskAssessment` confia nos dados fornecidos por outros módulos (IP, dispositivo, comportamento). A segurança desses módulos é indiretamente crucial.
 *   **Segurança das Políticas de Risco:** As configurações de pesos, limiares e regras de ação são críticas e devem ser protegidas contra acesso não autorizado (responsabilidade do `SecurityPolicyManager`).
-*   **Manipulação de Perfil:** Um invasor não deve ser capaz de manipular seu perfil de risco para parecer de baixo risco. A atualização dos perfis deve ser um processo controlado.
+*   **Coordenação de Perfil:** Um invasor não deve ser capaz de coordenar seu perfil de risco para parecer de baixo risco. A atualização dos perfis deve ser um processo controlado.
 
 ## 🧑‍💻 13. Contribuição
 

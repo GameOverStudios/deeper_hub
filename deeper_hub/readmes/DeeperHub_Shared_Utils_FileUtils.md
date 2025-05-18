@@ -2,7 +2,7 @@
 
 ## 📜 1. Visão Geral do Módulo `DeeperHub.Shared.Utils.FileUtils`
 
-O módulo `DeeperHub.Shared.Utils.FileUtils` fornece um conjunto de **funções utilitárias para interagir com o sistema de arquivos**. Ele encapsula operações comuns de manipulação de arquivos e diretórios, como leitura, escrita, verificação de existência, cópia, cálculo de hash de arquivos e obtenção de informações sobre arquivos.
+O módulo `DeeperHub.Shared.Utils.FileUtils` fornece um conjunto de **funções utilitárias para interagir com o sistema de arquivos**. Ele encapsula operações comuns de coordenação de arquivos e diretórios, como leitura, escrita, verificação de existência, cópia, cálculo de hash de arquivos e obtenção de informações sobre arquivos.
 
 Este módulo visa simplificar as interações com o sistema de arquivos, fornecer uma API consistente e lidar com erros comuns de forma previsível. Ele é útil para tarefas como gerenciamento de uploads, leitura de arquivos de configuração (que não estão no `ConfigManager`), escrita de logs em arquivos (se não usar um backend de logger mais avançado), ou qualquer outra operação que necessite acesso direto a arquivos. 😊
 
@@ -21,7 +21,7 @@ Este módulo visa simplificar as interações com o sistema de arquivos, fornece
     *   Escrever (ou sobrescrever) conteúdo em um arquivo de texto (`write_text_file/3`).
     *   Escrever conteúdo binário em um arquivo.
     *   Anexar conteúdo a um arquivo existente.
-*   **Manipulação de Arquivos e Diretórios:**
+*   **Coordenação de Arquivos e Diretórios:**
     *   Copiar arquivos (`copy_file/3`).
     *   Mover/Renomear arquivos.
     *   Criar diretórios, incluindo diretórios pai (`ensure_dir_exists/1` - nova sugestão).

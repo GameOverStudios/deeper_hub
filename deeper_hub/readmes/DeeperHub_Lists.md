@@ -10,7 +10,7 @@ O módulo `DeeperHub.Lists` (anteriormente `Elixir.DeeperHub.Services.Lists`) se
     *   CRUD (Create, Read, Update, Delete) para itens de diferentes \"tipos de lista\".
     *   Cada \"tipo de lista\" pode ter seu próprio schema Ecto (ex: `AchievementType`, `Category`, `Platform`).
 *   **Identificação do Tipo de Lista:**
-    *   As funções da API devem aceitar um identificador do tipo de lista que está sendo manipulada (ex: um átomo como `:achievement_type`, `:platform`).
+    *   As funções da API devem aceitar um identificador do tipo de lista que está sendo coordenada (ex: um átomo como `:achievement_type`, `:platform`).
 *   **Listagem e Filtragem:**
     *   Listar todos os itens de um determinado tipo de lista.
     *   Filtrar itens por atributos comuns (ex: `name`, `is_active`).
@@ -36,7 +36,7 @@ O módulo `DeeperHub.Lists` (anteriormente `Elixir.DeeperHub.Services.Lists`) se
 
 ## 🏗️ 3. Arquitetura e Design
 
-`DeeperHub.Lists` atuará como uma fachada que delega para um serviço de armazenamento genérico ou para manipuladores específicos por tipo de lista se a lógica for mais complexa.
+`DeeperHub.Lists` atuará como uma fachada que delega para um serviço de armazenamento genérico ou para coordenadores específicos por tipo de lista se a lógica for mais complexa.
 
 *   **Interface Pública (`DeeperHub.Lists.ListsFacade` ou `DeeperHub.Lists`):** Funções como `list_items/2`, `create_item/2`, `get_item/2`.
 *   **Serviço de Armazenamento/Lógica (`DeeperHub.Lists.Storage` ou `DeeperHub.Lists.Services.ListManagementService`):**
@@ -53,7 +53,7 @@ O módulo `DeeperHub.Lists` (anteriormente `Elixir.DeeperHub.Services.Lists`) se
 **Padrões de Design:**
 
 *   **Fachada (Facade).**
-*   **Strategy (Opcional):** Se diferentes tipos de lista precisarem de lógica de validação ou manipulação muito distinta, cada uma poderia ter uma \"estratégia\" ou manipulador. No entanto, para listas simples, um serviço genérico costuma ser suficiente.
+*   **Strategy (Opcional):** Se diferentes tipos de lista precisarem de lógica de validação ou coordenação muito distinta, cada uma poderia ter uma \"estratégia\" ou coordenador. No entanto, para listas simples, um serviço genérico costuma ser suficiente.
 
 ### 3.1. Componentes Principais
 

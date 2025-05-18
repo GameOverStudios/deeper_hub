@@ -31,7 +31,7 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketServer do
     |> send_resp(200, Jason.encode!(response))
   end
 
-  # Manipula todas as outras rotas
+  # Coordena todas as outras rotas
   match _ do
     send_resp(conn, 404, "Not Found")
   end

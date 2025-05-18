@@ -260,7 +260,7 @@ O módulo `Auth` e seus submódulos são extensivamente configurados via `Deeper
 
 ### 8.2. Bibliotecas Externas
 
-*   `Joken` ou `JOSE`: Para manipulação de JWTs.
+*   `Joken` ou `JOSE`: Para coordenação de JWTs.
 *   `Comeonin`, `Argon2`, `Bcrypt`: Para hashing de senhas.
 *   Bibliotecas OAuth de cliente (ex: `Assent` para Elixir).
 *   Bibliotecas WebAuthn (ex: `Wax` ou `Webauthnix`).

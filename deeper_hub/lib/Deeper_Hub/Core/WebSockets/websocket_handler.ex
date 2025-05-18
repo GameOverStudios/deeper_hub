@@ -38,7 +38,7 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
       {:ok, secured_state} ->
         # Atualiza para protocolo WebSocket
         {:cowboy_websocket, req, secured_state, %{idle_timeout: @timeout}}
-        
+
       {:error, reason} ->
         # Rejeita a conexão por motivos de segurança
         Logger.warning("Conexão WebSocket rejeitada por motivos de segurança", %{
@@ -46,7 +46,7 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
           reason: reason,
           peer: peer
         })
-        
+
         # Publica evento de segurança
         if Code.ensure_loaded?(Deeper_Hub.Core.EventBus) do
           Deeper_Hub.Core.EventBus.publish(:security_violation, %{
@@ -57,14 +57,14 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
             timestamp: :os.system_time(:millisecond)
           })
         end
-        
+
         {:ok, req2} = :cowboy_req.reply(403, %{}, "Acesso negado: #{reason}", req)
         {:ok, req2, state}
     end
   end
 
   @doc """
-  Manipula a inicialização da conexão WebSocket.
+  Coordena a inicialização da conexão WebSocket.
   """
   @impl true
   def websocket_init(state) do
@@ -89,7 +89,7 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
   end
 
   @doc """
-  Manipula mensagens de texto recebidas pelo WebSocket.
+  Coordena mensagens de texto recebidas pelo WebSocket.
   """
   @impl true
   def websocket_handle({:text, message}, state) do
@@ -106,7 +106,7 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
           {:ok, sanitized_message} ->
             # Processa a mensagem sanitizada através do router
             handle_json_message(sanitized_message, state)
-            
+
           {:error, reason} ->
             # Mensagem bloqueada por motivos de segurança
             Logger.warning("Mensagem WebSocket bloqueada por motivos de segurança", %{
@@ -114,7 +114,7 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
               reason: reason,
               user_id: state[:user_id]
             })
-            
+
             # Publica evento de segurança
             if Code.ensure_loaded?(Deeper_Hub.Core.EventBus) do
               Deeper_Hub.Core.EventBus.publish(:security_violation, %{
@@ -124,7 +124,7 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
                 timestamp: :os.system_time(:millisecond)
               })
             end
-            
+
             # Retorna mensagem de erro
             error_response = Jason.encode!(%{
               type: "error",
@@ -133,7 +133,7 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
                 details: reason
               }
             })
-            
+
             {:reply, {:text, error_response}, state}
         end
 
@@ -157,7 +157,7 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
     end
   end
 
-  # Manipula mensagens binárias (não utilizadas nesta implementação)
+  # Coordena mensagens binárias (não utilizadas nesta implementação)
   @impl true
   def websocket_handle({:binary, _data}, state) do
     error_response = Jason.encode!(%{
@@ -170,14 +170,14 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
     {:reply, {:text, error_response}, state}
   end
 
-  # Manipula outros tipos de mensagens
+  # Coordena outros tipos de mensagens
   @impl true
   def websocket_handle(_frame, state) do
     {:ok, state}
   end
 
   @doc """
-  Manipula informações enviadas ao processo WebSocket.
+  Coordena informações enviadas ao processo WebSocket.
   """
   @impl true
   def websocket_info({:send, message}, state) when is_binary(message) do
@@ -205,7 +205,7 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
   end
 
   @doc """
-  Manipula o encerramento da conexão WebSocket.
+  Coordena o encerramento da conexão WebSocket.
   """
   @impl true
   def terminate(reason, _req, _state) do
@@ -276,9 +276,9 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
           type: error_type,
           payload: error_payload
         })
-        
+
         {:reply, {:text, error_response}, state}
-        
+
       {:error, reason} ->
         Logger.error("Erro ao processar mensagem", %{
           module: __MODULE__,
@@ -308,7 +308,7 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
 
   # Código de autenticação legado removido
 
-  # Manipula mensagens JSON que não seguem o formato padrão
+  # Coordena mensagens JSON que não seguem o formato padrão
   defp handle_json_message(message, state) when is_map(message) do
     Logger.warning("Mensagem JSON em formato não reconhecido", %{
       module: __MODULE__,
@@ -327,7 +327,7 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
     {:reply, {:text, error_response}, state}
   end
 
-  # Manipula mensagens JSON sem tipo ou payload
+  # Coordena mensagens JSON sem tipo ou payload
   defp handle_json_message(_message, state) do
     error_response = Jason.encode!(%{
       type: "error",

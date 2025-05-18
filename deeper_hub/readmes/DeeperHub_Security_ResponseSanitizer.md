@@ -143,7 +143,7 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 ### 8.2. Bibliotecas Externas
 
-*   Nenhuma específica, mas pode usar bibliotecas de manipulação de mapas/listas eficientes.
+*   Nenhuma específica, mas pode usar bibliotecas de coordenação de mapas/listas eficientes.
 
 ## 🤝 9. Como Usar / Integração
 
@@ -172,7 +172,7 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
           sanitized_headers = ResponseSanitizer.sanitize_headers(conn_before_send.resp_headers)
           
           # Reconstruir conn com headers sanitizados
-          # Esta é uma simplificação; a manipulação de resp_headers precisa ser feita com cuidado.
+          # Esta é uma simplificação; a coordenação de resp_headers precisa ser feita com cuidado.
           Enum.reduce(conn_before_send.resp_headers, conn_before_send, fn {key, _val}, c -> delete_resp_header(c, key) end)
           |> Enum.reduce(sanitized_headers, fn {key, val}, c -> put_resp_header(c, key, val) end)
         end)

@@ -175,7 +175,7 @@ Via `DeeperHub.Core.ConfigManager` e/ou `DeeperHub.Security.Policy.SecurityPolic
 
 ## 🤝 9. Como Usar / Integração
 
-*   **Com Phoenix:** Adicionar `DeeperHub.Security.CsrfProtection.Plug.CsrfProtectionPlug` ao pipeline de rotas que manipulam o estado (tipicamente o pipeline `:browser` se houver formulários web, ou um pipeline `:api_session_protected` para SPAs que usam sessões).
+*   **Com Phoenix:** Adicionar `DeeperHub.Security.CsrfProtection.Plug.CsrfProtectionPlug` ao pipeline de rotas que coordenam o estado (tipicamente o pipeline `:browser` se houver formulários web, ou um pipeline `:api_session_protected` para SPAs que usam sessões).
     ```elixir
     # lib/deeper_hub_web/router.ex
     pipeline :browser_csrf do

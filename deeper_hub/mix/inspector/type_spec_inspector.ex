@@ -65,7 +65,7 @@ defmodule DeeperHub.Inspector.TypeSpecInspector do
 
       iex> DeeperHub.Inspector.TypeSpecInspector.supported?({Enum, :type, :t, 0})
       true
-      
+
       iex> DeeperHub.Inspector.TypeSpecInspector.supported?("not a typespec")
       false
   """
@@ -368,7 +368,7 @@ defmodule DeeperHub.Inspector.TypeSpecInspector do
   # Isso é uma aproximação, pois não há uma maneira direta de distingui-los
   defp is_macrocallback?(definition) do
     # Tentar identificar padrões comuns em macrocallbacks
-    # Geralmente, eles têm um contexto específico ou manipulam AST
+    # Geralmente, eles têm um contexto específico ou coordenam AST
     inspect(definition) =~ "Macro.t" or inspect(definition) =~ "term" or
       inspect(definition) =~ "ast"
   end
@@ -512,12 +512,12 @@ defmodule DeeperHub.Inspector.TypeSpecInspector do
         """
         <div class="typespec-inspector">
           <h3>#{kind_str}: <code>#{inspect(module)}.#{name}/#{arity}</code></h3>
-          
+
           <div class="definition-section">
             <h4>Definição:</h4>
             #{definition}
           </div>
-          
+
           #{related}
         </div>
         """

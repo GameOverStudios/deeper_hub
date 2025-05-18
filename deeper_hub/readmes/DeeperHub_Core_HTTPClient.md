@@ -173,7 +173,7 @@ O `HTTPClient` pode ser configurado através do `DeeperHub.Core.ConfigManager`.
 ### 8.2. Bibliotecas Externas
 
 *   Biblioteca HTTP escolhida (ex: `Finch`).
-*   `Jason`: Para manipulação de JSON (se for o padrão).
+*   `Jason`: Para coordenação de JSON (se for o padrão).
 
 ## 🤝 9. Como Usar / Integração
 
