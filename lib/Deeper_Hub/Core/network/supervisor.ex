@@ -22,17 +22,17 @@ defmodule DeeperHub.Core.Network.Supervisor do
     Logger.info("Iniciando supervisor do subsistema de rede...", module: __MODULE__)
     
     children = [
-      # Supervisor para gerenciar conexões WebSocket
-      # {DeeperHub.Core.Network.Socket.Supervisor, []},
-      
-      # Supervisor para o sistema de PubSub
-      # {DeeperHub.Core.Network.PubSub.Supervisor, []},
+      # Supervisor para o sistema de PubSub (deve ser iniciado primeiro)
+      {DeeperHub.Core.Network.PubSub.Supervisor, []},
       
       # Supervisor para gerenciar canais de comunicação
-      # {DeeperHub.Core.Network.Channels.Supervisor, []},
+      {DeeperHub.Core.Network.Channels.Supervisor, []},
       
       # Supervisor para o sistema de presença
-      # {DeeperHub.Core.Network.Presence.Supervisor, []}
+      {DeeperHub.Core.Network.Presence.Supervisor, []},
+      
+      # Supervisor para gerenciar conexões WebSocket (deve ser o último a iniciar)
+      {DeeperHub.Core.Network.Socket.Supervisor, []}
     ]
     
     # Estratégia rest_for_one: se um componente falhar, todos os componentes
