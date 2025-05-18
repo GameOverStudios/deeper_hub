@@ -190,7 +190,7 @@ O módulo `DeeperHub.ServerTags` é responsável por gerenciar o sistema de tags
 ### 10.3. Logs
 
 *   `Logger.info(\"Tag '#{tag_name}' adicionada ao servidor #{server_id} por user_id: #{uid}\", module: DeeperHub.ServerTags.Services.TagService)`
-*   `Logger.warning(\"Tentativa de adicionar tag inválida '#{tag_name}' ao servidor #{server_id}\", module: DeeperHub.ServerTags.Services.TagService)`
+*   `Logger.warn(\"Tentativa de adicionar tag inválida '#{tag_name}' ao servidor #{server_id}\", module: DeeperHub.ServerTags.Services.TagService)`
 
 ### 10.4. Telemetria
 

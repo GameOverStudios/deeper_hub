@@ -133,7 +133,7 @@ class TestLogger:
         # Testa diferentes níveis de log
         logger.debug("Debug message")
         logger.info("Info message")
-        logger.warning("Warning message")
+        Logger.warn("Warning message")
         logger.error("Error message")
         logger.critical("Critical message")
         

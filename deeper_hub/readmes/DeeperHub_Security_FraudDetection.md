@@ -229,7 +229,7 @@ def update_email(user, new_email, context_info) do
   }
   case DeeperHub.Security.FraudDetection.analyze_profile_changes(profile_change_info) do
     {:ok, %{risk_level: risk_level, detection_id: detection_id}} when risk_level in [:high, :critical] ->
-      Logger.warning(\"Alta suspeita de fraude na alteração de email para user_id: #{user.id}\", detection_id: detection_id)
+      Logger.warn(\"Alta suspeita de fraude na alteração de email para user_id: #{user.id}\", detection_id: detection_id)
       # Pode-se optar por bloquear a alteração, exigir verificação adicional, etc.
       # ...
     {:ok, _low_or_medium_risk} ->

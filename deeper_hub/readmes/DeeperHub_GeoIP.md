@@ -189,7 +189,7 @@ end
 
 *   `Logger.debug(\"GeoIP lookup para #{ip_address} via #{provider}. Cache: #{status}\", module: DeeperHub.GeoIP)`
 *   `Logger.error(\"Falha no GeoIP lookup para #{ip_address} via #{provider}: #{reason}\", module: DeeperHub.GeoIP)`
-*   `Logger.warning(\"GeoIP Circuit Breaker para #{provider} abriu.\", module: DeeperHub.GeoIP)`
+*   `Logger.warn(\"GeoIP Circuit Breaker para #{provider} abriu.\", module: DeeperHub.GeoIP)`
 
 ### 10.4. Telemetria
 

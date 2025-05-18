@@ -39,7 +39,7 @@ defmodule Deeper_Hub.Core.WebSockets.Security.PathTraversalProtection do
         {:ok, path}
 
       pattern ->
-        Logger.warning("Possível ataque Path Traversal detectado", %{
+        Logger.warn("Possível ataque Path Traversal detectado", %{
           module: __MODULE__,
           pattern: inspect(pattern),
           path: path
@@ -117,7 +117,7 @@ defmodule Deeper_Hub.Core.WebSockets.Security.PathTraversalProtection do
     if String.starts_with?(normalized_path, normalized_base) do
       {:ok, normalized_path}
     else
-      Logger.warning("Tentativa de acesso a caminho fora do diretório base", %{
+      Logger.warn("Tentativa de acesso a caminho fora do diretório base", %{
         module: __MODULE__,
         path: path,
         base_dir: base_dir

@@ -244,7 +244,7 @@ end
 
 ### 10.3. Logs
 
-*   `Logger.warning(\"Tradução ausente para a chave '#{key}' no locale '#{locale}'\", %{key: key, locale: locale})`
+*   `Logger.warn(\"Tradução ausente para a chave '#{key}' no locale '#{locale}'\", %{key: key, locale: locale})`
 *   `Logger.error(\"Erro ao carregar arquivos de tradução para o locale '#{locale}': #{reason}\", %{locale: locale, error: reason})`
 
 ### 10.4. Telemetria

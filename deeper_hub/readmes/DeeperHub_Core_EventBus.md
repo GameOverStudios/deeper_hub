@@ -241,7 +241,7 @@ core/event_bus/
     ```elixir
     case DeeperHub.Core.EventBus.get_event_history(\"user.created\", limit: 5) do
       {:ok, events} -> IO.inspect(events)
-      {:error, reason} -> Logger.warning(\"Não foi possível obter histórico: #{reason}\")
+      {:error, reason} -> Logger.warn(\"Não foi possível obter histórico: #{reason}\")
     end
     ```
 

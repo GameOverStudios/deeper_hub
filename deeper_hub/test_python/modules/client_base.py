@@ -46,7 +46,7 @@ class DeeperHubClient:
             
             # Verifica se a origem é permitida
             if origin not in security_config["allowed_origins"]:
-                self.logger.warning(f"Origem {origin} não está na lista de origens permitidas")
+                self.Logger.warn(f"Origem {origin} não está na lista de origens permitidas")
             
             # Headers de segurança
             headers = {

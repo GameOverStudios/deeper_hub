@@ -100,7 +100,7 @@ logger/            # (Opcional) Se manter separação para Config de Emojis
 
 *   **Desenvolvedor Depura um Fluxo:** Um desenvolvedor usa `Logger.debug(\"Estado da variável X\", %{variable_x: data})` para inspecionar o estado durante a execução.
 *   **Operação Concluída com Sucesso:** Um serviço registra `Logger.info(\"Pedido processado com sucesso\", %{order_id: 123, user_id: 456})`.
-*   **Condição Inesperada mas Não Crítica:** O sistema detecta uma configuração opcional ausente e registra `Logger.warning(\"Configuração de cache não encontrada, usando padrão.\", %{cache_type: :local})`.
+*   **Condição Inesperada mas Não Crítica:** O sistema detecta uma configuração opcional ausente e registra `Logger.warn(\"Configuração de cache não encontrada, usando padrão.\", %{cache_type: :local})`.
 *   **Erro Tratado:** Uma API externa retorna um erro esperado, e o sistema registra `Logger.error(\"Falha ao buscar dados da API externa\", %{api: \"WeatherService\", error: \"timeout\", retry_attempt: 2})`.
 *   **Falha Crítica:** O banco de dados fica indisponível. `Logger.critical(\"Conexão com banco de dados perdida!\", %{db_host: \"...\", error_details: e})`.
 

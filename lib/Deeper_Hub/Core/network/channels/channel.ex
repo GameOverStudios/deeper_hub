@@ -354,6 +354,64 @@ defmodule DeeperHub.Core.Network.Channels.Channel do
     :ok
   end
   
+  @doc """
+  Lista todos os canais disponíveis.
+  
+  ## Retorno
+  
+  - `{:ok, channels}` - Lista de canais disponíveis
+  - `{:error, reason}` - Falha ao listar os canais
+  """
+  def list do
+    # Obtém todos os processos registrados no Registry de canais
+    channels = Registry.select(DeeperHub.Core.Network.Channels.Registry, [{{:_, :_, :_}, [], [:'$_']}])
+    
+    # Para cada canal, obtém informações básicas
+    channel_info = Enum.map(channels, fn {channel_id, pid, _} ->
+      case GenServer.call(pid, :info) do
+        {:ok, info} -> info
+        _ -> %{id: channel_id, name: "Desconhecido", status: :error}
+      end
+    end)
+    
+    {:ok, channel_info}
+  end
+  
+  @doc """
+  Remove um canal.
+  
+  ## Parâmetros
+  
+  - `channel_id` - ID do canal
+  - `owner_id` - ID do proprietário do canal (para verificação)
+  
+  ## Retorno
+  
+  - `:ok` - Canal removido com sucesso
+  - `{:error, reason}` - Falha ao remover o canal
+  """
+  def remove(channel_id, owner_id) do
+    case lookup_channel(channel_id) do
+      {:ok, pid} ->
+        # Verifica se o solicitante é o proprietário do canal
+        case GenServer.call(pid, :info) do
+          {:ok, %{owner_id: ^owner_id}} ->
+            # Encerra o processo do canal
+            GenServer.stop(pid, :normal)
+            :ok
+            
+          {:ok, _} ->
+            # O solicitante não é o proprietário
+            {:error, :unauthorized}
+            
+          error ->
+            error
+        end
+        
+      error -> error
+    end
+  end
+  
   # Funções privadas
   
   # Localiza um canal pelo ID

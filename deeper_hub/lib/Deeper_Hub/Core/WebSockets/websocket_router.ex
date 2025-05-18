@@ -97,10 +97,10 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketRouter do
       state when is_map(state) -> state
       _ -> %{}
     end
-    
+
     MessageHandler.handle_message(action, payload, state)
   end
-  
+
   # Suporte para formato simples usado pelo cliente C++
   defp do_route("user", %{"action" => action} = payload) when is_binary(action) do
     # Garante que o estado seja sempre um mapa válido
@@ -109,10 +109,10 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketRouter do
       state when is_map(state) -> state
       _ -> %{}
     end
-    
+
     UserHandler.handle_message(action, payload, state)
   end
-  
+
   defp do_route("channel", %{"action" => action} = payload) when is_binary(action) do
     # Garante que o estado seja sempre um mapa válido
     state = case Process.get(:websocket_state) do
@@ -120,10 +120,10 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketRouter do
       state when is_map(state) -> state
       _ -> %{}
     end
-    
+
     ChannelHandler.handle_message(action, payload, state)
   end
-  
+
   # Handler para mensagens de autenticação
   defp do_route("auth", payload) do
     # Garante que o estado seja sempre um mapa válido
@@ -132,15 +132,15 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketRouter do
       state when is_map(state) -> state
       _ -> %{}
     end
-    
+
     # AuthHandler sempre retorna {:reply, response, new_state}
     {:reply, response, new_state} = AuthHandler.handle_message(payload, state)
-    
+
     # Atualiza o estado da conexão
     Process.put(:websocket_state, new_state)
     {:ok, response}
   end
-  
+
   defp do_route("message", %{"action" => action} = payload) when is_binary(action) do
     # Garante que o estado seja sempre um mapa válido
     state = case Process.get(:websocket_state) do
@@ -148,11 +148,11 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketRouter do
       state when is_map(state) -> state
       _ -> %{}
     end
-    
+
     # MessageHandler retorna apenas {:ok, response} ou {:error, reason}
     MessageHandler.handle_message(action, payload, state)
   end
-  
+
   # Rotas para mensagens de autenticação (formato prefixado)
   defp do_route("auth." <> action, payload) do
     # Garante que o estado seja sempre um mapa válido
@@ -161,13 +161,13 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketRouter do
       state when is_map(state) -> state
       _ -> %{}
     end
-    
+
     # Adiciona a ação ao payload para processamento pelo handler
     payload = Map.put(payload, "action", action)
-    
+
     # AuthHandler sempre retorna {:reply, response, new_state}
     {:reply, response, new_state} = AuthHandler.handle_message(payload, state)
-    
+
     # Atualiza o estado da conexão
     Process.put(:websocket_state, new_state)
     {:ok, response}
@@ -175,7 +175,7 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketRouter do
 
   # Rota padrão para tipos desconhecidos
   defp do_route(type, _payload) do
-    Logger.warning("Tipo de mensagem desconhecido", %{
+    Logger.warn("Tipo de mensagem desconhecido", %{
       module: __MODULE__,
       type: type
     })

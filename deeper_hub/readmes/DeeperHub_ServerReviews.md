@@ -224,7 +224,7 @@ O módulo `DeeperHub.ServerReviews` é responsável por gerenciar as avaliaçõe
 ### 10.3. Logs
 
 *   `Logger.info(\"Review #{id} criada por user_id: #{uid} para server_id: #{sid}\", module: DeeperHub.ServerReviews.Services.ReviewService)`
-*   `Logger.warning(\"Review #{id} reportada por user_id: #{reporter_id}. Motivo: #{reason}\", module: DeeperHub.UserInteractions.ReportService)`
+*   `Logger.warn(\"Review #{id} reportada por user_id: #{reporter_id}. Motivo: #{reason}\", module: DeeperHub.UserInteractions.ReportService)`
 
 ### 10.4. Telemetria
 

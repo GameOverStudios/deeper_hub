@@ -18,7 +18,7 @@ class MessagingClient(UserClient):
     async def create_channel(self, channel_name, metadata=None):
         """Cria um novo canal."""
         if not self.access_token:
-            self.logger.warning("Tentativa de criar canal sem autenticação")
+            self.Logger.warn("Tentativa de criar canal sem autenticação")
             return False
             
         payload = {
@@ -49,7 +49,7 @@ class MessagingClient(UserClient):
     async def subscribe_channel(self, channel_name):
         """Inscreve o usuário em um canal."""
         if not self.access_token:
-            self.logger.warning("Tentativa de inscrição em canal sem autenticação")
+            self.Logger.warn("Tentativa de inscrição em canal sem autenticação")
             return False
             
         payload = {
@@ -77,7 +77,7 @@ class MessagingClient(UserClient):
     async def publish_message(self, channel_name, content, metadata=None):
         """Publica uma mensagem em um canal."""
         if not self.access_token:
-            self.logger.warning("Tentativa de publicar mensagem sem autenticação")
+            self.Logger.warn("Tentativa de publicar mensagem sem autenticação")
             return False
         
         # Enviar para o tipo 'channel' com ação 'message'
@@ -111,7 +111,7 @@ class MessagingClient(UserClient):
     async def send_direct_message(self, recipient_id, content, metadata=None):
         """Envia uma mensagem direta para outro usuário."""
         if not self.access_token:
-            self.logger.warning("Tentativa de enviar mensagem direta sem autenticação")
+            self.Logger.warn("Tentativa de enviar mensagem direta sem autenticação")
             return False
         
         # Enviar para o tipo 'user' com ação 'message'
@@ -145,7 +145,7 @@ class MessagingClient(UserClient):
     async def get_message_history(self, other_user_id, limit=20):
         """Obtém o histórico de mensagens com outro usuário."""
         if not self.access_token:
-            self.logger.warning("Tentativa de acessar histórico de mensagens sem autenticação")
+            self.Logger.warn("Tentativa de acessar histórico de mensagens sem autenticação")
             return False
             
         payload = {
@@ -181,7 +181,7 @@ class MessagingClient(UserClient):
     async def list_channels(self):
         """Lista todos os canais disponíveis."""
         if not self.access_token:
-            self.logger.warning("Tentativa de listar canais sem autenticação")
+            self.Logger.warn("Tentativa de listar canais sem autenticação")
             return False
             
         payload = {
@@ -218,7 +218,7 @@ class MessagingClient(UserClient):
     async def get_channel(self, channel_id):
         """Obtém detalhes de um canal específico."""
         if not self.access_token:
-            self.logger.warning("Tentativa de obter detalhes de canal sem autenticação")
+            self.Logger.warn("Tentativa de obter detalhes de canal sem autenticação")
             return False
             
         payload = {

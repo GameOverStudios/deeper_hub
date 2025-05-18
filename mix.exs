@@ -56,7 +56,6 @@ defmodule DeeperHub.MixProject do
       # Auth
       {:joken, "~> 2.6"},
       {:guardian, "~> 2.3"},
-      {:argon2_elixir, "~> 4.0"},
       {:pbkdf2_elixir, "~> 2.2"}
     ]
   end

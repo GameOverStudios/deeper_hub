@@ -8,13 +8,16 @@ defmodule DeeperHub.Accounts.Auth.Guardian do
   use Guardian, otp_app: :deeper_hub
 
   alias DeeperHub.Accounts.User
+  alias DeeperHub.Core.Logger
+  require DeeperHub.Core.Logger
 
   @doc """
   Função chamada pelo Guardian para buscar o recurso associado a um token.
   Recebe o subject do token e retorna o recurso correspondente.
   """
   def subject_for_token(user, _claims) when is_map(user) do
-    sub = to_string(user.id)
+    # Extrai o ID do usuário do mapa
+    sub = to_string(user["id"] || user[:id])
     {:ok, sub}
   end
 
@@ -27,9 +30,12 @@ defmodule DeeperHub.Accounts.Auth.Guardian do
   Recebe o subject e retorna o recurso correspondente.
   """
   def resource_from_claims(%{"sub" => sub}) do
-    case DeeperHub.Accounts.get_user(sub) do
-      nil -> {:error, :resource_not_found}
-      user -> {:ok, user}
+    case User.get(sub) do
+      {:ok, user} -> {:ok, user}
+      {:error, :not_found} -> {:error, :resource_not_found}
+      {:error, reason} -> 
+        Logger.error("Erro ao buscar usuário para claims: #{inspect(reason)}", module: __MODULE__)
+        {:error, :resource_error}
     end
   end
 

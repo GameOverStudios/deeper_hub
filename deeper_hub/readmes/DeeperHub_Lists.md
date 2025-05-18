@@ -183,7 +183,7 @@ end
 ### 10.3. Logs
 
 *   `Logger.info(\"Item '#{attrs.name}' criado para a lista '#{list_type}'\", module: DeeperHub.Lists.Storage)`
-*   `Logger.warning(\"Tentativa de acessar tipo de lista não suportado: #{list_type}\", module: DeeperHub.Lists.ListsFacade)`
+*   `Logger.warn(\"Tentativa de acessar tipo de lista não suportado: #{list_type}\", module: DeeperHub.Lists.ListsFacade)`
 
 ### 10.4. Telemetria
 

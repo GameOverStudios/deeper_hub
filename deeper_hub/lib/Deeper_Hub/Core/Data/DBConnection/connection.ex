@@ -1,15 +1,15 @@
 defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
   @moduledoc """
   Implementação do comportamento DBConnection para SQLite.
-  
+
   Este módulo implementa o comportamento DBConnection para interagir com
   o banco de dados SQLite através da biblioteca Exqlite.
   """
-  
+
   use DBConnection
   alias Deeper_Hub.Core.Logger
   alias Deeper_Hub.Core.Data.DBConnection.Query
-  
+
   @typedoc "Estado da conexão"
   @type state :: %{
     db_path: String.t(),
@@ -17,39 +17,39 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
     transaction: boolean(),
     prepare_cache: map()
   }
-  
+
   @doc """
   Inicia uma conexão com o banco de dados SQLite3.
-  
+
   ## Parâmetros
-  
+
     - `opts`: Opções de conexão
-  
+
   ## Retorno
-  
+
     - `{:ok, state}` se a conexão for bem-sucedida
     - `{:error, Exception.t()}` em caso de falha
   """
   @impl true
   def connect(opts) do
     db_path = Keyword.fetch!(opts, :database)
-    
+
     # Reduzimos o nível de log para diminuir mensagens duplicadas
     Logger.debug("Conectando ao banco de dados SQLite3", %{
       module: __MODULE__,
       database: db_path
     })
-    
+
     # Garante que o diretório do banco de dados existe
     File.mkdir_p!(Path.dirname(db_path))
-    
+
     # Garantimos que o diretório existe sem gerar logs redundantes
     directory = Path.dirname(db_path)
     File.mkdir_p!(directory)
-    
+
     # Abrimos a conexão com o banco de dados sem gerar logs redundantes
     open_result = Exqlite.Sqlite3.open(db_path)
-    
+
     case open_result do
       {:ok, db_ref} ->
         # Configura o banco de dados para performance otimizada
@@ -59,10 +59,10 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
           execute_pragma(db_ref, "PRAGMA synchronous = NORMAL", "synchronous"),
           execute_pragma(db_ref, "PRAGMA foreign_keys = ON", "foreign_keys")
         ]
-        
+
         # Verificamos se todos os PRAGMAs foram executados com sucesso
         unless Enum.all?(pragma_results, &(&1 == :ok)) do
-          Logger.warning("Alguns PRAGMAs não puderam ser configurados", %{
+          Logger.warn("Alguns PRAGMAs não puderam ser configurados", %{
             module: __MODULE__,
             database: db_path,
             results: pragma_results
@@ -75,25 +75,25 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
           error: reason
         })
     end
-    
+
     # Continuamos com o processamento normal
     case open_result do
       {:ok, db_ref} ->
         # Independentemente do resultado dos PRAGMAs, continuamos com a conexão
-        
+
         state = %{
           db_path: db_path,
           db_ref: db_ref,
           transaction: false,
           prepare_cache: %{}
         }
-        
+
         # Reduzimos o nível de log para diminuir mensagens duplicadas
         Logger.debug("Conexão com banco de dados SQLite3 estabelecida", %{
           module: __MODULE__,
           database: db_path
         })
-        
+
         {:ok, state}
       {:error, reason} ->
         Logger.error("Falha ao conectar ao banco de dados SQLite3", %{
@@ -101,7 +101,7 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
           database: db_path,
           error: reason
         })
-        
+
         {:error, %DBConnection.ConnectionError{
           message: "Falha ao conectar ao banco de dados SQLite3: #{inspect(reason)}",
           reason: :error,
@@ -109,17 +109,17 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
         }}
     end
   end
-  
+
   @doc """
   Desconecta do banco de dados SQLite3.
-  
+
   ## Parâmetros
-  
+
     - `err`: Erro que causou a desconexão (se houver)
     - `state`: Estado atual da conexão
-  
+
   ## Retorno
-  
+
     - `:ok`
   """
   @impl true
@@ -128,23 +128,23 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
       module: __MODULE__,
       database: state.db_path
     })
-    
+
     if db_ref do
       :ok = Exqlite.Sqlite3.close(db_ref)
     end
-    
+
     :ok
   end
-  
+
   @doc """
   Verifica a saúde da conexão.
-  
+
   ## Parâmetros
-  
+
     - `state`: Estado atual da conexão
-  
+
   ## Retorno
-  
+
     - `{:ok, state}` se a conexão estiver saudável
     - `{:disconnect, Exception.t(), state}` se a conexão estiver inválida
   """
@@ -162,21 +162,21 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
           database: state.db_path,
           error: reason
         })
-        
+
         {:disconnect, reason, state}
     end
   end
-  
+
   @doc """
   Inicia uma transação.
-  
+
   ## Parâmetros
-  
+
     - `opts`: Opções da transação
     - `state`: Estado atual da conexão
-  
+
   ## Retorno
-  
+
     - `{:ok, result, state}` se a transação for iniciada com sucesso
     - `{:disconnect, Exception.t(), state}` em caso de falha
   """
@@ -186,7 +186,7 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
       module: __MODULE__,
       database: state.db_path
     })
-    
+
     case Exqlite.Sqlite3.execute(db_ref, "BEGIN TRANSACTION") do
       {:ok, _} ->
         # Atualiza o estado para indicar que estamos em uma transação
@@ -203,21 +203,21 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
           database: state.db_path,
           error: reason
         })
-        
+
         {:error, reason, state}
     end
   end
-  
+
   @doc """
   Confirma uma transação.
-  
+
   ## Parâmetros
-  
+
     - `opts`: Opções da transação
     - `state`: Estado atual da conexão
-  
+
   ## Retorno
-  
+
     - `{:ok, result, state}` se a transação for confirmada com sucesso
     - `{:disconnect, Exception.t(), state}` em caso de falha
   """
@@ -227,7 +227,7 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
       module: __MODULE__,
       database: state.db_path
     })
-    
+
     case Exqlite.Sqlite3.execute(db_ref, "COMMIT") do
       {:ok, _} ->
         {:ok, %{}, %{state | transaction: false}}
@@ -237,21 +237,21 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
           database: state.db_path,
           error: reason
         })
-        
+
         {:error, reason, state}
     end
   end
-  
+
   @doc """
   Reverte uma transação.
-  
+
   ## Parâmetros
-  
+
     - `opts`: Opções da transação
     - `state`: Estado atual da conexão
-  
+
   ## Retorno
-  
+
     - `{:ok, result, state}` se a transação for revertida com sucesso
     - `{:disconnect, Exception.t(), state}` em caso de falha
   """
@@ -261,7 +261,7 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
       module: __MODULE__,
       database: state.db_path
     })
-    
+
     case Exqlite.Sqlite3.execute(db_ref, "ROLLBACK") do
       {:ok, _} ->
         {:ok, %{}, %{state | transaction: false}}
@@ -271,22 +271,22 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
           database: state.db_path,
           error: reason
         })
-        
+
         {:error, reason, state}
     end
   end
-  
+
   @doc """
   Prepara uma consulta SQL.
-  
+
   ## Parâmetros
-  
+
     - `query`: A consulta SQL
     - `opts`: Opções da preparação
     - `state`: Estado atual da conexão
-  
+
   ## Retorno
-  
+
     - `{:ok, query, state}` se a consulta for preparada com sucesso
     - `{:error, Exception.t(), state}` em caso de falha
     - `{:disconnect, Exception.t(), state}` em caso de falha de conexão
@@ -297,7 +297,7 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
       module: __MODULE__,
       query: query
     })
-    
+
     # Verifica se a consulta já está no cache
     case Map.get(state.prepare_cache, query) do
       nil ->
@@ -313,7 +313,7 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
               query: query,
               error: reason
             })
-            
+
             {:error, reason, state}
         end
       statement ->
@@ -321,19 +321,19 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
         {:ok, statement, state}
     end
   end
-  
+
   @doc """
   Executa uma consulta SQL.
-  
+
   ## Parâmetros
-  
+
     - `query`: A consulta SQL ou statement preparado
     - `params`: Parâmetros da consulta
     - `opts`: Opções da execução
     - `state`: Estado atual da conexão
-  
+
   ## Retorno
-  
+
     - `{:ok, result, state}` se a consulta for executada com sucesso
     - `{:error, Exception.t(), state}` em caso de falha
     - `{:disconnect, Exception.t(), state}` em caso de falha de conexão
@@ -345,13 +345,13 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
       query: query,
       params: params
     })
-    
+
     # Para consultas diretas, precisamos usar os parâmetros
     case Exqlite.Sqlite3.prepare(db_ref, query) do
       {:ok, statement} ->
         # Bind dos parâmetros
         bind_result = bind_parameters(statement, params)
-        
+
         case bind_result do
           :ok ->
             # Executa a consulta
@@ -369,7 +369,7 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
                   params: params,
                   error: reason
                 })
-                
+
                 {:error, reason, state}
             end
           {:error, reason} ->
@@ -381,7 +381,7 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
               params: params,
               error: reason
             })
-            
+
             {:error, reason, state}
         end
       {:error, reason} ->
@@ -391,11 +391,11 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
           params: params,
           error: reason
         })
-        
+
         {:error, reason, state}
     end
   end
-  
+
   def handle_execute(%Query{statement: statement, params: query_params} = query, params, _opts, %{db_ref: db_ref} = state) do
     # Combinamos os parâmetros da query com os parâmetros fornecidos
     all_params = query_params ++ params
@@ -404,12 +404,12 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
       statement: statement,
       params: all_params
     })
-    
+
     case Exqlite.Sqlite3.prepare(db_ref, statement) do
       {:ok, statement} ->
         # Bind dos parâmetros ao statement
         bind_result = bind_parameters(statement, all_params)
-        
+
         result = case bind_result do
           :ok ->
             case Exqlite.Sqlite3.fetch_all(db_ref, statement) do
@@ -435,9 +435,9 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
             })
             {:error, %DBConnection.ConnectionError{message: "Erro ao vincular parâmetros: #{inspect(reason)}", reason: reason}, state}
         end
-        
+
         result
-        
+
       {:error, reason} ->
         Logger.error("Falha ao preparar statement", %{
           module: __MODULE__,
@@ -445,19 +445,19 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
           params: all_params,
           error: reason
         })
-        
+
         {:error, %DBConnection.ConnectionError{message: "Erro ao preparar statement: #{inspect(reason)}", reason: reason}, state}
     end
   end
-  
+
   # Para strings SQL diretas
   def handle_execute(sql, params, opts, state) when is_binary(sql) do
     # Criamos um objeto Query para manter a compatibilidade
     query = Query.new(sql, [])
-    
+
     handle_execute(query, params, opts, state)
   end
-  
+
   # Para statements preparados
   def handle_execute(statement, params, _opts, %{db_ref: db_ref} = state) do
     Logger.debug("Executando statement preparado", %{
@@ -465,13 +465,13 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
       statement: statement,
       params: params
     })
-    
+
     # Bind dos parâmetros ao statement
     bind_result = bind_parameters(statement, params)
-    
+
     # Criamos um objeto Query para manter a compatibilidade
     query = Query.new("prepared_statement", [])
-    
+
     case bind_result do
       :ok ->
         case Exqlite.Sqlite3.fetch_all(db_ref, statement) do
@@ -486,7 +486,7 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
               params: params,
               error: reason
             })
-            
+
             {:error, %DBConnection.ConnectionError{message: "Erro ao buscar resultados: #{inspect(reason)}", reason: reason}, state}
         end
       {:error, reason} ->
@@ -496,22 +496,22 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
           params: params,
           error: reason
         })
-        
+
         {:error, %DBConnection.ConnectionError{message: "Erro ao vincular parâmetros: #{inspect(reason)}", reason: reason}, state}
     end
   end
-  
+
   @doc """
   Fecha uma consulta preparada.
-  
+
   ## Parâmetros
-  
+
     - `query`: A consulta SQL ou statement preparado
     - `opts`: Opções do fechamento
     - `state`: Estado atual da conexão
-  
+
   ## Retorno
-  
+
     - `{:ok, result, state}` se a consulta for fechada com sucesso
     - `{:error, Exception.t(), state}` em caso de falha
   """
@@ -521,7 +521,7 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
       module: __MODULE__,
       statement: statement
     })
-    
+
     # Encontra a chave da consulta no cache
     {query, prepare_cache} = Enum.find_value(state.prepare_cache, {nil, state.prepare_cache}, fn {query, cached_statement} ->
       if cached_statement == statement do
@@ -530,39 +530,39 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
         nil
       end
     end)
-    
+
     updated_state = if query do
       # Remove do cache
       %{state | prepare_cache: prepare_cache}
     else
       state
     end
-    
+
     case Exqlite.Sqlite3.release(db_ref, statement) do
       :ok ->
         {:ok, %{}, updated_state}
       {:error, reason} ->
-        Logger.warning("Falha ao finalizar statement", %{
+        Logger.warn("Falha ao finalizar statement", %{
           module: __MODULE__,
           statement: statement,
           error: reason
         })
-        
+
         # Não desconectamos em caso de falha ao finalizar
         {:ok, %{}, updated_state}
     end
   end
-  
+
   @doc """
   Verifica o status da conexão.
-  
+
   ## Parâmetros
-  
+
     - `opts`: Opções da verificação
     - `state`: Estado atual da conexão
-  
+
   ## Retorno
-  
+
     - `{:ok, status, state}` com o status da conexão
   """
   @impl true
@@ -575,13 +575,13 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
 
   @doc """
   Função de checkout para o DBConnection.
-  
+
   ## Parâmetros
-  
+
     - `state`: Estado atual da conexão
-  
+
   ## Retorno
-  
+
     - `{:ok, state}` se o checkout for bem-sucedido
   """
   @impl true
@@ -591,16 +591,16 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
 
   @doc """
   Declara um cursor para uma consulta.
-  
+
   ## Parâmetros
-  
+
     - `query`: A consulta SQL ou statement preparado
     - `params`: Parâmetros da consulta
     - `opts`: Opções da declaração
     - `state`: Estado atual da conexão
-  
+
   ## Retorno
-  
+
     - `{:ok, query, cursor, state}` se a declaração for bem-sucedida
     - `{:error, Exception.t(), state}` em caso de falha
   """
@@ -610,7 +610,7 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
       module: __MODULE__,
       query: query
     })
-    
+
     # SQLite não suporta cursores nativamente, então simulamos um cursor
     # retornando o próprio statement como cursor
     cursor = {query, params}
@@ -619,16 +619,16 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
 
   @doc """
   Busca resultados de um cursor.
-  
+
   ## Parâmetros
-  
+
     - `query`: A consulta SQL ou statement preparado
     - `cursor`: O cursor para buscar resultados
     - `opts`: Opções da busca
     - `state`: Estado atual da conexão
-  
+
   ## Retorno
-  
+
     - `{:cont, results, cursor, state}` se houver mais resultados
     - `{:halt, results, cursor, state}` se não houver mais resultados
     - `{:error, Exception.t(), state}` em caso de falha
@@ -642,16 +642,16 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
 
   @doc """
   Desaloca um cursor.
-  
+
   ## Parâmetros
-  
+
     - `query`: A consulta SQL ou statement preparado
     - `cursor`: O cursor a ser desalocado
     - `opts`: Opções da desalocação
     - `state`: Estado atual da conexão
-  
+
   ## Retorno
-  
+
     - `{:ok, result, state}` se a desalocação for bem-sucedida
     - `{:error, Exception.t(), state}` em caso de falha
   """
@@ -660,25 +660,25 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
     # Como simulamos um cursor, não precisamos fazer nada para desalocá-lo
     {:ok, %{}, state}
   end
-  
+
   @doc """
   Verifica se uma tabela existe no banco de dados.
-  
+
   ## Parâmetros
-  
+
     - `table_name`: Nome da tabela a ser verificada
-  
+
   ## Retorno
-  
+
     - `true` se a tabela existir
     - `false` se a tabela não existir
   """
   def query_exists?(table_name) do
     # Obtemos a conexão do pool
     alias Deeper_Hub.Core.Data.DBConnection.Pool
-    
+
     query = "SELECT name FROM sqlite_master WHERE type='table' AND name=?"
-    
+
     case Pool.query(query, [table_name]) do
       {:ok, %{rows: rows}} ->
         length(rows) > 0
@@ -686,24 +686,24 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
         false
     end
   end
-  
+
   # Funções auxiliares privadas
-  
+
   @doc false
   defp execute_pragma(db_ref, pragma_statement, pragma_name) do
     # Reduzimos os logs para evitar mensagens duplicadas
     # Apenas registramos o início e o resultado final
-    
+
     # A API do Exqlite.Sqlite3.execute pode retornar diferentes formatos de resultado
     # Vamos tratar todos os casos possíveis
     result = Exqlite.Sqlite3.execute(db_ref, pragma_statement)
-    
+
     case result do
-      {:ok, _} -> 
+      {:ok, _} ->
         :ok
-      :ok -> 
+      :ok ->
         :ok
-      {:error, reason} -> 
+      {:error, reason} ->
         Logger.error("Falha ao configurar PRAGMA", %{
           module: __MODULE__,
           pragma: pragma_name,
@@ -714,7 +714,7 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
         # Os PRAGMAs são otimizações e não são essenciais para o funcionamento
         :ok
       _ ->
-        Logger.warning("Resultado inesperado ao executar PRAGMA", %{
+        Logger.warn("Resultado inesperado ao executar PRAGMA", %{
           module: __MODULE__,
           pragma: pragma_name,
           statement: pragma_statement,
@@ -724,7 +724,7 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
         :ok
     end
   end
-  
+
   @doc false
   defp bind_parameters(statement, params) do
     # Vincula cada parâmetro ao statement
@@ -740,7 +740,7 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
       end
     end)
   end
-  
+
   @doc false
   defp bind_parameter(statement, idx, param) do
     case param do

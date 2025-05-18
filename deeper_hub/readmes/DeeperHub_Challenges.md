@@ -123,7 +123,7 @@ O módulo `DeeperHub.Challenges` é responsável por gerenciar desafios e compet
     ```elixir
     case DeeperHub.Challenges.join_challenge(current_user.id, \"challenge_xyz\") do
       {:ok, participation} -> Logger.info(\"Usuário #{current_user.id} juntou-se ao desafio #{participation.challenge_id}\")
-      {:error, reason} -> Logger.warning(\"Falha ao entrar no desafio: #{reason}\")
+      {:error, reason} -> Logger.warn(\"Falha ao entrar no desafio: #{reason}\")
     end
     ```
 

@@ -31,7 +31,7 @@ defmodule Deeper_Hub.Core.WebSockets.Auth.AuthService do
          true <- verify_password(user, password) do
 
       user_id = Map.get(user, "id")
-      
+
       # Cria uma sessão para o usuário
       case SessionManager.create_session(user_id, remember_me, metadata) do
         {:ok, session} ->
@@ -53,12 +53,12 @@ defmodule Deeper_Hub.Core.WebSockets.Auth.AuthService do
       end
     else
       {:error, :not_found} ->
-        Logger.warning("Tentativa de login com usuário inexistente", %{module: __MODULE__, username: username})
+        Logger.warn("Tentativa de login com usuário inexistente", %{module: __MODULE__, username: username})
         # Retornamos o mesmo erro para não revelar se o usuário existe ou não
         {:error, :invalid_credentials}
 
       false ->
-        Logger.warning("Tentativa de login com senha incorreta", %{module: __MODULE__, username: username})
+        Logger.warn("Tentativa de login com senha incorreta", %{module: __MODULE__, username: username})
         {:error, :invalid_credentials}
 
       error ->
@@ -88,11 +88,11 @@ defmodule Deeper_Hub.Core.WebSockets.Auth.AuthService do
       {:ok, user}
     else
       {:error, :token_blacklisted} ->
-        Logger.warning("Tentativa de uso de token revogado", %{module: __MODULE__})
+        Logger.warn("Tentativa de uso de token revogado", %{module: __MODULE__})
         {:error, :token_blacklisted}
 
       {:error, :not_found} ->
-        Logger.warning("Token válido mas usuário não encontrado", %{module: __MODULE__})
+        Logger.warn("Token válido mas usuário não encontrado", %{module: __MODULE__})
         {:error, :user_not_found}
 
       error ->
@@ -117,7 +117,7 @@ defmodule Deeper_Hub.Core.WebSockets.Auth.AuthService do
       {:ok, tokens} ->
         Logger.info("Tokens atualizados com sucesso", %{module: __MODULE__})
         {:ok, tokens}
-        
+
       error ->
         Logger.error("Erro ao atualizar tokens", %{module: __MODULE__, error: error})
         {:error, :invalid_refresh_token}
@@ -151,20 +151,20 @@ defmodule Deeper_Hub.Core.WebSockets.Auth.AuthService do
         :ok
 
       error ->
-        Logger.warning("Erro ao encerrar sessão", %{module: __MODULE__, error: error})
+        Logger.warn("Erro ao encerrar sessão", %{module: __MODULE__, error: error})
         {:error, :session_end_failed}
     end
   end
 
   @doc """
   Gera um token opaco para recuperação de senha.
-  
+
   ## Parâmetros
-  
+
     - `email`: Email do usuário
-    
+
   ## Retorno
-  
+
     - `{:ok, token, expires_at}` em caso de sucesso
     - `{:error, reason}` em caso de falha
   """
@@ -178,16 +178,16 @@ defmodule Deeper_Hub.Core.WebSockets.Auth.AuthService do
         {:error, :user_not_found}
     end
   end
-  
+
   @doc """
   Verifica um token de recuperação de senha.
-  
+
   ## Parâmetros
-  
+
     - `token`: Token de recuperação de senha
-    
+
   ## Retorno
-  
+
     - `{:ok, user_id}` em caso de sucesso
     - `{:error, reason}` em caso de falha
   """
@@ -195,23 +195,23 @@ defmodule Deeper_Hub.Core.WebSockets.Auth.AuthService do
     case TokenService.verify_opaque_token(token, :password_reset) do
       {:ok, data} ->
         {:ok, data.identifier}
-        
+
       error ->
         Logger.error("Erro ao verificar token de recuperação de senha", %{module: __MODULE__, error: error})
         {:error, :invalid_token}
     end
   end
-  
+
   @doc """
   Redefine a senha de um usuário usando um token de recuperação.
-  
+
   ## Parâmetros
-  
+
     - `token`: Token de recuperação de senha
     - `new_password`: Nova senha
-    
+
   ## Retorno
-  
+
     - `{:ok, user}` em caso de sucesso
     - `{:error, reason}` em caso de falha
   """
@@ -221,13 +221,13 @@ defmodule Deeper_Hub.Core.WebSockets.Auth.AuthService do
          # Atualiza a senha
          updated_user = Map.put(user, :password_hash, new_password),
          {:ok, saved_user} <- UserRepository.update(updated_user) do
-      
+
       # Revoga o token usado
       TokenService.revoke_opaque_token(token)
-      
+
       # Encerra todas as sessões existentes do usuário
       SessionManager.end_all_user_sessions(user_id)
-      
+
       {:ok, saved_user}
     else
       error ->
@@ -241,20 +241,20 @@ defmodule Deeper_Hub.Core.WebSockets.Auth.AuthService do
   defp verify_password(user, password) do
     # Para fins de desenvolvimento, estamos usando a senha diretamente como hash
     # Em produção, isso deve ser substituído por uma função de hash segura
-    
+
     # Tenta obter a senha armazenada, considerando que o usuário pode vir como mapa com chaves string ou atom
     stored_password = cond do
       is_map_key(user, "password_hash") -> Map.get(user, "password_hash")
       is_map_key(user, :password_hash) -> Map.get(user, :password_hash)
       true -> nil
     end
-    
+
     Logger.debug("Verificando senha", %{
       module: __MODULE__,
       password_provided: password,
       stored_password: stored_password
     })
-    
+
     # Verificação simplificada para desenvolvimento
     password == stored_password
   end

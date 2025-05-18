@@ -249,7 +249,7 @@ end
 
 ### 10.3. Logs
 
-*   `Logger.warning(\"Falha na validação de entrada\", %{schema: schema_name, errors: errors, input_preview: preview})`
+*   `Logger.warn(\"Falha na validação de entrada\", %{schema: schema_name, errors: errors, input_preview: preview})`
 *   `Logger.error(\"Padrão malicioso detectado na entrada\", %{pattern_type: type, input_preview: preview, source_ip: ip})`
 
 ### 10.4. Telemetria

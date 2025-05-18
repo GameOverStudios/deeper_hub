@@ -136,9 +136,9 @@ O `DeeperHub.Biometrics` será uma fachada que interage com serviços especializ
         if result.match do
           Logger.info(\"Verificação biométrica bem-sucedida com confiança: #{result.confidence}\")
         else
-          Logger.warning(\"Falha na verificação biométrica. Confiança: #{result.confidence}\")
+          Logger.warn(\"Falha na verificação biométrica. Confiança: #{result.confidence}\")
         end
-      {:error, :profile_not_found} -> Logger.warning(\"Perfil biométrico não encontrado para verificação.\")
+      {:error, :profile_not_found} -> Logger.warn(\"Perfil biométrico não encontrado para verificação.\")
       {:error, reason} -> Logger.error(\"Erro na verificação biométrica: #{inspect(reason)}\")
     end
     ```
@@ -158,7 +158,7 @@ O `DeeperHub.Biometrics` será uma fachada que interage com serviços especializ
     ```elixir
     case DeeperHub.Biometrics.detect_anomalies(current_user.id, time_window_hours: 48) do
       {:ok, anomalies} when anomalies != [] ->
-        Logger.warning(\"Anomalias biométricas detectadas para #{current_user.id}: #{inspect(anomalies)}\")
+        Logger.warn(\"Anomalias biométricas detectadas para #{current_user.id}: #{inspect(anomalies)}\")
       {:ok, []} ->
         Logger.info(\"Nenhuma anomalia biométrica detectada para #{current_user.id}.\")
       {:error, reason} ->
@@ -227,7 +227,7 @@ O `DeeperHub.Biometrics` será uma fachada que interage com serviços especializ
 
 *   `Logger.info(\"Perfil biométrico criado/atualizado para user_id: #{id}\", module: DeeperHub.Biometrics.Services.BiometricsService)`
 *   `Logger.info(\"Verificação biométrica para user_id: #{id}, tipo: #{type}, match: #{match}, confiança: #{confidence}\", module: DeeperHub.Biometrics.Services.PatternMatchingService)`
-*   `Logger.warning(\"Anomalia biométrica detectada para user_id: #{id}, tipo: #{anomaly.type}\", module: DeeperHub.Biometrics.Services.PatternMatchingService)`
+*   `Logger.warn(\"Anomalia biométrica detectada para user_id: #{id}, tipo: #{anomaly.type}\", module: DeeperHub.Biometrics.Services.PatternMatchingService)`
 
 ### 10.4. Telemetria
 

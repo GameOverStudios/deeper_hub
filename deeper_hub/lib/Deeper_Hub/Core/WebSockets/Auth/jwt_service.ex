@@ -123,11 +123,11 @@ defmodule Deeper_Hub.Core.WebSockets.Auth.JwtService do
       {:ok, claims}
     else
       true ->
-        Logger.warning("Tentativa de uso de token na blacklist", %{module: __MODULE__})
+        Logger.warn("Tentativa de uso de token na blacklist", %{module: __MODULE__})
         {:error, :token_blacklisted}
 
       {:error, reason} = error ->
-        Logger.warning("Falha na validação de token", %{module: __MODULE__, error: reason})
+        Logger.warn("Falha na validação de token", %{module: __MODULE__, error: reason})
         error
     end
   end
@@ -187,7 +187,7 @@ defmodule Deeper_Hub.Core.WebSockets.Auth.JwtService do
         :ok
 
       error ->
-        Logger.warning("Tentativa de revogar token inválido", %{module: __MODULE__, error: error})
+        Logger.warn("Tentativa de revogar token inválido", %{module: __MODULE__, error: error})
         error
     end
   end

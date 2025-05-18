@@ -9,7 +9,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
   alias Deeper_Hub.Core.WebSockets.Auth.AuthService
   alias Deeper_Hub.Core.EventBus
   alias Deeper_Hub.Core.Logger
-  
+
   # Permite substituir o serviço de autenticação durante os testes
   defp auth_service do
     Application.get_env(:deeper_hub, :auth_service, AuthService)
@@ -37,7 +37,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
     username = Map.get(payload, "username")
     password = Map.get(payload, "password")
     remember_me = Map.get(payload, "remember_me", false)
-    
+
     # Coleta metadados da conexão
     metadata = %{
       user_agent: Map.get(state, :user_agent),
@@ -84,7 +84,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
           }
         }
 
-        Logger.warning("Falha no login", %{module: __MODULE__, username: username, reason: reason})
+        Logger.warn("Falha no login", %{module: __MODULE__, username: username, reason: reason})
 
         {:reply, response, state}
     end
@@ -132,7 +132,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
           }
         }
 
-        Logger.warning("Falha no logout", %{module: __MODULE__, user_id: user_id, reason: reason})
+        Logger.warn("Falha no logout", %{module: __MODULE__, user_id: user_id, reason: reason})
 
         {:reply, response, state}
     end
@@ -168,7 +168,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
           }
         }
 
-        Logger.warning("Falha no refresh de tokens", %{module: __MODULE__, reason: reason})
+        Logger.warn("Falha no refresh de tokens", %{module: __MODULE__, reason: reason})
 
         {:reply, response, state}
     end
@@ -177,9 +177,9 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
   # Ação de recuperação de senha
   defp handle_action("request_password_reset", payload, state) do
     email = Map.get(payload, "email")
-    
+
     Logger.info("Processando solicitação de recuperação de senha", %{module: __MODULE__, email: email})
-    
+
     case auth_service().generate_password_reset_token(email) do
       {:ok, token, expires_at} ->
         # Em um ambiente real, enviaríamos um email com o link de recuperação
@@ -192,11 +192,11 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
             expires_at: DateTime.to_iso8601(expires_at)
           }
         }
-        
+
         Logger.info("Token de recuperação de senha gerado", %{module: __MODULE__, email: email})
-        
+
         {:reply, response, state}
-        
+
       {:error, reason} ->
         response = %{
           type: "auth.password_reset.error",
@@ -205,20 +205,20 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
             message: "Falha ao solicitar recuperação de senha"
           }
         }
-        
-        Logger.warning("Falha ao gerar token de recuperação de senha", %{module: __MODULE__, email: email, reason: reason})
-        
+
+        Logger.warn("Falha ao gerar token de recuperação de senha", %{module: __MODULE__, email: email, reason: reason})
+
         {:reply, response, state}
     end
   end
-  
+
   # Ação de redefinição de senha
   defp handle_action("reset_password", payload, state) do
     token = Map.get(payload, "token")
     new_password = Map.get(payload, "password")
-    
+
     Logger.info("Processando solicitação de redefinição de senha", %{module: __MODULE__})
-    
+
     case auth_service().reset_password(token, new_password) do
       {:ok, user} ->
         response = %{
@@ -228,11 +228,11 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
             username: user.username
           }
         }
-        
+
         Logger.info("Senha redefinida com sucesso", %{module: __MODULE__, user_id: user.id})
-        
+
         {:reply, response, state}
-        
+
       {:error, reason} ->
         response = %{
           type: "auth.password_reset.error",
@@ -241,9 +241,9 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
             message: "Falha ao redefinir senha"
           }
         }
-        
-        Logger.warning("Falha ao redefinir senha", %{module: __MODULE__, reason: reason})
-        
+
+        Logger.warn("Falha ao redefinir senha", %{module: __MODULE__, reason: reason})
+
         {:reply, response, state}
     end
   end
@@ -258,7 +258,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
       }
     }
 
-    Logger.warning("Ação de autenticação desconhecida", %{module: __MODULE__, action: action})
+    Logger.warn("Ação de autenticação desconhecida", %{module: __MODULE__, action: action})
 
     {:reply, response, state}
   end

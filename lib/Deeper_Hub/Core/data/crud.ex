@@ -1,6 +1,6 @@
 defmodule DeeperHub.Core.Data.Crud do
   @moduledoc """
-  Provides generic CRUD (Create, Read, Update, Delete) operations 
+  Provides generic CRUD (Create, Read, Update, Delete) operations
   for database tables, abstracting SQL query construction.
 
   This module relies on `DeeperHub.Core.Data.Repo` for query execution.
@@ -15,7 +15,7 @@ defmodule DeeperHub.Core.Data.Crud do
   @doc """
   Inserts a new record into the specified table.
 
-  Returns `{:ok, record_map}` with the inserted record (if `RETURNING *` is supported 
+  Returns `{:ok, record_map}` with the inserted record (if `RETURNING *` is supported
   and used) or `{:error, reason}`.
 
   ## Examples
@@ -33,11 +33,11 @@ defmodule DeeperHub.Core.Data.Crud do
       values = Map.values(params)
 
       sql = "INSERT INTO #{table} (#{Enum.join(columns, ", ")}) VALUES (#{Enum.join(placeholders, ", ")}) RETURNING *"
-      
+
       Logger.debug("Crud.create SQL: #{sql} with values: #{inspect(values)}", module: __MODULE__)
-      
+
       case Repo.query(sql, values) do
-        {:ok, [%{} = inserted_record | _]} -> 
+        {:ok, [%{} = inserted_record | _]} ->
           # SQLite often returns a list with one item for RETURNING *
           {:ok, inserted_record}
         {:ok, %{rows: [inserted_record | _]}} -> # Exqlite might wrap in rows key
@@ -45,9 +45,9 @@ defmodule DeeperHub.Core.Data.Crud do
         {:ok, %{rows: []}} -> # Insert might not have returned anything (e.g. table without PK or RETURNING not fully supported for edge cases)
             Logger.warn("Crud.create for table '#{table}' did not return a record.", module: __MODULE__)
             {:error, :creation_failed_no_return} # Or perhaps {:ok, nil} depending on desired contract
-        {:error, reason} -> 
+        {:error, reason} ->
           {:error, reason}
-        other -> 
+        other ->
           Logger.error("Crud.create received unexpected result from Repo.query for table '#{table}': #{inspect(other)}", module: __MODULE__)
           {:error, {:unexpected_repo_result, other}}
       end
@@ -57,19 +57,19 @@ defmodule DeeperHub.Core.Data.Crud do
   @doc """
   Retrieves a single record from the table by its primary key (assumed to be 'id').
 
-  Returns `{:ok, record_map}` if found, `{:error, :not_found}` if not found, 
+  Returns `{:ok, record_map}` if found, `{:error, :not_found}` if not found,
   or `{:error, reason}` for other errors.
   """
   def get(table, id) when is_binary(table) do
     sql = "SELECT * FROM #{table} WHERE id = $1 LIMIT 1"
     Logger.debug("Crud.get SQL: #{sql} with id: #{id}", module: __MODULE__)
-    
+
     case Repo.query(sql, [id]) do
       {:ok, [%{} = record | _]} -> {:ok, record}
       {:ok, %{rows: [record | _]}} -> {:ok, record}
       {:ok, %{rows: []}} -> {:error, :not_found}
       {:error, reason} -> {:error, reason}
-      other -> 
+      other ->
         Logger.error("Crud.get received unexpected result from Repo.query for table '#{table}': #{inspect(other)}", module: __MODULE__)
         {:error, {:unexpected_repo_result, other}}
     end
@@ -117,7 +117,7 @@ defmodule DeeperHub.Core.Data.Crud do
         {:ok, %{rows: [updated_record | _]}} -> {:ok, updated_record}
         {:ok, %{rows: []}} -> {:error, :not_found} # No rows updated/returned
         {:error, reason} -> {:error, reason}
-        other -> 
+        other ->
           Logger.error("Crud.update received unexpected result from Repo.query for table '#{table}': #{inspect(other)}", module: __MODULE__)
           {:error, {:unexpected_repo_result, other}}
       end
@@ -127,7 +127,7 @@ defmodule DeeperHub.Core.Data.Crud do
   @doc """
   Deletes a record from the table by its primary key (assumed to be 'id').
 
-  Returns `{:ok, deleted_record_map}` if `RETURNING *` is effective, 
+  Returns `{:ok, deleted_record_map}` if `RETURNING *` is effective,
   `{:ok, %{num_rows: 1}}` if deletion was successful but no record returned,
   `{:error, :not_found}` if no record was deleted, or `{:error, reason}`.
   """
@@ -142,7 +142,7 @@ defmodule DeeperHub.Core.Data.Crud do
       {:ok, %{num_rows: 1}} -> {:ok, %{num_rows: 1}} # Deleted, but nothing returned by RETURNING *
       {:ok, result_map} when result_map.num_rows == 1 -> {:ok, result_map} # Generic case if num_rows is 1
       {:error, reason} -> {:error, reason}
-      other -> 
+      other ->
         Logger.error("Crud.delete received unexpected result from Repo.query for table '#{table}': #{inspect(other)}", module: __MODULE__)
         {:error, {:unexpected_repo_result, other}}
     end

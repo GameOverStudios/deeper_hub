@@ -41,7 +41,7 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
 
       {:error, reason} ->
         # Rejeita a conexão por motivos de segurança
-        Logger.warning("Conexão WebSocket rejeitada por motivos de segurança", %{
+        Logger.warn("Conexão WebSocket rejeitada por motivos de segurança", %{
           module: __MODULE__,
           reason: reason,
           peer: peer
@@ -109,7 +109,7 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
 
           {:error, reason} ->
             # Mensagem bloqueada por motivos de segurança
-            Logger.warning("Mensagem WebSocket bloqueada por motivos de segurança", %{
+            Logger.warn("Mensagem WebSocket bloqueada por motivos de segurança", %{
               module: __MODULE__,
               reason: reason,
               user_id: state[:user_id]
@@ -310,7 +310,7 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
 
   # Coordena mensagens JSON que não seguem o formato padrão
   defp handle_json_message(message, state) when is_map(message) do
-    Logger.warning("Mensagem JSON em formato não reconhecido", %{
+    Logger.warn("Mensagem JSON em formato não reconhecido", %{
       module: __MODULE__,
       message: inspect(message)
     })
