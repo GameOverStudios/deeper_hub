@@ -661,6 +661,32 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Connection do
     {:ok, %{}, state}
   end
   
+  @doc """
+  Verifica se uma tabela existe no banco de dados.
+  
+  ## Parâmetros
+  
+    - `table_name`: Nome da tabela a ser verificada
+  
+  ## Retorno
+  
+    - `true` se a tabela existir
+    - `false` se a tabela não existir
+  """
+  def query_exists?(table_name) do
+    # Obtemos a conexão do pool
+    alias Deeper_Hub.Core.Data.DBConnection.Pool
+    
+    query = "SELECT name FROM sqlite_master WHERE type='table' AND name=?"
+    
+    case Pool.query(query, [table_name]) do
+      {:ok, %{rows: rows}} ->
+        length(rows) > 0
+      _ ->
+        false
+    end
+  end
+  
   # Funções auxiliares privadas
   
   @doc false

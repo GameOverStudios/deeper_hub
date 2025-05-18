@@ -1,4 +1,4 @@
-defmodule Deeper_Hub.Core.Auth.AuthService do
+defmodule Deeper_Hub.Core.WebSockets.Auth.AuthService do
   @moduledoc """
   Serviço para autenticação de usuários via WebSocket.
 
@@ -6,11 +6,10 @@ defmodule Deeper_Hub.Core.Auth.AuthService do
   gerenciamento de sessões de usuários conectados via WebSocket.
   """
 
-  alias Deeper_Hub.Core.Auth.JwtService
+  alias Deeper_Hub.Core.WebSockets.Auth.JwtService
   alias Deeper_Hub.Core.Data.DBConnection.Repositories.UserRepository
   alias Deeper_Hub.Core.EventBus
-
-  require Logger
+  alias Deeper_Hub.Core.Logger
 
   @doc """
   Autentica um usuário com base em suas credenciais.
@@ -31,7 +30,7 @@ defmodule Deeper_Hub.Core.Auth.AuthService do
 
       case JwtService.generate_token_pair(user_id) do
         {:ok, access_token, refresh_token, claims} ->
-          Logger.info("[#{__MODULE__}] Usuário autenticado com sucesso user_id=#{user_id}")
+          Logger.info("Usuário autenticado com sucesso", %{module: __MODULE__, user_id: user_id})
           EventBus.publish(:user_authenticated, %{user_id: user_id})
 
           tokens = %{
@@ -43,51 +42,26 @@ defmodule Deeper_Hub.Core.Auth.AuthService do
           {:ok, user, tokens}
 
         error ->
-          Logger.error("[#{__MODULE__}] Erro ao gerar tokens: #{inspect(error)}")
+          Logger.error("Erro ao gerar tokens", %{module: __MODULE__, error: error})
           {:error, :token_generation_failed}
       end
     else
       {:error, :not_found} ->
-        Logger.warning("[#{__MODULE__}] Tentativa de login com usuário inexistente username=#{username}")
+        Logger.warning("Tentativa de login com usuário inexistente", %{module: __MODULE__, username: username})
         # Retornamos o mesmo erro para não revelar se o usuário existe ou não
         {:error, :invalid_credentials}
 
       false ->
-        Logger.warning("[#{__MODULE__}] Tentativa de login com senha incorreta username=#{username}")
+        Logger.warning("Tentativa de login com senha incorreta", %{module: __MODULE__, username: username})
         {:error, :invalid_credentials}
 
       error ->
-        Logger.error("[#{__MODULE__}] Erro ao autenticar usuário: #{inspect(error)}")
+        Logger.error("Erro ao autenticar usuário", %{module: __MODULE__, error: error})
         {:error, :authentication_failed}
     end
   end
 
-  @doc """
-  Autentica um usuário apenas com o ID para uso em WebSockets.
-
-  ## Parâmetros
-    * `user_id` - ID do usuário
-
-  ## Retorno
-    * `{:ok, user}` - Autenticação bem-sucedida com dados do usuário
-    * `{:error, reason}` - Erro na autenticação
-  """
-  def authenticate_by_id(user_id) do
-    case UserRepository.get_by_id(user_id) do
-      {:ok, user} ->
-        Logger.info("[#{__MODULE__}] Usuário autenticado por ID user_id=#{user_id}")
-        EventBus.publish(:user_authenticated, %{user_id: user_id})
-        {:ok, user}
-
-      {:error, :not_found} ->
-        Logger.warning("[#{__MODULE__}] Tentativa de autenticação com ID de usuário inexistente user_id=#{user_id}")
-        {:error, :user_not_found}
-
-      error ->
-        Logger.error("[#{__MODULE__}] Erro ao autenticar usuário por ID: #{inspect(error)}")
-        {:error, :authentication_failed}
-    end
-  end
+  # Função de autenticação simplificada por ID removida - agora usamos apenas autenticação completa com JWT
 
   @doc """
   Verifica um token JWT e retorna os dados do usuário.
@@ -104,19 +78,19 @@ defmodule Deeper_Hub.Core.Auth.AuthService do
          user_id = Map.get(claims, "user_id"),
          {:ok, user} <- UserRepository.get_by_id(user_id) do
 
-      Logger.info("[#{__MODULE__}] Token verificado com sucesso user_id=#{user_id}")
+      Logger.info("Token verificado com sucesso", %{module: __MODULE__, user_id: user_id})
       {:ok, user}
     else
       {:error, :token_blacklisted} ->
-        Logger.warning("[#{__MODULE__}] Tentativa de uso de token revogado")
+        Logger.warning("Tentativa de uso de token revogado", %{module: __MODULE__})
         {:error, :token_blacklisted}
 
       {:error, :not_found} ->
-        Logger.warning("[#{__MODULE__}] Token válido mas usuário não encontrado")
+        Logger.warning("Token válido mas usuário não encontrado", %{module: __MODULE__})
         {:error, :user_not_found}
 
       error ->
-        Logger.error("[#{__MODULE__}] Erro ao verificar token: #{inspect(error)}")
+        Logger.error("Erro ao verificar token", %{module: __MODULE__, error: error})
         {:error, :invalid_token}
     end
   end
@@ -137,7 +111,7 @@ defmodule Deeper_Hub.Core.Auth.AuthService do
          user_id = Map.get(claims, "user_id"),
          {:ok, access_token, refresh_token, claims} <- JwtService.generate_token_pair(user_id) do
 
-      Logger.info("[#{__MODULE__}] Tokens atualizados com sucesso user_id=#{user_id}")
+      Logger.info("Tokens atualizados com sucesso", %{module: __MODULE__, user_id: user_id})
 
       tokens = %{
         access_token: access_token,
@@ -148,11 +122,11 @@ defmodule Deeper_Hub.Core.Auth.AuthService do
       {:ok, tokens}
     else
       "access" ->
-        Logger.warning("[#{__MODULE__}] Tentativa de refresh com token de acesso")
+        Logger.warning("Tentativa de refresh com token de acesso", %{module: __MODULE__})
         {:error, :invalid_token_type}
 
       error ->
-        Logger.error("[#{__MODULE__}] Erro ao atualizar tokens: #{inspect(error)}")
+        Logger.error("Erro ao atualizar tokens", %{module: __MODULE__, error: error})
         {:error, :invalid_refresh_token}
     end
   end
@@ -176,12 +150,12 @@ defmodule Deeper_Hub.Core.Auth.AuthService do
     case JwtService.verify_token(access_token) do
       {:ok, claims} ->
         user_id = Map.get(claims, "user_id")
-        Logger.info("[#{__MODULE__}] Logout realizado com sucesso user_id=#{user_id}")
+        Logger.info("Logout realizado com sucesso", %{module: __MODULE__, user_id: user_id})
         EventBus.publish(:user_logged_out, %{user_id: user_id})
         :ok
 
       _ ->
-        Logger.warning("[#{__MODULE__}] Logout com token inválido")
+        Logger.warning("Logout com token inválido", %{module: __MODULE__})
         {:error, :invalid_token}
     end
   end
@@ -189,12 +163,23 @@ defmodule Deeper_Hub.Core.Auth.AuthService do
   # Funções privadas
 
   defp verify_password(user, password) do
-    stored_password = Map.get(user, "password_hash")
-
-    # Em um ambiente de produção, usaríamos uma função de hash adequada
-    # como Argon2, Bcrypt ou PBKDF2. Para simplificar, estamos comparando
-    # diretamente, mas isso deve ser substituído por uma verificação segura.
-    # Exemplo: Argon2.verify_pass(password, stored_password)
+    # Para fins de desenvolvimento, estamos usando a senha diretamente como hash
+    # Em produção, isso deve ser substituído por uma função de hash segura
+    
+    # Tenta obter a senha armazenada, considerando que o usuário pode vir como mapa com chaves string ou atom
+    stored_password = cond do
+      is_map_key(user, "password_hash") -> Map.get(user, "password_hash")
+      is_map_key(user, :password_hash) -> Map.get(user, :password_hash)
+      true -> nil
+    end
+    
+    Logger.debug("Verificando senha", %{
+      module: __MODULE__,
+      password_provided: password,
+      stored_password: stored_password
+    })
+    
+    # Verificação simplificada para desenvolvimento
     password == stored_password
   end
 end

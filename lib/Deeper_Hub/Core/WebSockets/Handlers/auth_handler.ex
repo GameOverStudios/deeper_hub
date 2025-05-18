@@ -6,10 +6,9 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
   como login, logout e refresh de tokens.
   """
 
-  alias Deeper_Hub.Core.Auth.AuthService
+  alias Deeper_Hub.Core.WebSockets.Auth.AuthService
   alias Deeper_Hub.Core.EventBus
-
-  require Logger
+  alias Deeper_Hub.Core.Logger
 
   @doc """
   Processa uma mensagem de autenticação.
@@ -33,7 +32,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
     username = Map.get(payload, "username")
     password = Map.get(payload, "password")
 
-    Logger.info("[#{__MODULE__}] Processando solicitação de login username=#{username}")
+    Logger.info("Processando solicitação de login", %{module: __MODULE__, username: username})
 
     case AuthService.authenticate(username, password) do
       {:ok, user, tokens} ->
@@ -54,7 +53,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
           }
         }
 
-        Logger.info("[#{__MODULE__}] Login bem-sucedido user_id=#{user_id}")
+        Logger.info("Login bem-sucedido", %{module: __MODULE__, user_id: user_id})
         EventBus.publish(:user_logged_in, %{user_id: user_id})
 
         {:reply, response, state}
@@ -68,49 +67,13 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
           }
         }
 
-        Logger.warning("[#{__MODULE__}] Falha no login username=#{username} reason=#{inspect(reason)}")
+        Logger.warning("Falha no login", %{module: __MODULE__, username: username, reason: reason})
 
         {:reply, response, state}
     end
   end
 
-  # Ação de autenticação simples por ID (para WebSockets)
-  defp handle_action("auth", payload, state) do
-    user_id = Map.get(payload, "user_id")
-
-    Logger.info("[#{__MODULE__}] Processando solicitação de autenticação user_id=#{user_id}")
-
-    case AuthService.authenticate_by_id(user_id) do
-      {:ok, _user} ->
-        # Atualiza o estado da conexão com o ID do usuário
-        state = Map.put(state, :user_id, user_id)
-        state = Map.put(state, :authenticated, true)
-
-        response = %{
-          type: "auth_success",
-          payload: %{
-            user_id: user_id
-          }
-        }
-
-        Logger.info("[#{__MODULE__}] Autenticação bem-sucedida user_id=#{user_id}")
-
-        {:reply, response, state}
-
-      {:error, reason} ->
-        response = %{
-          type: "auth_error",
-          payload: %{
-            error: reason,
-            message: "Falha na autenticação"
-          }
-        }
-
-        Logger.warning("[#{__MODULE__}] Falha na autenticação user_id=#{user_id} reason=#{inspect(reason)}")
-
-        {:reply, response, state}
-    end
-  end
+  # Método de autenticação simplificada por ID removido - agora usamos apenas login completo com JWT
 
   # Ação de logout
   defp handle_action("logout", payload, state) do
@@ -118,7 +81,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
     refresh_token = Map.get(payload, "refresh_token")
     user_id = Map.get(state, :user_id)
 
-    Logger.info("[#{__MODULE__}] Processando solicitação de logout user_id=#{user_id}")
+    Logger.info("Processando solicitação de logout", %{module: __MODULE__, user_id: user_id})
 
     case AuthService.logout(access_token, refresh_token) do
       :ok ->
@@ -133,7 +96,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
           }
         }
 
-        Logger.info("[#{__MODULE__}] Logout bem-sucedido user_id=#{user_id}")
+        Logger.info("Logout bem-sucedido", %{module: __MODULE__, user_id: user_id})
 
         {:reply, response, state}
 
@@ -146,7 +109,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
           }
         }
 
-        Logger.warning("[#{__MODULE__}] Falha no logout user_id=#{user_id} reason=#{inspect(reason)}")
+        Logger.warning("Falha no logout", %{module: __MODULE__, user_id: user_id, reason: reason})
 
         {:reply, response, state}
     end
@@ -156,7 +119,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
   defp handle_action("refresh", payload, state) do
     refresh_token = Map.get(payload, "refresh_token")
 
-    Logger.info("[#{__MODULE__}] Processando solicitação de refresh de tokens")
+    Logger.info("Processando solicitação de refresh de tokens", %{module: __MODULE__})
 
     case AuthService.refresh_tokens(refresh_token) do
       {:ok, tokens} ->
@@ -169,7 +132,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
           }
         }
 
-        Logger.info("[#{__MODULE__}] Refresh de tokens bem-sucedido")
+        Logger.info("Refresh de tokens bem-sucedido", %{module: __MODULE__})
 
         {:reply, response, state}
 
@@ -182,7 +145,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
           }
         }
 
-        Logger.warning("[#{__MODULE__}] Falha no refresh de tokens reason=#{inspect(reason)}")
+        Logger.warning("Falha no refresh de tokens", %{module: __MODULE__, reason: reason})
 
         {:reply, response, state}
     end
@@ -198,7 +161,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.AuthHandler do
       }
     }
 
-    Logger.warning("[#{__MODULE__}] Ação de autenticação desconhecida action=#{action}")
+    Logger.warning("Ação de autenticação desconhecida", %{module: __MODULE__, action: action})
 
     {:reply, response, state}
   end

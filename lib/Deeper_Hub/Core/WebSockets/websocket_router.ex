@@ -133,26 +133,12 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketRouter do
       _ -> %{}
     end
     
-    # Compatibilidade com o cliente C++ existente
-    if Map.has_key?(payload, "user_id") and is_binary(payload["user_id"]) do
-      user_id = payload["user_id"]
-      Logger.info("Autenticação de usuário", %{user_id: user_id})
-      
-      # Atualiza o estado com o ID do usuário
-      state = Map.put(state, :user_id, user_id)
-      Process.put(:websocket_state, state)
-      
-      # Retorna uma resposta de sucesso
-      {:ok, %{type: "auth_success", payload: %{user_id: user_id}}}
-    else
-      # Usa o novo handler de autenticação
-      # AuthHandler sempre retorna {:reply, response, new_state}
-      {:reply, response, new_state} = AuthHandler.handle_message(payload, state)
-      
-      # Atualiza o estado da conexão
-      Process.put(:websocket_state, new_state)
-      {:ok, response}
-    end
+    # AuthHandler sempre retorna {:reply, response, new_state}
+    {:reply, response, new_state} = AuthHandler.handle_message(payload, state)
+    
+    # Atualiza o estado da conexão
+    Process.put(:websocket_state, new_state)
+    {:ok, response}
   end
   
   defp do_route("message", %{"action" => action} = payload) when is_binary(action) do

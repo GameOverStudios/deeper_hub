@@ -60,9 +60,9 @@ defmodule Deeper_Hub.Core.Supervisor do
          ]
        ]
       },
-      
+
       # Inicia o serviço de blacklist de tokens
-      Deeper_Hub.Core.Auth.TokenBlacklist,
+      Deeper_Hub.Core.WebSockets.Auth.TokenBlacklist,
 
       # Inicia o repórter de métricas
       Deeper_Hub.Core.Metrics.Reporter,
@@ -76,22 +76,34 @@ defmodule Deeper_Hub.Core.Supervisor do
 
       # Inicia o ConnectionManager para gerenciar conexões WebSocket
       Deeper_Hub.Core.Communications.ConnectionManager,
-      
+
       # Inicia o MessageManager para gerenciar mensagens diretas
       Deeper_Hub.Core.Communications.Messages.MessageManager,
-      
+
       # Inicia o ChannelManager para gerenciar canais
       Deeper_Hub.Core.Communications.Channels.ChannelManager,
-      
+
       # Inicia o supervisor do WebSocket
       {Deeper_Hub.Core.WebSockets.WebSocketSupervisor, [port: 4000]},
-      
-      # Inicia um worker para criar as tabelas do banco de dados
+
+      # Inicia um worker para criar as tabelas do banco de dados apenas se necessário
       %{
         id: :db_tables_init_task,
-        start: {Task, :start_link, [fn -> 
-          Deeper_Hub.Core.Communications.Messages.MessageStorage.create_table_if_not_exists()
-          Deeper_Hub.Core.Communications.Channels.ChannelStorage.create_tables_if_not_exist()
+        start: {Task, :start_link, [fn ->
+          # Verifica se as tabelas já existem antes de tentar criá-las
+          alias Deeper_Hub.Core.Data.DBConnection.Connection
+          
+          # Verifica se a tabela de mensagens existe
+          messages_exists = Connection.query_exists?("messages")
+          unless messages_exists do
+            Deeper_Hub.Core.Communications.Messages.MessageStorage.create_table_if_not_exists()
+          end
+          
+          # Verifica se a tabela de canais existe
+          channels_exists = Connection.query_exists?("channels")
+          unless channels_exists do
+            Deeper_Hub.Core.Communications.Channels.ChannelStorage.create_tables_if_not_exist()
+          end
         end]},
         restart: :temporary
       }

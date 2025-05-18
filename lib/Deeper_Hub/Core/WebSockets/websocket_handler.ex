@@ -23,7 +23,7 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
     peer = :cowboy_req.peer(req)
     path = :cowboy_req.path(req)
     _method = :cowboy_req.method(req)  # Prefixado com underscore para indicar que não é usado
-    headers = :cowboy_req.headers(req)
+    _headers = :cowboy_req.headers(req)
 
     # Log simplificado para reduzir ruído no console
     Logger.info("Nova conexão WebSocket", %{
@@ -32,12 +32,7 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
       path: path
     })
 
-    # Como não estamos mais logando esses valores, podemos removê-los
-    # ou prefixar com underscore para indicar que não são usados
-    _connection_header = Map.get(headers, "connection")
-    _upgrade_header = Map.get(headers, "upgrade")
-    _websocket_key = Map.get(headers, "sec-websocket-key")
-    _websocket_version = Map.get(headers, "sec-websocket-version")
+    # Removemos variáveis não utilizadas
 
     # Atualiza para protocolo WebSocket
     {:cowboy_websocket, req, state, %{idle_timeout: @timeout}}
@@ -177,15 +172,9 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
   end
 
   # Processa mensagens JSON e as encaminha para o router
-  defp handle_json_message(%{"type" => type, "payload" => payload} = message, state) do
-    # Atualiza o estado da conexão se a mensagem contiver um user_id
-    state = if Map.has_key?(message, "user_id") do
-      new_state = Map.put(state, :user_id, message["user_id"])
-      Process.put(:websocket_state, new_state)
-      new_state
-    else
-      state
-    end
+  defp handle_json_message(%{"type" => type, "payload" => payload} = _message, state) do
+    # Não atualizamos mais o estado diretamente a partir do payload da mensagem
+    # A autenticação agora é feita exclusivamente pelo AuthHandler
     Logger.debug("Processando mensagem JSON", %{
       module: __MODULE__,
       type: type,
@@ -217,6 +206,21 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
             {:reply, {:text, error_response}, state}
         end
 
+      {:error, %{message: message, type: error_type, payload: error_payload}} when is_map(error_payload) ->
+        Logger.error("Erro ao processar mensagem", %{
+          module: __MODULE__,
+          type: type,
+          payload: payload,
+          error_type: error_type
+        })
+
+        error_response = Jason.encode!(%{
+          type: error_type,
+          payload: error_payload
+        })
+        
+        {:reply, {:text, error_response}, state}
+        
       {:error, reason} ->
         Logger.error("Erro ao processar mensagem", %{
           module: __MODULE__,
@@ -225,11 +229,18 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
           error: reason
         })
 
+        # Extraímos a mensagem de erro de forma segura
+        error_message = cond do
+          is_map(reason) && Map.has_key?(reason, :message) -> reason.message
+          is_binary(reason) -> reason
+          true -> inspect(reason)
+        end
+
         error_response = Jason.encode!(%{
           type: "error",
           payload: %{
             message: "Erro ao processar mensagem",
-            details: inspect(reason)
+            details: error_message
           }
         })
 
@@ -237,40 +248,7 @@ defmodule Deeper_Hub.Core.WebSockets.WebSocketHandler do
     end
   end
 
-  # Manipula mensagens de autenticação no formato antigo (legado)
-  defp handle_json_message(%{"auth" => %{"user_id" => user_id}} = _message, state) do
-    Logger.info("Autenticação de usuário (formato legado)", %{
-      module: __MODULE__,
-      user_id: user_id
-    })
-
-    # Atualiza o estado com o user_id
-    new_state = Map.put(state, :user_id, user_id)
-    Process.put(:websocket_state, new_state)
-
-    # Retorna uma resposta de sucesso
-    response = %{
-      type: "auth_success",
-      payload: %{user_id: user_id},
-      timestamp: DateTime.utc_now() |> DateTime.to_iso8601()
-    }
-
-    {:reply, {:text, Jason.encode!(response)}, new_state}
-
-    # Registra a conexão no ConnectionManager se estiver disponível
-    try do
-      if Code.ensure_loaded?(Deeper_Hub.Core.Communications.ConnectionManager) do
-        Deeper_Hub.Core.Communications.ConnectionManager.register(user_id, self())
-      end
-    rescue
-      e ->
-        Logger.error("Erro ao registrar conexão", %{
-          module: __MODULE__,
-          user_id: user_id,
-          error: inspect(e)
-        })
-    end
-  end
+  # Código de autenticação legado removido
 
   # Manipula mensagens JSON que não seguem o formato padrão
   defp handle_json_message(message, state) when is_map(message) do

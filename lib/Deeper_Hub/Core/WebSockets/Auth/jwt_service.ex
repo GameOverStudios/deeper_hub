@@ -1,4 +1,4 @@
-defmodule Deeper_Hub.Core.Auth.JwtService do
+defmodule Deeper_Hub.Core.WebSockets.Auth.JwtService do
   @moduledoc """
   Serviço para gerenciamento de tokens JWT para autenticação WebSocket.
 
@@ -9,10 +9,9 @@ defmodule Deeper_Hub.Core.Auth.JwtService do
   # Importa as funções necessárias da biblioteca Joken
   use Joken.Config
 
-  alias Deeper_Hub.Core.Auth.TokenBlacklist
+  alias Deeper_Hub.Core.WebSockets.Auth.TokenBlacklist
   alias Deeper_Hub.Core.EventBus
-
-  require Logger
+  alias Deeper_Hub.Core.Logger
 
   # Configuração padrão de claims
   @impl true
@@ -38,28 +37,28 @@ defmodule Deeper_Hub.Core.Auth.JwtService do
   """
   def generate_access_token(user_id, extra_claims \\ %{}) do
     # Configuração para token de acesso (1 hora de duração)
-    access_config = 
+    access_config =
       default_claims(
         iss: "deeper_hub",
         aud: "deeper_hub_websocket",
         default_exp: 60 * 60  # 1 hora
       )
       |> add_claim("typ", fn -> "access" end, &(&1 == "access"))
-      
+
     # Adiciona claims específicas do usuário
     extra_claims = Map.merge(%{"user_id" => user_id, "typ" => "access"}, extra_claims)
-    
+
     # Gera o token com as claims e configurações
     result = Joken.generate_and_sign(access_config, extra_claims, signer())
 
     case result do
       {:ok, token, claims} ->
-        Logger.info("[#{__MODULE__}] Token de acesso gerado para usuário user_id=#{inspect(user_id)}")
+        Logger.info("Token de acesso gerado para usuário", %{module: __MODULE__, user_id: user_id})
         EventBus.publish(:token_generated, %{user_id: user_id, token_type: "access"})
         {:ok, token, claims}
 
       {:error, reason} ->
-        Logger.error("[#{__MODULE__}] Erro ao gerar token de acesso: #{inspect(reason)}")
+        Logger.error("Erro ao gerar token de acesso", %{module: __MODULE__, error: reason})
         {:error, reason}
     end
   end
@@ -87,18 +86,18 @@ defmodule Deeper_Hub.Core.Auth.JwtService do
 
     # Adiciona claims específicas do usuário
     extra_claims = Map.merge(%{"user_id" => user_id, "typ" => "refresh"}, extra_claims)
-    
+
     # Gera o token com as claims e configurações
     result = Joken.generate_and_sign(refresh_config, extra_claims, signer())
 
     case result do
       {:ok, token, claims} ->
-        Logger.info("[#{__MODULE__}] Token de refresh gerado para usuário user_id=#{inspect(user_id)}")
+        Logger.info("Token de refresh gerado para usuário", %{module: __MODULE__, user_id: user_id})
         EventBus.publish(:token_generated, %{user_id: user_id, token_type: "refresh"})
         {:ok, token, claims}
 
       {:error, reason} ->
-        Logger.error("[#{__MODULE__}] Erro ao gerar token de refresh: #{inspect(reason)}")
+        Logger.error("Erro ao gerar token de refresh", %{module: __MODULE__, error: reason})
         {:error, reason}
     end
   end
@@ -116,19 +115,19 @@ defmodule Deeper_Hub.Core.Auth.JwtService do
   def verify_token(token) do
     with {:ok, claims} <- validate_token(token),
          false <- TokenBlacklist.is_blacklisted?(token) do
-      Logger.debug("[#{__MODULE__}] Token verificado com sucesso claims=#{inspect(claims)}")
+      Logger.debug("Token verificado com sucesso", %{module: __MODULE__, claims: claims})
       {:ok, claims}
     else
       true ->
-        Logger.warning("[#{__MODULE__}] Tentativa de uso de token na blacklist")
+        Logger.warning("Tentativa de uso de token na blacklist", %{module: __MODULE__})
         {:error, :token_blacklisted}
 
       {:error, reason} = error ->
-        Logger.warning("[#{__MODULE__}] Falha na validação de token: #{inspect(reason)}")
+        Logger.warning("Falha na validação de token", %{module: __MODULE__, error: reason})
         error
     end
   end
-  
+
   # Função auxiliar para verificar e validar tokens
   defp validate_token(token) do
     case Joken.verify(token, signer()) do
@@ -140,7 +139,7 @@ defmodule Deeper_Hub.Core.Auth.JwtService do
         else
           {:error, :token_expired}
         end
-        
+
       error -> error
     end
   end
@@ -178,16 +177,16 @@ defmodule Deeper_Hub.Core.Auth.JwtService do
       {:ok, claims} ->
         exp = Map.get(claims, "exp")
         TokenBlacklist.add(token, exp)
-        Logger.info("[#{__MODULE__}] Token revogado user_id=#{inspect(Map.get(claims, "user_id"))}")
+        Logger.info("Token revogado", %{module: __MODULE__, user_id: Map.get(claims, "user_id")})
         EventBus.publish(:token_revoked, %{user_id: Map.get(claims, "user_id")})
         :ok
 
       error ->
-        Logger.warning("[#{__MODULE__}] Tentativa de revogar token inválido: #{inspect(error)}")
+        Logger.warning("Tentativa de revogar token inválido", %{module: __MODULE__, error: error})
         error
     end
   end
-  
+
   # Função auxiliar para obter o signer padrão configurado
   defp signer do
     Joken.Signer.create("HS256", Application.fetch_env!(:joken, :default_signer)[:key_octet])

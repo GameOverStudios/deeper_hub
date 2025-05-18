@@ -1,14 +1,14 @@
-defmodule Deeper_Hub.Core.Auth.TokenBlacklist do
+defmodule Deeper_Hub.Core.WebSockets.Auth.TokenBlacklist do
   @moduledoc """
   Gerencia a blacklist de tokens JWT revogados.
-  
+
   Este módulo fornece funções para adicionar tokens à blacklist,
   verificar se um token está na blacklist e limpar tokens expirados.
   """
-  
+
   use GenServer
-  require Logger
-  
+  alias Deeper_Hub.Core.Logger
+
   @table_name :token_blacklist
   @cleanup_interval 60 * 60 * 1000 # 1 hora em milissegundos
 
@@ -23,7 +23,7 @@ defmodule Deeper_Hub.Core.Auth.TokenBlacklist do
 
   @doc """
   Adiciona um token à blacklist.
-  
+
   ## Parâmetros
     * `token` - Token a ser adicionado à blacklist
     * `expiry` - Timestamp de expiração do token
@@ -34,10 +34,10 @@ defmodule Deeper_Hub.Core.Auth.TokenBlacklist do
 
   @doc """
   Verifica se um token está na blacklist.
-  
+
   ## Parâmetros
     * `token` - Token a ser verificado
-    
+
   ## Retorno
     * `true` - Token está na blacklist
     * `false` - Token não está na blacklist
@@ -59,11 +59,11 @@ defmodule Deeper_Hub.Core.Auth.TokenBlacklist do
   def init(_) do
     # Cria a tabela ETS para armazenar os tokens na blacklist
     :ets.new(@table_name, [:set, :named_table, :public, read_concurrency: true])
-    
+
     # Agenda a limpeza periódica
     schedule_cleanup()
-    
-    Logger.info("[#{__MODULE__}] Serviço de blacklist de tokens iniciado")
+
+    Logger.info("Serviço de blacklist de tokens iniciado", %{module: __MODULE__})
     {:ok, %{}}
   end
 
@@ -71,11 +71,11 @@ defmodule Deeper_Hub.Core.Auth.TokenBlacklist do
   def handle_cast({:add, token, expiry}, state) do
     # Calcula o hash do token para economizar espaço
     token_hash = :crypto.hash(:sha256, token) |> Base.encode16()
-    
+
     # Adiciona o hash do token e sua expiração à tabela
     :ets.insert(@table_name, {token_hash, expiry})
-    
-    Logger.debug("[#{__MODULE__}] Token adicionado à blacklist expiry=#{inspect(expiry)}")
+
+    Logger.debug("Token adicionado à blacklist", %{module: __MODULE__, expiry: expiry})
     {:noreply, state}
   end
 
@@ -83,15 +83,15 @@ defmodule Deeper_Hub.Core.Auth.TokenBlacklist do
   def handle_cast(:cleanup, state) do
     # Obtém o timestamp atual
     now = DateTime.utc_now() |> DateTime.to_unix()
-    
+
     # Remove tokens expirados
     count = :ets.select_delete(@table_name, [{{:_, :"$1"}, [{:<, :"$1", now}], [true]}])
-    
-    Logger.info("[#{__MODULE__}] Limpeza de tokens expirados concluída count=#{count}")
-    
+
+    Logger.info("Limpeza de tokens expirados concluída", %{module: __MODULE__, count: count})
+
     # Agenda a próxima limpeza
     schedule_cleanup()
-    
+
     {:noreply, state}
   end
 
@@ -99,10 +99,10 @@ defmodule Deeper_Hub.Core.Auth.TokenBlacklist do
   def handle_call({:is_blacklisted, token}, _from, state) do
     # Calcula o hash do token
     token_hash = :crypto.hash(:sha256, token) |> Base.encode16()
-    
+
     # Verifica se o token está na blacklist
     result = :ets.member(@table_name, token_hash)
-    
+
     {:reply, result, state}
   end
 

@@ -420,6 +420,19 @@ defmodule Deeper_Hub.Core.Data.DBConnection.Repositories.UserRepository do
   end
   
   @doc """
+  Lista todos os usuários.
+  
+  ## Retorno
+  
+    - `{:ok, users}` em caso de sucesso
+    - `{:error, reason}` em caso de falha
+  """
+  @spec list() :: {:ok, [User.t()]} | {:error, term()}
+  def list() do
+    list_users()
+  end
+
+  @doc """
   Verifica se um usuário existe pelo ID.
   
   ## Parâmetros

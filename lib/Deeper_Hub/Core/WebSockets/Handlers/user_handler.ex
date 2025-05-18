@@ -33,6 +33,17 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
     case do_handle_message(action, payload, state) do
       {:ok, response} ->
         {:ok, response}
+      {:error, %{type: type, payload: payload}} when is_map(payload) ->
+        Logger.error("Erro ao processar mensagem de usuário", %{
+          module: __MODULE__,
+          action: action,
+          user_id: state[:user_id],
+          error_type: type
+        })
+        
+        # Retornamos o erro estruturado diretamente
+        {:error, %{message: "Erro ao processar mensagem de usuário", type: type, payload: payload}}
+        
       {:error, reason} ->
         Logger.error("Erro ao processar mensagem de usuário", %{
           module: __MODULE__,
@@ -41,7 +52,14 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
           error: reason
         })
         
-        {:error, %{message: "Erro ao processar mensagem de usuário: #{reason}"}}
+        # Convertemos o erro para string de forma segura
+        error_message = cond do
+          is_binary(reason) -> reason
+          is_atom(reason) -> Atom.to_string(reason)
+          true -> inspect(reason)
+        end
+        
+        {:error, %{message: "Erro ao processar mensagem de usuário: #{error_message}"}}
     end
   end
   
@@ -101,7 +119,7 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
     user_attrs = %{
       username: username,
       email: email,
-      password_hash: password, # Em produção, deveria ser hash
+      password_hash: password, # Armazenamos a senha diretamente para manter compatibilidade com AuthService
       is_active: true
     }
     
@@ -122,6 +140,36 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
             {:ok, %{
               type: "user.create.success",
               payload: user_map
+            }}
+            
+          {:error, %DBConnection.ConnectionError{reason: "UNIQUE constraint failed: users.username"}} ->
+            Logger.error("Erro ao inserir usuário via WebSocket: nome de usuário já existe", %{
+              module: __MODULE__,
+              username: username,
+              email: email
+            })
+            
+            {:error, %{
+              type: "user.create.error",
+              payload: %{
+                error: "username_already_exists",
+                message: "O nome de usuário já está em uso"
+              }
+            }}
+            
+          {:error, %DBConnection.ConnectionError{reason: "UNIQUE constraint failed: users.email"}} ->
+            Logger.error("Erro ao inserir usuário via WebSocket: email já existe", %{
+              module: __MODULE__,
+              username: username,
+              email: email
+            })
+            
+            {:error, %{
+              type: "user.create.error",
+              payload: %{
+                error: "email_already_exists",
+                message: "O email já está em uso"
+              }
             }}
             
           {:error, reason} ->
@@ -270,6 +318,97 @@ defmodule Deeper_Hub.Core.WebSockets.Handlers.UserHandler do
     {:error, :invalid_payload}
   end
   
+  # Altera a senha de um usuário
+  defp do_handle_message("change_password", %{"username" => username, "password" => password}, _state) 
+    when is_binary(username) and is_binary(password) do
+    
+    Logger.info("Alterando senha de usuário via WebSocket", %{
+      module: __MODULE__,
+      username: username
+    })
+    
+    # Busca o usuário pelo nome de usuário
+    case UserRepository.get_by_username(username) do
+      {:ok, user} ->
+        # Atualiza a senha
+        updated_user = Map.put(user, :password_hash, password)
+        
+        case UserRepository.update(updated_user) do
+          {:ok, _} ->
+            {:ok, %{
+              type: "user.change_password.success",
+              payload: %{
+                message: "Senha alterada com sucesso",
+                username: username
+              }
+            }}
+            
+          {:error, reason} ->
+            Logger.error("Erro ao atualizar senha do usuário via WebSocket", %{
+              module: __MODULE__,
+              username: username,
+              error: reason
+            })
+            
+            {:error, :database_error}
+        end
+        
+      {:error, :not_found} ->
+        {:error, :user_not_found}
+        
+      {:error, reason} ->
+        Logger.error("Erro ao buscar usuário para alterar senha via WebSocket", %{
+          module: __MODULE__,
+          username: username,
+          error: reason
+        })
+        
+        {:error, :database_error}
+    end
+  end
+  
+  defp do_handle_message("change_password", _payload, _state) do
+    {:error, :invalid_payload}
+  end
+
+  # Lista todos os usuários
+  defp do_handle_message("list", _payload, _state) do
+    Logger.info("Listando usuários via WebSocket", %{
+      module: __MODULE__
+    })
+    
+    case UserRepository.list() do
+      {:ok, users} ->
+        # Convertemos os usuários para mapas sem campos sensíveis
+        users_list = Enum.map(users, fn user ->
+          %{
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            is_active: user.is_active,
+            inserted_at: user.inserted_at,
+            updated_at: user.updated_at
+          }
+        end)
+        
+        {:ok, %{
+          type: "user.list.success",
+          payload: %{
+            users: users_list,
+            count: length(users_list)
+          }
+        }}
+        
+      {:error, reason} ->
+        Logger.error("Erro ao listar usuários via WebSocket", %{
+          module: __MODULE__,
+          error: reason
+        })
+        
+        {:error, :database_error}
+    end
+  end
+
   # Ação desconhecida
   defp do_handle_message(action, _payload, _state) do
     {:error, "Ação desconhecida: #{action}"}
