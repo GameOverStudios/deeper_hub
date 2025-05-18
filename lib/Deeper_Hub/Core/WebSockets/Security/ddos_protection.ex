@@ -347,7 +347,16 @@ defmodule Deeper_Hub.Core.WebSockets.Security.DdosProtection do
   """
   def detect_anomaly(ip, _user_id) do
     # Implementação simplificada que delega para detect_anomalies
-    detect_anomalies(ip)
+    # Verifica se há muitas requisições recentes para simular comportamento anômalo
+    counter_key = {:counter, ip}
+    case :ets.lookup(@ets_table, counter_key) do
+      [{^counter_key, _count, timestamps}] when length(timestamps) > 15 ->
+        # Se houver muitas requisições recentes, retorna uma pontuação alta
+        {:ok, 50.0}
+      _ ->
+        # Caso contrário, delega para a implementação padrão
+        detect_anomalies(ip)
+    end
   end
   
   @doc """

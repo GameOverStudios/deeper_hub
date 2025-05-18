@@ -191,4 +191,50 @@ defmodule Deeper_Hub.Core.WebSockets.Security.SecurityConfig do
       }
     }
   end
+
+  @doc """
+  Verifica se um recurso de segurança específico está habilitado.
+  
+  ## Parâmetros
+  
+    - `feature`: Nome do recurso de segurança (:csrf, :xss, etc.)
+  
+  ## Retorno
+  
+    - `true` se o recurso estiver habilitado
+    - `false` caso contrário
+  """
+  def is_feature_enabled?(feature) when is_atom(feature) do
+    config = Application.get_env(:deeper_hub, :security, %{})
+    # Verifica se o recurso existe na configuração
+    if Map.has_key?(config, feature) do
+      feature_config = Map.get(config, feature, %{})
+      Map.get(feature_config, :enabled, true)  # Habilitado por padrão se existir na configuração
+    else
+      false  # Desabilitado por padrão se não existir na configuração
+    end
+  end
+
+  @doc """
+  Atualiza uma configuração específica de segurança.
+  
+  ## Parâmetros
+  
+    - `feature`: Nome do recurso de segurança (:csrf, :xss, etc.)
+    - `key`: Chave da configuração a ser atualizada
+    - `value`: Novo valor para a configuração
+  
+  ## Retorno
+  
+    - `:ok` se a atualização for bem-sucedida
+  """
+  def update_config(feature, key, value) when is_atom(feature) and is_atom(key) do
+    current_config = Application.get_env(:deeper_hub, :security, %{})
+    feature_config = Map.get(current_config, feature, %{})
+    updated_feature_config = Map.put(feature_config, key, value)
+    updated_config = Map.put(current_config, feature, updated_feature_config)
+    
+    Application.put_env(:deeper_hub, :security, updated_config)
+    :ok
+  end
 end

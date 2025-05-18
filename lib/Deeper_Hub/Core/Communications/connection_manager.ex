@@ -75,6 +75,22 @@ defmodule Deeper_Hub.Core.Communications.ConnectionManager do
   end
   
   @doc """
+  Obtém a conexão de um usuário específico.
+  
+  ## Parâmetros
+  
+    - `user_id`: ID do usuário
+  
+  ## Retorno
+  
+    - `{:ok, pid}` se o usuário estiver conectado
+    - `{:error, :not_connected}` se o usuário não estiver conectado
+  """
+  def get_user_connection(user_id) do
+    GenServer.call(__MODULE__, {:get_connection, user_id})
+  end
+  
+  @doc """
   Obtém a lista de usuários online.
   
   ## Retorno
@@ -172,6 +188,17 @@ defmodule Deeper_Hub.Core.Communications.ConnectionManager do
   def handle_call({:is_online, user_id}, _from, state) do
     is_online = Map.has_key?(state.users, user_id)
     {:reply, {:ok, is_online}, state}
+  end
+  
+  @impl true
+  def handle_call({:get_connection, user_id}, _from, state) do
+    case Map.get(state.users, user_id) do
+      nil -> 
+        {:reply, {:error, :not_connected}, state}
+        
+      pid -> 
+        {:reply, {:ok, pid}, state}
+    end
   end
   
   @impl true

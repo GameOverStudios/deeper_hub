@@ -129,14 +129,31 @@ defmodule Deeper_Hub.Core.WebSockets.Security.XssProtection do
   end
   
   defp sanitize_string(string) when is_binary(string) do
-    string
+    # Implementação que sanitiza caracteres HTML e remove atributos perigosos
+    # Primeiro remover padrões de ataque conhecidos
+    sanitized = string
+    |> remove_dangerous_patterns()
+    
+    # Depois sanitizar caracteres HTML
+    sanitized
     |> String.replace("<", "&lt;")
     |> String.replace(">", "&gt;")
     |> String.replace("\"", "&quot;")
     |> String.replace("'", "&#x27;")
-    |> String.replace("&", "&amp;")
     |> String.replace("(", "&#40;")
     |> String.replace(")", "&#41;")
+    |> String.replace(":", "&#58;")
+  end
+  
+  # Remove padrões perigosos conhecidos antes da sanitização de caracteres
+  defp remove_dangerous_patterns(string) do
+    string
+    |> String.replace(~r/on\w+\s*=/i, "data-removed=") # Remove atributos de eventos como onclick, onerror
+    |> String.replace(~r/javascript:/i, "removed:") # Remove protocolos javascript:
+    |> String.replace(~r/<script/i, "&lt;script") # Remove tags script
+    |> String.replace(~r/eval\s*\(/i, "removed(")
+    |> String.replace(~r/document\.cookie/i, "removed.cookie")
+    |> String.replace(~r/document\.write/i, "removed.write")
   end
   
   defp sanitize_value(value) when is_map(value), do: sanitize_map(value)

@@ -3,33 +3,19 @@ defmodule Deeper_Hub.Core.WebSockets.Security.CsrfProtectionTest do
   
   alias Deeper_Hub.Core.WebSockets.Security.CsrfProtection
   
-  # Mock do objeto de requisição Cowboy para testes
-  defp mock_req(headers \\ %{}) do
-    %{headers: headers}
-  end
-  
-  # Mock da função :cowboy_req.header/2
-  defp mock_cowboy_req_header do
-    :meck.new(:cowboy_req, [:passthrough])
-    # Definimos duas funções separadas para lidar com os casos com e sem valor padrão
-    :meck.expect(:cowboy_req, :header, fn name, req ->
-      Map.get(req.headers, name, nil)
-    end)
+  # Estrutura de requisição simplificada para testes
+  defp mock_req(headers) do
+    # Adicionamos a função peer para evitar erros com :cowboy_req.peer/1
+    peer_fn = fn -> {{127, 0, 0, 1}, 12345} end
     
-    :meck.expect(:cowboy_req, :header, fn name, req, default ->
-      Map.get(req.headers, name, default)
-    end)
-    
-    :meck.expect(:cowboy_req, :peer, fn _req ->
-      {{127, 0, 0, 1}, 12345}
-    end)
-    
-    on_exit(fn -> :meck.unload(:cowboy_req) end)
+    %{
+      headers: headers,
+      # Mock da função peer para testes
+      peer: peer_fn
+    }
   end
   
   setup do
-    mock_cowboy_req_header()
-    
     # Cria um token de teste e o armazena
     session_id = "test_session_123"
     {:ok, token} = CsrfProtection.generate_token(session_id)

@@ -112,16 +112,31 @@ defmodule Deeper_Hub.Core.Communications.Messages.MessageManager do
     GenServer.call(__MODULE__, {:get_unread_count, user_id})
   end
   
+  @doc """
+  Obtém uma mensagem específica pelo seu ID.
+  
+  ## Parâmetros
+  
+    - `message_id`: ID da mensagem
+  
+  ## Retorno
+  
+    - `{:ok, message}` em caso de sucesso
+    - `{:error, :message_not_found}` se a mensagem não for encontrada
+  """
+  def get_message(message_id) do
+    GenServer.call(__MODULE__, {:get_message, message_id})
+  end
+  
   # Callbacks do GenServer
   
   @impl true
   def init(_opts) do
-    # Estado: %{
-    #   messages: %{
-    #     "message_id" => %{
-    #       id: "message_id",
-    #       sender_id: "user_id",
-    #       recipient_id: "user_id",
+    {:ok, %{
+      messages: %{},
+      conversations: %{},
+      user_messages: %{}
+    }}
     #       content: "texto da mensagem",
     #       metadata: %{},
     #       timestamp: timestamp,
@@ -337,6 +352,18 @@ defmodule Deeper_Hub.Core.Communications.Messages.MessageManager do
     unread_count = length(Map.get(state.user_messages, user_id, %{unread: []}).unread)
     
     {:reply, {:ok, unread_count}, state}
+  end
+  
+  @impl true
+  def handle_call({:get_message, message_id}, _from, state) do
+    # Busca a mensagem pelo ID
+    case Map.get(state.messages, message_id) do
+      nil ->
+        {:reply, {:error, :message_not_found}, state}
+        
+      message ->
+        {:reply, {:ok, message}, state}
+    end
   end
   
   # Funções auxiliares

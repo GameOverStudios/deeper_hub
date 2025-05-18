@@ -14,10 +14,27 @@ defmodule Deeper_Hub.Core.Communications.CommunicationsTest do
   
   # Configuração para os testes
   setup do
-    # Inicia os processos necessários para os testes
-    {:ok, conn_pid} = ConnectionManager.start_link()
-    {:ok, msg_pid} = MessageManager.start_link()
-    {:ok, channel_pid} = ChannelManager.start_link()
+    # Inicia os processos necessários para os testes ou obtém os PIDs existentes
+    conn_pid = case Process.whereis(ConnectionManager) do
+      nil -> 
+        {:ok, pid} = ConnectionManager.start_link()
+        pid
+      pid -> pid
+    end
+    
+    msg_pid = case Process.whereis(MessageManager) do
+      nil -> 
+        {:ok, pid} = MessageManager.start_link()
+        pid
+      pid -> pid
+    end
+    
+    channel_pid = case Process.whereis(ChannelManager) do
+      nil -> 
+        {:ok, pid} = ChannelManager.start_link()
+        pid
+      pid -> pid
+    end
     
     # Limpa qualquer estado anterior
     :sys.replace_state(ConnectionManager, fn _ -> %{users: %{}} end)

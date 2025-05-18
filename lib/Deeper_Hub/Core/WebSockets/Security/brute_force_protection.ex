@@ -196,6 +196,37 @@ defmodule Deeper_Hub.Core.WebSockets.Security.BruteForceProtection do
   end
   
   @doc """
+  Bloqueia uma conta permanentemente (alias para lock_account).
+  
+  ## Parâmetros
+  
+    - `identifier`: Identificador da conta a ser bloqueada
+  
+  ## Retorno
+  
+    - `:ok` se o bloqueio for bem-sucedido
+  """
+  def block_account(identifier) do
+    # Usa um tempo de bloqueio muito longo (1 ano)
+    lock_account(identifier, 365 * 24 * 60 * 60 * 1000)
+  end
+  
+  @doc """
+  Desbloqueia uma conta (alias para unlock_account).
+  
+  ## Parâmetros
+  
+    - `identifier`: Identificador da conta a ser desbloqueada
+  
+  ## Retorno
+  
+    - `:ok` se o desbloqueio for bem-sucedido
+  """
+  def unblock_account(identifier) do
+    unlock_account(identifier)
+  end
+  
+  @doc """
   Obtém o número atual de tentativas falhas para um identificador.
   
   ## Parâmetros
@@ -219,6 +250,128 @@ defmodule Deeper_Hub.Core.WebSockets.Security.BruteForceProtection do
       [] ->
         0
     end
+  end
+  
+  @doc """
+  Alias para get_attempts para compatibilidade com os testes.
+  
+  ## Parâmetros
+  
+    - `ip`: Endereço IP
+    - `username`: Nome de usuário
+  
+  ## Retorno
+  
+    - Número de tentativas registradas
+  """
+  def get_attempt_count(ip, username) do
+    # Combina IP e username para criar um identificador único
+    identifier = "#{ip}:#{username}"
+    get_attempts(identifier)
+  end
+  
+  @doc """
+  Verifica se um login é permitido para um IP e usuário específicos.
+  
+  ## Parâmetros
+  
+    - `ip`: Endereço IP
+    - `username`: Nome de usuário
+  
+  ## Retorno
+  
+    - `{:ok, attempts_left}` se o login for permitido
+    - `{:error, reason, retry_after}` se o login não for permitido
+  """
+  def check_login_allowed(ip, username) do
+    # Combina IP e username para criar um identificador único
+    identifier = "#{ip}:#{username}"
+    
+    # Verifica se o identificador está bloqueado
+    case get_lockout_info(identifier) do
+      {:locked, unlock_time} ->
+        current_time = :os.system_time(:millisecond)
+        retry_after = max(0, unlock_time - current_time)
+        {:error, "Too many failed login attempts", retry_after}
+        
+      :not_locked ->
+        # Verifica o número de tentativas
+        attempts = get_attempts(identifier)
+        attempts_left = @default_max_attempts - attempts
+        
+        if attempts_left > 0 do
+          {:ok, attempts_left}
+        else
+          # Bloqueia a conta se atingiu o limite
+          lock_account(identifier)
+          {:error, "Too many failed login attempts", @default_lockout_time}
+        end
+    end
+  end
+  
+  @doc """
+  Verifica o status de uma conta.
+  
+  ## Parâmetros
+  
+    - `account_id`: ID da conta a ser verificada
+  
+  ## Retorno
+  
+    - `{:ok, status}` se a conta estiver disponível
+    - `{:error, reason, retry_after}` se a conta estiver bloqueada
+  """
+  def check_account_status(account_id) do
+    case get_lockout_info(account_id) do
+      {:locked, unlock_time} ->
+        current_time = :os.system_time(:millisecond)
+        retry_after = max(0, unlock_time - current_time)
+        {:error, "Account is locked", retry_after}
+        
+      :not_locked ->
+        {:ok, :active}
+    end
+  end
+  
+  @doc """
+  Registra uma tentativa de login e atualiza contadores.
+  
+  ## Parâmetros
+  
+    - `ip`: Endereço IP
+    - `username`: Nome de usuário
+    - `success`: Se a tentativa foi bem-sucedida
+  
+  ## Retorno
+  
+    - `:ok`
+  """
+  def track_login_attempt(ip, username, success) do
+    # Converte a tupla de IP para string no formato "x.x.x.x"
+    ip_str = if is_tuple(ip) do
+      ip |> Tuple.to_list() |> Enum.join(".")
+    else
+      to_string(ip)
+    end
+    
+    identifier = "#{ip_str}:#{username}"
+    
+    # Registra a tentativa
+    record_attempt(identifier, success)
+    :ok
+  end
+  
+  @doc """
+  Limpa todos os contadores e bloqueios.
+  
+  ## Retorno
+  
+    - `:ok`
+  """
+  def reset_state do
+    # Limpa a tabela ETS
+    :ets.delete_all_objects(@ets_table)
+    :ok
   end
   
   # Funções privadas

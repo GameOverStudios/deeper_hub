@@ -109,4 +109,42 @@ defmodule Deeper_Hub.Core.WebSockets.Security.SecuritySupervisor do
   def check_authentication_attempt(identifier, success, opts \\ []) do
     SecurityMiddleware.check_authentication_attempt(identifier, success, opts)
   end
+  
+  @doc """
+  Verifica se uma tentativa de login é permitida.
+  
+  ## Parâmetros
+  
+    - `req`: Objeto de requisição Cowboy
+    - `state`: Estado da conexão WebSocket
+    - `username`: Nome de usuário
+    - `password`: Senha (não utilizada diretamente, apenas passada adiante)
+  
+  ## Retorno
+  
+    - `{:ok, state}` se a tentativa for permitida
+    - `{:error, reason}` se a tentativa for bloqueada
+  """
+  def check_login_attempt(req, state, username, password) do
+    SecurityMiddleware.check_login_attempt(req, state, username, password)
+  end
+  
+  @doc """
+  Registra o resultado de uma tentativa de login.
+  
+  ## Parâmetros
+  
+    - `req`: Objeto de requisição Cowboy
+    - `state`: Estado da conexão WebSocket
+    - `username`: Nome de usuário
+    - `auth_result`: Resultado da autenticação ({:ok, user} ou {:error, reason})
+  
+  ## Retorno
+  
+    - `{:ok, state}` se o registro for bem-sucedido
+    - `{:error, reason}` se ocorrer um erro
+  """
+  def track_login_result(req, state, username, auth_result) do
+    SecurityMiddleware.track_login_result(req, state, username, auth_result)
+  end
 end

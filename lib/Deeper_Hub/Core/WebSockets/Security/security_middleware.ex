@@ -112,6 +112,77 @@ defmodule Deeper_Hub.Core.WebSockets.Security.SecurityMiddleware do
     BruteForceProtection.record_attempt(identifier, success, opts)
   end
   
+  @doc """
+  Verifica se uma tentativa de login é permitida.
+  
+  ## Parâmetros
+  
+    - `req`: Objeto de requisição Cowboy
+    - `state`: Estado da conexão WebSocket
+    - `username`: Nome de usuário
+    - `password`: Senha (não utilizada diretamente, apenas passada adiante)
+  
+  ## Retorno
+  
+    - `{:ok, state}` se a tentativa for permitida
+    - `{:error, reason}` se a tentativa for bloqueada
+  """
+  def check_login_attempt(req, state, username, _password) do
+    ip = get_client_ip(req)
+    
+    case BruteForceProtection.check_login_allowed(ip, username) do
+      {:ok, _attempts_left} ->
+        # Verifica também o status da conta
+        account_id = state[:account_id]
+        if account_id do
+          case BruteForceProtection.check_account_status(account_id) do
+            {:ok, _} ->
+              {:ok, Map.put(state, :login_checked, true)}
+              
+            {:error, reason, _retry_after} ->
+              # Formato esperado pelos testes
+              {:error, reason}
+          end
+        else
+          {:ok, Map.put(state, :login_checked, true)}
+        end
+        
+      {:error, reason, _retry_after} ->
+        # Formato esperado pelos testes
+        {:error, reason}
+    end
+  end
+  
+  @doc """
+  Registra o resultado de uma tentativa de login.
+  
+  ## Parâmetros
+  
+    - `req`: Objeto de requisição Cowboy
+    - `state`: Estado da conexão WebSocket
+    - `username`: Nome de usuário
+    - `auth_result`: Resultado da autenticação ({:ok, user} ou {:error, reason})
+  
+  ## Retorno
+  
+    - `{:ok, state}` se o registro for bem-sucedido
+    - `{:error, reason}` se ocorrer um erro
+  """
+  def track_login_result(req, state, username, auth_result) do
+    ip = get_client_ip(req)
+    success = match?({:ok, _}, auth_result)
+    
+    # Registra a tentativa
+    BruteForceProtection.track_login_attempt(ip, username, success)
+    
+    if success do
+      user_data = elem(auth_result, 1)
+      {:ok, Map.put(state, :login_tracked, true) |> Map.put(:user_data, user_data)}
+    else
+      {:error, elem(auth_result, 1)}
+    end
+  end
+  
   # Funções privadas para verificações específicas
   
   defp check_ddos(ip, opts) do
@@ -131,9 +202,9 @@ defmodule Deeper_Hub.Core.WebSockets.Security.SecurityMiddleware do
   end
   
   defp check_sql_injection(message, _opts) when is_map(message) do
-    # Verifica campos que podem conter SQL
-    Enum.reduce_while(message, {:ok, message}, fn {key, value}, acc ->
-      if is_potential_sql_field(key) and is_binary(value) do
+    # Verifica todos os valores de string na mensagem
+    Enum.reduce_while(message, {:ok, message}, fn {_key, value}, acc ->
+      if is_binary(value) do
         case SqlInjectionProtection.check_for_sql_injection(value) do
           {:ok, _} -> {:cont, acc}
           {:error, reason} -> {:halt, {:error, reason}}
@@ -149,9 +220,9 @@ defmodule Deeper_Hub.Core.WebSockets.Security.SecurityMiddleware do
   end
   
   defp check_path_traversal(message, _opts) when is_map(message) do
-    # Verifica campos que podem conter caminhos
-    Enum.reduce_while(message, {:ok, message}, fn {key, value}, acc ->
-      if is_potential_path_field(key) and is_binary(value) do
+    # Verifica todos os valores de string na mensagem
+    Enum.reduce_while(message, {:ok, message}, fn {_key, value}, acc ->
+      if is_binary(value) do
         case PathTraversalProtection.check_path(value) do
           {:ok, _} -> {:cont, acc}
           {:error, reason} -> {:halt, {:error, reason}}
@@ -173,23 +244,6 @@ defmodule Deeper_Hub.Core.WebSockets.Security.SecurityMiddleware do
     ip |> :inet.ntoa() |> to_string()
   end
   
-  defp is_potential_sql_field(key) when is_atom(key) do
-    key_str = Atom.to_string(key)
-    is_potential_sql_field(key_str)
-  end
-  
-  defp is_potential_sql_field(key) when is_binary(key) do
-    sql_related_fields = ["query", "sql", "filter", "where", "condition", "select", "from", "join", "order", "group"]
-    Enum.any?(sql_related_fields, fn field -> String.contains?(String.downcase(key), field) end)
-  end
-  
-  defp is_potential_path_field(key) when is_atom(key) do
-    key_str = Atom.to_string(key)
-    is_potential_path_field(key_str)
-  end
-  
-  defp is_potential_path_field(key) when is_binary(key) do
-    path_related_fields = ["path", "file", "directory", "dir", "folder", "location", "url", "uri"]
-    Enum.any?(path_related_fields, fn field -> String.contains?(String.downcase(key), field) end)
-  end
+  # Estas funções foram removidas por não serem utilizadas
+  # O código agora verifica todas as strings em mensagens, não apenas campos específicos
 end
