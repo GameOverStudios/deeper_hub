@@ -22,10 +22,10 @@ defmodule Deeper_Hub.Core.WebSockets.Security.CsrfProtection do
     - `{:error, reason}` se a requisição for suspeita
   """
   def validate_request(req, state) do
-    token = :cowboy_req.header("x-csrf-token", req)
+    token = get_header(req, "x-csrf-token")
     session_id = get_session_id(req)
-    origin = :cowboy_req.header("origin", req)
-    referer = :cowboy_req.header("referer", req)
+    origin = get_header(req, "origin")
+    referer = get_header(req, "referer")
     
     # Verificação do token CSRF primeiro
     token_valid = not is_nil(token) and verify_token(session_id, token)
@@ -108,43 +108,35 @@ defmodule Deeper_Hub.Core.WebSockets.Security.CsrfProtection do
   
   # Valida a origem da requisição
   defp validate_origin(req) do
-    origin = :cowboy_req.header("origin", req)
-    referer = :cowboy_req.header("referer", req)
+    origin = get_header(req, "origin")
+    referer = get_header(req, "referer")
+    token = get_header(req, "x-csrf-token")
+    session_id = get_session_id(req)
     
     allowed_origins = get_allowed_origins()
     
     cond do
-      # Caso 1: Se tem origem e está na lista de permitidas
+      # Caso 1: Se não tem origem nem referer, mas tem token válido
+      is_nil(origin) and is_nil(referer) and not is_nil(token) and verify_token(session_id, token) ->
+        {:ok, nil}
+        
+      # Caso 2: Se tem origem e está na lista de permitidas
       not is_nil(origin) and origin in allowed_origins ->
         {:ok, origin}
         
-      # Caso 2: Se tem referer e começa com uma origem permitida
+      # Caso 3: Se tem referer e começa com uma origem permitida
       not is_nil(referer) and Enum.any?(allowed_origins, fn allowed ->
         String.starts_with?(to_string(referer), allowed)
       end) ->
         {:ok, referer}
         
-      # Caso 3: Se não atende nenhuma condição acima
+      # Caso 4: Se não atende nenhuma condição acima
       true ->
         {:error, "Origem não permitida"}
     end
   end
   
-  # Valida o token CSRF
-  defp validate_csrf_token(req) do
-    token = :cowboy_req.header("x-csrf-token", req)
-    session_id = get_session_id(req)
-    
-    if is_nil(token) do
-      {:error, "Token CSRF ausente"}
-    else
-      # Verificar token contra armazenamento seguro
-      case verify_token(session_id, token) do
-        true -> {:ok, token}
-        false -> {:error, "Token CSRF inválido"}
-      end
-    end
-  end
+
   
   # Obtém origens permitidas da configuração
   defp get_allowed_origins do
@@ -155,7 +147,7 @@ defmodule Deeper_Hub.Core.WebSockets.Security.CsrfProtection do
   defp get_session_id(req) do
     # Implementação simplificada para exemplo
     # Em um sistema real, isso seria extraído de um cookie ou cabeçalho
-    :cowboy_req.header("x-session-id", req, "unknown")
+    get_header(req, "x-session-id", "unknown")
   end
   
   # Obtém o IP do cliente
@@ -173,6 +165,19 @@ defmodule Deeper_Hub.Core.WebSockets.Security.CsrfProtection do
     rescue
       # Fallback para testes ou casos onde peer não está disponível
       _ -> "127.0.0.1"
+    end
+  end
+  
+  # Função auxiliar para obter cabeçalhos de forma compatível com testes e produção
+  defp get_header(req, header, default \\ nil) do
+    cond do
+      # Caso 1: Requisição de teste com cabeçalhos em um mapa
+      is_map(req) and is_map(req[:headers]) ->
+        Map.get(req.headers, header, default)
+      
+      # Caso 2: Requisição real do Cowboy
+      true ->
+        :cowboy_req.header(header, req, default)
     end
   end
   
