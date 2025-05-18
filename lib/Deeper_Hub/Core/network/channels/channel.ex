@@ -90,12 +90,12 @@ defmodule DeeperHub.Core.Network.Channels.Channel do
   @doc """
   Inicia um processo de canal.
   """
-  def start_link([channel_id, _name, owner_id, opts]) do
+  def start_link([channel_id, channel_name, owner_id, opts]) do
     # Registra o processo com um nome único usando o Registry
-    name = {:via, Registry, {DeeperHub.Core.Network.Channels.Registry, channel_id}}
+    registry_name = {:via, Registry, {DeeperHub.Core.Network.Channels.Registry, channel_id}}
     
     # Inicia o GenServer com o nome registrado
-    GenServer.start_link(__MODULE__, {channel_id, name, owner_id, opts}, name: name)
+    GenServer.start_link(__MODULE__, {channel_id, channel_name, owner_id, opts}, name: registry_name)
   end
   
   @doc """
@@ -183,13 +183,13 @@ defmodule DeeperHub.Core.Network.Channels.Channel do
   # Callbacks do GenServer
   
   @impl true
-  def init({channel_id, name, owner_id, opts}) do
-    Logger.debug("Iniciando canal: #{name} (#{channel_id})", module: __MODULE__)
+  def init({channel_id, channel_name, owner_id, opts}) do
+    Logger.debug("Iniciando canal: #{channel_name} (#{channel_id})", module: __MODULE__)
     
     # Inicializa o estado do canal
     state = %__MODULE__{
       id: channel_id,
-      name: name,
+      name: channel_name,
       topic: opts.topic,
       owner_id: owner_id,
       subscribers: %{},

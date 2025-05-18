@@ -26,14 +26,11 @@ defmodule DeeperHub.Core.Network.Channels.Supervisor do
     Logger.info("Iniciando supervisor de canais de comunicação...", module: __MODULE__)
     
     children = [
-      # Registro para rastrear canais ativos
+      # Registry para registrar canais pelo ID
       {Registry, keys: :unique, name: DeeperHub.Core.Network.Channels.Registry},
       
       # Supervisor dinâmico para gerenciar processos de canal
-      {DynamicSupervisor, 
-        strategy: :one_for_one, 
-        name: DeeperHub.Core.Network.Channels.ChannelSupervisor
-      }
+      {DynamicSupervisor, name: DeeperHub.Core.Network.Channels.ChannelSupervisor, strategy: :one_for_one}
     ]
     
     # Estratégia one_for_one: cada componente é tratado independentemente

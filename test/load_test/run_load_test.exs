@@ -126,7 +126,7 @@ defmodule DeeperHub.LoadTest.Runner do
     results
     |> Enum.map(fn {name, result} ->
       case result do
-        {:error, reason} ->
+        {:error, _reason} ->
           "| #{name} | FALHA | FALHA | FALHA | FALHA |\n"
           
         result ->

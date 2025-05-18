@@ -58,17 +58,23 @@ defmodule DeeperHub.LoadTest.WebSocketLoadTest do
     
     # Inicia as conexões com ramp-up gradual
     connection_pids = 
-      1..config.num_connections
-      |> Enum.map(fn i ->
-        # Distribui as conexões entre os canais disponíveis
-        channel_id = Enum.at(channel_ids, rem(i, length(channel_ids)))
-        
-        # Calcula o atraso para esta conexão
-        delay = trunc(conn_interval * (i - 1))
-        
-        # Inicia a conexão após o atraso calculado
-        spawn_connection(config, channel_id, delay)
-      end)
+      # Verifica se há canais disponíveis
+      if length(channel_ids) > 0 do
+        1..config.num_connections
+        |> Enum.map(fn i ->
+          # Distribui as conexões entre os canais disponíveis
+          channel_id = Enum.at(channel_ids, rem(i - 1, length(channel_ids)))
+          
+          # Calcula o atraso para esta conexão
+          delay = trunc(conn_interval * (i - 1))
+          
+          # Inicia a conexão após o atraso calculado
+          spawn_connection(config, channel_id, delay)
+        end)
+      else
+        Logger.error("Não foi possível criar canais para o teste. Abortando.", module: __MODULE__)
+        []
+      end
     
     # Inicia o processo de coleta de estatísticas
     stats_pid = spawn_link(fn -> collect_stats(connection_pids, config, stats) end)
@@ -112,25 +118,18 @@ defmodule DeeperHub.LoadTest.WebSocketLoadTest do
         :ok
         
       :not_running ->
-        Logger.info("Iniciando servidor WebSocket para o teste", module: __MODULE__)
+        Logger.info("Verificando servidor WebSocket para o teste", module: __MODULE__)
         
-        # Inicia o supervisor de rede se ainda não estiver rodando
-        case DynamicSupervisor.start_child(
-          DeeperHub.Supervisor,
-          {DeeperHub.Core.Network.Supervisor, []}
-        ) do
-          {:ok, _} ->
-            Logger.info("Supervisor de rede iniciado com sucesso", module: __MODULE__)
-            :timer.sleep(1000)  # Aguarda a inicialização completa
-            :ok
+        # O supervisor de rede já deve estar rodando como parte da aplicação
+        # Apenas verificamos se ele está ativo
+        case Process.whereis(DeeperHub.Core.Network.Supervisor) do
+          nil ->
+            Logger.warn("Supervisor de rede não encontrado. Verifique se a aplicação foi iniciada corretamente.", module: __MODULE__)
+            {:error, :supervisor_not_found}
             
-          {:error, {:already_started, _}} ->
-            Logger.info("Supervisor de rede já está rodando", module: __MODULE__)
+          _pid ->
+            Logger.info("Supervisor de rede está ativo", module: __MODULE__)
             :ok
-            
-          {:error, reason} ->
-            Logger.error("Falha ao iniciar supervisor de rede: #{inspect(reason)}", module: __MODULE__)
-            {:error, reason}
         end
     end
   end
@@ -413,11 +412,11 @@ defmodule DeeperHub.LoadTest.WebSocketLoadTest do
   end
   
   # Processa uma mensagem recebida
-  defp process_received_message(message, _state) do
+  defp process_received_message(_message, _state) do
     try do
       # Decodifica a mensagem JSON
       # Em um teste real, a mensagem seria realmente decodificada
-      # decoded = Jason.decode!(message)
+      # decoded = Jason.decode!(_message)
       
       # Extrai o timestamp de envio para cálculo de latência
       # send_time = decoded["timestamp"]
@@ -451,106 +450,128 @@ defmodule DeeperHub.LoadTest.WebSocketLoadTest do
     # Registra o processo para facilitar o envio de atualizações
     Process.register(self(), :websocket_load_test_stats)
     
+    # Configura tratamento de erros para o processo
+    Process.flag(:trap_exit, true)
+    
     # Inicia o loop de coleta
     stats_loop(connection_pids, config, initial_stats)
   end
   
   # Loop de coleta de estatísticas
   defp stats_loop(connection_pids, config, stats) do
-    receive do
-      {:connection_success, _conn_id} ->
-        # Atualiza estatísticas de conexão
-        connections = stats.connections
-        connections = %{connections |
-          attempted: connections.attempted + 1,
-          successful: connections.successful + 1,
-          current: connections.current + 1
-        }
-        stats = %{stats | connections: connections}
-        stats_loop(connection_pids, config, stats)
-        
-      {:connection_failure, _conn_id, reason} ->
-        # Atualiza estatísticas de falha de conexão
-        connections = stats.connections
-        connections = %{connections |
-          attempted: connections.attempted + 1,
-          failed: connections.failed + 1
-        }
-        
-        # Atualiza contagem de erros
-        errors = Map.update(stats.errors, reason, 1, &(&1 + 1))
-        
-        stats = %{stats | connections: connections, errors: errors}
-        stats_loop(connection_pids, config, stats)
-        
-      {:connection_closed, _conn_id, _reason} ->
-        # Atualiza estatísticas de conexão fechada
-        connections = stats.connections
-        connections = %{connections |
-          current: max(0, connections.current - 1)
-        }
-        stats = %{stats | connections: connections}
-        stats_loop(connection_pids, config, stats)
-        
-      {:message_sent, _conn_id, _timestamp} ->
-        # Atualiza estatísticas de mensagens enviadas
-        messages = stats.messages
-        messages = %{messages | sent: messages.sent + 1}
-        stats = %{stats | messages: messages}
-        stats_loop(connection_pids, config, stats)
-        
-      {:message_received, _conn_id, latency} ->
-        # Atualiza estatísticas de mensagens recebidas
-        messages = stats.messages
-        messages = %{messages | received: messages.received + 1}
-        
-        # Atualiza estatísticas de latência
-        latency_stats = stats.latency
-        latency_stats = %{latency_stats |
-          min: if(is_nil(latency_stats.min), do: latency, else: min(latency_stats.min, latency)),
-          max: if(is_nil(latency_stats.max), do: latency, else: max(latency_stats.max, latency)),
-          total: latency_stats.total + latency,
-          samples: latency_stats.samples + 1
-        }
-        
-        stats = %{stats | messages: messages, latency: latency_stats}
-        stats_loop(connection_pids, config, stats)
-        
-      {:message_failure, _conn_id, reason} ->
-        # Atualiza estatísticas de falha de mensagem
-        messages = stats.messages
-        messages = %{messages | failed: messages.failed + 1}
-        
-        # Atualiza contagem de erros
-        errors = Map.update(stats.errors, reason, 1, &(&1 + 1))
-        
-        stats = %{stats | messages: messages, errors: errors}
-        stats_loop(connection_pids, config, stats)
-        
-      {:get_stats, pid} ->
-        # Envia as estatísticas atuais para o solicitante
-        send(pid, {:stats, stats})
-        stats_loop(connection_pids, config, stats)
-        
-      :report ->
-        # Gera um relatório periódico
-        report_stats(stats, config)
-        
-        # Agenda o próximo relatório
-        Process.send_after(self(), :report, config.report_interval * 1000)
-        
-        stats_loop(connection_pids, config, stats)
-        
-      _ ->
-        # Ignora outras mensagens
-        stats_loop(connection_pids, config, stats)
-    after
-      0 ->
-        # Verifica se é hora de gerar um relatório
-        if !Process.info(self(), :messages)[:messages] do
+    try do
+      receive do
+        # Trata mensagens de formato inválido
+        {:messages, _} ->
+          # Ignora mensagens de formato inválido
+          Logger.warn("Recebida mensagem de formato inválido no coletor de estatísticas", module: __MODULE__)
+          stats_loop(connection_pids, config, stats)
+          
+        {:connection_success, _conn_id} ->
+          # Atualiza estatísticas de conexão
+          connections = stats.connections
+          connections = %{connections |
+            attempted: connections.attempted + 1,
+            successful: connections.successful + 1,
+            current: connections.current + 1
+          }
+          stats = %{stats | connections: connections}
+          stats_loop(connection_pids, config, stats)
+          
+        {:connection_failure, _conn_id, reason} ->
+          # Atualiza estatísticas de falha de conexão
+          connections = stats.connections
+          connections = %{connections |
+            attempted: connections.attempted + 1,
+            failed: connections.failed + 1
+          }
+          
+          # Atualiza contagem de erros
+          errors = Map.update(stats.errors, reason, 1, &(&1 + 1))
+          
+          stats = %{stats | connections: connections, errors: errors}
+          stats_loop(connection_pids, config, stats)
+          
+        {:connection_closed, _conn_id, _reason} ->
+          # Atualiza estatísticas de conexão fechada
+          connections = stats.connections
+          connections = %{connections |
+            current: max(0, connections.current - 1)
+          }
+          stats = %{stats | connections: connections}
+          stats_loop(connection_pids, config, stats)
+          
+        {:message_sent, _conn_id, _timestamp} ->
+          # Atualiza estatísticas de mensagens enviadas
+          messages = stats.messages
+          messages = %{messages | sent: messages.sent + 1}
+          stats = %{stats | messages: messages}
+          stats_loop(connection_pids, config, stats)
+          
+        {:message_received, _conn_id, latency} ->
+          # Atualiza estatísticas de mensagens recebidas
+          messages = stats.messages
+          messages = %{messages | received: messages.received + 1}
+          
+          # Atualiza estatísticas de latência
+          latency_stats = stats.latency
+          latency_stats = %{latency_stats |
+            min: if(is_nil(latency_stats.min), do: latency, else: min(latency_stats.min, latency)),
+            max: if(is_nil(latency_stats.max), do: latency, else: max(latency_stats.max, latency)),
+            total: latency_stats.total + latency,
+            samples: latency_stats.samples + 1
+          }
+          
+          stats = %{stats | messages: messages, latency: latency_stats}
+          stats_loop(connection_pids, config, stats)
+          
+        {:message_failure, _conn_id, reason} ->
+          # Atualiza estatísticas de falha de mensagem
+          messages = stats.messages
+          messages = %{messages | failed: messages.failed + 1}
+          
+          # Atualiza contagem de erros
+          errors = Map.update(stats.errors, reason, 1, &(&1 + 1))
+          
+          stats = %{stats | messages: messages, errors: errors}
+          stats_loop(connection_pids, config, stats)
+          
+        {:get_stats, pid} ->
+          # Envia as estatísticas atuais para o solicitante
+          send(pid, {:stats, stats})
+          stats_loop(connection_pids, config, stats)
+          
+        :report ->
+          # Gera um relatório periódico
+          report_stats(stats, config)
+          
+          # Agenda o próximo relatório
           Process.send_after(self(), :report, config.report_interval * 1000)
-        end
-        
+          
+          stats_loop(connection_pids, config, stats)
+          
+        unexpected_message ->
+          # Registra e ignora mensagens inesperadas
+          Logger.warn("Mensagem inesperada recebida no coletor de estatísticas: #{inspect(unexpected_message)}", module: __MODULE__)
+          stats_loop(connection_pids, config, stats)
+      after
+        0 ->
+          # Verifica se é hora de gerar um relatório
+          if !Process.info(self(), :messages) || !Process.info(self(), :messages)[:messages] do
+            Process.send_after(self(), :report, config.report_interval * 1000)
+          end
+          
+          stats_loop(connection_pids, config, stats)
+      end
+    rescue
+      error ->
+        Logger.error("Erro no coletor de estatísticas: #{inspect(error)}", module: __MODULE__)
+        # Continua o loop mesmo após um erro
+        stats_loop(connection_pids, config, stats)
+    catch
+      kind, reason ->
+        Logger.error("Exceção no coletor de estatísticas: #{inspect(kind)} - #{inspect(reason)}", module: __MODULE__)
+        # Continua o loop mesmo após uma exceção
         stats_loop(connection_pids, config, stats)
     end
   end
