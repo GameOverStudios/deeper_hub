@@ -92,6 +92,9 @@ Se preferir uma implantação manual, siga estes passos:
 | `DEEPER_HUB_DB_POOL_SIZE` | Tamanho do pool de conexões | `20` |
 | `DEEPER_HUB_LOG_LEVEL` | Nível de log | `info` |
 | `MAX_CONNECTIONS` | Limite de conexões WebSocket | `10000` |
+| `DEEPER_HUB_SECURITY_RATE_LIMIT_API` | Limite de requisições API por minuto | `60` |
+| `DEEPER_HUB_SECURITY_RATE_LIMIT_WS` | Limite de mensagens WebSocket por minuto | `120` |
+| `DEEPER_HUB_SECURITY_ALERT_WEBHOOK` | URL para webhook de alertas de segurança | `https://alertas.exemplo.com/webhook` |
 
 ### Arquivo de Configuração Runtime
 
@@ -252,6 +255,58 @@ Verifique:
    - Configure alertas para tentativas de login inválidas
    - Monitore uso anormal de recursos
    - Verifique logs regularmente
+
+### Configuração de Recursos Avançados de Segurança
+
+#### Detector de Anomalias
+
+O detector de anomalias pode ser configurado no arquivo `runtime.exs`:
+
+```elixir
+config :deeper_hub, :anomaly_detection, [
+  login_failure_threshold: 5,  # Limite de tentativas de login falhas
+  login_failure_window: 300,    # Janela de tempo em segundos
+  not_found_threshold: 10,      # Limite de requisições 404
+  not_found_window: 60,         # Janela de tempo em segundos
+  malicious_payload_threshold: 3,  # Limite de payloads maliciosos
+  malicious_payload_window: 600    # Janela de tempo em segundos
+]
+```
+
+#### Sistema de Reputação de IPs
+
+O sistema de reputação de IPs é configurado automaticamente, mas você pode ajustar os limites de risco:
+
+```elixir
+config :deeper_hub, :ip_reputation, [
+  high_risk_threshold: 30,    # Pontuação abaixo da qual um IP é considerado de alto risco
+  medium_risk_threshold: 60,  # Pontuação abaixo da qual um IP é considerado de médio risco
+  check_interval: 300_000     # Intervalo de verificação de reputação em milissegundos
+]
+```
+
+#### Sistema de Alertas
+
+Configure os canais de notificação para alertas de segurança:
+
+```elixir
+config :deeper_hub, :security_alerts, [
+  notification_channels: [
+    {:log, []},  # Sempre registra em log
+    {:webhook, "https://seu-servidor.com/webhooks/security"},  # Webhook para integração
+    {:email, [recipients: ["admin@exemplo.com", "seguranca@exemplo.com"]]}
+  ]
+]
+```
+
+### Monitoramento de Segurança
+
+Recomendamos configurar alertas específicos para eventos de segurança:
+
+1. **Tentativas de login falhas** - Alerta quando houver mais de 10 falhas em 5 minutos
+2. **Bloqueios de IP** - Notificação imediata quando um IP for bloqueado automaticamente
+3. **Detecção de anomalias** - Alerta para padrões suspeitos de tráfego
+4. **Reputação de IPs** - Relatório diário de IPs com baixa reputação
 
 ### Rotação de Chaves
 

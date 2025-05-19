@@ -104,6 +104,47 @@ O DeeperHub é um sistema de comunicação em tempo real construído com Elixir 
 - Níveis de log configuráveis
 - Formatação e destinos de log
 
+### Camada de Segurança
+
+#### Segurança Principal (`DeeperHub.Core.Security`)
+
+- Gerenciamento de IPs bloqueados
+- Configuração de limites de taxa
+- Inicialização dos componentes de segurança
+
+#### Proteção contra Ataques (`DeeperHub.Core.Security.Attack`)
+
+- Integração com PlugAttack para limitação de taxa
+- Regras de segurança para diferentes tipos de requisições
+- Ações para requisições que excedem limites
+
+#### Autenticação da API (`DeeperHub.Core.Security.AuthPlug`)
+
+- Verificação de tokens JWT em requisições HTTP
+- Proteção de rotas sensíveis da API
+- Associação de usuário autenticado ao contexto da requisição
+
+#### Detecção de Anomalias (`DeeperHub.Core.Security.AnomalyDetector`)
+
+- Monitoramento de tentativas de login falhas
+- Detecção de varredura de endpoints (requisições 404)
+- Identificação de payloads potencialmente maliciosos
+- Bloqueio automático de IPs suspeitos
+
+#### Reputação de IPs (`DeeperHub.Core.Security.IPReputation`)
+
+- Pontuação dinâmica de reputação (0-100)
+- Classificação de IPs em níveis de risco
+- Ajuste automático de reputação com base no comportamento
+- Persistência em memória via tabelas ETS
+
+#### Sistema de Alertas (`DeeperHub.Core.Security.AlertSystem`)
+
+- Geração de alertas para eventos de segurança
+- Suporte a múltiplos canais de notificação (log, webhook, email)
+- Classificação de alertas por severidade
+- Limitação de taxa para evitar spam de alertas
+
 ## Fluxo de Dados
 
 ### Autenticação de Usuário
