@@ -51,21 +51,13 @@ defmodule DeeperHub.Core.Security.SecurityPlug do
     |> apply_security_headers()
   end
 
-  # Aplica a proteção do PlugAttack
+  # Aplica a proteção contra ataques
   defp apply_attack_protection(conn) do
     # Inicializa o armazenamento ETS se necessário
-    DeeperHub.Core.Security.Attack.storage_setup()
+    DeeperHub.Core.Security.AuthAttack.init()
 
-    # Aplica as regras de proteção gerais
-    conn = DeeperHub.Core.Security.Attack.call(conn, [])
-
-    # Aplica as regras específicas para autenticação
-    # Se a requisição já foi interrompida pelo Attack geral, não aplica o AuthAttack
-    if conn.halted do
-      conn
-    else
-      DeeperHub.Core.Security.AuthAttack.call(conn, [])
-    end
+    # Aplica as regras de proteção contra ataques de autenticação
+    DeeperHub.Core.Security.AuthAttack.rate_limit_auth(conn, [])
   end
 
   # Aplica headers de segurança recomendados

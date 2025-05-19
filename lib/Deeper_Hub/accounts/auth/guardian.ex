@@ -59,9 +59,29 @@ defmodule DeeperHub.Accounts.Auth.Guardian do
 
   @doc """
   Verifica se um token é válido.
+  
+  Além da verificação padrão do Guardian, também verifica se o token
+  está na blacklist de tokens revogados.
+  
+  ## Parâmetros
+    * `token` - Token JWT a ser verificado
+  
+  ## Retorno
+    * `{:ok, claims}` - Se o token for válido
+    * `{:error, reason}` - Se o token for inválido ou estiver na blacklist
   """
   def verify_token(token) do
-    decode_and_verify(token)
+    with {:ok, claims} <- decode_and_verify(token),
+         jti <- Map.get(claims, "jti"),
+         {:ok, false} <- DeeperHub.Accounts.Auth.TokenBlacklist.is_blacklisted?(jti) do
+      {:ok, claims}
+    else
+      {:ok, true} -> 
+        # Token está na blacklist
+        Logger.warn("Tentativa de uso de token revogado", module: __MODULE__)
+        {:error, :token_revoked}
+      error -> error
+    end
   end
 
   @doc """

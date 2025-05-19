@@ -105,7 +105,10 @@ defmodule DeeperHub.Core.Data.Migrations do
       {"20250518000001", DeeperHub.Core.Data.Migrations.CreateUsersTable},
       {"20250518000002", DeeperHub.Core.Data.Migrations.CreateMessagesTable},
       {"20250518000003", DeeperHub.Core.Data.Migrations.CreateChannelsTable},
-      {"20250519000001", DeeperHub.Core.Data.Migrations.CreateSecurityEventsTable}
+      {"20250519000001", DeeperHub.Core.Data.Migrations.CreateSecurityEventsTable},
+      {"20250519000002", DeeperHub.Core.Data.Migrations.CreateRevokedTokensTable},
+      {"20250519000003", DeeperHub.Core.Data.Migrations.CreateUserSessionsTable},
+      {"20250519000004", DeeperHub.Core.Data.Migrations.CreateEmailVerificationsTable}
     ]
     
     Logger.debug("Migrações disponíveis: #{inspect(migrations)}", module: __MODULE__)

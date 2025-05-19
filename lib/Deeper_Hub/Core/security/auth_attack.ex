@@ -1,28 +1,26 @@
 defmodule DeeperHub.Core.Security.AuthAttack do
   @moduledoc """
-  Configuração do Plug.Attack específica para endpoints de autenticação.
+  Proteção contra ataques de força bruta em endpoints de autenticação.
 
   Este módulo implementa proteções contra ataques de força bruta e outros
-  ataques comuns contra endpoints de autenticação.
+  ataques comuns contra endpoints de autenticação usando uma implementação
+  personalizada com ETS.
   """
-
-  use Plug.Attack
 
   alias DeeperHub.Core.Logger
   require DeeperHub.Core.Logger
 
-  # Obtém configurações de segurança do ambiente ou usa valores padrão
-  @security_config Application.compile_env(:deeper_hub, :security, [])
-  @auth_protection Keyword.get(@security_config, :auth_protection, [])
-
   # Tempo de bloqueio para tentativas de autenticação excessivas (em segundos)
-  @block_duration Keyword.get(@auth_protection, :block_duration, 900)  # 15 minutos por padrão
+  @block_duration 900  # 15 minutos por padrão
 
   # Limite de tentativas de autenticação por IP
-  @max_auth_attempts Keyword.get(@auth_protection, :max_auth_attempts, 10)  # 10 tentativas por padrão
+  @max_auth_attempts 10  # 10 tentativas por padrão
 
   # Período de tempo para contar tentativas (em segundos)
-  @auth_period Keyword.get(@auth_protection, :auth_period, 60)  # 1 minuto por padrão
+  @auth_period 60  # 1 minuto por padrão
+
+  # Se deve registrar tentativas de autenticação no log de segurança
+  # @log_auth_attempts true
 
   # Tabela ETS para rastreamento de IPs bloqueados
   @ets_table :auth_attack_store
@@ -41,34 +39,101 @@ defmodule DeeperHub.Core.Security.AuthAttack do
     :ok
   end
 
-  # Limita a taxa de requisições para endpoints de autenticação
-  throttle "authentication",
-    when_: &__MODULE__.is_auth_path/1,
-    by: &__MODULE__.get_ip/1,
-    period: @auth_period * 1000,
-    limit: @max_auth_attempts,
-    storage: {Plug.Attack.Storage.Ets, @ets_table}
+  @doc """
+  Plug para limitar a taxa de requisições de autenticação.
 
-  # Bloqueia IPs que excederam o limite de tentativas
-  block "blocked authentication ips",
-    when_: &__MODULE__.is_auth_path/1,
-    by: &__MODULE__.get_ip/1,
-    storage: {Plug.Attack.Storage.Ets, @ets_table},
-    expires_in: @block_duration * 1000,
-    ex_when: fn conn ->
-      throttle_check = Plug.Attack.Storage.Ets.read(@ets_table, "authentication:#{get_ip(conn)}")
-      case throttle_check do
-        {:ok, attempts} when attempts > @max_auth_attempts ->
-          Logger.warn("IP bloqueado por excesso de tentativas de autenticação",
-            module: __MODULE__,
-            ip: get_ip(conn),
-            attempts: attempts
-          )
-          true
-        _ ->
-          false
+  ## Parâmetros
+    * `conn` - Conexão Plug
+    * `_opts` - Opções (não utilizadas)
+
+  ## Retorno
+    * `conn` - Conexão Plug atualizada
+  """
+  def rate_limit_auth(conn, _opts) do
+    # Verifica se é um endpoint de autenticação
+    if is_auth_path(conn) do
+      ip = get_ip(conn)
+      key = "authentication:#{ip}"
+      now = :os.system_time(:millisecond)
+
+      # Verifica se o IP está bloqueado
+      case check_ip_blocked(ip) do
+        {:blocked, expires_at} ->
+          # Calcula o tempo restante de bloqueio
+          retry_after = max(0, div(expires_at - now, 1000))
+
+          # Bloqueia a requisição
+          block_request(conn, retry_after)
+
+        :not_blocked ->
+          # Incrementa o contador de tentativas
+          attempts = increment_attempts(key, now)
+
+          # Verifica se excedeu o limite
+          if attempts > @max_auth_attempts do
+            # Bloqueia o IP
+            block_ip(ip, now)
+
+            Logger.warn("IP bloqueado por excesso de tentativas de autenticação",
+              module: __MODULE__,
+              ip: ip,
+              attempts: attempts
+            )
+
+            # Bloqueia a requisição
+            block_request(conn, @block_duration)
+          else
+            # Permite a requisição
+            conn
+          end
       end
+    else
+      # Não é um endpoint de autenticação, permite a requisição
+      conn
     end
+  end
+
+  # Verifica se um IP está bloqueado
+  defp check_ip_blocked(ip) do
+    key = "blocked:#{ip}"
+    now = :os.system_time(:millisecond)
+
+    case :ets.lookup(@ets_table, key) do
+      [{^key, expires_at}] when expires_at > now ->
+        {:blocked, expires_at}
+
+      _ ->
+        :not_blocked
+    end
+  end
+
+  # Bloqueia um IP
+  defp block_ip(ip, now) do
+    key = "blocked:#{ip}"
+    expires_at = now + @block_duration * 1000
+    :ets.insert(@ets_table, {key, expires_at})
+  end
+
+  # Incrementa o contador de tentativas
+  defp increment_attempts(key, now) do
+    period_start = now - @auth_period * 1000
+
+    # Busca tentativas existentes
+    attempts = case :ets.lookup(@ets_table, key) do
+      [{^key, count, timestamp}] when timestamp > period_start ->
+        # Incrementa contador existente
+        count + 1
+
+      _ ->
+        # Inicia novo contador
+        1
+    end
+
+    # Atualiza o contador
+    :ets.insert(@ets_table, {key, attempts, now})
+
+    attempts
+  end
 
   # Verifica se a requisição é para um endpoint de autenticação
   def is_auth_path(conn) do
@@ -86,8 +151,8 @@ defmodule DeeperHub.Core.Security.AuthAttack do
     |> Enum.join(".")
   end
 
-  # Manipulador para quando uma requisição é bloqueada
-  def block_action(conn) do
+  # Bloqueia uma requisição
+  defp block_request(conn, retry_after) do
     ip = get_ip(conn)
     path = conn.request_path
 
@@ -105,11 +170,11 @@ defmodule DeeperHub.Core.Security.AuthAttack do
 
     conn
     |> Plug.Conn.put_status(429)
-    |> Plug.Conn.put_resp_header("retry-after", "#{@block_duration}")
+    |> Plug.Conn.put_resp_header("retry-after", "#{retry_after}")
     |> Plug.Conn.json(%{
       error: "too_many_requests",
       message: "Muitas tentativas de autenticação. Tente novamente mais tarde.",
-      retry_after: @block_duration
+      retry_after: retry_after
     })
     |> Plug.Conn.halt()
   end

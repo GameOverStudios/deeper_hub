@@ -82,19 +82,56 @@ config :deeper_hub, :connection_pool,
   queue_target: 50,             # Tempo alvo para filas (ms)
   queue_interval: 1_000         # Intervalo para verificar filas (ms)
 
-# Configurações de segurança para proteção contra ataques
+# Configurações de segurança para produção
 config :deeper_hub, :security,
+  # Proteção contra ataques de autenticação
+  block_duration: 1800,                # 30 minutos em produção
+  max_auth_attempts: 5,                # Limite restritivo para produção
+  auth_period: 60,                     # 1 minuto
+  log_auth_attempts: true,             # Registrar todas as tentativas
+  
   # Lista de IPs bloqueados permanentemente (pode ser atualizada em tempo de execução)
   blocked_ips: [],
-  # Configurações para proteção de autenticação
-  auth_protection: [
-    # Tempo de bloqueio para tentativas de autenticação excessivas (em segundos)
-    block_duration: 1800,  # 30 minutos em produção
-    # Limite de tentativas de autenticação por IP
-    max_auth_attempts: 5,  # Mais restritivo em produção
-    # Período de tempo para contar tentativas (em segundos)
-    auth_period: 60  # 1 minuto
-  ]
+  
+  # Política de senhas (rigorosa para produção)
+  password_min_length: 10,             # Tamanho mínimo seguro
+  password_require_uppercase: true,     # Exigir letras maiúsculas
+  password_require_lowercase: true,     # Exigir letras minúsculas
+  password_require_numbers: true,       # Exigir números
+  password_require_special: true,       # Exigir caracteres especiais
+  password_special_chars: "!@#$%^&*()-_=+[]{}|;:,.<>?/",
+  password_expiration_days: 90,         # Expiração a cada 90 dias
+  password_history_count: 5,            # Não permitir reutilização das 5 últimas senhas
+  
+  # Tokens JWT
+  access_token_ttl: 3600,              # 1 hora (mais curto para produção)
+  refresh_token_ttl: 7 * 24 * 3600,     # 7 dias (mais curto para produção)
+  jwt_algorithm: "HS512",               # Algoritmo seguro
+  jwt_include_default_claims: true,     # Incluir claims padrão
+  
+  # Configurações de sessão
+  session_duration: 8 * 60 * 60,        # 8 horas
+  persistent_session_duration: 7 * 24 * 60 * 60,  # 7 dias (mais curto para produção)
+  inactivity_timeout: 30 * 60,          # 30 minutos de inatividade
+  max_concurrent_sessions: 3,           # Limite de sessões simultâneas
+  max_persistent_sessions: 2,           # Limite de sessões persistentes
+  invalidate_on_password_change: true,  # Invalidar sessões ao mudar senha
+  invalidate_on_suspicious_activity: true, # Invalidar sessões em caso de atividade suspeita
+  require_reauth_for_sensitive_actions: true, # Reautenticação para ações sensíveis
+  sensitive_action_reauth_timeout: 5 * 60, # 5 minutos para reautenticação
+  
+  # Verificação de email
+  require_email_verification: true,     # Exigir verificação de email
+  email_verification_token_expiration: 24 * 60 * 60, # 24 horas
+  email_verification_max_resend: 3,     # Limite de reenvios por dia
+  
+  # Proteções gerais
+  enable_csrf_protection: true,         # Proteção contra CSRF
+  enable_xss_protection: true,          # Proteção contra XSS
+  enable_clickjacking_protection: true, # Proteção contra clickjacking
+  enable_hsts: true,                    # Ativar HSTS
+  hsts_max_age: 31536000,               # 1 ano
+  hsts_include_subdomains: true         # Incluir subdomínios
 
 # ## IMPORTANTE: Gerenciamento de Segredos
 #

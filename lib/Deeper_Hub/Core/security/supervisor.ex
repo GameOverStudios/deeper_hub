@@ -29,10 +29,16 @@ defmodule DeeperHub.Core.Security.Supervisor do
     # Define os processos filhos
     children = [
       # Inicializa o subsistema de segurança principal
-      {Task, fn -> DeeperHub.Core.Security.init() end},
+      %{
+        id: :security_init_task,
+        start: {Task, :start_link, [fn -> DeeperHub.Core.Security.init() end]}
+      },
       
       # Inicializa o módulo de proteção contra ataques de autenticação
-      {Task, fn -> DeeperHub.Core.Security.AuthAttack.init() end},
+      %{
+        id: :auth_attack_init_task,
+        start: {Task, :start_link, [fn -> DeeperHub.Core.Security.AuthAttack.init() end]}
+      },
       
       # Inicia o detector de anomalias
       DeeperHub.Core.Security.AnomalyDetector,

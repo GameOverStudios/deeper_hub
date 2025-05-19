@@ -36,9 +36,8 @@ defmodule DeeperHub.Core.Security do
     # Carrega configurações de segurança
     load_security_config()
     
-    # Inicializa o armazenamento do PlugAttack
-    # Isso já cria a tabela ETS necessária
-    DeeperHub.Core.Security.Attack.storage_setup()
+    # Inicializa o armazenamento ETS para proteção contra ataques
+    DeeperHub.Core.Security.AuthAttack.init()
     
     Logger.info("Subsistema de segurança inicializado com sucesso.", module: __MODULE__)
     :ok
