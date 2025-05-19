@@ -346,17 +346,20 @@ defmodule DeeperHub.Core.Security.AnomalyDetector do
   defp calculate_reputation(stats) do
     now = :os.system_time(:second)
     
+    # Obtém configurações de pesos e janelas de tempo da aplicação ou usa valores padrão
+    config = Application.get_env(:deeper_hub, :reputation_weights, %{})
+    
     # Pesos para cada tipo de evento
-    login_failure_weight = 5
-    not_found_weight = 2
-    malicious_payload_weight = 10
-    block_weight = 20
+    login_failure_weight = Map.get(config, :login_failure_weight, 5)
+    not_found_weight = Map.get(config, :not_found_weight, 2)
+    malicious_payload_weight = Map.get(config, :malicious_payload_weight, 10)
+    block_weight = Map.get(config, :block_weight, 20)
     
     # Janelas de tempo para considerar eventos
-    login_window = now - 86400 # 24 horas
-    not_found_window = now - 3600 # 1 hora
-    malicious_window = now - 86400 # 24 horas
-    block_window = now - 604800 # 7 dias
+    login_window = now - Map.get(config, :login_window, 86400) # 24 horas por padrão
+    not_found_window = now - Map.get(config, :not_found_window, 3600) # 1 hora por padrão
+    malicious_window = now - Map.get(config, :malicious_window, 86400) # 24 horas por padrão
+    block_window = now - Map.get(config, :block_window, 604800) # 7 dias por padrão
     
     # Conta eventos recentes
     login_failures = count_recent_events(stats.login_failures || [], login_window)

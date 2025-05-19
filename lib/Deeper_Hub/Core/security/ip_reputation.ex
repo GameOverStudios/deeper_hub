@@ -21,12 +21,18 @@ defmodule DeeperHub.Core.Security.IPReputation do
   # Tabela ETS para armazenar reputações de IPs
   @reputation_table :deeper_hub_ip_reputation
   
-  # Intervalo de verificação de reputação (5 minutos)
-  @check_interval 300_000
-  
-  # Limites de reputação
-  @high_risk_threshold 30
-  @medium_risk_threshold 60
+  # Valores padrão que podem ser sobrescritos pela configuração
+  @default_config [
+    # Intervalo de verificação de reputação (5 minutos)
+    check_interval: 300_000,
+    
+    # Limites de reputação
+    high_risk_threshold: 30,
+    medium_risk_threshold: 60,
+    
+    # Tempo mínimo de bloqueio (24 horas)
+    min_block_time: 86400
+  ]
   
   #
   # API Pública
@@ -85,18 +91,21 @@ defmodule DeeperHub.Core.Security.IPReputation do
   
   @doc """
   Verifica se um IP deve ser bloqueado com base em sua reputação.
-  
+
   ## Parâmetros
-  
+
   - `ip` - Endereço IP
-  
+
   ## Retorno
-  
+
   - `true` se o IP deve ser bloqueado, `false` caso contrário
   """
   def should_block?(ip) do
+    config = Application.get_env(:deeper_hub, :ip_reputation, @default_config)
+    high_risk_threshold = config[:high_risk_threshold]
+    
     reputation = get_reputation(ip)
-    reputation.score <= @high_risk_threshold
+    reputation.score <= high_risk_threshold
   end
   
   #
@@ -108,12 +117,15 @@ defmodule DeeperHub.Core.Security.IPReputation do
     # Inicializa a tabela ETS para reputações
     create_reputation_table()
     
+    # Carrega a configuração
+    config = Application.get_env(:deeper_hub, :ip_reputation, @default_config)
+    
     # Agenda a verificação periódica
-    schedule_check()
+    schedule_check(config[:check_interval])
     
     Logger.info("Sistema de reputação de IPs iniciado", module: __MODULE__)
     
-    {:ok, %{}}
+    {:ok, %{config: config}}
   end
   
   @impl true
@@ -155,7 +167,8 @@ defmodule DeeperHub.Core.Security.IPReputation do
                 new_score: new_score)
     
     # Verifica se o IP deve ser bloqueado
-    if new_score <= @high_risk_threshold and current.score > @high_risk_threshold do
+    high_risk_threshold = state.config[:high_risk_threshold]
+    if new_score <= high_risk_threshold and current.score > high_risk_threshold do
       Security.block_ip(ip, "Baixa reputação (#{new_score})")
     end
     
@@ -164,8 +177,8 @@ defmodule DeeperHub.Core.Security.IPReputation do
   
   @impl true
   def handle_info(:check_reputations, state) do
-    check_all_reputations()
-    schedule_check()
+    check_all_reputations(state.config)
+    schedule_check(state.config[:check_interval])
     {:noreply, state}
   end
   
@@ -185,12 +198,12 @@ defmodule DeeperHub.Core.Security.IPReputation do
   end
   
   # Agenda a verificação periódica
-  defp schedule_check do
-    Process.send_after(self(), :check_reputations, @check_interval)
+  defp schedule_check(interval) do
+    Process.send_after(self(), :check_reputations, interval)
   end
   
   # Verifica todas as reputações
-  defp check_all_reputations do
+  defp check_all_reputations(config) do
     # Obtém todos os IPs bloqueados
     blocked_ips = Security.get_blocked_ips()
     
@@ -199,9 +212,9 @@ defmodule DeeperHub.Core.Security.IPReputation do
       reputation = get_reputation(ip)
       
       # Se a reputação melhorou, considera desbloquear
-      if reputation.score > @high_risk_threshold do
-        # Tempo mínimo de bloqueio (24 horas)
-        min_block_time = 86400
+      if reputation.score > config[:high_risk_threshold] do
+        # Tempo mínimo de bloqueio (configurável, padrão 24 horas)
+        min_block_time = config[:min_block_time]
         
         # Verifica se o IP está bloqueado há tempo suficiente
         block_event = Enum.find(reputation.events, fn event ->
@@ -222,7 +235,15 @@ defmodule DeeperHub.Core.Security.IPReputation do
   end
   
   # Calcula o nível de risco com base na pontuação
-  defp calculate_risk_level(score) when score <= @high_risk_threshold, do: :high
-  defp calculate_risk_level(score) when score <= @medium_risk_threshold, do: :medium
-  defp calculate_risk_level(_score), do: :low
+  defp calculate_risk_level(score) do
+    config = Application.get_env(:deeper_hub, :ip_reputation, @default_config)
+    high_risk_threshold = config[:high_risk_threshold]
+    medium_risk_threshold = config[:medium_risk_threshold]
+    
+    cond do
+      score <= high_risk_threshold -> :high
+      score <= medium_risk_threshold -> :medium
+      true -> :low
+    end
+  end
 end

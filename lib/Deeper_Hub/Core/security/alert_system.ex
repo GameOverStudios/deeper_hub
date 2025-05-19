@@ -11,17 +11,23 @@ defmodule DeeperHub.Core.Security.AlertSystem do
   require DeeperHub.Core.Logger
   alias DeeperHub.Core.Logger
 
-  # Níveis de severidade de alertas
-  # @severity_levels [:info, :warning, :critical]
+  # Níveis de severidade de alertas (usado para validação)
+  @severity_levels [:info, :warning, :critical]
 
   # Tabela ETS para armazenar alertas
   @alerts_table :deeper_hub_security_alerts
 
-  # Intervalo de limpeza de alertas antigos (1 dia)
-  @cleanup_interval 86_400_000
-
-  # Limite de alertas por tipo por hora (para evitar spam)
-  @alert_rate_limit 10
+  # Configurações padrão
+  @default_config [
+    # Intervalo de limpeza de alertas antigos (1 dia)
+    cleanup_interval: 86_400_000,
+    # Limite de alertas por tipo por hora (para evitar spam)
+    alert_rate_limit: 10,
+    # Tempo de retenção de alertas antigos (30 dias)
+    retention_days: 30,
+    # Canais de notificação padrão
+    notification_channels: [{:log, []}]
+  ]
 
   #
   # API Pública
@@ -46,10 +52,15 @@ defmodule DeeperHub.Core.Security.AlertSystem do
 
   ## Retorno
 
-  - ID do alerta gerado
+  - ID do alerta gerado ou erro se a severidade for inválida
   """
   def generate_alert(type, message, details \\ %{}, severity \\ :warning) do
-    GenServer.call(__MODULE__, {:generate_alert, type, message, details, severity})
+    # Valida a severidade
+    if severity in @severity_levels do
+      GenServer.call(__MODULE__, {:generate_alert, type, message, details, severity})
+    else
+      {:error, :invalid_severity}
+    end
   end
 
   @doc """
@@ -112,20 +123,18 @@ defmodule DeeperHub.Core.Security.AlertSystem do
   def init(_opts) do
     # Inicializa a tabela ETS para alertas
     create_alerts_table()
-
-    # Agenda a limpeza periódica
-    schedule_cleanup()
-
+    
     # Carrega a configuração
-    config = Application.get_env(:deeper_hub, :security_alerts, [])
-
-    # Configura os canais de notificação
-    notification_channels = config[:notification_channels] || []
-
+    config = Application.get_env(:deeper_hub, :security_alerts, @default_config)
+    
+    # Agenda a limpeza periódica
+    schedule_cleanup(config[:cleanup_interval])
+    
     Logger.info("Sistema de alertas de segurança iniciado", module: __MODULE__)
-
+    
     {:ok, %{
-      notification_channels: notification_channels,
+      config: config,
+      notification_channels: config[:notification_channels],
       alert_counts: %{}
     }}
   end
@@ -137,8 +146,9 @@ defmodule DeeperHub.Core.Security.AlertSystem do
     # Verifica se o alerta deve ser limitado (para evitar spam)
     hour_key = "#{type}_#{div(now, 3600)}"
     current_count = Map.get(state.alert_counts, hour_key, 0)
-
-    if current_count >= @alert_rate_limit do
+    alert_rate_limit = state.config[:alert_rate_limit]
+    
+    if current_count >= alert_rate_limit do
       # Alerta limitado, apenas registra no log
       Logger.warn("Alerta de segurança limitado: #{type}",
                   module: __MODULE__,
@@ -209,8 +219,8 @@ defmodule DeeperHub.Core.Security.AlertSystem do
 
   @impl true
   def handle_info(:cleanup, state) do
-    cleanup_old_alerts()
-    schedule_cleanup()
+    cleanup_old_alerts(state.config[:retention_days])
+    schedule_cleanup(state.config[:cleanup_interval])
     {:noreply, state}
   end
 
@@ -230,29 +240,29 @@ defmodule DeeperHub.Core.Security.AlertSystem do
   end
 
   # Agenda a limpeza periódica
-  defp schedule_cleanup do
-    Process.send_after(self(), :cleanup, @cleanup_interval)
+  defp schedule_cleanup(interval) do
+    Process.send_after(self(), :cleanup, interval)
   end
 
   # Limpa alertas antigos
-  defp cleanup_old_alerts do
+  defp cleanup_old_alerts(retention_days) do
     now = :os.system_time(:second)
-    cutoff = now - 30 * 86400 # 30 dias
-
+    cutoff = now - retention_days * 86400 # Converte dias em segundos
+    
     # Obtém todos os alertas
     all_alerts = :ets.tab2list(@alerts_table)
-
+    
     # Filtra alertas antigos e resolvidos
     old_alerts = Enum.filter(all_alerts, fn {_id, alert} ->
       alert.resolved and alert.timestamp < cutoff
     end)
-
+    
     # Remove alertas antigos
     Enum.each(old_alerts, fn {id, _alert} ->
       :ets.delete(@alerts_table, id)
     end)
-
-    Logger.debug("Limpeza de alertas antigos concluída. Removidos: #{length(old_alerts)}",
+    
+    Logger.debug("Limpeza de alertas antigos concluída. Removidos: #{length(old_alerts)}", 
                  module: __MODULE__)
   end
 
