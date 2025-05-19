@@ -171,11 +171,12 @@ defmodule DeeperHub.Core.Security.AuthAttack do
     conn
     |> Plug.Conn.put_status(429)
     |> Plug.Conn.put_resp_header("retry-after", "#{retry_after}")
-    |> Plug.Conn.json(%{
+    |> Plug.Conn.put_resp_content_type("application/json")
+    |> Plug.Conn.send_resp(429, Jason.encode!(%{
       error: "too_many_requests",
       message: "Muitas tentativas de autenticação. Tente novamente mais tarde.",
       retry_after: retry_after
-    })
+    }))
     |> Plug.Conn.halt()
   end
 

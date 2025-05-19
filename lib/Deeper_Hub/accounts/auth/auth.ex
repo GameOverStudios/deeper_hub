@@ -34,6 +34,64 @@ defmodule DeeperHub.Accounts.Auth do
   end
 
   @doc """
+  Autentica um usuário com email e senha.
+
+  ## Parâmetros
+    * `email` - Email do usuário
+    * `password` - Senha do usuário
+
+  ## Retorno
+    * `{:ok, user}` - Se as credenciais forem válidas
+    * `{:error, :invalid_credentials}` - Se as credenciais forem inválidas
+    * `{:error, :email_not_verified}` - Se o email não foi verificado
+    * `{:error, reason}` - Se ocorrer outro erro
+  """
+  @spec authenticate_user(String.t(), String.t()) :: {:ok, map()} | {:error, atom()} | {:error, any()}
+  def authenticate_user(email, password) do
+    # Busca o usuário pelo email
+    case get_user_by_email(email) do
+      {:ok, user} ->
+        # Verifica se o email foi verificado, se a verificação estiver ativada
+        verification_result = if Application.get_env(:deeper_hub, :require_email_verification, false) do
+          case user["email_verified"] do
+            true -> :ok
+            _ -> {:error, :email_not_verified}
+          end
+        else
+          :ok
+        end
+
+        case verification_result do
+          :ok ->
+            # Verifica a senha
+            if verify_password(password, user["password_hash"]) do
+              {:ok, user}
+            else
+              # Senha inválida
+              DeeperHub.Accounts.ActivityLog.log_activity(user["id"], :auth_failure, %{
+                method: "email_password",
+                reason: "invalid_password"
+              })
+
+              {:error, :invalid_credentials}
+            end
+
+          {:error, reason} -> {:error, reason}
+        end
+
+      {:error, :not_found} ->
+        # Usuário não encontrado
+        Logger.info("Tentativa de login com email não cadastrado: #{email}", module: __MODULE__)
+        {:error, :invalid_credentials}
+
+      {:error, reason} ->
+        # Outro erro
+        Logger.error("Erro ao buscar usuário: #{inspect(reason)}", module: __MODULE__)
+        {:error, reason}
+    end
+  end
+
+  @doc """
   Realiza o login de um usuário com email e senha.
 
   ## Parâmetros
@@ -300,7 +358,10 @@ defmodule DeeperHub.Accounts.Auth do
                     claims["jti"],
                     user["id"],
                     "refresh",
-                    DateTime.from_iso8601!(claims["exp"]),
+                    case DateTime.from_iso8601(claims["exp"]) do
+                      {:ok, datetime, _} -> datetime
+                      _ -> DateTime.utc_now() # Fallback para caso de erro no formato
+                    end,
                     "refresh_token_rotation"
                   )
 

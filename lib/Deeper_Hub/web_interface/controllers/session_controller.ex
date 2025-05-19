@@ -9,6 +9,7 @@ defmodule DeeperHub.WebInterface.Controllers.SessionController do
   alias DeeperHub.Accounts.Auth
   alias DeeperHub.Accounts.Auth.Logout
   alias DeeperHub.Accounts.SessionManager
+  alias DeeperHub.WebInterface.Plugs.JsonResponse
   require DeeperHub.Core.Logger
 
   @doc """
@@ -39,8 +40,7 @@ defmodule DeeperHub.WebInterface.Controllers.SessionController do
     # Valida parâmetros obrigatórios
     if is_nil(email) or is_nil(password) do
       conn
-      |> Plug.Conn.put_status(400)
-      |> Plug.Conn.json(%{
+      |> JsonResponse.json_bad_request(%{
         error: "missing_parameters",
         message: "Email e senha são obrigatórios"
       })
@@ -64,32 +64,28 @@ defmodule DeeperHub.WebInterface.Controllers.SessionController do
           response = Map.put(tokens, :session_id, session_id)
 
           conn
-          |> Plug.Conn.put_status(200)
-          |> Plug.Conn.json(%{
+          |> JsonResponse.json_ok(%{
             user: user_safe,
             auth: response
           })
 
         {:error, :invalid_credentials} ->
           conn
-          |> Plug.Conn.put_status(401)
-          |> Plug.Conn.json(%{
+          |> JsonResponse.json_unauthorized(%{
             error: "invalid_credentials",
             message: "Email ou senha inválidos"
           })
 
         {:error, :email_not_verified} ->
           conn
-          |> Plug.Conn.put_status(403)
-          |> Plug.Conn.json(%{
+          |> JsonResponse.json_forbidden(%{
             error: "email_not_verified",
             message: "Email não verificado. Por favor, verifique seu email antes de fazer login."
           })
 
         {:error, _reason} ->
           conn
-          |> Plug.Conn.put_status(500)
-          |> Plug.Conn.json(%{
+          |> JsonResponse.json_server_error(%{
             error: "server_error",
             message: "Erro ao processar login. Tente novamente mais tarde."
           })
@@ -121,8 +117,7 @@ defmodule DeeperHub.WebInterface.Controllers.SessionController do
     # Valida parâmetros obrigatórios
     if is_nil(refresh_token) or is_nil(session_id) do
       conn
-      |> Plug.Conn.put_status(400)
-      |> Plug.Conn.json(%{
+      |> JsonResponse.json_bad_request(%{
         error: "missing_parameters",
         message: "Token de refresh e ID da sessão são obrigatórios"
       })
@@ -139,40 +134,35 @@ defmodule DeeperHub.WebInterface.Controllers.SessionController do
           user_safe = Map.drop(user, ["password_hash"])
 
           conn
-          |> Plug.Conn.put_status(200)
-          |> Plug.Conn.json(%{
+          |> JsonResponse.json_ok(%{
             user: user_safe,
             auth: tokens
           })
 
         {:error, :invalid_token} ->
           conn
-          |> Plug.Conn.put_status(401)
-          |> Plug.Conn.json(%{
+          |> JsonResponse.json_unauthorized(%{
             error: "invalid_token",
             message: "Token de refresh inválido ou expirado"
           })
 
         {:error, :session_not_found} ->
           conn
-          |> Plug.Conn.put_status(404)
-          |> Plug.Conn.json(%{
+          |> JsonResponse.json_not_found(%{
             error: "session_not_found",
             message: "Sessão não encontrada"
           })
 
         {:error, :session_expired} ->
           conn
-          |> Plug.Conn.put_status(401)
-          |> Plug.Conn.json(%{
+          |> JsonResponse.json_unauthorized(%{
             error: "session_expired",
             message: "Sessão expirada. Por favor, faça login novamente."
           })
 
         {:error, _reason} ->
           conn
-          |> Plug.Conn.put_status(500)
-          |> Plug.Conn.json(%{
+          |> JsonResponse.json_server_error(%{
             error: "server_error",
             message: "Erro ao atualizar tokens. Tente novamente mais tarde."
           })
@@ -203,8 +193,7 @@ defmodule DeeperHub.WebInterface.Controllers.SessionController do
     # Valida parâmetros obrigatórios
     if is_nil(session_id) do
       conn
-      |> Plug.Conn.put_status(400)
-      |> Plug.Conn.json(%{
+      |> JsonResponse.json_bad_request(%{
         error: "missing_parameters",
         message: "ID da sessão é obrigatório"
       })
@@ -219,24 +208,21 @@ defmodule DeeperHub.WebInterface.Controllers.SessionController do
       ]) do
         :ok ->
           conn
-          |> Plug.Conn.put_status(200)
-          |> Plug.Conn.json(%{
+          |> JsonResponse.json_ok(%{
             success: true,
             message: if(all_sessions, do: "Todas as sessões encerradas com sucesso", else: "Logout realizado com sucesso")
           })
 
         {:error, :session_not_found} ->
           conn
-          |> Plug.Conn.put_status(404)
-          |> Plug.Conn.json(%{
+          |> JsonResponse.json_not_found(%{
             error: "session_not_found",
             message: "Sessão não encontrada"
           })
 
         {:error, _reason} ->
           conn
-          |> Plug.Conn.put_status(500)
-          |> Plug.Conn.json(%{
+          |> JsonResponse.json_server_error(%{
             error: "server_error",
             message: "Erro ao processar logout. Tente novamente mais tarde."
           })
@@ -261,8 +247,7 @@ defmodule DeeperHub.WebInterface.Controllers.SessionController do
     case conn.assigns[:current_user] do
       nil ->
         conn
-        |> Plug.Conn.put_status(401)
-        |> Plug.Conn.json(%{
+        |> JsonResponse.json_unauthorized(%{
           error: "unauthorized",
           message: "Usuário não autenticado"
         })
@@ -312,15 +297,13 @@ defmodule DeeperHub.WebInterface.Controllers.SessionController do
             end)
 
             conn
-            |> Plug.Conn.put_status(200)
-            |> Plug.Conn.json(%{
+            |> JsonResponse.json_ok(%{
               sessions: formatted_sessions
             })
 
           {:error, _reason} ->
             conn
-            |> Plug.Conn.put_status(500)
-            |> Plug.Conn.json(%{
+            |> JsonResponse.json_server_error(%{
               error: "server_error",
               message: "Erro ao listar sessões. Tente novamente mais tarde."
             })
@@ -351,8 +334,7 @@ defmodule DeeperHub.WebInterface.Controllers.SessionController do
     # Valida parâmetros obrigatórios
     if is_nil(session_id) do
       conn
-      |> Plug.Conn.put_status(400)
-      |> Plug.Conn.json(%{
+      |> JsonResponse.json_bad_request(%{
         error: "missing_parameters",
         message: "ID da sessão é obrigatório"
       })
@@ -361,8 +343,7 @@ defmodule DeeperHub.WebInterface.Controllers.SessionController do
       case conn.assigns[:current_user] do
         nil ->
           conn
-          |> Plug.Conn.put_status(401)
-          |> Plug.Conn.json(%{
+          |> JsonResponse.json_unauthorized(%{
             error: "unauthorized",
             message: "Usuário não autenticado"
           })
@@ -378,16 +359,14 @@ defmodule DeeperHub.WebInterface.Controllers.SessionController do
                 case SessionManager.invalidate_session(session_id, "user_terminated") do
                   :ok ->
                     conn
-                    |> Plug.Conn.put_status(200)
-                    |> Plug.Conn.json(%{
+                    |> JsonResponse.json_ok(%{
                       success: true,
                       message: "Sessão encerrada com sucesso"
                     })
 
                   {:error, _reason} ->
                     conn
-                    |> Plug.Conn.put_status(500)
-                    |> Plug.Conn.json(%{
+                    |> JsonResponse.json_server_error(%{
                       error: "server_error",
                       message: "Erro ao encerrar sessão. Tente novamente mais tarde."
                     })
@@ -395,8 +374,7 @@ defmodule DeeperHub.WebInterface.Controllers.SessionController do
               else
                 # Usuário não tem permissão para encerrar esta sessão
                 conn
-                |> Plug.Conn.put_status(403)
-                |> Plug.Conn.json(%{
+                |> JsonResponse.json_forbidden(%{
                   error: "forbidden",
                   message: "Você não tem permissão para encerrar esta sessão"
                 })
@@ -405,16 +383,14 @@ defmodule DeeperHub.WebInterface.Controllers.SessionController do
             {:ok, %{rows: []}} ->
               # Sessão não encontrada
               conn
-              |> Plug.Conn.put_status(404)
-              |> Plug.Conn.json(%{
+              |> JsonResponse.json_not_found(%{
                 error: "session_not_found",
                 message: "Sessão não encontrada"
               })
 
             {:error, _reason} ->
               conn
-              |> Plug.Conn.put_status(500)
-              |> Plug.Conn.json(%{
+              |> JsonResponse.json_server_error(%{
                 error: "server_error",
                 message: "Erro ao verificar sessão. Tente novamente mais tarde."
               })

@@ -37,7 +37,7 @@ defmodule DeeperHub.WebInterface.Plugs.AuthPipeline do
   # Nota: Utilizamos Plug.Conn.fetch_session/2 e Plug.Conn.fetch_query_params/2 diretamente no pipeline
 
   # Função auxiliar para aplicar proteção contra ataques de força bruta
-  defp apply_auth_attack(conn, _opts) do
+  def apply_auth_attack(conn, _opts) do
     AuthAttack.rate_limit_auth(conn, [])
   end
 end

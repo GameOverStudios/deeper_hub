@@ -10,7 +10,6 @@ defmodule DeeperHub.Accounts.Auth.EmailVerification do
   alias DeeperHub.Core.Data.Repo
   alias DeeperHub.Core.Logger
   alias DeeperHub.Accounts.ActivityLog
-  alias DeeperHub.Accounts.User
   alias DeeperHub.Accounts.Mailer
   require DeeperHub.Core.Logger
   
@@ -314,7 +313,7 @@ defmodule DeeperHub.Accounts.Auth.EmailVerification do
   # Envia o e-mail de verificação
   defp send_verification_email(user_id, email, token) do
     # Busca informações do usuário
-    case User.get_by_id(user_id) do
+    case DeeperHub.Accounts.Auth.get_user_by_id(user_id) do
       {:ok, user} ->
         # Constrói o link de verificação
         verification_url = "#{Application.get_env(:deeper_hub, :base_url)}/verify-email?token=#{token}"

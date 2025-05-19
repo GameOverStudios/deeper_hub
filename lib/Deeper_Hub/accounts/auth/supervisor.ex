@@ -31,15 +31,8 @@ defmodule DeeperHub.Accounts.Auth.Supervisor do
     # Inicializa o sistema de autenticação em duas etapas
     # Isso não é um processo GenServer, então não é supervisionado diretamente
     # Mas precisamos garantir que seja inicializado
-    case DeeperHub.Accounts.Auth.TwoFactor.init() do
-      :ok ->
-        Logger.info("Sistema de autenticação em duas etapas inicializado com sucesso.", module: __MODULE__)
-        
-      {:error, reason} ->
-        Logger.error("Falha ao inicializar sistema de autenticação em duas etapas: #{inspect(reason)}", 
-          module: __MODULE__
-        )
-    end
+    DeeperHub.Accounts.Auth.TwoFactor.init()
+    Logger.info("Sistema de autenticação em duas etapas inicializado com sucesso.", module: __MODULE__)
     
     # Configuração do supervisor
     opts = [strategy: :one_for_one]

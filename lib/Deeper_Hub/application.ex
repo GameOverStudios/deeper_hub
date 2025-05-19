@@ -57,16 +57,29 @@ defmodule DeeperHub.Application do
       {:ok, pid} ->
         DeeperHub.Core.Logger.info("Supervisor principal iniciado com sucesso.")
         
-        # Tenta inicializar o sistema de migrações diretamente, sem usar um supervisor
-        # Isso garante que as migrações só serão executadas após o repositório estar completamente inicializado
-        migrate_result = DeeperHub.Core.Data.Migrations.initialize()
+        # Configuração para inicialização do banco de dados
+        max_attempts = 5
+        wait_time_ms = 500
         
-        case migrate_result do
-          :ok -> 
-            DeeperHub.Core.Logger.info("Migrações inicializadas com sucesso.")
-            DeeperHub.Core.Logger.info("Sistema DeeperHub completamente inicializado.")
-          {:error, reason} ->
-            DeeperHub.Core.Logger.error("Falha ao inicializar migrações: #{inspect(reason)}")
+        # Aguarda a inicialização do pool de conexões e verifica a saúde do banco de dados
+        DeeperHub.Core.Logger.info("Verificando disponibilidade do banco de dados...")
+        
+        # Verifica a saúde do banco de dados usando o novo módulo
+        case DeeperHub.Core.Data.Repo.HealthCheck.wait_for_database(max_attempts, wait_time_ms) do
+          :ok ->
+            DeeperHub.Core.Logger.info("Banco de dados disponível. Executando migrações...")
+            
+            # Tenta inicializar o sistema de migrações
+            case DeeperHub.Core.Data.Migrations.initialize() do
+              :ok -> 
+                DeeperHub.Core.Logger.info("Migrações inicializadas com sucesso.")
+                DeeperHub.Core.Logger.info("Sistema DeeperHub completamente inicializado.")
+              {:error, reason} ->
+                DeeperHub.Core.Logger.error("Falha ao inicializar migrações: #{inspect(reason)}")
+            end
+            
+          {:error, :max_attempts_reached} ->
+            DeeperHub.Core.Logger.error("Banco de dados não está disponível após #{max_attempts} tentativas.")
         end
         
         {:ok, pid}

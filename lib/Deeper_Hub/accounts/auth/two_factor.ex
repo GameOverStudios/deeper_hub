@@ -9,7 +9,7 @@ defmodule DeeperHub.Accounts.Auth.TwoFactor do
   
   alias DeeperHub.Accounts.User
   alias DeeperHub.Core.Logger
-  alias DeeperHub.Core.Mail
+  alias DeeperHub.Core.Mail.Mail
   require DeeperHub.Core.Logger
   
   # Tempo de expiração do código em minutos

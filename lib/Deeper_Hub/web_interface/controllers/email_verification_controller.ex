@@ -7,6 +7,7 @@ defmodule DeeperHub.WebInterface.Controllers.EmailVerificationController do
   """
 
   alias DeeperHub.Accounts.Auth.EmailVerification
+  alias DeeperHub.WebInterface.Plugs.JsonResponse
   require DeeperHub.Core.Logger
 
   @doc """
@@ -27,8 +28,7 @@ defmodule DeeperHub.WebInterface.Controllers.EmailVerificationController do
     case conn.assigns[:current_user] do
       nil ->
         conn
-        |> Plug.Conn.put_status(401)
-        |> Plug.Conn.json(%{
+        |> JsonResponse.json_unauthorized(%{
           error: "unauthorized",
           message: "Usuário não autenticado"
         })
@@ -44,16 +44,14 @@ defmodule DeeperHub.WebInterface.Controllers.EmailVerificationController do
         case EmailVerification.request_verification(user["id"], email, ip_address) do
           {:ok, _token} ->
             conn
-            |> Plug.Conn.put_status(200)
-            |> Plug.Conn.json(%{
+            |> JsonResponse.json_ok(%{
               success: true,
               message: "E-mail de verificação enviado com sucesso. Por favor, verifique sua caixa de entrada."
             })
 
           {:error, _reason} ->
             conn
-            |> Plug.Conn.put_status(500)
-            |> Plug.Conn.json(%{
+            |> JsonResponse.json_server_error(%{
               error: "server_error",
               message: "Erro ao enviar e-mail de verificação. Tente novamente mais tarde."
             })
@@ -82,8 +80,7 @@ defmodule DeeperHub.WebInterface.Controllers.EmailVerificationController do
     # Valida parâmetros obrigatórios
     if is_nil(token) do
       conn
-      |> Plug.Conn.put_status(400)
-      |> Plug.Conn.json(%{
+      |> JsonResponse.json_bad_request(%{
         error: "missing_parameters",
         message: "Token de verificação é obrigatório"
       })
@@ -95,8 +92,7 @@ defmodule DeeperHub.WebInterface.Controllers.EmailVerificationController do
       case EmailVerification.verify_token(token, ip_address) do
         {:ok, _user_id, email} ->
           conn
-          |> Plug.Conn.put_status(200)
-          |> Plug.Conn.json(%{
+          |> JsonResponse.json_ok(%{
             success: true,
             message: "E-mail #{email} verificado com sucesso.",
             email: email
@@ -104,24 +100,21 @@ defmodule DeeperHub.WebInterface.Controllers.EmailVerificationController do
 
         {:error, :token_expired} ->
           conn
-          |> Plug.Conn.put_status(401)
-          |> Plug.Conn.json(%{
+          |> JsonResponse.json_unauthorized(%{
             error: "token_expired",
             message: "O token de verificação expirou. Por favor, solicite um novo."
           })
 
         {:error, :token_not_found} ->
           conn
-          |> Plug.Conn.put_status(401)
-          |> Plug.Conn.json(%{
+          |> JsonResponse.json_unauthorized(%{
             error: "token_not_found",
             message: "Token de verificação inválido ou já utilizado."
           })
 
         {:error, _reason} ->
           conn
-          |> Plug.Conn.put_status(500)
-          |> Plug.Conn.json(%{
+          |> JsonResponse.json_server_error(%{
             error: "server_error",
             message: "Erro ao verificar e-mail. Tente novamente mais tarde."
           })
@@ -150,8 +143,7 @@ defmodule DeeperHub.WebInterface.Controllers.EmailVerificationController do
     # Valida parâmetros obrigatórios
     if is_nil(email) do
       conn
-      |> Plug.Conn.put_status(400)
-      |> Plug.Conn.json(%{
+      |> JsonResponse.json_bad_request(%{
         error: "missing_parameters",
         message: "E-mail é obrigatório"
       })
@@ -160,8 +152,7 @@ defmodule DeeperHub.WebInterface.Controllers.EmailVerificationController do
       case conn.assigns[:current_user] do
         nil ->
           conn
-          |> Plug.Conn.put_status(401)
-          |> Plug.Conn.json(%{
+          |> JsonResponse.json_unauthorized(%{
             error: "unauthorized",
             message: "Usuário não autenticado"
           })
@@ -174,16 +165,14 @@ defmodule DeeperHub.WebInterface.Controllers.EmailVerificationController do
           case EmailVerification.resend_verification(user["id"], email, ip_address) do
             {:ok, _token} ->
               conn
-              |> Plug.Conn.put_status(200)
-              |> Plug.Conn.json(%{
+              |> JsonResponse.json_ok(%{
                 success: true,
                 message: "E-mail de verificação reenviado com sucesso. Por favor, verifique sua caixa de entrada."
               })
 
             {:error, _reason} ->
               conn
-              |> Plug.Conn.put_status(500)
-              |> Plug.Conn.json(%{
+              |> JsonResponse.json_server_error(%{
                 error: "server_error",
                 message: "Erro ao reenviar e-mail de verificação. Tente novamente mais tarde."
               })
@@ -210,8 +199,7 @@ defmodule DeeperHub.WebInterface.Controllers.EmailVerificationController do
     case conn.assigns[:current_user] do
       nil ->
         conn
-        |> Plug.Conn.put_status(401)
-        |> Plug.Conn.json(%{
+        |> JsonResponse.json_unauthorized(%{
           error: "unauthorized",
           message: "Usuário não autenticado"
         })
@@ -224,24 +212,21 @@ defmodule DeeperHub.WebInterface.Controllers.EmailVerificationController do
         case EmailVerification.is_verified?(user["id"], email) do
           {:ok, is_verified} ->
             conn
-            |> Plug.Conn.put_status(200)
-            |> Plug.Conn.json(%{
+            |> JsonResponse.json_ok(%{
               email: email,
               verified: is_verified
             })
 
           {:error, :user_not_found} ->
             conn
-            |> Plug.Conn.put_status(404)
-            |> Plug.Conn.json(%{
+            |> JsonResponse.json_not_found(%{
               error: "user_not_found",
               message: "Usuário ou e-mail não encontrado"
             })
 
           {:error, _reason} ->
             conn
-            |> Plug.Conn.put_status(500)
-            |> Plug.Conn.json(%{
+            |> JsonResponse.json_server_error(%{
               error: "server_error",
               message: "Erro ao verificar status do e-mail. Tente novamente mais tarde."
             })
