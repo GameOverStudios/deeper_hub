@@ -3,8 +3,8 @@ defmodule DeeperHub.Core.Security.Supervisor do
   Supervisor para o subsistema de segurança do DeeperHub.
   
   Este supervisor gerencia os componentes de segurança da aplicação,
-  garantindo que sejam inicializados corretamente e supervisionados
-  para tolerância a falhas.
+  incluindo proteção contra ataques, autenticação, autorização,
+  detecção de anomalias, sistema de reputação de IPs e alertas de segurança.
   """
   
   use Supervisor
@@ -26,16 +26,19 @@ defmodule DeeperHub.Core.Security.Supervisor do
   def init(_init_arg) do
     Logger.info("Iniciando supervisor do subsistema de segurança...", module: __MODULE__)
     
-    # Inicializa o subsistema de segurança
-    DeeperHub.Core.Security.init()
-    
     # Define os processos filhos
     children = [
-      # Atualmente não temos processos filhos específicos para segurança,
-      # mas podemos adicionar aqui se necessário no futuro, como:
-      # - Processo para monitoramento de tentativas de invasão
-      # - Processo para sincronização de listas de bloqueio
-      # - Processo para análise de padrões de tráfego suspeito
+      # Inicializa o subsistema de segurança principal
+      {Task, fn -> DeeperHub.Core.Security.init() end},
+      
+      # Inicia o detector de anomalias
+      DeeperHub.Core.Security.AnomalyDetector,
+      
+      # Inicia o sistema de reputação de IPs
+      DeeperHub.Core.Security.IPReputation,
+      
+      # Inicia o sistema de alertas
+      DeeperHub.Core.Security.AlertSystem
     ]
     
     # Estratégia de supervisão
