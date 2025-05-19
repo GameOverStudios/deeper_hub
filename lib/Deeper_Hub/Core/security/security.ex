@@ -5,10 +5,19 @@ defmodule DeeperHub.Core.Security do
   Este módulo coordena as diversas funcionalidades de segurança do sistema,
   incluindo proteção contra ataques, configurações de segurança e
   inicialização de componentes de segurança.
+  
+  Funcionalidades principais:
+  - Gerenciamento de IPs bloqueados
+  - Configuração de limites de taxa de requisições
+  - Inicialização do subsistema de segurança
   """
   
   require DeeperHub.Core.Logger
   alias DeeperHub.Core.Logger
+  
+  # Nome da tabela ETS usada pelo módulo Attack
+  # Definido aqui apenas para documentação
+  # A tabela real é gerenciada pelo módulo DeeperHub.Core.Security.Attack
   
   @doc """
   Inicializa o subsistema de segurança.
@@ -20,14 +29,16 @@ defmodule DeeperHub.Core.Security do
   
   - `:ok` - Se a inicialização for bem-sucedida
   """
+  @spec init() :: :ok
   def init do
     Logger.info("Inicializando subsistema de segurança...", module: __MODULE__)
     
-    # Inicializa o armazenamento ETS para o Plug.Attack
-    :ets.new(:deeper_hub_attack_storage, [:named_table, :public, :set])
-    
     # Carrega configurações de segurança
     load_security_config()
+    
+    # Inicializa o armazenamento do PlugAttack
+    # Isso já cria a tabela ETS necessária
+    DeeperHub.Core.Security.Attack.storage_setup()
     
     Logger.info("Subsistema de segurança inicializado com sucesso.", module: __MODULE__)
     :ok
@@ -45,8 +56,9 @@ defmodule DeeperHub.Core.Security do
   - `true` - Se o IP estiver bloqueado
   - `false` - Se o IP não estiver bloqueado
   """
+  @spec ip_blocked?(String.t()) :: boolean()
   def ip_blocked?(ip) when is_binary(ip) do
-    blocked_ips = Application.get_env(:deeper_hub, :security, [])[:blocked_ips] || []
+    blocked_ips = get_blocked_ips()
     Enum.member?(blocked_ips, ip)
   end
   
@@ -56,13 +68,17 @@ defmodule DeeperHub.Core.Security do
   ## Parâmetros
   
   - `ip` - Endereço IP a ser bloqueado
+  - `reason` - Motivo opcional do bloqueio
   
   ## Retorno
   
   - `:ok` - Se o IP for adicionado com sucesso
   """
-  def block_ip(ip) when is_binary(ip) do
-    Logger.info("Adicionando IP à lista de bloqueio: #{ip}", module: __MODULE__)
+  @spec block_ip(String.t(), String.t() | nil) :: :ok
+  def block_ip(ip, reason \\ nil) when is_binary(ip) do
+    Logger.info("Adicionando IP à lista de bloqueio: #{ip}", 
+                module: __MODULE__, 
+                reason: reason || "manual")
     
     # Obtém a lista atual
     current_config = Application.get_env(:deeper_hub, :security, [])
@@ -75,6 +91,9 @@ defmodule DeeperHub.Core.Security do
       
       # Atualiza a configuração
       Application.put_env(:deeper_hub, :security, new_config)
+      
+      # Registra o bloqueio em um log de auditoria
+      log_ip_action(ip, :block, reason)
     end
     
     :ok
@@ -86,13 +105,17 @@ defmodule DeeperHub.Core.Security do
   ## Parâmetros
   
   - `ip` - Endereço IP a ser desbloqueado
+  - `reason` - Motivo opcional do desbloqueio
   
   ## Retorno
   
   - `:ok` - Se o IP for removido com sucesso
   """
-  def unblock_ip(ip) when is_binary(ip) do
-    Logger.info("Removendo IP da lista de bloqueio: #{ip}", module: __MODULE__)
+  @spec unblock_ip(String.t(), String.t() | nil) :: :ok
+  def unblock_ip(ip, reason \\ nil) when is_binary(ip) do
+    Logger.info("Removendo IP da lista de bloqueio: #{ip}", 
+                module: __MODULE__, 
+                reason: reason || "manual")
     
     # Obtém a lista atual
     current_config = Application.get_env(:deeper_hub, :security, [])
@@ -105,7 +128,38 @@ defmodule DeeperHub.Core.Security do
     # Atualiza a configuração
     Application.put_env(:deeper_hub, :security, new_config)
     
+    # Registra o desbloqueio em um log de auditoria
+    log_ip_action(ip, :unblock, reason)
+    
     :ok
+  end
+  
+  @doc """
+  Obtém a lista atual de IPs bloqueados.
+  
+  ## Retorno
+  
+  - Lista de IPs bloqueados
+  """
+  @spec get_blocked_ips() :: [String.t()]
+  def get_blocked_ips do
+    Application.get_env(:deeper_hub, :security, [])[:blocked_ips] || []
+  end
+  
+  @doc """
+  Obtém os limites de taxa configurados.
+  
+  ## Retorno
+  
+  - Mapa com os limites de taxa para diferentes tipos de requisições
+  """
+  @spec get_rate_limits() :: Keyword.t()
+  def get_rate_limits do
+    Application.get_env(:deeper_hub, :security, [])[:rate_limits] || [
+      authentication: 10,
+      api: 300,
+      websocket: 300
+    ]
   end
   
   # Carrega configurações de segurança
@@ -117,6 +171,11 @@ defmodule DeeperHub.Core.Security do
         authentication: 10,  # 10 requisições por minuto
         api: 300,            # 300 requisições por minuto
         websocket: 300       # 300 requisições por minuto
+      ],
+      security_headers: [
+        enabled: true,
+        strict_transport_security: "max-age=31536000; includeSubDomains",
+        content_security_policy: true
       ]
     ]
     
@@ -128,5 +187,21 @@ defmodule DeeperHub.Core.Security do
     
     # Atualiza a configuração da aplicação
     Application.put_env(:deeper_hub, :security, config)
+    
+    Logger.debug("Configurações de segurança carregadas", 
+                 module: __MODULE__, 
+                 blocked_ips_count: length(config[:blocked_ips]))
+  end
+  
+  # Registra ações de bloqueio/desbloqueio em um log de auditoria
+  defp log_ip_action(ip, action, reason) do
+    timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
+    
+    Logger.info("Ação de segurança: #{action} para IP #{ip}", 
+                module: __MODULE__, 
+                action: action, 
+                ip: ip, 
+                reason: reason || "não especificado", 
+                timestamp: timestamp)
   end
 end

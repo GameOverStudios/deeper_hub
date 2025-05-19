@@ -4,6 +4,12 @@ defmodule DeeperHub.Core.Security.Attack do
   
   Este módulo define regras para proteção contra ataques de força bruta,
   limitação de taxa de requisições e bloqueio de IPs maliciosos.
+  
+  As regras implementadas incluem:
+  - Limitação de taxa para endpoints de autenticação (10 req/min)
+  - Limitação de taxa para endpoints de API (300 req/min)
+  - Limitação de taxa para conexões WebSocket (300 req/min)
+  - Bloqueio de IPs maliciosos configurados via configuração da aplicação
   """
   
   use PlugAttack
@@ -12,8 +18,8 @@ defmodule DeeperHub.Core.Security.Attack do
   alias DeeperHub.Core.Logger
   
   # Armazenamento para contadores de requisições
-  # Usa ETS para armazenamento em memória
-  @storage PlugAttack.Storage.Ets
+  # Usa nosso módulo de armazenamento personalizado
+  alias DeeperHub.Core.Security.Storage, as: AttackStorage
   
   # Configuração global
   @rate_limit_scale 60_000  # Escala de tempo em milissegundos (1 minuto)
@@ -37,7 +43,9 @@ defmodule DeeperHub.Core.Security.Attack do
         
       # Caso contrário, usa o IP remoto da conexão
       true ->
-        to_string(conn.remote_ip)
+        conn.remote_ip
+        |> :inet.ntoa()
+        |> to_string()
     end
   end
   
@@ -66,7 +74,10 @@ defmodule DeeperHub.Core.Security.Attack do
       case check_rate(key, @max_auth_requests_per_minute, @rate_limit_scale) do
         {:allow, _} -> conn
         {:block, data} -> 
-          Logger.warn("Limite de taxa excedido para autenticação por #{get_client_ip(conn)}", module: __MODULE__)
+          Logger.warn("Limite de taxa excedido para autenticação por #{get_client_ip(conn)}", 
+                      module: __MODULE__, 
+                      path: conn.request_path, 
+                      method: conn.method)
           throttle_response(conn, {key, @max_auth_requests_per_minute, data})
       end
     end
@@ -82,7 +93,10 @@ defmodule DeeperHub.Core.Security.Attack do
       case check_rate(key, @max_requests_per_minute, @rate_limit_scale) do
         {:allow, _} -> conn
         {:block, data} -> 
-          Logger.warn("Limite de taxa excedido para API por #{get_client_ip(conn)}", module: __MODULE__)
+          Logger.warn("Limite de taxa excedido para API por #{get_client_ip(conn)}", 
+                      module: __MODULE__, 
+                      path: conn.request_path, 
+                      method: conn.method)
           throttle_response(conn, {key, @max_requests_per_minute, data})
       end
     end
@@ -98,7 +112,10 @@ defmodule DeeperHub.Core.Security.Attack do
       case check_rate(key, @max_requests_per_minute, @rate_limit_scale) do
         {:allow, _} -> conn
         {:block, data} -> 
-          Logger.warn("Limite de taxa excedido para WebSocket por #{get_client_ip(conn)}", module: __MODULE__)
+          Logger.warn("Limite de taxa excedido para WebSocket por #{get_client_ip(conn)}", 
+                      module: __MODULE__, 
+                      path: conn.request_path, 
+                      method: conn.method)
           throttle_response(conn, {key, @max_requests_per_minute, data})
       end
     end
@@ -119,14 +136,23 @@ defmodule DeeperHub.Core.Security.Attack do
   end
   
   # Configuração do armazenamento para throttling
+  @doc """
+  Inicializa o armazenamento ETS para controle de taxa de requisições.
+  
+  Esta função deve ser chamada durante a inicialização da aplicação
+  para garantir que a tabela ETS esteja disponível.
+  """
+  @spec storage_setup() :: :ok
   def storage_setup do
-    @storage.init({:deeper_hub_attack_storage, :ets_options})
+    # Inicializa o armazenamento ETS personalizado
+    AttackStorage.init()
+    :ok
   end
   
   # Verifica se a taxa de requisições excedeu o limite
   defp check_rate(key, limit, scale) do
     # Incrementa o contador para a chave
-    count = @storage.increment({:deeper_hub_attack_storage, :ets_options}, key, 1, scale)
+    count = AttackStorage.increment(key, 1, scale)
     
     # Verifica se excedeu o limite
     if count <= limit do
@@ -137,30 +163,67 @@ defmodule DeeperHub.Core.Security.Attack do
   end
   
   # Resposta para requisições bloqueadas por throttling
+  @doc """
+  Gera uma resposta HTTP para requisições que excederam o limite de taxa.
+  
+  ## Parâmetros
+  
+  - `conn` - A conexão Plug
+  - `data` - Dados sobre o limite excedido no formato {key, limit, count}
+  
+  ## Retorno
+  
+  - A conexão Plug com a resposta de erro configurada
+  """
+  @spec throttle_response(Plug.Conn.t(), {String.t(), integer(), integer()}) :: Plug.Conn.t()
   def throttle_response(conn, data) do
     # Obtém informações sobre o limite excedido
-    {key, limit, _} = data
+    {key, limit, count} = data
     
     # Extrai o tipo de regra da chave (auth, api, ws)
     rule_type = String.split(key, ":") |> hd()
     
-    Logger.warn("Limite de taxa excedido: #{rule_type} por #{get_client_ip(conn)}", module: __MODULE__)
+    # Calcula o tempo de espera recomendado
+    retry_after = div(@rate_limit_scale, 1000)
+    
+    Logger.warn("Limite de taxa excedido: #{rule_type} por #{get_client_ip(conn)}", 
+                module: __MODULE__, 
+                count: count, 
+                limit: limit, 
+                retry_after: retry_after)
     
     conn
     |> Plug.Conn.put_resp_content_type("application/json")
-    |> Plug.Conn.put_resp_header("retry-after", "#{div(@rate_limit_scale, 1000)}")
+    |> Plug.Conn.put_resp_header("retry-after", "#{retry_after}")
     |> Plug.Conn.send_resp(429, Jason.encode!(%{
       error: "Muitas requisições",
       code: "rate_limit_exceeded",
       limit: limit,
-      period_seconds: div(@rate_limit_scale, 1000)
+      period_seconds: retry_after
     }))
     |> Plug.Conn.halt()
   end
   
   # Resposta para requisições bloqueadas por IP
+  @doc """
+  Gera uma resposta HTTP para requisições de IPs bloqueados.
+  
+  ## Parâmetros
+  
+  - `conn` - A conexão Plug
+  
+  ## Retorno
+  
+  - A conexão Plug com a resposta de erro configurada
+  """
+  @spec block_response(Plug.Conn.t()) :: Plug.Conn.t()
   def block_response(conn) do
-    Logger.warn("IP bloqueado tentando acessar: #{get_client_ip(conn)}", module: __MODULE__)
+    ip = get_client_ip(conn)
+    
+    Logger.warn("IP bloqueado tentando acessar: #{ip}", 
+                module: __MODULE__, 
+                path: conn.request_path, 
+                method: conn.method)
     
     conn
     |> Plug.Conn.put_resp_content_type("application/json")
