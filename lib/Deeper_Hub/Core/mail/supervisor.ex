@@ -28,11 +28,8 @@ defmodule DeeperHub.Core.Mail.Supervisor do
     
     # Define os processos filhos
     children = [
-      # Atualmente não temos processos filhos específicos para email,
-      # mas podemos adicionar aqui se necessário no futuro, como:
-      # - Processo para fila de emails
-      # - Processo para retry de emails falhos
-      # - Processo para monitoramento de envios
+      # Processo para gerenciamento da fila de emails
+      DeeperHub.Core.Mail.Queue
     ]
     
     # Estratégia de supervisão
