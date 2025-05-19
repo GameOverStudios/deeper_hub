@@ -183,14 +183,24 @@ defmodule DeeperHub.Core.Security.Attack do
     # Extrai o tipo de regra da chave (auth, api, ws)
     rule_type = String.split(key, ":") |> hd()
     
+    # Obtém o IP do cliente
+    ip = get_client_ip(conn)
+    path = conn.request_path
+    
     # Calcula o tempo de espera recomendado
     retry_after = div(@rate_limit_scale, 1000)
     
-    Logger.warn("Limite de taxa excedido: #{rule_type} por #{get_client_ip(conn)}", 
+    # Registra no log do sistema
+    Logger.warn("Limite de taxa excedido: #{rule_type} por #{ip}", 
                 module: __MODULE__, 
                 count: count, 
                 limit: limit, 
+                path: path,
+                method: conn.method,
                 retry_after: retry_after)
+    
+    # Registra no log de eventos de segurança, se disponível
+    log_rate_limit_exceeded(ip, path, conn, rule_type, count, limit)
     
     conn
     |> Plug.Conn.put_resp_content_type("application/json")
@@ -202,6 +212,35 @@ defmodule DeeperHub.Core.Security.Attack do
       period_seconds: retry_after
     }))
     |> Plug.Conn.halt()
+  end
+  
+  # Registra o evento de limite de taxa excedido no log de eventos de segurança
+  defp log_rate_limit_exceeded(ip, path, conn, rule_type, count, limit) do
+    # Verifica se o módulo de log de atividades está disponível
+    if Code.ensure_loaded?(DeeperHub.Accounts.ActivityLog) do
+      # Extrai informações adicionais da requisição
+      details = %{
+        ip: ip,
+        path: path,
+        method: conn.method,
+        user_agent: get_user_agent(conn),
+        timestamp: DateTime.utc_now(),
+        rule_type: rule_type,
+        count: count,
+        limit: limit,
+        retry_after: div(@rate_limit_scale, 1000)
+      }
+      
+      # Registra a atividade de segurança
+      DeeperHub.Accounts.ActivityLog.log_security_event(
+        "rate_limit_exceeded",
+        nil,  # user_id (desconhecido neste ponto)
+        details
+      )
+    end
+  rescue
+    # Garante que falhas no log não afetem o fluxo principal
+    _ -> :ok
   end
   
   # Resposta para requisições bloqueadas por IP
@@ -219,11 +258,18 @@ defmodule DeeperHub.Core.Security.Attack do
   @spec block_response(Plug.Conn.t()) :: Plug.Conn.t()
   def block_response(conn) do
     ip = get_client_ip(conn)
+    path = conn.request_path
+    method = conn.method
     
+    # Registra no log do sistema
     Logger.warn("IP bloqueado tentando acessar: #{ip}", 
                 module: __MODULE__, 
-                path: conn.request_path, 
-                method: conn.method)
+                path: path, 
+                method: method,
+                user_agent: get_user_agent(conn))
+    
+    # Registra no log de eventos de segurança, se disponível
+    log_ip_blocked(ip, path, conn)
     
     conn
     |> Plug.Conn.put_resp_content_type("application/json")
@@ -232,5 +278,39 @@ defmodule DeeperHub.Core.Security.Attack do
       code: "ip_blocked"
     }))
     |> Plug.Conn.halt()
+  end
+  
+  # Obtém o User-Agent da requisição
+  defp get_user_agent(conn) do
+    case Plug.Conn.get_req_header(conn, "user-agent") do
+      [user_agent | _] -> user_agent
+      _ -> "desconhecido"
+    end
+  end
+  
+  # Registra o bloqueio de IP no log de eventos de segurança
+  defp log_ip_blocked(ip, path, conn) do
+    # Verifica se o módulo de log de atividades está disponível
+    if Code.ensure_loaded?(DeeperHub.Accounts.ActivityLog) do
+      # Extrai informações adicionais da requisição
+      details = %{
+        ip: ip,
+        path: path,
+        method: conn.method,
+        user_agent: get_user_agent(conn),
+        timestamp: DateTime.utc_now(),
+        blocked_reason: "ip_malicioso"
+      }
+      
+      # Registra a atividade de segurança
+      DeeperHub.Accounts.ActivityLog.log_security_event(
+        "ip_blocked",
+        nil,  # user_id (desconhecido neste ponto)
+        details
+      )
+    end
+  rescue
+    # Garante que falhas no log não afetem o fluxo principal
+    _ -> :ok
   end
 end

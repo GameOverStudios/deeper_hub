@@ -22,6 +22,9 @@ defmodule DeeperHub.Application do
       # Inicia o supervisor do subsistema de segurança
       {DeeperHub.Core.Security.Supervisor, []},
       
+      # Inicia o supervisor do subsistema de autenticação
+      {DeeperHub.Accounts.Auth.Supervisor, []},
+      
       # Inicia o supervisor do subsistema de rede (WebSockets, PubSub, etc.)
       {DeeperHub.Core.Network.Supervisor, []},
       

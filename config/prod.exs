@@ -15,7 +15,23 @@ config :deeper_hub, DeeperHub.Accounts.Auth.Guardian,
   token_ttl: %{
     "access" => {1, :hour},
     "refresh" => {30, :days}
-  }
+  },
+  # Configurações adicionais para segurança
+  verify_issuer: true,
+  allowed_algos: ["HS512"],
+  token_verify_module: Guardian.Token.Jwt.Verify
+
+# Configuração do Argon2 para hashing de senhas (mais seguro)
+config :argon2_elixir,
+  t_cost: 8,       # Número de iterações (maior = mais seguro, mais lento)
+  m_cost: 16,      # Uso de memória (maior = mais seguro, mais lento)
+  parallelism: 2,  # Número de threads paralelos (ajustar conforme CPU disponível)
+  hashtype: 2      # Tipo de hash (2 = Argon2id, balanceado entre segurança e resistência)
+
+# Configuração do PBKDF2 como alternativa para casos de recursos limitados
+config :pbkdf2_elixir,
+  rounds: 160_000, # Número de iterações (maior = mais seguro, mais lento)
+  format: :modular # Formato modular para compatibilidade
 
 # Configuração do DeeperHub.Core.Repo para produção
 config :deeper_hub, DeeperHub.Core.Data.Repo,
@@ -65,6 +81,20 @@ config :deeper_hub, :connection_pool,
   checkout_timeout: 15_000,     # Tempo limite para obter uma conexão do pool
   queue_target: 50,             # Tempo alvo para filas (ms)
   queue_interval: 1_000         # Intervalo para verificar filas (ms)
+
+# Configurações de segurança para proteção contra ataques
+config :deeper_hub, :security,
+  # Lista de IPs bloqueados permanentemente (pode ser atualizada em tempo de execução)
+  blocked_ips: [],
+  # Configurações para proteção de autenticação
+  auth_protection: [
+    # Tempo de bloqueio para tentativas de autenticação excessivas (em segundos)
+    block_duration: 1800,  # 30 minutos em produção
+    # Limite de tentativas de autenticação por IP
+    max_auth_attempts: 5,  # Mais restritivo em produção
+    # Período de tempo para contar tentativas (em segundos)
+    auth_period: 60  # 1 minuto
+  ]
 
 # ## IMPORTANTE: Gerenciamento de Segredos
 #

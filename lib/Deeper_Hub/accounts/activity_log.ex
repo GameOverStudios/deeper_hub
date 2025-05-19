@@ -29,7 +29,13 @@ defmodule DeeperHub.Accounts.ActivityLog do
     account_deletion_requested: "account_deletion_requested",
     account_deletion_cancelled: "account_deletion_cancelled",
     account_deleted: "account_deleted",
-    personal_data_exported: "personal_data_exported"
+    personal_data_exported: "personal_data_exported",
+    # Eventos de segurança
+    auth_attempt_blocked: "auth_attempt_blocked",
+    auth_failure: "auth_failure",
+    suspicious_activity: "suspicious_activity",
+    ip_blocked: "ip_blocked",
+    rate_limit_exceeded: "rate_limit_exceeded"
   }
   
   @doc """
@@ -294,5 +300,92 @@ defmodule DeeperHub.Accounts.ActivityLog do
   """
   def get_activity_types do
     @activity_types
+  end
+  
+  @doc """
+  Registra um evento de segurança no sistema.
+  
+  Esta função é utilizada para registrar eventos relacionados à segurança,
+  como tentativas de autenticação bloqueadas, atividades suspeitas,
+  bloqueios de IP e outros eventos relevantes para a segurança do sistema.
+  
+  ## Parâmetros
+    * `event_type` - Tipo do evento de segurança (atom ou string)
+    * `user_id` - ID do usuário (pode ser nil se não estiver associado a um usuário específico)
+    * `details` - Detalhes do evento (mapa com informações adicionais)
+  
+  ## Retorno
+    * `{:ok, event_id}` - Se o evento for registrado com sucesso
+    * `{:error, reason}` - Se ocorrer um erro
+  """
+  def log_security_event(event_type, user_id, details) do
+    # Converte o tipo de evento para string se for um atom
+    event_type_str = if is_atom(event_type), do: Map.get(@activity_types, event_type), else: event_type
+    
+    # Gera um ID único para o evento
+    event_id = UUID.uuid4()
+    now = DateTime.utc_now() |> DateTime.to_iso8601()
+    
+    # Extrai o IP do mapa de detalhes ou usa "desconhecido"
+    ip_address = Map.get(details, :ip) || Map.get(details, "ip", "desconhecido")
+    
+    # Serializa os detalhes para JSON
+    details_json = Jason.encode!(details)
+    
+    # Tabela específica para eventos de segurança
+    sql = """
+    INSERT INTO security_events 
+    (id, event_type, user_id, details, ip_address, created_at)
+    VALUES (?, ?, ?, ?, ?, ?);
+    """
+    
+    params = [
+      event_id,
+      event_type_str,
+      user_id,  # Pode ser nil
+      details_json,
+      ip_address,
+      now
+    ]
+    
+    # Tenta inserir na tabela de eventos de segurança
+    case Repo.execute(sql, params) do
+      {:ok, _} ->
+        Logger.info("Evento de segurança registrado: #{event_type_str}", 
+          module: __MODULE__, 
+          event_id: event_id, 
+          ip: ip_address,
+          user_id: user_id
+        )
+        {:ok, event_id}
+        
+      {:error, reason} ->
+        # Se a tabela não existir, tenta registrar como atividade normal
+        if is_binary(reason) and String.contains?(reason, "no such table") do
+          # Fallback: registra como atividade normal do usuário se possível
+          if user_id do
+            log_activity(user_id, :suspicious_activity, details, ip_address)
+          else
+            Logger.error("Falha ao registrar evento de segurança: #{inspect(reason)}", 
+              module: __MODULE__, 
+              event_type: event_type_str
+            )
+            {:error, reason}
+          end
+        else
+          Logger.error("Erro ao registrar evento de segurança: #{inspect(reason)}", 
+            module: __MODULE__, 
+            event_type: event_type_str
+          )
+          {:error, reason}
+        end
+    end
+  rescue
+    e ->
+      Logger.error("Exceção ao registrar evento de segurança: #{inspect(e)}", 
+        module: __MODULE__, 
+        event_type: event_type
+      )
+      {:error, :exception}
   end
 end

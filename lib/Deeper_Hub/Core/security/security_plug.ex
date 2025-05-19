@@ -4,7 +4,7 @@ defmodule DeeperHub.Core.Security.SecurityPlug do
 
   Este plug integra o PlugAttack e outras medidas de segurança
   ao pipeline de processamento de requisições HTTP, incluindo:
-  
+
   - Proteção contra ataques de força bruta
   - Limitação de taxa de requisições
   - Bloqueio de IPs maliciosos
@@ -18,13 +18,13 @@ defmodule DeeperHub.Core.Security.SecurityPlug do
 
   @doc """
   Inicializa o plug com as opções fornecidas.
-  
+
   ## Parâmetros
-  
+
   - `opts` - Opções de configuração para o plug
-  
+
   ## Retorno
-  
+
   - As opções processadas
   """
   @spec init(Keyword.t()) :: Keyword.t()
@@ -55,9 +55,17 @@ defmodule DeeperHub.Core.Security.SecurityPlug do
   defp apply_attack_protection(conn) do
     # Inicializa o armazenamento ETS se necessário
     DeeperHub.Core.Security.Attack.storage_setup()
-    
-    # Aplica as regras de proteção
-    DeeperHub.Core.Security.Attack.call(conn, [])
+
+    # Aplica as regras de proteção gerais
+    conn = DeeperHub.Core.Security.Attack.call(conn, [])
+
+    # Aplica as regras específicas para autenticação
+    # Se a requisição já foi interrompida pelo Attack geral, não aplica o AuthAttack
+    if conn.halted do
+      conn
+    else
+      DeeperHub.Core.Security.AuthAttack.call(conn, [])
+    end
   end
 
   # Aplica headers de segurança recomendados
@@ -76,10 +84,10 @@ defmodule DeeperHub.Core.Security.SecurityPlug do
   defp put_content_security_policy(conn) do
     # Obtém o host atual para configurar a CSP
     host = get_host(conn)
-    
+
     # Obtém o ambiente de execução
     env = Application.get_env(:deeper_hub, :environment, :dev)
-    
+
     # Define a política CSP com base no ambiente
     csp = case env do
       :prod ->
@@ -95,7 +103,7 @@ defmodule DeeperHub.Core.Security.SecurityPlug do
           "base-uri 'self'",
           "form-action 'self'"
         ] |> Enum.join("; ")
-        
+
       _ ->
         # Política mais permissiva para desenvolvimento
         [
@@ -121,10 +129,10 @@ defmodule DeeperHub.Core.Security.SecurityPlug do
     |> get_req_header("host")
     |> List.first()
     |> case do
-      nil -> 
+      nil ->
         # Fallback para o host configurado ou localhost
         Application.get_env(:deeper_hub, :host, "localhost")
-      host -> 
+      host ->
         # Remove a porta, se presente
         String.split(host, ":") |> hd()
     end

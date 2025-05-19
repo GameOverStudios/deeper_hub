@@ -31,6 +31,9 @@ defmodule DeeperHub.Core.Security.Supervisor do
       # Inicializa o subsistema de segurança principal
       {Task, fn -> DeeperHub.Core.Security.init() end},
       
+      # Inicializa o módulo de proteção contra ataques de autenticação
+      {Task, fn -> DeeperHub.Core.Security.AuthAttack.init() end},
+      
       # Inicia o detector de anomalias
       DeeperHub.Core.Security.AnomalyDetector,
       
