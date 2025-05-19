@@ -6,6 +6,17 @@ import Config
 # Recomenda-se substituir parâmetros sensíveis através de
 # variáveis de ambiente ou um serviço de gerenciamento de segredos.
 
+# Configuração do Guardian para autenticação JWT
+config :deeper_hub, DeeperHub.Accounts.Auth.Guardian,
+  issuer: "deeper_hub",
+  # IMPORTANTE: Em produção, a chave secreta DEVE ser definida via variável de ambiente
+  secret_key: System.get_env("GUARDIAN_SECRET_KEY") || raise("Variável de ambiente GUARDIAN_SECRET_KEY não definida"),
+  ttl: {1, :day},
+  token_ttl: %{
+    "access" => {1, :hour},
+    "refresh" => {30, :days}
+  }
+
 # Configuração do DeeperHub.Core.Repo para produção
 config :deeper_hub, DeeperHub.Core.Data.Repo,
   adapter: Exqlite.Connection,

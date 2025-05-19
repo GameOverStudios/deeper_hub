@@ -194,19 +194,51 @@ defmodule DeeperHub.Accounts.User do
 
   # Valida formato de email
   defp validate_email(email) do
-    if String.match?(email, ~r/^[^\s]+@[^\s]+\.[^\s]+$/) do
-      :ok
-    else
-      {:error, :invalid_email}
+    # Expressão regular mais robusta para validação de email
+    email_regex = ~r/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+    
+    cond do
+      is_nil(email) or email == "" ->
+        {:error, :email_required}
+        
+      String.length(email) > 255 ->
+        {:error, :email_too_long}
+        
+      !String.match?(email, email_regex) ->
+        {:error, :invalid_email_format}
+        
+      true ->
+        :ok
     end
   end
 
-  # Valida senha (mínimo 8 caracteres)
+  # Valida senha com requisitos de segurança
   defp validate_password(password) do
-    if String.length(password) >= 8 do
-      :ok
-    else
-      {:error, :password_too_short}
+    cond do
+      is_nil(password) or password == "" ->
+        {:error, :password_required}
+        
+      String.length(password) < 8 ->
+        {:error, :password_too_short}
+        
+      String.length(password) > 72 ->
+        # PBKDF2 tem limite de 72 bytes para senhas
+        {:error, :password_too_long}
+        
+      !String.match?(password, ~r/[A-Z]/) ->
+        {:error, :password_needs_uppercase}
+        
+      !String.match?(password, ~r/[a-z]/) ->
+        {:error, :password_needs_lowercase}
+        
+      !String.match?(password, ~r/[0-9]/) ->
+        {:error, :password_needs_number}
+        
+      !String.match?(password, ~r/[^A-Za-z0-9]/) ->
+        {:error, :password_needs_special_char}
+        
+      true ->
+        :ok
     end
   end
 

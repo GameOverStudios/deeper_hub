@@ -73,16 +73,43 @@ defmodule DeeperHub.Accounts.Auth.Guardian do
 
   # Configurações para diferentes tipos de tokens
   defp token_options(:access) do
+    # Obtém configurações do config ou usa valores padrão
+    ttl = get_token_ttl("access", {1, :hour})
+    
     [
       token_type: "access",
-      ttl: {1, :hour}
+      ttl: ttl,
+      # Adiciona JTI (JWT ID) para rastreamento e revogação
+      jti: generate_jti(),
+      # Adiciona metadados úteis para auditoria
+      iat: DateTime.utc_now() |> DateTime.to_unix()
     ]
   end
 
   defp token_options(:refresh) do
+    # Obtém configurações do config ou usa valores padrão
+    ttl = get_token_ttl("refresh", {30, :days})
+    
     [
       token_type: "refresh",
-      ttl: {30, :days}
+      ttl: ttl,
+      # Adiciona JTI (JWT ID) para rastreamento e revogação
+      jti: generate_jti(),
+      # Adiciona metadados úteis para auditoria
+      iat: DateTime.utc_now() |> DateTime.to_unix()
     ]
+  end
+  
+  # Obtém a configuração TTL para um tipo específico de token
+  defp get_token_ttl(type, default) do
+    case Application.get_env(:deeper_hub, __MODULE__)[:token_ttl] do
+      %{^type => ttl} when is_tuple(ttl) -> ttl
+      _ -> default
+    end
+  end
+  
+  # Gera um identificador único para o token (JWT ID)
+  defp generate_jti do
+    :crypto.strong_rand_bytes(16) |> Base.url_encode64(padding: false)
   end
 end
