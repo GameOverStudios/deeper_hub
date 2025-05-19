@@ -62,6 +62,9 @@ defmodule DeeperHub.MixProject do
       # Segurança
       {:sobelow, "~> 0.13", only: [:dev, :test], runtime: false},
       {:plug_attack, "~> 0.4"},
+
+      # Mail
+      {:mail, "~> 0.4"},
     ]
   end
 

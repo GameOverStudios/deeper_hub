@@ -27,11 +27,30 @@ config :deeper_hub, DeeperHub.Core.Logger,
   level: :debug # Default log level
   # Other logger specific configurations can go here
 
+# Configurações gerais da aplicação
+config :deeper_hub,
+  ecto_repos: [DeeperHub.Repo]
+
 # Configuração do Guardian para autenticação JWT
 config :deeper_hub, DeeperHub.Accounts.Auth.Guardian,
   issuer: "deeper_hub",
   secret_key: System.get_env("GUARDIAN_SECRET_KEY", "FnRMgZYZlnQWZ7jfLqaZL4yUwIhJ7MvgJSskg/zbC0UglEVWyqIJ3hWJrzJc5AuV"),
   ttl: {1, :day}
+
+# Configuração de email
+config :deeper_hub, :mail, 
+  sender_email: System.get_env("MAIL_SENDER", "noreply@deeperhub.com"),
+  support_email: System.get_env("MAIL_SUPPORT", "suporte@deeperhub.com"),
+  test_mode: System.get_env("MAIL_TEST_MODE", "true") == "true",
+  smtp: [
+    server: System.get_env("SMTP_SERVER", "smtp.exemplo.com"),
+    port: String.to_integer(System.get_env("SMTP_PORT", "587")),
+    username: System.get_env("SMTP_USERNAME", ""),
+    password: System.get_env("SMTP_PASSWORD", ""),
+    ssl: System.get_env("SMTP_SSL", "false") == "true",
+    tls: System.get_env("SMTP_TLS", "true") == "true",
+    auth: System.get_env("SMTP_AUTH", "true") == "true"
+  ]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

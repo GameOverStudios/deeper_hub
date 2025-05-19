@@ -26,7 +26,10 @@ defmodule DeeperHub.Application do
       {DeeperHub.Core.Network.Supervisor, []},
       
       # Inicia o supervisor do subsistema HTTP
-      {DeeperHub.Core.HTTP.Supervisor, []}
+      {DeeperHub.Core.HTTP.Supervisor, []},
+      
+      # Inicia o supervisor do subsistema de email
+      {DeeperHub.Core.Mail.Supervisor, []}
       
       # Outros supervisores podem ser adicionados aqui conforme necessário
     ]
