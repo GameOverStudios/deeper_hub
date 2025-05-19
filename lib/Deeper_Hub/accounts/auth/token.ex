@@ -7,6 +7,9 @@ defmodule DeeperHub.Accounts.Auth.Token do
   """
 
   alias DeeperHub.Accounts.Auth.Guardian
+  alias DeeperHub.Core.Logger
+  alias DeeperHub.Core.Data.Repo
+  require DeeperHub.Core.Logger
 
   @doc """
   Extrai o ID do usuário de um token JWT.
@@ -123,6 +126,133 @@ defmodule DeeperHub.Accounts.Auth.Token do
         now = DateTime.utc_now() |> DateTime.to_unix()
         {:ok, exp < now}
       error -> error
+    end
+  end
+  
+  @doc """
+  Revoga um token JWT específico.
+  
+  ## Parâmetros
+    * `token` - Token JWT a ser revogado
+  
+  ## Retorno
+    * `:ok` - Se o token for revogado com sucesso
+    * `{:error, reason}` - Se ocorrer um erro
+  """
+  def revoke_token(token) do
+    case Guardian.revoke(token) do
+      {:ok, _claims} -> :ok
+      error -> error
+    end
+  end
+  
+  @doc """
+  Revoga todos os tokens associados a uma sessão.
+  
+  ## Parâmetros
+    * `session_id` - ID da sessão
+  
+  ## Retorno
+    * `:ok` - Se os tokens forem revogados com sucesso
+    * `{:error, reason}` - Se ocorrer um erro
+  """
+  def revoke_by_session(session_id) do
+    # Busca todos os tokens associados à sessão no banco de dados
+    sql = "SELECT token FROM user_tokens WHERE session_id = ?;"
+    
+    case Repo.query(sql, [session_id]) do
+      {:ok, %{rows: rows}} ->
+        # Revoga cada token encontrado
+        Enum.each(rows, fn [token] ->
+          Guardian.revoke(token)
+        end)
+        
+        # Marca os tokens como revogados no banco de dados
+        update_sql = "UPDATE user_tokens SET revoked = TRUE WHERE session_id = ?;"
+        Repo.execute(update_sql, [session_id])
+        
+        :ok
+        
+      {:error, reason} ->
+        Logger.error("Erro ao revogar tokens por sessão: #{inspect(reason)}", 
+          module: __MODULE__, 
+          session_id: session_id
+        )
+        {:error, reason}
+    end
+  end
+  
+  @doc """
+  Revoga todos os tokens de um usuário.
+  
+  ## Parâmetros
+    * `user_id` - ID do usuário
+  
+  ## Retorno
+    * `:ok` - Se os tokens forem revogados com sucesso
+    * `{:error, reason}` - Se ocorrer um erro
+  """
+  def revoke_all_for_user(user_id) do
+    # Busca todos os tokens do usuário no banco de dados
+    sql = "SELECT token FROM user_tokens WHERE user_id = ?;"
+    
+    case Repo.query(sql, [user_id]) do
+      {:ok, %{rows: rows}} ->
+        # Revoga cada token encontrado
+        Enum.each(rows, fn [token] ->
+          Guardian.revoke(token)
+        end)
+        
+        # Marca os tokens como revogados no banco de dados
+        update_sql = "UPDATE user_tokens SET revoked = TRUE WHERE user_id = ?;"
+        Repo.execute(update_sql, [user_id])
+        
+        :ok
+        
+      {:error, reason} ->
+        Logger.error("Erro ao revogar todos os tokens do usuário: #{inspect(reason)}", 
+          module: __MODULE__, 
+          user_id: user_id
+        )
+        {:error, reason}
+    end
+  end
+  
+  @doc """
+  Revoga todos os tokens de um usuário, exceto os da sessão atual.
+  
+  ## Parâmetros
+    * `user_id` - ID do usuário
+    * `current_session_id` - ID da sessão atual que não deve ser revogada
+  
+  ## Retorno
+    * `:ok` - Se os tokens forem revogados com sucesso
+    * `{:error, reason}` - Se ocorrer um erro
+  """
+  def revoke_all_for_user(user_id, current_session_id) do
+    # Busca todos os tokens do usuário em outras sessões
+    sql = "SELECT token FROM user_tokens WHERE user_id = ? AND session_id != ?;"
+    
+    case Repo.query(sql, [user_id, current_session_id]) do
+      {:ok, %{rows: rows}} ->
+        # Revoga cada token encontrado
+        Enum.each(rows, fn [token] ->
+          Guardian.revoke(token)
+        end)
+        
+        # Marca os tokens como revogados no banco de dados
+        update_sql = "UPDATE user_tokens SET revoked = TRUE WHERE user_id = ? AND session_id != ?;"
+        Repo.execute(update_sql, [user_id, current_session_id])
+        
+        :ok
+        
+      {:error, reason} ->
+        Logger.error("Erro ao revogar tokens do usuário (exceto sessão atual): #{inspect(reason)}", 
+          module: __MODULE__, 
+          user_id: user_id,
+          current_session_id: current_session_id
+        )
+        {:error, reason}
     end
   end
 end
