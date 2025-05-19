@@ -13,6 +13,12 @@ defmodule DeeperHub.Core.Mail.Templates do
   alias DeeperHub.Core.Mail.Templates.Welcome
   alias DeeperHub.Core.Mail.Templates.PasswordReset
   alias DeeperHub.Core.Mail.Templates.Fallback
+  alias DeeperHub.Core.Mail.Templates.VerificationCode
+  alias DeeperHub.Core.Mail.Templates.Invitation
+  alias DeeperHub.Core.Mail.Templates.ActionConfirmation
+  alias DeeperHub.Core.Mail.Templates.NewDeviceLogin
+  alias DeeperHub.Core.Mail.Templates.SecurityNotification
+  alias DeeperHub.Core.Mail.Templates.SystemUpdate
   
   @doc """
   Renderiza um template de email.
@@ -31,6 +37,12 @@ defmodule DeeperHub.Core.Mail.Templates do
       :security_alert -> render_security_alert(assigns)
       :welcome -> render_welcome(assigns)
       :password_reset -> render_password_reset(assigns)
+      :verification_code -> render_verification_code(assigns)
+      :invitation -> render_invitation(assigns)
+      :action_confirmation -> render_action_confirmation(assigns)
+      :new_device_login -> render_new_device_login(assigns)
+      :security_notification -> render_security_notification(assigns)
+      :system_update -> render_system_update(assigns)
       _ -> render_fallback(template, assigns)
     end
   end
@@ -96,6 +108,154 @@ defmodule DeeperHub.Core.Mail.Templates do
     # Renderiza os templates HTML e texto usando o módulo específico
     html = PasswordReset.render_html(assigns)
     text = PasswordReset.render_text(assigns)
+    
+    {html, text}
+  end
+  
+  # Template de código de verificação em duas etapas
+  defp render_verification_code(assigns) do
+    # Prepara os assigns com valores padrão
+    assigns = Map.merge(%{
+      app_name: "DeeperHub",
+      code: "000000",
+      expires_in_minutes: 10,
+      device_info: %{
+        browser: "Desconhecido",
+        os: "Desconhecido",
+        ip: "Desconhecido",
+        location: "Desconhecido"
+      },
+      current_year: DateTime.utc_now().year,
+      support_email: get_support_email()
+    }, assigns)
+    
+    # Renderiza os templates HTML e texto usando o módulo específico
+    html = VerificationCode.render_html(assigns)
+    text = VerificationCode.render_text(assigns)
+    
+    {html, text}
+  end
+  
+  # Template de convite e compartilhamento
+  defp render_invitation(assigns) do
+    # Prepara os assigns com valores padrão
+    assigns = Map.merge(%{
+      app_name: "DeeperHub",
+      inviter_name: "Um usuário",
+      resource_type: "recurso",
+      resource_name: "Recurso Compartilhado",
+      invitation_link: "#",
+      expires_in_days: 7,
+      message: nil,
+      current_year: DateTime.utc_now().year,
+      support_email: get_support_email()
+    }, assigns)
+    
+    # Renderiza os templates HTML e texto usando o módulo específico
+    html = Invitation.render_html(assigns)
+    text = Invitation.render_text(assigns)
+    
+    {html, text}
+  end
+  
+  # Template de confirmação de ação
+  defp render_action_confirmation(assigns) do
+    # Prepara os assigns com valores padrão
+    assigns = Map.merge(%{
+      app_name: "DeeperHub",
+      user_name: "Usuário",
+      action_type: "ação importante",
+      confirmation_link: "#",
+      cancel_link: "#",
+      expires_in_hours: 24,
+      current_year: DateTime.utc_now().year,
+      support_email: get_support_email()
+    }, assigns)
+    
+    # Renderiza os templates HTML e texto usando o módulo específico
+    html = ActionConfirmation.render_html(assigns)
+    text = ActionConfirmation.render_text(assigns)
+    
+    {html, text}
+  end
+  
+  # Template de alerta de login em novo dispositivo
+  defp render_new_device_login(assigns) do
+    # Prepara os assigns com valores padrão
+    assigns = Map.merge(%{
+      app_name: "DeeperHub",
+      user_name: "Usuário",
+      device_info: %{
+        browser: "Desconhecido",
+        os: "Desconhecido",
+        ip: "Desconhecido",
+        location: "Desconhecido"
+      },
+      login_time: DateTime.utc_now() |> Calendar.strftime("%d/%m/%Y às %H:%M:%S"),
+      security_link: "#",
+      current_year: DateTime.utc_now().year,
+      support_email: get_support_email()
+    }, assigns)
+    
+    # Renderiza os templates HTML e texto usando o módulo específico
+    html = NewDeviceLogin.render_html(assigns)
+    text = NewDeviceLogin.render_text(assigns)
+    
+    {html, text}
+  end
+  
+  # Template de notificação de segurança avançada
+  defp render_security_notification(assigns) do
+    # Prepara os assigns com valores padrão
+    assigns = Map.merge(%{
+      app_name: "DeeperHub",
+      user_name: "Usuário",
+      event_type: "Evento de segurança",
+      event_details: %{
+        description: "Descrição do evento de segurança",
+        location: "Desconhecido",
+        ip: "Desconhecido"
+      },
+      event_time: DateTime.utc_now() |> Calendar.strftime("%d/%m/%Y às %H:%M:%S"),
+      security_link: "#",
+      severity: "média",
+      recommendations: [
+        "Verifique as atividades recentes em sua conta",
+        "Considere alterar sua senha"
+      ],
+      current_year: DateTime.utc_now().year,
+      support_email: get_support_email()
+    }, assigns)
+    
+    # Renderiza os templates HTML e texto usando o módulo específico
+    html = SecurityNotification.render_html(assigns)
+    text = SecurityNotification.render_text(assigns)
+    
+    {html, text}
+  end
+  
+  # Template de atualização do sistema
+  defp render_system_update(assigns) do
+    # Prepara os assigns com valores padrão
+    assigns = Map.merge(%{
+      app_name: "DeeperHub",
+      user_name: "Usuário",
+      update_type: "atualização",
+      update_title: "Atualização do Sistema",
+      update_details: "Detalhes da atualização do sistema.",
+      update_date: DateTime.utc_now() |> Calendar.strftime("%d/%m/%Y"),
+      new_features: [],
+      fixed_issues: [],
+      maintenance_window: nil,
+      action_link: nil,
+      action_text: "Saiba Mais",
+      current_year: DateTime.utc_now().year,
+      support_email: get_support_email()
+    }, assigns)
+    
+    # Renderiza os templates HTML e texto usando o módulo específico
+    html = SystemUpdate.render_html(assigns)
+    text = SystemUpdate.render_text(assigns)
     
     {html, text}
   end
