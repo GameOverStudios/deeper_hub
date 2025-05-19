@@ -7,17 +7,7 @@ defmodule DeeperHub.MixProject do
       version: "0.1.0",
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
-      deps: deps(),
-      # Configurações para compilação e distribuição
-      releases: releases(),
-      preferred_cli_env: [
-        coveralls: :test,
-        "coveralls.detail": :test,
-        "coveralls.html": :test
-      ],
-      test_coverage: [
-        tool: ExCoveralls
-      ]
+      deps: deps()
     ]
   end
 
@@ -75,22 +65,4 @@ defmodule DeeperHub.MixProject do
     ]
   end
 
-  # Configurações para releases
-  defp releases do
-    [
-      deeper_hub: [
-        include_executables_for: [:unix, :windows],
-        applications: [
-          runtime_tools: :permanent
-        ],
-        steps: [:assemble, :tar],
-        # Configurações específicas para produção
-        cookie: System.get_env("RELEASE_COOKIE") || "deeper_hub_release_cookie",
-        config_providers: [
-          {Config.Reader,
-            file: System.get_env("RELEASE_CONFIG_FILE") || "${RELEASE_ROOT}/config/runtime.exs"}
-        ]
-      ]
-    ]
-  end
 end

@@ -19,8 +19,14 @@ defmodule DeeperHub.Application do
       # Inicia o supervisor do repositório para gerenciar o pool de conexões do banco de dados
       {DeeperHub.Core.Data.Repo.Supervisor, []},
       
+      # Inicia o supervisor do subsistema de segurança
+      {DeeperHub.Core.Security.Supervisor, []},
+      
       # Inicia o supervisor do subsistema de rede (WebSockets, PubSub, etc.)
-      {DeeperHub.Core.Network.Supervisor, []}
+      {DeeperHub.Core.Network.Supervisor, []},
+      
+      # Inicia o supervisor do subsistema HTTP
+      {DeeperHub.Core.HTTP.Supervisor, []}
       
       # Outros supervisores podem ser adicionados aqui conforme necessário
     ]
