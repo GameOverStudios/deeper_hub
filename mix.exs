@@ -65,6 +65,7 @@ defmodule DeeperHub.MixProject do
 
       # Mail
       {:mail, "~> 0.4"},
+      {:gen_smtp, "~> 1.2"},
     ]
   end
 

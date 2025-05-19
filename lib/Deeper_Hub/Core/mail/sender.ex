@@ -125,7 +125,7 @@ defmodule DeeperHub.Core.Mail.Sender do
   end
 
   # Envia o email via SMTP usando a biblioteca :gen_smtp_client
-  defp send_smtp(config, from, to, _rendered_email) do
+  defp send_smtp(config, from, to, rendered_email) do
     # Verifica se estamos em modo de teste
     if Application.get_env(:deeper_hub, :mail, []) |> Keyword.get(:test_mode, false) do
       # Em modo de teste, apenas simula o envio
@@ -136,16 +136,66 @@ defmodule DeeperHub.Core.Mail.Sender do
 
       {:ok, "test_message_id_#{:rand.uniform(1000000)}"}
     else
-      # Em modo de produção, envia realmente o email
-      # Aqui seria implementada a integração com :gen_smtp_client ou outra biblioteca
-      # Por enquanto, apenas simula o envio
-      Logger.debug("Enviando email via SMTP",
+      # Em modo de produção, envia realmente o email via SMTP
+      server = Keyword.get(config, :server, "localhost")
+      port = Keyword.get(config, :port, 25)
+      username = Keyword.get(config, :username, "")
+      password = Keyword.get(config, :password, "")
+      ssl = Keyword.get(config, :ssl, false)
+      tls = Keyword.get(config, :tls, false)
+      auth = Keyword.get(config, :auth, false)
+      
+      Logger.info("Enviando email via SMTP",
                   module: __MODULE__,
                   to: to,
                   from: from,
-                  smtp_server: config[:server])
-
-      {:ok, "message_id_#{:rand.uniform(1000000)}"}
+                  smtp_server: server,
+                  port: port)
+      
+      # Prepara as opções para o gen_smtp_client
+      smtp_options = [
+        relay: server,
+        port: port,
+        username: username,
+        password: password,
+        ssl: ssl,
+        tls: tls,
+        auth: auth,
+        hostname: server
+      ]
+      
+      # Prepara os destinatários como lista
+      recipients = if is_list(to), do: to, else: [to]
+      
+      # Envia o email usando :gen_smtp_client
+      try do
+        case :gen_smtp_client.send_blocking({from, recipients, rendered_email}, smtp_options) do
+          {:ok, message} ->
+            Logger.info("Email enviado com sucesso via SMTP",
+                      module: __MODULE__,
+                      to: to,
+                      from: from,
+                      smtp_server: server,
+                      message: message)
+            {:ok, message}
+            
+          {:error, error} ->
+            Logger.error("Erro ao enviar email via SMTP: #{inspect(error)}",
+                      module: __MODULE__,
+                      to: to,
+                      from: from,
+                      smtp_server: server)
+            {:error, error}
+        end
+      rescue
+        e ->
+          Logger.error("Exceção ao enviar email via SMTP: #{inspect(e)}",
+                    module: __MODULE__,
+                    to: to,
+                    from: from,
+                    smtp_server: server)
+          {:error, e}
+      end
     end
   end
 end
