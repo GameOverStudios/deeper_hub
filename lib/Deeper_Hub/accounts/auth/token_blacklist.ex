@@ -35,7 +35,8 @@ defmodule DeeperHub.Accounts.Auth.TokenBlacklist do
       :ok
   """
   @spec add_to_blacklist(String.t(), String.t(), String.t(), DateTime.t(), String.t() | nil) :: :ok | {:error, any()}
-  def add_to_blacklist(jti, user_id, token_type, expires_at, reason \\ nil) 
+  def add_to_blacklist(jti, user_id, token_type, expires_at, reason \\ nil)
+  def add_to_blacklist(jti, user_id, token_type, expires_at, reason) 
       when is_binary(jti) and is_binary(user_id) and is_binary(token_type) do
     if String.length(jti) == 0 do
       Logger.error("Tentativa de adicionar token com JTI vazio à blacklist", module: __MODULE__)
@@ -156,7 +157,8 @@ defmodule DeeperHub.Accounts.Auth.TokenBlacklist do
       {:ok, 5}
   """
   @spec revoke_all_for_user(String.t(), String.t() | nil) :: {:ok, integer()} | {:error, atom()}
-  def revoke_all_for_user(user_id, reason \\ nil) when is_binary(user_id) and user_id != "" do
+  def revoke_all_for_user(user_id, reason \\ nil)
+  def revoke_all_for_user(user_id, reason) when is_binary(user_id) and user_id != "" do
     try do
       # Registra a revogação
       now = DateTime.utc_now() |> DateTime.to_iso8601()

@@ -49,7 +49,8 @@ defmodule DeeperHub.Accounts.Auth.EmailVerification do
       {:ok, "abc123def456"}
   """
   @spec request_verification(String.t(), String.t(), String.t() | nil) :: {:ok, String.t()} | {:error, atom()}
-  def request_verification(user_id, email, ip_address \\ nil) when is_binary(user_id) and is_binary(email) do
+  def request_verification(user_id, email, ip_address \\ nil)
+  def request_verification(user_id, email, ip_address) when is_binary(user_id) and is_binary(email) do
     # Validação básica de e-mail
     if String.length(email) == 0 or not String.contains?(email, "@") do
       Logger.warn("Tentativa de verificação com e-mail inválido", 
@@ -154,7 +155,8 @@ defmodule DeeperHub.Accounts.Auth.EmailVerification do
       {:ok, "user123", "usuario@exemplo.com"}
   """
   @spec verify_token(String.t(), String.t() | nil) :: {:ok, String.t(), String.t()} | {:error, atom()}
-  def verify_token(token, ip_address \\ nil) when is_binary(token) and token != "" do
+  def verify_token(token, ip_address \\ nil)
+  def verify_token(token, ip_address) when is_binary(token) and token != "" do
     try do
       # Busca o token no banco de dados
       sql = """
@@ -230,19 +232,9 @@ defmodule DeeperHub.Accounts.Auth.EmailVerification do
     {:error, :invalid_input}
   end
   
-  @doc """
-  Invalida um token de verificação.
-  
-  ## Parâmetros
-    * `token` - Token de verificação
-    * `reason` - Motivo da invalidação (opcional)
-  
-  ## Retorno
-    * `:ok` - Se o token for invalidado com sucesso
-    * `{:error, :database_error}` - Se ocorrer um erro no banco de dados
-  """
-  @spec invalidate_token(String.t(), String.t() | nil) :: :ok | {:error, atom()}
-  defp invalidate_token(token, reason \\ nil) when is_binary(token) do
+  # Função privada para invalidar um token de verificação
+  @spec invalidate_token(String.t(), String.t()) :: :ok | {:error, atom()}
+  defp invalidate_token(token, reason) when is_binary(token) do
     now = DateTime.utc_now() |> DateTime.to_iso8601()
     
     sql = """
@@ -293,7 +285,8 @@ defmodule DeeperHub.Accounts.Auth.EmailVerification do
       {:ok, "user123", "usuario@exemplo.com"}
   """
   @spec mark_as_verified(String.t(), String.t(), String.t(), String.t() | nil) :: {:ok, String.t(), String.t()} | {:error, atom()}
-  def mark_as_verified(token, user_id, email, ip_address \\ nil) 
+  def mark_as_verified(token, user_id, email, ip_address \\ nil)
+  def mark_as_verified(token, user_id, email, ip_address) 
       when is_binary(token) and is_binary(user_id) and is_binary(email) do
     try do
       # Verifica se o usuário existe
@@ -428,7 +421,8 @@ defmodule DeeperHub.Accounts.Auth.EmailVerification do
       {:ok, "abc123def456"}
   """
   @spec resend_verification(String.t(), String.t(), String.t() | nil) :: {:ok, String.t()} | {:error, atom()}
-  def resend_verification(user_id, email, ip_address \\ nil) when is_binary(user_id) and is_binary(email) do
+  def resend_verification(user_id, email, ip_address \\ nil)
+  def resend_verification(user_id, email, ip_address) when is_binary(user_id) and is_binary(email) do
     try do
       # Invalida tokens anteriores
       invalidate_sql = """
