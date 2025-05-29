@@ -25,20 +25,111 @@ defmodule DeeperHub.Core.Data.Migrations do
   def initialize do
     Logger.info("Inicializando sistema de migrações...", module: __MODULE__)
     
-    # Primeiro, inicializa o banco de dados (garante que o diretório e arquivo existam)
-    with :ok <- DeeperHub.Core.Data.Migrations.Initializer.initialize(),
-         :ok <- ensure_migrations_table(),
-         {:ok, applied_versions} <- get_applied_migrations(),
-         {:ok, available_migrations} <- get_available_migrations(),
-         pending_migrations = filter_pending_migrations(available_migrations, applied_versions),
-         :ok <- apply_migrations(pending_migrations) do
+    # Aguarda até que o pool de conexões esteja disponível antes de prosseguir
+    # Aumenta o número de tentativas e o tempo de espera para garantir que o pool esteja pronto
+    max_attempts = 10
+    wait_time_ms = 1000
+    
+    case wait_for_pool(max_attempts, wait_time_ms) do
+      :ok ->
+        Logger.info("Pool de conexões disponível. Prosseguindo com as migrações.", module: __MODULE__)
+        
+        # Primeiro, inicializa o banco de dados (garante que o diretório e arquivo existam)
+        with :ok <- DeeperHub.Core.Data.Migrations.Initializer.initialize(),
+             :ok <- ensure_migrations_table(),
+             {:ok, applied_versions} <- get_applied_migrations(),
+             {:ok, available_migrations} <- get_available_migrations(),
+             pending_migrations = filter_pending_migrations(available_migrations, applied_versions),
+             :ok <- apply_migrations(pending_migrations) do
       
-      Logger.info("Sistema de migrações inicializado com sucesso.", module: __MODULE__)
-      :ok
+          Logger.info("Sistema de migrações inicializado com sucesso.", module: __MODULE__)
+          :ok
+        else
+          {:error, reason} = error ->
+            Logger.error("Falha ao inicializar sistema de migrações: #{inspect(reason)}", module: __MODULE__)
+            error
+        end
+      {:error, :pool_not_found} ->
+        Logger.error("Pool de conexões não está disponível para executar migrações após #{max_attempts} tentativas", module: __MODULE__)
+        {:error, :pool_not_found}
+    end
+  end
+  
+  # Função auxiliar para aguardar até que o pool de conexões esteja disponível
+  @spec wait_for_pool(integer(), integer()) :: :ok | {:error, :pool_not_found}
+  defp wait_for_pool(max_attempts, wait_time_ms) do
+    wait_for_pool(1, max_attempts, wait_time_ms)
+  end
+  
+  defp wait_for_pool(attempt, max_attempts, wait_time_ms) do
+    Logger.debug("Verificando disponibilidade do pool de conexões (tentativa #{attempt}/#{max_attempts})...", module: __MODULE__)
+    
+    # Verifica se o processo do pool existe e está registrado
+    pool_name = Application.get_env(:deeper_hub, DeeperHub.Core.Data.Repo, [])
+                |> Keyword.get(:pool_name, DeeperHub.DBConnectionPool)
+    
+    pool_pid = Process.whereis(pool_name)
+    
+    cond do
+      # Se o processo existe e está vivo
+      is_pid(pool_pid) and Process.alive?(pool_pid) ->
+        # Tenta executar uma consulta simples para verificar se o pool está realmente funcional
+        try_test_query(pool_name, attempt, max_attempts, wait_time_ms)
+      
+      # Se o processo não existe ou não está vivo
+      true ->
+        if attempt < max_attempts do
+          Logger.warn("Pool de conexões #{inspect(pool_name)} não encontrado ou não está ativo. Aguardando #{wait_time_ms}ms antes da próxima tentativa...", module: __MODULE__)
+          Process.sleep(wait_time_ms)
+          wait_for_pool(attempt + 1, max_attempts, wait_time_ms)
+        else
+          Logger.error("Pool de conexões #{inspect(pool_name)} não encontrado ou não está ativo após #{max_attempts} tentativas.", module: __MODULE__)
+          {:error, :pool_not_found}
+        end
+    end
+  end
+  
+  # Tenta executar uma consulta simples para verificar se o pool está realmente funcional
+  defp try_test_query(pool_name, attempt, max_attempts, wait_time_ms) do
+    # Em vez de tentar executar uma consulta diretamente com DBConnection.execute,
+    # vamos usar o módulo Repo que já está configurado corretamente
+    try do
+      # Verifica se o processo do pool existe e está ativo
+      if Process.alive?(Process.whereis(pool_name)) do
+        Logger.info("Pool de conexões #{inspect(pool_name)} está registrado e ativo.", module: __MODULE__)
+        
+        # Aguarda um curto período para permitir que o pool seja completamente inicializado
+        Process.sleep(500)
+        
+        # Tenta executar uma consulta simples usando o módulo Repo
+        case DeeperHub.Core.Data.Repo.query("SELECT 1 AS test;") do
+          {:ok, _rows} ->
+            Logger.info("Pool de conexões #{inspect(pool_name)} está funcional.", module: __MODULE__)
+            :ok
+          {:error, error} ->
+            Logger.warn("Erro ao executar consulta de teste via Repo: #{inspect(error)}", module: __MODULE__)
+            retry_or_fail(attempt, max_attempts, wait_time_ms)
+        end
+      else
+        Logger.warn("Pool de conexões #{inspect(pool_name)} não está ativo.", module: __MODULE__)
+        retry_or_fail(attempt, max_attempts, wait_time_ms)
+      end
+    rescue
+      error ->
+        Logger.warn("Exceção ao verificar pool de conexões: #{inspect(error)}", module: __MODULE__)
+        retry_or_fail(attempt, max_attempts, wait_time_ms)
+    end
+  end
+  
+  # Função auxiliar para decidir se deve tentar novamente ou falhar
+  defp retry_or_fail(attempt, max_attempts, wait_time_ms) do
+    if attempt < max_attempts do
+      Logger.warn("Tentando novamente em #{wait_time_ms}ms (tentativa #{attempt}/#{max_attempts})...", module: __MODULE__)
+      Process.sleep(wait_time_ms)
+      wait_for_pool(attempt + 1, max_attempts, wait_time_ms)
     else
-      {:error, reason} = error ->
-        Logger.error("Falha ao inicializar sistema de migrações: #{inspect(reason)}", module: __MODULE__)
-        error
+      Logger.error("Falha ao verificar funcionalidade do pool após #{max_attempts} tentativas.", module: __MODULE__)
+      {:error, :pool_not_found}
     end
   end
 

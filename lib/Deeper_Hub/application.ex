@@ -19,6 +19,9 @@ defmodule DeeperHub.Application do
       # Inicia o supervisor do repositório para gerenciar o pool de conexões do banco de dados
       {DeeperHub.Core.Data.Repo.Supervisor, []},
       
+      # Inicia um worker para executar as migrações após a inicialização do pool
+      {Task.Supervisor, name: DeeperHub.MigrationSupervisor},
+      
       # Inicia o supervisor do subsistema de segurança
       {DeeperHub.Core.Security.Supervisor, []},
       
@@ -57,30 +60,37 @@ defmodule DeeperHub.Application do
       {:ok, pid} ->
         DeeperHub.Core.Logger.info("Supervisor principal iniciado com sucesso.")
         
-        # Configuração para inicialização do banco de dados
-        max_attempts = 5
-        wait_time_ms = 500
-        
-        # Aguarda a inicialização do pool de conexões e verifica a saúde do banco de dados
-        DeeperHub.Core.Logger.info("Verificando disponibilidade do banco de dados...")
-        
-        # Verifica a saúde do banco de dados usando o novo módulo
-        case DeeperHub.Core.Data.Repo.HealthCheck.wait_for_database(max_attempts, wait_time_ms) do
-          :ok ->
-            DeeperHub.Core.Logger.info("Banco de dados disponível. Executando migrações...")
-            
-            # Tenta inicializar o sistema de migrações
-            case DeeperHub.Core.Data.Migrations.initialize() do
-              :ok -> 
-                DeeperHub.Core.Logger.info("Migrações inicializadas com sucesso.")
-                DeeperHub.Core.Logger.info("Sistema DeeperHub completamente inicializado.")
-              {:error, reason} ->
-                DeeperHub.Core.Logger.error("Falha ao inicializar migrações: #{inspect(reason)}")
-            end
-            
-          {:error, :max_attempts_reached} ->
-            DeeperHub.Core.Logger.error("Banco de dados não está disponível após #{max_attempts} tentativas.")
-        end
+        # Inicia um processo separado para executar as migrações
+        # Isso evita que problemas com as migrações afetem a inicialização da aplicação principal
+        Task.Supervisor.start_child(DeeperHub.MigrationSupervisor, fn ->
+          # Dá um tempo para que o pool de conexões seja inicializado completamente
+          Process.sleep(1000)
+          
+          # Configuração para inicialização do banco de dados
+          max_attempts = 10
+          wait_time_ms = 1000
+          
+          # Aguarda a inicialização do pool de conexões e verifica a saúde do banco de dados
+          DeeperHub.Core.Logger.info("Verificando disponibilidade do banco de dados...")
+          
+          # Verifica a saúde do banco de dados usando o módulo aprimorado
+          case DeeperHub.Core.Data.Repo.HealthCheckImproved.wait_for_database(max_attempts, wait_time_ms) do
+            :ok ->
+              DeeperHub.Core.Logger.info("Banco de dados disponível. Executando migrações...")
+              
+              # Tenta inicializar o sistema de migrações
+              case DeeperHub.Core.Data.Migrations.initialize() do
+                :ok -> 
+                  DeeperHub.Core.Logger.info("Migrações inicializadas com sucesso.")
+                  DeeperHub.Core.Logger.info("Sistema DeeperHub completamente inicializado.")
+                {:error, reason} ->
+                  DeeperHub.Core.Logger.error("Falha ao inicializar migrações: #{inspect(reason)}")
+              end
+              
+            {:error, :max_attempts_reached} ->
+              DeeperHub.Core.Logger.error("Banco de dados não está disponível após #{max_attempts} tentativas.")
+          end
+        end)
         
         {:ok, pid}
         

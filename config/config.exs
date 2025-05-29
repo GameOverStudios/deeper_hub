@@ -20,7 +20,8 @@ config :deeper_hub, DeeperHub.Core.Data.Repo,
   show_sensitive_data_on_connection_error: true, # Mostra detalhes de erros de conexão para facilitar a depuração
   timeout: 15_000, # Timeout para operações de banco de dados
   idle_interval: 15_000, # Intervalo para ping em conexões ociosas
-  after_connect: {Exqlite.Connection, :execute, ["PRAGMA foreign_keys = ON;"]} # Habilita chaves estrangeiras
+  # Removido after_connect que estava causando erro
+  pragmas: [foreign_keys: "ON"] # Habilita chaves estrangeiras usando a configuração correta
 
 # Configure the DeeperHub.Core.Logger
 config :deeper_hub, DeeperHub.Core.Logger,
@@ -29,7 +30,7 @@ config :deeper_hub, DeeperHub.Core.Logger,
 
 # Configurações gerais da aplicação
 config :deeper_hub,
-  ecto_repos: [DeeperHub.Repo]
+  ecto_repos: [DeeperHub.Core.Data.Repo]
 
 # Configuração do Guardian para autenticação JWT
 config :deeper_hub, DeeperHub.Accounts.Auth.Guardian,
