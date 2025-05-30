@@ -4,6 +4,15 @@ defmodule DeeperHub.Core.Data.Repo do
 
   Este módulo fornece funções para executar consultas SQL, transações e outras
   operações de banco de dados usando o adaptador Exqlite.Connection.
+  
+  Características principais:
+  - Mecanismo de retry para operações de banco de dados, aumentando a resiliência
+  - Tratamento de erros robusto com logging detalhado
+  - Suporte a transações para garantir a integridade dos dados
+  - Interface unificada para consultas e execuções SQL
+  
+  Este módulo é o ponto central de acesso ao banco de dados para toda a aplicação
+  e implementa práticas recomendadas para operações de banco de dados em produção.
   """
 
   alias DeeperHub.Core.Logger
@@ -13,6 +22,7 @@ defmodule DeeperHub.Core.Data.Repo do
   alias Exqlite.Query, as: Q
 
   # Helper para obter o nome do pool configurado
+  @spec pool_name() :: atom()
   defp pool_name do
     # Usando o caminho completo do módulo para garantir que a configuração seja encontrada
     Application.get_env(:deeper_hub, DeeperHub.Core.Data.Repo, [])
@@ -20,6 +30,7 @@ defmodule DeeperHub.Core.Data.Repo do
   end
 
   # Helper para criar uma query Exqlite a partir de uma string SQL
+  @spec prepare_query(String.t()) :: Exqlite.Query.t()
   defp prepare_query(sql_string) do
     # O Exqlite.Query é apenas um struct com o campo statement
     %Q{statement: sql_string}
@@ -27,11 +38,30 @@ defmodule DeeperHub.Core.Data.Repo do
 
   @doc """
   Executa uma consulta SQL que não necessariamente retorna linhas (ex: INSERT, UPDATE, DELETE).
-  Retorna `{:ok, result_map}` ou `{:error, exception}`.
-  O `result_map` tipicamente contém `%{num_rows: integer, rows: list_of_tuples_or_maps}`.
+  
+  ## Parâmetros
+    * `sql_string` - String SQL a ser executada
+    * `params` - Lista de parâmetros para a consulta SQL (opcional)
+    * `opts` - Opções adicionais para a execução (opcional)
+      * `:max_retries` - Número máximo de tentativas em caso de falha (padrão: 3)
+      * `:retry_delay_ms` - Tempo de espera entre tentativas em milissegundos (padrão: 200)
+  
+  ## Retorno
+    * `{:ok, result_map}` - Execução bem-sucedida
+      * O `result_map` tipicamente contém `%{num_rows: integer, rows: list_of_tuples_or_maps}`
+    * `{:error, exception}` - Falha na execução
+  
+  ## Exemplos
+  
+      iex> Repo.execute("INSERT INTO users (name, email) VALUES (?, ?)", ["João", "joao@exemplo.com"])
+      {:ok, %{num_rows: 1, rows: []}}
+      
+      iex> Repo.execute("UPDATE users SET active = ? WHERE id = ?", [true, 123])
+      {:ok, %{num_rows: 1, rows: []}}
   
   Esta função inclui mecanismos de retry para lidar com falhas temporárias de conexão.
   """
+  @spec execute(String.t(), list(), keyword()) :: {:ok, map()} | {:error, Exception.t()}
   def execute(sql_string, params \\ [], opts \\ []) do
     Logger.debug("Executando SQL: #{sql_string} com parâmetros: #{inspect(params)}", module: __MODULE__)
 
@@ -47,6 +77,7 @@ defmodule DeeperHub.Core.Data.Repo do
   end
   
   # Função auxiliar para executar com retry
+  @spec execute_with_retry(String.t(), list(), keyword(), non_neg_integer(), non_neg_integer(), non_neg_integer()) :: {:ok, map()} | {:error, Exception.t()}
   defp execute_with_retry(sql_string, params, opts, attempt, max_retries, retry_delay_ms) do
     # Cria uma query Exqlite
     query = prepare_query(sql_string)
@@ -67,6 +98,7 @@ defmodule DeeperHub.Core.Data.Repo do
   end
   
   # Função auxiliar para lidar com erros de execução
+  @spec handle_execution_error(String.t(), list(), keyword(), non_neg_integer(), non_neg_integer(), non_neg_integer(), Exception.t()) :: {:ok, map()} | {:error, Exception.t()}
   defp handle_execution_error(sql_string, params, opts, attempt, max_retries, retry_delay_ms, exception) do
     error_message = "Falha na execução. SQL: #{sql_string}, Parâmetros: #{inspect(params)}, Erro: #{inspect(exception)}"
     
@@ -86,6 +118,7 @@ defmodule DeeperHub.Core.Data.Repo do
   end
   
   # Determina se um erro é retriable
+  @spec retriable_error?(Exception.t()) :: boolean()
   defp retriable_error?(exception) do
     # Adicione aqui lógica para determinar quais erros são retriable
     # Por exemplo, erros de timeout, conexão, ou banco de dados ocupado
@@ -101,10 +134,29 @@ defmodule DeeperHub.Core.Data.Repo do
 
   @doc """
   Executa uma consulta SQL esperada para retornar linhas (ex: SELECT).
-  Retorna `{:ok, rows_list}` ou `{:error, exception}`.
+  
+  ## Parâmetros
+    * `sql_string` - String SQL a ser executada
+    * `params` - Lista de parâmetros para a consulta SQL (opcional)
+    * `opts` - Opções adicionais para a execução (opcional)
+      * `:max_retries` - Número máximo de tentativas em caso de falha (padrão: 3)
+      * `:retry_delay_ms` - Tempo de espera entre tentativas em milissegundos (padrão: 200)
+  
+  ## Retorno
+    * `{:ok, rows_list}` - Consulta bem-sucedida com lista de linhas resultantes
+    * `{:error, exception}` - Falha na consulta
+  
+  ## Exemplos
+  
+      iex> Repo.query("SELECT * FROM users WHERE active = ?", [true])
+      {:ok, [{1, "João", "joao@exemplo.com", true}, {2, "Maria", "maria@exemplo.com", true}]}
+      
+      iex> Repo.query("SELECT COUNT(*) FROM users")
+      {:ok, [{42}]}
   
   Esta função inclui mecanismos de retry para lidar com falhas temporárias de conexão.
   """
+  @spec query(String.t(), list(), keyword()) :: {:ok, list()} | {:error, Exception.t()}
   def query(sql_string, params \\ [], opts \\ []) do
     Logger.debug("Consultando SQL: #{sql_string} com parâmetros: #{inspect(params)}", module: __MODULE__)
 
@@ -120,6 +172,7 @@ defmodule DeeperHub.Core.Data.Repo do
   end
   
   # Função auxiliar para executar consulta com retry
+  @spec query_with_retry(String.t(), list(), keyword(), non_neg_integer(), non_neg_integer(), non_neg_integer()) :: {:ok, list()} | {:error, Exception.t()}
   defp query_with_retry(sql_string, params, opts, attempt, max_retries, retry_delay_ms) do
     # Cria uma query Exqlite
     query = prepare_query(sql_string)
@@ -143,6 +196,7 @@ defmodule DeeperHub.Core.Data.Repo do
   end
   
   # Função auxiliar para lidar com erros de consulta
+  @spec handle_query_error(String.t(), list(), keyword(), non_neg_integer(), non_neg_integer(), non_neg_integer(), Exception.t()) :: {:ok, list()} | {:error, Exception.t()}
   defp handle_query_error(sql_string, params, opts, attempt, max_retries, retry_delay_ms, exception) do
     error_message = "Falha na consulta. SQL: #{sql_string}, Parâmetros: #{inspect(params)}, Erro: #{inspect(exception)}"
     
@@ -163,9 +217,27 @@ defmodule DeeperHub.Core.Data.Repo do
 
   @doc """
   Executa uma função dentro de uma transação de banco de dados.
-  A função `fun` recebe a referência da conexão.
-  Retorna `{:ok, result_of_fun}` ou `{:error, reason}`.
+  
+  ## Parâmetros
+    * `fun` - Função a ser executada dentro da transação (recebe a conexão como parâmetro)
+    * `opts` - Opções adicionais para a transação (opcional)
+  
+  ## Retorno
+    * `{:ok, result_of_fun}` - Transação confirmada com sucesso
+    * `{:error, reason}` - Transação falhou ou foi revertida
+  
+  ## Exemplos
+  
+      iex> Repo.transaction(fn conn ->
+      ...>   DBConnection.prepare_execute(conn, %Exqlite.Query{statement: "INSERT INTO users (name) VALUES (?)"}, ["João"])
+      ...>   DBConnection.prepare_execute(conn, %Exqlite.Query{statement: "INSERT INTO profiles (user_id, bio) VALUES (?, ?)"}, [last_id, "Olá, sou João"])
+      ...>   "Sucesso!"
+      ...> end)
+      {:ok, "Sucesso!"}
+  
+  Se qualquer operação dentro da função falhar, todas as alterações serão revertidas automaticamente.
   """
+  @spec transaction((DBConnection.conn() -> any()), keyword()) :: {:ok, any()} | {:error, any()}
   def transaction(fun, opts \\ []) when is_function(fun, 1) do
     Logger.info("Iniciando transação.", module: __MODULE__)
     case DBConnection.transaction(pool_name(), fun, opts) do

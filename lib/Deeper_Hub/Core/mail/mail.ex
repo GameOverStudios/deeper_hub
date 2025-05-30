@@ -4,6 +4,23 @@ defmodule DeeperHub.Core.Mail do
 
   Este módulo fornece funções para criação, renderização e envio de emails,
   integrando-se com outros subsistemas como alertas de segurança e notificações.
+  
+  Características principais:
+  - Suporte a templates HTML e texto para emails
+  - Fila de envio para operações assíncronas
+  - Priorização de mensagens (alta, normal, baixa)
+  - Templates especializados para diferentes tipos de comunicação
+  - Integração com o sistema de logging para rastreabilidade
+  
+  Este módulo implementa funções específicas para diferentes tipos de emails:
+  - Alertas de segurança
+  - Boas-vindas
+  - Redefinição de senha
+  - Códigos de verificação
+  - Convites
+  - Confirmação de ações
+  - Notificações de login
+  - Atualizações do sistema
   """
 
   require DeeperHub.Core.Logger
@@ -25,6 +42,8 @@ defmodule DeeperHub.Core.Mail do
     - `:use_queue` - Se `true`, usa a fila para envio (padrão: `false`)
     - `:priority` - Prioridade na fila (`:high`, `:normal`, `:low`)
     - `:async` - Se `true`, envia de forma assíncrona (padrão: `false`)
+    - `:retry_count` - Número de tentativas em caso de falha (padrão: 3)
+    - `:retry_delay` - Tempo entre tentativas em segundos (padrão: 60)
 
   ## Exemplo
 
@@ -43,57 +62,95 @@ defmodule DeeperHub.Core.Mail do
   - `{:ok, queue_id}` em caso de sucesso ao adicionar à fila
   - `{:error, reason}` em caso de falha
   """
+  @spec send_email(String.t() | [String.t()], String.t(), atom(), map(), keyword()) :: 
+    {:ok, String.t()} | {:error, any()}
   def send_email(to, subject, template, assigns \\ %{}, options \\ []) do
-    # Obtém o conteúdo HTML e texto do template
-    {html_body, text_body} = Templates.render(template, assigns)
+    try do
+      # Validação de parâmetros
+      unless is_binary(subject) and subject != "" do
+        Logger.error("Assunto de email inválido", module: __MODULE__, subject: subject)
+        return_error(:invalid_subject)
+      end
+      
+      unless is_atom(template) do
+        Logger.error("Template de email inválido", module: __MODULE__, template: template)
+        return_error(:invalid_template)
+      end
+      
+      # Obtém o conteúdo HTML e texto do template
+      case Templates.render(template, assigns) do
+        {:ok, {html_body, text_body}} ->
+          # Cria a mensagem de email
+          email =
+            Mail.build()
+            |> Mail.put_from(get_sender_email())
+            |> put_recipients(to)
+            |> Mail.put_subject(subject)
+            |> Mail.put_html(html_body)
+            |> Mail.put_text(text_body)
 
-    # Cria a mensagem de email
-    email =
-      Mail.build()
-      |> Mail.put_from(get_sender_email())
-      |> put_recipients(to)
-      |> Mail.put_subject(subject)
-      |> Mail.put_html(html_body)
-      |> Mail.put_text(text_body)
+          # Verifica as opções de envio
+          use_queue = Keyword.get(options, :use_queue, false)
+          async = Keyword.get(options, :async, false)
+          priority = Keyword.get(options, :priority, :normal)
 
-    # Verifica as opções de envio
-    use_queue = Keyword.get(options, :use_queue, false)
-    async = Keyword.get(options, :async, false)
-    priority = Keyword.get(options, :priority, :normal)
+          cond do
+            # Usa a fila de emails
+            use_queue ->
+              Logger.info("Adicionando email à fila", 
+                module: __MODULE__,
+                to: to,
+                subject: subject,
+                template: template,
+                priority: priority
+              )
+              Queue.enqueue(email, priority)
 
-    cond do
-      # Usa a fila de emails
-      use_queue ->
-        Logger.info("Adicionando email à fila", 
+            # Envio assíncrono
+            async ->
+              Logger.info("Enviando email de forma assíncrona", 
+                module: __MODULE__,
+                to: to,
+                subject: subject,
+                template: template
+              )
+              Sender.deliver_async(email)
+
+            # Envio síncrono padrão
+            true ->
+              Logger.info("Enviando email", 
+                module: __MODULE__,
+                to: to,
+                subject: subject,
+                template: template
+              )
+              Sender.deliver(email)
+          end
+          
+        {:error, reason} ->
+          Logger.error("Erro ao renderizar template de email", 
+            module: __MODULE__, 
+            template: template,
+            reason: reason
+          )
+          {:error, :template_rendering_failed}
+      end
+    rescue
+      e ->
+        Logger.error("Erro inesperado ao enviar email: #{Exception.message(e)}", 
           module: __MODULE__,
           to: to,
           subject: subject,
           template: template,
-          priority: priority
+          stacktrace: __STACKTRACE__
         )
-        Queue.enqueue(email, priority)
-
-      # Envio assíncrono
-      async ->
-        Logger.info("Enviando email de forma assíncrona", 
-          module: __MODULE__,
-          to: to,
-          subject: subject,
-          template: template
-        )
-        Sender.deliver_async(email)
-
-      # Envio síncrono padrão
-      true ->
-        Logger.info("Enviando email", 
-          module: __MODULE__,
-          to: to,
-          subject: subject,
-          template: template
-        )
-        Sender.deliver(email)
+        {:error, :unexpected_error}
     end
   end
+  
+  # Helper para retornar erro de forma consistente
+  @spec return_error(atom()) :: {:error, atom()}
+  defp return_error(reason), do: {:error, reason}
 
   @doc """
   Envia um email de alerta de segurança.
@@ -115,7 +172,20 @@ defmodule DeeperHub.Core.Mail do
   - `{:ok, message_id}` em caso de sucesso
   - `{:ok, queue_id}` em caso de sucesso ao adicionar à fila
   - `{:error, reason}` em caso de falha
+  
+  ## Exemplos
+  
+      iex> DeeperHub.Core.Mail.send_security_alert(
+      ...>   "usuario@exemplo.com",
+      ...>   "Login Suspeito",
+      ...>   "Detectamos uma tentativa de login suspeita",
+      ...>   %{ip: "203.0.113.1", location: "Desconhecida"},
+      ...>   :warning
+      ...> )
+      {:ok, "message-id-123"}
   """
+  @spec send_security_alert(String.t() | [String.t()], String.t(), String.t(), map(), atom(), keyword()) :: 
+    {:ok, String.t()} | {:error, any()}
   def send_security_alert(to, alert_type, alert_message, alert_details \\ %{}, severity \\ :warning, options \\ []) do
     # Prepara o assunto com base na severidade
     subject = get_alert_subject(severity, alert_type)
