@@ -65,20 +65,36 @@ defmodule DeeperHub.Core.Data.Repo do
   def execute(sql_string, params \\ [], opts \\ []) do
     Logger.debug("Executando SQL: #{sql_string} com parâmetros: #{inspect(params)}", module: __MODULE__)
 
-    # Configuração de retry
+    # Extrai opções de retry
+    {max_retries, retry_delay_ms, opts} = extract_retry_options(opts)
+    
+    # Utiliza a função genérica de execução com retry, com a opção result_handler para retornar o resultado completo
+    db_operation_with_retry(
+      sql_string, 
+      params, 
+      opts, 
+      1, 
+      max_retries, 
+      retry_delay_ms,
+      fn result -> {:ok, result} end  # Handler que retorna o resultado completo
+    )
+  end
+  
+  # Função auxiliar para extrair opções de retry
+  @spec extract_retry_options(keyword()) :: {non_neg_integer(), non_neg_integer(), keyword()}
+  defp extract_retry_options(opts) do
     max_retries = Keyword.get(opts, :max_retries, 3)
     retry_delay_ms = Keyword.get(opts, :retry_delay_ms, 200)
     
     # Remove opções de retry para não passar para o DBConnection
     opts = Keyword.drop(opts, [:max_retries, :retry_delay_ms])
     
-    # Executa com retry
-    execute_with_retry(sql_string, params, opts, 1, max_retries, retry_delay_ms)
+    {max_retries, retry_delay_ms, opts}
   end
   
-  # Função auxiliar para executar com retry
-  @spec execute_with_retry(String.t(), list(), keyword(), non_neg_integer(), non_neg_integer(), non_neg_integer()) :: {:ok, map()} | {:error, Exception.t()}
-  defp execute_with_retry(sql_string, params, opts, attempt, max_retries, retry_delay_ms) do
+  # Função genérica para operações de banco de dados com retry
+  @spec db_operation_with_retry(String.t(), list(), keyword(), non_neg_integer(), non_neg_integer(), non_neg_integer(), function()) :: {:ok, any()} | {:error, Exception.t()}
+  defp db_operation_with_retry(sql_string, params, opts, attempt, max_retries, retry_delay_ms, result_handler) do
     # Cria uma query Exqlite
     query = prepare_query(sql_string)
 
@@ -86,27 +102,27 @@ defmodule DeeperHub.Core.Data.Repo do
     try do
       case DBConnection.prepare_execute(pool_name(), query, params, opts) do
         {:ok, _query_struct, result} ->
-          Logger.debug("Execução bem-sucedida. Resultado: #{inspect(result)}", module: __MODULE__)
-          {:ok, result}
+          Logger.debug("Operação bem-sucedida. Resultado: #{inspect(result)}", module: __MODULE__)
+          result_handler.(result)
         {:error, exception} ->
-          handle_execution_error(sql_string, params, opts, attempt, max_retries, retry_delay_ms, exception)
+          handle_db_operation_error(sql_string, params, opts, attempt, max_retries, retry_delay_ms, exception, result_handler)
       end
     rescue
       exception ->
-        handle_execution_error(sql_string, params, opts, attempt, max_retries, retry_delay_ms, exception)
+        handle_db_operation_error(sql_string, params, opts, attempt, max_retries, retry_delay_ms, exception, result_handler)
     end
   end
   
-  # Função auxiliar para lidar com erros de execução
-  @spec handle_execution_error(String.t(), list(), keyword(), non_neg_integer(), non_neg_integer(), non_neg_integer(), Exception.t()) :: {:ok, map()} | {:error, Exception.t()}
-  defp handle_execution_error(sql_string, params, opts, attempt, max_retries, retry_delay_ms, exception) do
-    error_message = "Falha na execução. SQL: #{sql_string}, Parâmetros: #{inspect(params)}, Erro: #{inspect(exception)}"
+  # Função auxiliar para lidar com erros de operações de banco de dados
+  @spec handle_db_operation_error(String.t(), list(), keyword(), non_neg_integer(), non_neg_integer(), non_neg_integer(), Exception.t(), function()) :: {:ok, any()} | {:error, Exception.t()}
+  defp handle_db_operation_error(sql_string, params, opts, attempt, max_retries, retry_delay_ms, exception, result_handler) do
+    error_message = "Falha na operação. SQL: #{sql_string}, Parâmetros: #{inspect(params)}, Erro: #{inspect(exception)}"
     
     # Verifica se deve tentar novamente
     if attempt < max_retries and retriable_error?(exception) do
       Logger.warn("#{error_message} - Tentativa #{attempt}/#{max_retries}. Tentando novamente em #{retry_delay_ms}ms...", module: __MODULE__)
       Process.sleep(retry_delay_ms)
-      execute_with_retry(sql_string, params, opts, attempt + 1, max_retries, retry_delay_ms)
+      db_operation_with_retry(sql_string, params, opts, attempt + 1, max_retries, retry_delay_ms, result_handler)
     else
       if attempt > 1 do
         Logger.error("#{error_message} - Desistindo após #{attempt} tentativas.", module: __MODULE__)
@@ -160,59 +176,28 @@ defmodule DeeperHub.Core.Data.Repo do
   def query(sql_string, params \\ [], opts \\ []) do
     Logger.debug("Consultando SQL: #{sql_string} com parâmetros: #{inspect(params)}", module: __MODULE__)
 
-    # Configuração de retry
-    max_retries = Keyword.get(opts, :max_retries, 3)
-    retry_delay_ms = Keyword.get(opts, :retry_delay_ms, 200)
+    # Extrai opções de retry
+    {max_retries, retry_delay_ms, opts} = extract_retry_options(opts)
     
-    # Remove opções de retry para não passar para o DBConnection
-    opts = Keyword.drop(opts, [:max_retries, :retry_delay_ms])
-    
-    # Executa com retry
-    query_with_retry(sql_string, params, opts, 1, max_retries, retry_delay_ms)
-  end
-  
-  # Função auxiliar para executar consulta com retry
-  @spec query_with_retry(String.t(), list(), keyword(), non_neg_integer(), non_neg_integer(), non_neg_integer()) :: {:ok, list()} | {:error, Exception.t()}
-  defp query_with_retry(sql_string, params, opts, attempt, max_retries, retry_delay_ms) do
-    # Cria uma query Exqlite
-    query = prepare_query(sql_string)
-
-    # Tenta executar a query usando o DBConnection
-    try do
-      case DBConnection.prepare_execute(pool_name(), query, params, opts) do
-        {:ok, _query_struct, %{rows: rows} = result} ->
-          Logger.debug("Consulta bem-sucedida. Linhas: #{inspect(rows)}, Resultado completo: #{inspect(result)}", module: __MODULE__)
-          {:ok, rows}
-        {:ok, _query_struct, result} -> # Fallback se o formato do resultado for diferente
-          Logger.warn("Consulta bem-sucedida mas o formato do resultado não foi %{rows: ...}. Resultado completo: #{inspect(result)}", module: __MODULE__)
-          {:ok, result} # Ou talvez um erro, dependendo da rigidez desejada
-        {:error, exception} ->
-          handle_query_error(sql_string, params, opts, attempt, max_retries, retry_delay_ms, exception)
+    # Utiliza a função genérica de execução com retry, com a opção result_handler para extrair as linhas
+    db_operation_with_retry(
+      sql_string, 
+      params, 
+      opts, 
+      1, 
+      max_retries, 
+      retry_delay_ms,
+      fn result ->
+        case result do
+          %{rows: rows} ->
+            Logger.debug("Consulta bem-sucedida. Linhas: #{inspect(rows)}", module: __MODULE__)
+            {:ok, rows}
+          _ -> # Fallback se o formato do resultado for diferente
+            Logger.warn("Consulta bem-sucedida mas o formato do resultado não foi %{rows: ...}. Resultado completo: #{inspect(result)}", module: __MODULE__)
+            {:ok, result} # Ou talvez um erro, dependendo da rigidez desejada
+        end
       end
-    rescue
-      exception ->
-        handle_query_error(sql_string, params, opts, attempt, max_retries, retry_delay_ms, exception)
-    end
-  end
-  
-  # Função auxiliar para lidar com erros de consulta
-  @spec handle_query_error(String.t(), list(), keyword(), non_neg_integer(), non_neg_integer(), non_neg_integer(), Exception.t()) :: {:ok, list()} | {:error, Exception.t()}
-  defp handle_query_error(sql_string, params, opts, attempt, max_retries, retry_delay_ms, exception) do
-    error_message = "Falha na consulta. SQL: #{sql_string}, Parâmetros: #{inspect(params)}, Erro: #{inspect(exception)}"
-    
-    # Verifica se deve tentar novamente
-    if attempt < max_retries and retriable_error?(exception) do
-      Logger.warn("#{error_message} - Tentativa #{attempt}/#{max_retries}. Tentando novamente em #{retry_delay_ms}ms...", module: __MODULE__)
-      Process.sleep(retry_delay_ms)
-      query_with_retry(sql_string, params, opts, attempt + 1, max_retries, retry_delay_ms)
-    else
-      if attempt > 1 do
-        Logger.error("#{error_message} - Desistindo após #{attempt} tentativas.", module: __MODULE__)
-      else
-        Logger.error(error_message, module: __MODULE__)
-      end
-      {:error, exception}
-    end
+    )
   end
 
   @doc """

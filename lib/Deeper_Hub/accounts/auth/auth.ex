@@ -252,30 +252,8 @@ defmodule DeeperHub.Accounts.Auth do
     * `{:error, reason}` - Se o token de atualização for inválido
   """
   def refresh_tokens(refresh_token) do
-    with {:ok, claims} <- Guardian.verify_token(refresh_token),
-         {:ok, user} <- Guardian.resource_from_claims(claims),
-         true <- claims["typ"] == "refresh" do
-      generate_tokens(user)
-    else
-      _ -> {:error, :invalid_token}
-    end
-  end
-
-  @doc """
-  Revoga um token, invalidando-o para uso futuro.
-
-  ## Parâmetros
-    * `token` - Token a ser revogado
-
-  ## Retorno
-    * `:ok` - Se o token foi revogado com sucesso
-    * `{:error, reason}` - Se ocorrer um erro ao revogar o token
-  """
-  def revoke_token(token) do
-    case Guardian.revoke_token(token) do
-      {:ok, _claims} -> :ok
-      error -> error
-    end
+    # Usa a implementação mais completa, mas ignora os parâmetros de sessão
+    refresh_tokens(refresh_token, nil, [])
   end
 
   @doc """
@@ -290,6 +268,68 @@ defmodule DeeperHub.Accounts.Auth do
   """
   def verify_token(token) do
     Guardian.verify_token(token)
+  end
+
+  @doc """
+  Revoga um token, invalidando-o para uso futuro.
+
+  ## Parâmetros
+    * `token` - Token a ser revogado
+
+  ## Retorno
+    * `:ok` - Se o token foi revogado com sucesso
+    * `{:error, reason}` - Se ocorrer um erro ao revogar o token
+
+  ## Exemplos
+      iex> revoke_token("eyJhbGci...")
+      :ok
+  """
+  @spec revoke_token(String.t()) :: :ok | {:error, any()}
+  def revoke_token(token) when is_binary(token) do
+    require Logger
+
+    case verify_token(token) do
+      {:ok, claims} ->
+        # Extrai informações do token
+        jti = claims["jti"]
+        user_id = claims["sub"]
+        token_type = claims["typ"] || "access"
+        
+        # Converte a data de expiração para DateTime
+        expires_at = case claims["exp"] do
+          nil -> DateTime.add(DateTime.utc_now(), 3600, :second) # Fallback: 1 hora
+          exp when is_integer(exp) ->
+            DateTime.from_unix!(exp)
+          exp when is_binary(exp) ->
+            case DateTime.from_iso8601(exp) do
+              {:ok, dt, _} -> dt
+              _ -> DateTime.add(DateTime.utc_now(), 3600, :second) # Fallback
+            end
+        end
+        
+        # Adiciona o token à blacklist
+        case DeeperHub.Accounts.Auth.TokenBlacklist.add_to_blacklist(
+          jti,
+          user_id,
+          token_type,
+          expires_at,
+          "manual_revocation"
+        ) do
+          :ok -> :ok
+          {:error, reason} ->
+            Logger.error("Erro ao adicionar token à blacklist: #{inspect(reason)}", module: __MODULE__)
+            {:error, reason}
+        end
+        
+      {:error, reason} ->
+        Logger.warn("Tentativa de revogar token inválido: #{inspect(reason)}", module: __MODULE__)
+        {:error, reason}
+    end
+  end
+  
+  def revoke_token(_) do
+    Logger.warn("Tentativa de revogar token com formato inválido", module: __MODULE__)
+    {:error, :invalid_token_format}
   end
 
   @doc """

@@ -170,6 +170,30 @@ defmodule DeeperHub.Accounts.SessionManager do
     check_inactivity = Keyword.get(opts, :check_inactivity, true)
     inactivity_timeout = Keyword.get(opts, :inactivity_timeout, @default_inactivity_timeout)
 
+    # Busca a sessão no banco de dados
+    case fetch_session(session_id) do
+      {:ok, session} ->
+        # Verifica se a sessão expirou
+        case check_session_expiration(session, session_id) do
+          :ok ->
+            # Verifica timeout por inatividade, se necessário
+            if check_inactivity do
+              check_session_inactivity(session, session_id, inactivity_timeout)
+            else
+              # Sessão válida, sem verificar inatividade
+              {:ok, session}
+            end
+
+          {:error, _} = error -> error
+        end
+
+      {:error, _} = error -> error
+    end
+  end
+
+  # Busca os dados da sessão no banco de dados
+  @spec fetch_session(String.t()) :: {:ok, map()} | {:error, any()}
+  defp fetch_session(session_id) do
     sql = """
     SELECT id, user_id, refresh_token_jti, device_info, ip_address, user_agent,
            persistent, last_activity_at, expires_at, created_at, updated_at
@@ -179,53 +203,62 @@ defmodule DeeperHub.Accounts.SessionManager do
 
     case Repo.query(sql, [session_id]) do
       {:ok, %{rows: [row], columns: columns}} ->
-        session = Enum.zip(columns, row) |> Map.new()
-
-        # Verifica se a sessão expirou
-        case DateTime.from_iso8601(session["expires_at"]) do
-          {:ok, expires_at, _} ->
-            if DateTime.compare(DateTime.utc_now(), expires_at) == :gt do
-              # Sessão expirou
-              invalidate_session(session_id, "expired")
-              {:error, :session_expired}
-            else
-              # Verifica timeout por inatividade, se solicitado
-              if check_inactivity do
-                case DateTime.from_iso8601(session["last_activity_at"]) do
-                  {:ok, last_activity, _} ->
-                    now = DateTime.utc_now()
-                    diff = DateTime.diff(now, last_activity, :second)
-
-                    if diff > inactivity_timeout do
-                      # Sessão inativa por muito tempo
-                      invalidate_session(session_id, "inactive")
-                      {:error, :session_inactive}
-                    else
-                      # Sessão válida, atualiza última atividade
-                      update_last_activity(session_id)
-                      {:ok, session}
-                    end
-
-                  _ ->
-                    # Erro ao parsear last_activity_at
-                    {:error, :invalid_timestamp}
-                end
-              else
-                # Não verificar inatividade, sessão válida
-                {:ok, session}
-              end
-            end
-
-          _ ->
-            # Erro ao parsear expires_at
-            {:error, :invalid_timestamp}
-        end
+        {:ok, Enum.zip(columns, row) |> Map.new()}
 
       {:ok, %{rows: []}} ->
+        # Sessão não encontrada
         {:error, :session_not_found}
 
       {:error, reason} ->
-        Logger.error("Erro ao verificar sessão: #{inspect(reason)}",
+        Logger.error("Erro ao buscar sessão: #{inspect(reason)}",
+          module: __MODULE__,
+          session_id: session_id
+        )
+        {:error, reason}
+    end
+  end
+
+  # Verifica se a sessão já expirou
+  @spec check_session_expiration(map(), String.t()) :: :ok | {:error, any()}
+  defp check_session_expiration(session, session_id) do
+    case DateTime.from_iso8601(session["expires_at"]) do
+      {:ok, expires_at, _} ->
+        if DateTime.compare(DateTime.utc_now(), expires_at) == :gt do
+          # Sessão expirou
+          invalidate_session(session_id, "expired")
+          {:error, :session_expired}
+        else
+          :ok
+        end
+
+      {:error, reason} ->
+        Logger.error("Erro ao analisar timestamp de expiração: #{inspect(reason)}",
+          module: __MODULE__,
+          session_id: session_id
+        )
+        {:error, reason}
+    end
+  end
+
+  # Verifica se a sessão está inativa por muito tempo
+  @spec check_session_inactivity(map(), String.t(), integer()) :: {:ok, map()} | {:error, any()}
+  defp check_session_inactivity(session, session_id, inactivity_timeout) do
+    case DateTime.from_iso8601(session["last_activity_at"]) do
+      {:ok, last_activity, _} ->
+        now = DateTime.utc_now()
+        diff = DateTime.diff(now, last_activity, :second)
+
+        if diff > inactivity_timeout do
+          # Sessão inativa por muito tempo
+          invalidate_session(session_id, "inactive")
+          {:error, :session_inactive}
+        else
+          # Sessão válida
+          {:ok, session}
+        end
+
+      {:error, reason} ->
+        Logger.error("Erro ao analisar timestamp de última atividade: #{inspect(reason)}",
           module: __MODULE__,
           session_id: session_id
         )

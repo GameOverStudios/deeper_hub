@@ -51,16 +51,11 @@ defmodule DeeperHub.Accounts.Auth.EmailVerification do
   @spec request_verification(String.t(), String.t(), String.t() | nil) :: {:ok, String.t()} | {:error, atom()}
   def request_verification(user_id, email, ip_address \\ nil)
   def request_verification(user_id, email, ip_address) when is_binary(user_id) and is_binary(email) do
-    # Validação básica de e-mail
-    if String.length(email) == 0 or not String.contains?(email, "@") do
-      Logger.warn("Tentativa de verificação com e-mail inválido", 
-        module: __MODULE__, 
-        user_id: user_id,
-        email: email
-      )
-      {:error, :invalid_input}
-    else
-      try do
+    # Validação completa de e-mail
+    case validate_email(email) do
+      :ok -> 
+        # Email válido, continua o processo
+        try do
         # Gera um token único
         token = generate_verification_token()
         
@@ -124,6 +119,14 @@ defmodule DeeperHub.Accounts.Auth.EmailVerification do
           
           {:error, :unexpected_error}
       end
+      
+      {:error, reason} ->
+        Logger.warn("Tentativa de verificação com e-mail inválido: #{reason}", 
+          module: __MODULE__, 
+          user_id: user_id,
+          email: email
+        )
+        {:error, :invalid_input}
     end
   end
   
@@ -591,11 +594,28 @@ defmodule DeeperHub.Accounts.Auth.EmailVerification do
   end
   
   @doc false
+  # Valida um endereço de e-mail utilizando uma expressão regular avançada
+  @spec validate_email(String.t()) :: :ok | {:error, String.t()}
+  defp validate_email(email) when is_binary(email) do
+    # Expressão regular que segue os padrões do RFC 5322
+    email_regex = ~r/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+    
+    cond do
+      email == "" -> {:error, "e-mail vazio"}
+      String.length(email) > 255 -> {:error, "e-mail muito longo"}
+      not String.contains?(email, "@") -> {:error, "e-mail sem caractere @"}
+      not Regex.match?(email_regex, email) -> {:error, "formato de e-mail inválido"}
+      true -> :ok
+    end
+  end
+  
+  defp validate_email(_), do: {:error, "e-mail não é uma string válida"}
+  
+  @doc false
   # Gera um token de verificação único
   @spec generate_verification_token() :: String.t()
   defp generate_verification_token do
-    :crypto.strong_rand_bytes(32)
-    |> Base.url_encode64(padding: false)
+    :crypto.strong_rand_bytes(24) |> Base.url_encode64(padding: false)
   end
   
   @doc false

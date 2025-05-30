@@ -57,8 +57,32 @@ defmodule DeeperHub.Core.Security do
   """
   @spec ip_blocked?(String.t()) :: boolean()
   def ip_blocked?(ip) when is_binary(ip) do
-    blocked_ips = get_blocked_ips()
-    Enum.member?(blocked_ips, ip)
+    # Valida formato do IP antes de verificar o bloqueio
+    case validate_ip_format(ip) do
+      {:ok, normalized_ip} ->
+        blocked_ips = get_blocked_ips()
+        Enum.member?(blocked_ips, normalized_ip)
+        
+      {:error, _reason} ->
+        Logger.warn("Tentativa de verificar IP com formato inválido: #{ip}", module: __MODULE__)
+        false # IPs inválidos não são considerados bloqueados
+    end
+  end
+  
+  # Valida e normaliza o formato de um endereço IP
+  @spec validate_ip_format(String.t()) :: {:ok, String.t()} | {:error, atom()}
+  defp validate_ip_format(ip) do
+    # Expressão regular para validar IPv4
+    ipv4_regex = ~r/^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
+
+    # Expressão regular para validar IPv6
+    ipv6_regex = ~r/^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]+|::(ffff(:0{1,4})?:)?((25[0-5]|(2[0-4]|1?[0-9])?[0-9])\.){3}(25[0-5]|(2[0-4]|1?[0-9])?[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1?[0-9])?[0-9])\.){3}(25[0-5]|(2[0-4]|1?[0-9])?[0-9]))$/
+
+    cond do
+      Regex.match?(ipv4_regex, ip) -> {:ok, ip}
+      Regex.match?(ipv6_regex, ip) -> {:ok, ip}
+      true -> {:error, :invalid_ip_format}
+    end
   end
   
   @doc """
