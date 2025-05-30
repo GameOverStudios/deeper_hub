@@ -1,1 +1,1 @@
-cls & iex -S mix
+rmdir databases /s /q & cls & mix run

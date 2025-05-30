@@ -1,1 +1,0 @@
-cls & iex -S mix

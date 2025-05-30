@@ -1,1 +1,0 @@
-meson setup build --reconfigure

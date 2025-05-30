@@ -1,1 +1,0 @@
-python test_python\deeper_hub_client.py --hot-reload --log-level debug
