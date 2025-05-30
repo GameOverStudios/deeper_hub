@@ -2,7 +2,27 @@
 
 DeeperHub é um sistema de comunicação em tempo real construído com Elixir e OTP, projetado para fornecer canais de comunicação seguros e escaláveis. O sistema utiliza WebSockets para comunicação bidirecional em tempo real, autenticação JWT para segurança e SQLite para armazenamento de dados.
 
-## Características
+## Índice de Funcionalidades
+
+- [Visão Geral](#visão-geral)
+- [Arquitetura do Sistema](#arquitetura-do-sistema)
+- [Sistema de Autenticação](#sistema-de-autenticação)
+- [Sistema de Comunicação em Tempo Real](#sistema-de-comunicação-em-tempo-real)
+- [Banco de Dados e Persistência](#banco-de-dados-e-persistência)
+- [Sistema de Cache](#sistema-de-cache)
+- [Sistema de Telemetria](#sistema-de-telemetria)
+- [Sistema de Segurança](#sistema-de-segurança)
+- [Sistema de Email](#sistema-de-email)
+- [API HTTP](#api-http)
+- [Instalação e Configuração](#instalação)
+- [Documentação](#documentação)
+- [Testes](#testes)
+
+## Visão Geral
+
+O DeeperHub oferece uma plataforma completa para comunicação em tempo real com foco em desempenho, segurança e escalabilidade. Construido com a plataforma Elixir/OTP, o sistema aproveita os recursos de concorrência e tolerância a falhas nativos do Erlang.
+
+### Características Principais
 
 - **Autenticação Segura**: Sistema completo de autenticação baseado em JWT
 - **WebSockets em Tempo Real**: Comunicação bidirecional de baixa latência
@@ -10,6 +30,34 @@ DeeperHub é um sistema de comunicação em tempo real construído com Elixir e 
 - **Presença de Usuários**: Rastreamento de usuários online em tempo real
 - **Banco de Dados SQLite**: Armazenamento leve e portátil com migrações automáticas
 - **Arquitetura OTP**: Processos leves e supervisores para alta concorrência e tolerância a falhas
+- **Telemetria Avançada**: Monitoramento em tempo real de todos os componentes do sistema
+- **Cache Otimizado**: Sistema de cache com política LRU e mecanismos de resiliência
+- **Segurança Robusta**: Proteção contra ataques, detecção de anomalias e reputação de IPs
+
+## Arquitetura do Sistema
+
+O DeeperHub segue uma arquitetura modular com os seguintes componentes principais:
+
+### Core
+
+- **Network**: Gerenciamento de conexões WebSocket, canais e presença
+- **Data**: Acesso a banco de dados, migrações e operações transacionais
+- **HTTP**: Endpoints da API REST e middlewares
+- **Security**: Proteção contra ataques e monitoramento de segurança
+- **Cache**: Sistema de cache distribuído com políticas de expiração
+- **Logger**: Sistema de logging centralizado com níveis configuráveis
+- **Mail**: Sistema de envio de emails com filas e templates
+- **Telemetry**: Coleta e exportação de métricas de todos os componentes
+
+### Accounts
+
+- **Auth**: Autenticação, autorização e gerenciamento de sessões
+- **User**: Gerenciamento de usuários, perfis e preferências
+
+### Web Interface
+
+- **Rotas e Controllers**: Rotas HTTP e manipuladores de requisições
+- **Plugs**: Middlewares para processamento de requisições
 
 ## Requisitos
 
