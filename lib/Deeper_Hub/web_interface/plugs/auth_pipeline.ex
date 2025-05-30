@@ -12,7 +12,7 @@ defmodule DeeperHub.WebInterface.Plugs.AuthPipeline do
   
   alias DeeperHub.Core.Security.AuthAttack
   alias DeeperHub.Core.Security.AuthPlug
-  require Logger
+  require DeeperHub.Core.Logger
 
   # Inicializa o módulo de proteção contra ataques
   AuthAttack.init()

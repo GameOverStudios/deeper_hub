@@ -11,8 +11,6 @@ defmodule DeeperHub.Core.Cache.Integration do
   """
 
   require DeeperHub.Core.Logger
-  require Logger
-  alias DeeperHub.Core.Logger
   alias DeeperHub.Core.Cache
   alias Cachex
 
@@ -44,7 +42,7 @@ defmodule DeeperHub.Core.Cache.Integration do
   """
   @spec configure(keyword()) :: :ok | {:error, term()}
   def configure(opts \\ []) do
-    Logger.info("Configurando sistema de cache avançado", module: __MODULE__)
+    DeeperHub.Core.Logger.info("Configurando sistema de cache avançado")
 
     # Extrai opções
     _enable_compression = Keyword.get(opts, :enable_compression, true)
@@ -56,18 +54,18 @@ defmodule DeeperHub.Core.Cache.Integration do
 
     # Configura persistência
     if enable_persistence do
-      Logger.info("Habilitando persistência automática do cache", module: __MODULE__)
+      DeeperHub.Core.Logger.info("Configurando backup automático do cache")
 
       # Tenta restaurar dados de backup anterior
       case DeeperHub.Core.Cache.Persistence.DiskStorage.restore_from_disk(@cache_name) do
-        {:ok, count} ->
-          Logger.info("Cache restaurado com #{count} itens do disco", module: __MODULE__)
+        {:ok, _count} ->
+          DeeperHub.Core.Logger.info("Cache restaurado com sucesso a partir do backup")
 
         {:error, :not_found} ->
-          Logger.info("Nenhum backup de cache encontrado para restauração", module: __MODULE__)
+          DeeperHub.Core.Logger.info("Nenhum backup de cache encontrado para restauração")
 
         {:error, reason} ->
-          Logger.error("Erro ao restaurar cache: #{inspect(reason)}", module: __MODULE__)
+          DeeperHub.Core.Logger.error("Erro ao restaurar cache: #{inspect(reason)}")
       end
 
       # Configura backup automático
@@ -93,7 +91,7 @@ defmodule DeeperHub.Core.Cache.Integration do
   """
   @spec preload_configurations() :: {:ok, integer()} | {:error, term()}
   def preload_configurations do
-    Logger.info("Pré-carregando configurações no cache", module: __MODULE__)
+    DeeperHub.Core.Logger.info("Pré-carregando configurações no cache")
 
     configs = [
       {"system:version", "1.0.0"},
@@ -132,12 +130,53 @@ defmodule DeeperHub.Core.Cache.Integration do
   """
   @spec generate_report(atom(), boolean()) :: {:ok, binary()} | {:error, term()}
   def generate_report(format \\ :text, save \\ false) do
-    alias DeeperHub.Core.Cache.Telemetry.Configurator
-
-    Configurator.generate_report(@cache_name, [
-      format: format,
-      save_to_file: save
-    ])
+    alias DeeperHub.Core.Telemetry.Adapters.CacheAdapter
+    
+    try do
+      # Coleta métricas do cache
+      case CacheAdapter.collect_metrics(@cache_name) do
+        {:ok, metrics} ->
+          # Formata o relatório
+          report = format_report(metrics, format)
+          
+          # Salva em arquivo se solicitado
+          if save do
+            filename = "cache_report_#{DateTime.utc_now() |> DateTime.to_string() |> String.replace(~r/[\s:.-]/, "_")}.#{format}"
+            File.write!(filename, report)
+            {:ok, "Relatório salvo em: #{filename}"}
+          else
+            {:ok, report}
+          end
+          
+        {:error, reason} ->
+          {:error, "Falha ao coletar métricas: #{inspect(reason)}"}
+      end
+    rescue
+      e -> 
+        DeeperHub.Core.Logger.error("Erro ao gerar relatório: #{inspect(e)}")
+        {:error, "Falha ao gerar relatório: #{inspect(e)}"}
+    end
+  end
+  
+  # Formata as métricas conforme o formato solicitado
+  defp format_report(metrics, :text) do
+    """    
+    === RELATÓRIO DO SISTEMA DE CACHE ===
+    Timestamp: #{DateTime.utc_now() |> DateTime.to_string()}
+    
+    Métricas de Uso:
+      - Itens em cache: #{metrics.size || 0}
+      - Taxa de acerto: #{metrics.hit_rate || 0}%
+      - Operações/segundo: #{metrics.ops_per_sec || 0}
+    
+    Métricas de Desempenho:
+      - Tempo médio de resposta: #{metrics.avg_response_time || 0}ms
+      - Uso de memória: #{metrics.memory_usage || 0} bytes
+    """
+  end
+  
+  defp format_report(metrics, :json) do
+    Jason.encode!(metrics, pretty: true)
   end
 
   @doc """
@@ -163,7 +202,7 @@ defmodule DeeperHub.Core.Cache.Integration do
   """
   @spec maintenance(keyword()) :: {:ok, map()} | {:error, term()}
   def maintenance(opts \\ []) do
-    Logger.info("Iniciando manutenção do sistema de cache", module: __MODULE__)
+    DeeperHub.Core.Logger.info("Realizando manutenção do cache")
 
     purge_expired = Keyword.get(opts, :purge_expired, true)
     optimize_memory = Keyword.get(opts, :optimize_memory, true)
@@ -175,11 +214,11 @@ defmodule DeeperHub.Core.Cache.Integration do
     stats = if purge_expired do
       case Cachex.purge(@cache_name) do
         {:ok, count} ->
-          Logger.info("#{count} itens expirados removidos do cache", module: __MODULE__)
+          DeeperHub.Core.Logger.info("Limpeza de #{count} itens expirados realizada")
           Map.put(stats, :purged, count)
 
         {:error, reason} ->
-          Logger.error("Erro ao purgar itens expirados: #{inspect(reason)}", module: __MODULE__)
+          DeeperHub.Core.Logger.error("Erro durante a limpeza de itens expirados: #{inspect(reason)}")
           Map.put(stats, :purged, :error)
       end
     else
@@ -190,11 +229,11 @@ defmodule DeeperHub.Core.Cache.Integration do
     stats = if optimize_memory do
       case cachex_compact(@cache_name) do
         {:ok, true} ->
-          Logger.info("Cache compactado com sucesso", module: __MODULE__)
+          DeeperHub.Core.Logger.info("Nenhum item expirado encontrado")
           Map.put(stats, :optimized, true)
 
         {:error, reason} ->
-          Logger.error("Erro ao compactar cache: #{inspect(reason)}", module: __MODULE__)
+          DeeperHub.Core.Logger.error("Erro durante a compactação de memória: #{inspect(reason)}")
           Map.put(stats, :optimized, :error)
       end
     else
@@ -209,15 +248,15 @@ defmodule DeeperHub.Core.Cache.Integration do
         {:ok, keys} = Cachex.keys(@cache_name)
 
         if length(keys) == size do
-          Logger.info("Verificação de integridade do cache concluída", module: __MODULE__)
+          DeeperHub.Core.Logger.info("Verificação de integridade do cache concluída")
           Map.put(stats, :integrity, :ok)
         else
-          Logger.warn("Possível inconsistência no cache detectada", module: __MODULE__)
+          DeeperHub.Core.Logger.warn("Possível inconsistência no cache detectada")
           Map.put(stats, :integrity, :inconsistent)
         end
       rescue
         error ->
-          Logger.error("Erro ao verificar integridade do cache: #{inspect(error)}", module: __MODULE__)
+          DeeperHub.Core.Logger.error("Erro durante a verificação de integridade: #{inspect(error)}")
           Map.put(stats, :integrity, :error)
       end
     else
@@ -358,7 +397,7 @@ defmodule DeeperHub.Core.Cache.Integration do
       apply(Cachex, :memory, [cache_name])
     rescue
       e -> 
-        Logger.error("Erro ao obter memória do cache: #{inspect(e)}", module: __MODULE__)
+        DeeperHub.Core.Logger.error("Erro ao obter memória do cache: #{inspect(e)}")
         {:error, :memory_unavailable}
     end
   end
@@ -370,7 +409,7 @@ defmodule DeeperHub.Core.Cache.Integration do
       apply(Cachex, :compact, [cache_name])
     rescue
       e -> 
-        Logger.error("Erro ao compactar cache: #{inspect(e)}", module: __MODULE__)
+        DeeperHub.Core.Logger.error("Erro ao compactar cache: #{inspect(e)}")
         {:error, :compact_failed}
     end
   end

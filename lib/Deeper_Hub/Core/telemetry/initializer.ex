@@ -16,7 +16,7 @@ defmodule DeeperHub.Core.Telemetry.Initializer do
   }
   alias DeeperHub.Core.Telemetry.Exporters.PrometheusExporter
   
-  require Logger
+  require DeeperHub.Core.Logger
   
   @doc """
   Inicializa o sistema completo de telemetria.
@@ -82,7 +82,7 @@ defmodule DeeperHub.Core.Telemetry.Initializer do
   def teardown do
     # Em uma implementação real, isso encerraria todos os processos iniciados
     # Por enquanto, apenas logamos a operação
-    Logger.info("[DeeperHub.Core.Telemetry.Initializer] Sistema de telemetria encerrado")
+    DeeperHub.Core.Logger.info("Sistema de telemetria encerrado")
     :ok
   end
   
@@ -97,10 +97,10 @@ defmodule DeeperHub.Core.Telemetry.Initializer do
       adapters = if :cache in enabled_adapters do
         case CacheAdapter.setup(opts) do
           {:ok, pid} ->
-            Logger.info("[DeeperHub.Core.Telemetry.Initializer] Adaptador de telemetria do cache inicializado")
+            DeeperHub.Core.Logger.info("Adaptador de telemetria do cache inicializado")
             Map.put(adapters, :cache, pid)
           {:error, reason} ->
-            Logger.warning("[DeeperHub.Core.Telemetry.Initializer] Falha ao inicializar adaptador de telemetria do cache: #{inspect(reason)}")
+            DeeperHub.Core.Logger.warn("Falha ao inicializar adaptador de telemetria do cache: #{inspect(reason)}")
             adapters
         end
       else
@@ -111,10 +111,10 @@ defmodule DeeperHub.Core.Telemetry.Initializer do
       adapters = if :http in enabled_adapters do
         case HttpAdapter.setup(opts) do
           {:ok, pid} ->
-            Logger.info("[DeeperHub.Core.Telemetry.Initializer] Adaptador de telemetria HTTP inicializado")
+            DeeperHub.Core.Logger.info("Adaptador de telemetria HTTP inicializado")
             Map.put(adapters, :http, pid)
           {:error, reason} ->
-            Logger.warning("[DeeperHub.Core.Telemetry.Initializer] Falha ao inicializar adaptador de telemetria HTTP: #{inspect(reason)}")
+            DeeperHub.Core.Logger.warn("Falha ao inicializar adaptador de telemetria HTTP: #{inspect(reason)}")
             adapters
         end
       else
@@ -125,10 +125,10 @@ defmodule DeeperHub.Core.Telemetry.Initializer do
       adapters = if :network in enabled_adapters do
         case NetworkAdapter.setup(opts) do
           {:ok, pid} ->
-            Logger.info("[DeeperHub.Core.Telemetry.Initializer] Adaptador de telemetria de rede inicializado")
+            DeeperHub.Core.Logger.info("Adaptador de telemetria de rede inicializado")
             Map.put(adapters, :network, pid)
           {:error, reason} ->
-            Logger.warning("[DeeperHub.Core.Telemetry.Initializer] Falha ao inicializar adaptador de telemetria de rede: #{inspect(reason)}")
+            DeeperHub.Core.Logger.warn("Falha ao inicializar adaptador de telemetria de rede: #{inspect(reason)}")
             adapters
         end
       else
@@ -139,10 +139,10 @@ defmodule DeeperHub.Core.Telemetry.Initializer do
       adapters = if :security in enabled_adapters do
         case SecurityAdapter.setup(opts) do
           {:ok, pid} ->
-            Logger.info("[DeeperHub.Core.Telemetry.Initializer] Adaptador de telemetria de segurança inicializado")
+            DeeperHub.Core.Logger.info("Adaptador de telemetria de segurança inicializado")
             Map.put(adapters, :security, pid)
           {:error, reason} ->
-            Logger.warning("[DeeperHub.Core.Telemetry.Initializer] Falha ao inicializar adaptador de telemetria de segurança: #{inspect(reason)}")
+            DeeperHub.Core.Logger.warn("Falha ao inicializar adaptador de telemetria de segurança: #{inspect(reason)}")
             adapters
         end
       else
@@ -153,10 +153,10 @@ defmodule DeeperHub.Core.Telemetry.Initializer do
       adapters = if :database in enabled_adapters do
         case DatabaseAdapter.setup(opts) do
           {:ok, pid} ->
-            Logger.info("[DeeperHub.Core.Telemetry.Initializer] Adaptador de telemetria de banco de dados inicializado")
+            DeeperHub.Core.Logger.info("Adaptador de telemetria de banco de dados inicializado")
             Map.put(adapters, :database, pid)
           {:error, reason} ->
-            Logger.warning("[DeeperHub.Core.Telemetry.Initializer] Falha ao inicializar adaptador de telemetria de banco de dados: #{inspect(reason)}")
+            DeeperHub.Core.Logger.warn("Falha ao inicializar adaptador de telemetria de banco de dados: #{inspect(reason)}")
             adapters
         end
       else
@@ -178,10 +178,10 @@ defmodule DeeperHub.Core.Telemetry.Initializer do
       exporters_map = if :prometheus in exporters do
         case PrometheusExporter.setup(opts) do
           {:ok, pid} ->
-            Logger.info("[DeeperHub.Core.Telemetry.Initializer] Exportador Prometheus inicializado")
+            DeeperHub.Core.Logger.info("Exportador Prometheus inicializado")
             Map.put(exporters_map, :prometheus, pid)
           {:error, reason} ->
-            Logger.warning("[DeeperHub.Core.Telemetry.Initializer] Falha ao inicializar exportador Prometheus: #{inspect(reason)}")
+            DeeperHub.Core.Logger.error("Erro ao inicializar adaptadores de telemetria: #{inspect(reason)}")
             exporters_map
         end
       else

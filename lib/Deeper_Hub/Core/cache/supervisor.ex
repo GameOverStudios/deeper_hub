@@ -14,7 +14,7 @@ defmodule DeeperHub.Core.Cache.Supervisor do
   import Cachex.Spec
   require DeeperHub.Core.Logger
   alias DeeperHub.Core.Logger
-  alias DeeperHub.Core.Cache.Telemetry.Configurator
+  # Aliases para módulos necessários
   
   @cache_name :deeper_hub_cache
   @default_ttl 300  # 5 minutos em segundos
@@ -118,8 +118,10 @@ defmodule DeeperHub.Core.Cache.Supervisor do
       Task.start(fn ->
         # Pequena pausa para garantir que o cache já esteja inicializado
         Process.sleep(1000)
-        Logger.info("Inicializando telemetria para o sistema de cache", module: __MODULE__)
-        Configurator.setup(@cache_name, [
+        DeeperHub.Core.Logger.info("Inicializando telemetria para o sistema de cache")
+        alias DeeperHub.Core.Telemetry.Adapters.CacheAdapter
+        CacheAdapter.setup([
+          cache_name: @cache_name,
           telemetry_prefix: "deeper_hub.cache",
           report_interval: telemetry_report_interval,
           enable_logging: enable_telemetry_logging,

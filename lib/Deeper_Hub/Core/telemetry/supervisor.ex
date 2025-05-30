@@ -11,7 +11,7 @@ defmodule DeeperHub.Core.Telemetry.Supervisor do
   
   alias DeeperHub.Core.Telemetry.Initializer
   
-  require Logger
+  require DeeperHub.Core.Logger
   
   @doc """
   Inicia o supervisor de telemetria.
@@ -27,7 +27,7 @@ defmodule DeeperHub.Core.Telemetry.Supervisor do
   """
   @spec start_link(keyword()) :: Supervisor.on_start()
   def start_link(opts \\ []) do
-    Logger.info("[DeeperHub.Core.Telemetry.Supervisor] Iniciando supervisor do subsistema de telemetria...")
+    DeeperHub.Core.Logger.info("Iniciando supervisor do subsistema de telemetria...")
     Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
   end
   
@@ -62,8 +62,7 @@ defmodule DeeperHub.Core.Telemetry.Supervisor do
     # Inicializar o sistema de telemetria
     case Initializer.setup(telemetry_opts) do
       {:ok, %{adapters: adapters, exporters: exporters}} ->
-        Logger.info("[DeeperHub.Core.Telemetry.Supervisor] Sistema de telemetria inicializado com sucesso. " <>
-                   "Adaptadores: #{inspect(Map.keys(adapters))}, Exportadores: #{inspect(Map.keys(exporters))}")
+        DeeperHub.Core.Logger.info("Sistema de telemetria inicializado com sucesso. Adaptadores: #{inspect(adapters)}, Exportadores: #{inspect(exporters)}")
         
         # Definir estratégia de supervisão
         # Como o Initializer já iniciou os processos, não precisamos definir filhos aqui
@@ -73,7 +72,7 @@ defmodule DeeperHub.Core.Telemetry.Supervisor do
         Supervisor.init(children, strategy: :one_for_one)
         
       {:error, reason} ->
-        Logger.error("[DeeperHub.Core.Telemetry.Supervisor] Falha ao inicializar sistema de telemetria: #{inspect(reason)}")
+        DeeperHub.Core.Logger.error("Falha ao inicializar sistema de telemetria: #{inspect(reason)}")
         # Iniciar supervisor vazio, sem processos filhos
         Supervisor.init([], strategy: :one_for_one)
     end
@@ -98,7 +97,7 @@ defmodule DeeperHub.Core.Telemetry.Supervisor do
       :exit, {:noproc, _} -> :ok
     end
     
-    Logger.info("[DeeperHub.Core.Telemetry.Supervisor] Subsistema de telemetria encerrado")
+    DeeperHub.Core.Logger.info("Subsistema de telemetria encerrado")
     :ok
   end
   

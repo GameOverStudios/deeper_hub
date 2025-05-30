@@ -286,7 +286,7 @@ defmodule DeeperHub.Accounts.Auth do
   """
   @spec revoke_token(String.t()) :: :ok | {:error, any()}
   def revoke_token(token) when is_binary(token) do
-    require Logger
+    require DeeperHub.Core.Logger
 
     case verify_token(token) do
       {:ok, claims} ->
@@ -317,12 +317,12 @@ defmodule DeeperHub.Accounts.Auth do
         ) do
           :ok -> :ok
           {:error, reason} ->
-            Logger.error("Erro ao adicionar token à blacklist: #{inspect(reason)}", module: __MODULE__)
+            DeeperHub.Core.Logger.error("Erro ao adicionar token à blacklist: #{inspect(reason)}")
             {:error, reason}
         end
         
       {:error, reason} ->
-        Logger.warn("Tentativa de revogar token inválido: #{inspect(reason)}", module: __MODULE__)
+        DeeperHub.Core.Logger.warn("Tentativa de revogar token inválido: #{inspect(reason)}")
         {:error, reason}
     end
   end

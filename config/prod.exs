@@ -48,6 +48,24 @@ config :deeper_hub, DeeperHub.Core.Data.Repo,
   synchronous: :normal,         # Balanceamento entre segurança e desempenho
   temp_store: :memory           # Armazenamento temporário em memória para melhor desempenho
 
+# Configuração de Telemetria para produção
+config :deeper_hub, :telemetry,
+  enabled_adapters: [:cache, :http, :network, :security, :database],
+  exporters: [:prometheus],
+  telemetry_prefix: "deeper_hub",
+  report_interval: 300_000,  # 5 minutos em ambiente de produção
+  retention_period: 86_400    # 24 horas de retenção de dados
+
+# Configuração do Cache para produção
+config :deeper_hub, :cache,
+  limit: 10000,              # Limite maior para produção
+  reclaim: 2000,             # 20% de reclamação
+  compressed: true,          # Economiza memória
+  expiration: 3600000,       # 1 hora de expiração padrão
+  persistence: true,         # Habilita persistência em disco
+  storage_path: "storage/cache",
+  fallback_strategy: :stale  # Permite uso de dados expirados em caso de erro
+
 # Configuração do DeeperHub.Core.Logger para produção
 config :deeper_hub, DeeperHub.Core.Logger,
   level: :info,                       # Registra apenas info e níveis superiores em produção

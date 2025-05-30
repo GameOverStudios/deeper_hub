@@ -23,7 +23,8 @@ defmodule DeeperHub.Core.Logger do
   ```
   """
 
-  require Logger
+  # Importação direta do Logger do Elixir - não requer a si mesmo para evitar dependência circular
+  alias Logger, as: ElixirLogger
   import IO.ANSI
 
   @doc """
@@ -181,7 +182,7 @@ defmodule DeeperHub.Core.Logger do
   def __log__(level, message_content, metadata) do
     try do
       # Respeita o nível de log configurado globalmente
-      if Logger.compare_levels(level, Logger.level()) != :lt do
+      if ElixirLogger.compare_levels(level, ElixirLogger.level()) != :lt do
         # Adiciona timestamp com horário para logs mais precisos
         datetime = DateTime.utc_now()
         date_str = datetime |> DateTime.to_date() |> Date.to_string()

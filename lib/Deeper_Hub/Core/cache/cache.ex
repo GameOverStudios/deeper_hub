@@ -21,9 +21,7 @@ defmodule DeeperHub.Core.Cache do
   """
 
   import Cachex.Spec
-  require Logger
   require DeeperHub.Core.Logger
-  alias DeeperHub.Core.Logger
   alias DeeperHub.Core.Cache.Hooks.LoggerHook
   alias DeeperHub.Core.Cache.Limits.LruPolicy
   alias DeeperHub.Core.Cache.Routing.DistributedRouter
@@ -63,7 +61,7 @@ defmodule DeeperHub.Core.Cache do
   """
   @spec init(keyword()) :: :ok | {:error, term()}
   def init(opts \\ []) do
-    Logger.info("Inicializando sistema de cache...", module: __MODULE__)
+    DeeperHub.Core.Logger.info("Inicializando sistema de cache...")
     
     # Ambiente atual
     environment = Application.get_env(:deeper_hub, :environment, :development)
@@ -161,18 +159,18 @@ defmodule DeeperHub.Core.Cache do
     end
     
     # Log de configurações
-    Logger.debug("Configurações do cache: #{inspect(cache_opts)}", module: __MODULE__)
+    DeeperHub.Core.Logger.debug("Configurações do cache: #{inspect(cache_opts)}")
     
     # Inicializa o cache principal com Cachex
     case Cachex.start_link(@cache_name, cache_opts) do
       {:ok, _pid} ->
-        Logger.info("Sistema de cache inicializado com sucesso", module: __MODULE__)
+        DeeperHub.Core.Logger.info("Sistema de cache inicializado com sucesso")
         :ok
       {:error, {:already_started, _pid}} ->
-        Logger.info("Sistema de cache já estava inicializado", module: __MODULE__)
+        DeeperHub.Core.Logger.info("Sistema de cache já estava inicializado")
         :ok
       {:error, reason} ->
-        Logger.error("Falha ao inicializar o sistema de cache: #{inspect(reason)}", module: __MODULE__)
+        DeeperHub.Core.Logger.error("Falha ao inicializar o sistema de cache: #{inspect(reason)}")
         {:error, reason}
     end
   end
@@ -228,7 +226,7 @@ defmodule DeeperHub.Core.Cache do
       # Quando assíncrono, retorna :ok diretamente
       {:ok, :ok} when is_async -> :ok 
       {:error, reason} -> 
-        Logger.error("Erro ao armazenar em cache #{cache_key}: #{inspect(reason)}", module: __MODULE__)
+        DeeperHub.Core.Logger.error("Erro ao armazenar em cache #{cache_key}: #{inspect(reason)}")
         {:error, reason}
     end
   end
@@ -276,7 +274,7 @@ defmodule DeeperHub.Core.Cache do
       {:ok, nil} -> {:error, :not_found}
       {:ok, value} -> {:ok, value}
       {:error, reason} -> 
-        Logger.error("Erro ao recuperar do cache #{cache_key}: #{inspect(reason)}", module: __MODULE__)
+        DeeperHub.Core.Logger.error("Erro ao recuperar do cache #{cache_key}: #{inspect(reason)}")
         {:error, reason}
     end
   end
@@ -334,13 +332,13 @@ defmodule DeeperHub.Core.Cache do
         case fallback.() do
           {:ok, value} -> {:commit, value}
           {:error, reason} = error -> 
-            Logger.error("Erro na função fallback para #{cache_key}: #{inspect(reason)}", module: __MODULE__)
+            DeeperHub.Core.Logger.error("Erro na função fallback para #{cache_key}: #{inspect(reason)}")
             {:ignore, error}
           value -> {:commit, value}
         end
       rescue
         error ->
-          Logger.error("Exceção na função fallback para #{cache_key}: #{inspect(error)}", module: __MODULE__)
+          DeeperHub.Core.Logger.error("Exceção na função fallback para #{cache_key}: #{inspect(error)}")
           {:ignore, {:error, error}}
       end
     end, cache_opts)
@@ -387,7 +385,7 @@ defmodule DeeperHub.Core.Cache do
     case Cachex.del(@cache_name, cache_key) do
       {:ok, _} -> :ok
       {:error, reason} -> 
-        Logger.error("Erro ao remover do cache #{cache_key}: #{inspect(reason)}", module: __MODULE__)
+        DeeperHub.Core.Logger.error("Erro ao remover do cache #{cache_key}: #{inspect(reason)}")
         {:error, reason}
     end
   end
@@ -430,7 +428,7 @@ defmodule DeeperHub.Core.Cache do
       end) do
         {:ok, _count} -> :ok
         {:error, reason} -> 
-          Logger.error("Erro ao limpar namespace #{namespace} do cache: #{inspect(reason)}", module: __MODULE__)
+          DeeperHub.Core.Logger.error("Erro ao limpar namespace #{namespace} do cache: #{inspect(reason)}")
           {:error, reason}
       end
     else
@@ -438,7 +436,7 @@ defmodule DeeperHub.Core.Cache do
       case Cachex.clear(@cache_name) do
         {:ok, _count} -> :ok
         {:error, reason} -> 
-          Logger.error("Erro ao limpar todo o cache: #{inspect(reason)}", module: __MODULE__)
+          DeeperHub.Core.Logger.error("Erro ao limpar todo o cache: #{inspect(reason)}")
           {:error, reason}
       end
     end
@@ -480,7 +478,7 @@ defmodule DeeperHub.Core.Cache do
     case Cachex.exists?(@cache_name, cache_key) do
       {:ok, exists} -> {:ok, exists}
       {:error, reason} -> 
-        Logger.error("Erro ao verificar existência no cache #{cache_key}: #{inspect(reason)}", module: __MODULE__)
+        DeeperHub.Core.Logger.error("Erro ao verificar existência no cache #{cache_key}: #{inspect(reason)}")
         {:error, reason}
     end
   end
@@ -538,7 +536,7 @@ defmodule DeeperHub.Core.Cache do
       }}
     rescue
       error ->
-        Logger.error("Erro ao obter estatísticas do cache: #{inspect(error)}", module: __MODULE__)
+        DeeperHub.Core.Logger.error("Erro ao obter estatísticas do cache: #{inspect(error)}")
         {:error, error}
     end
   end
@@ -589,7 +587,7 @@ defmodule DeeperHub.Core.Cache do
         operation.()
       rescue
         error ->
-          Logger.error("Erro em transação de cache: #{inspect(error)}", module: __MODULE__)
+          DeeperHub.Core.Logger.error("Erro em transação de cache: #{inspect(error)}")
           {:error, error}
       end
     end)
@@ -597,7 +595,7 @@ defmodule DeeperHub.Core.Cache do
     case result do
       {:ok, value} -> {:ok, value}
       {:error, reason} ->
-        Logger.error("Erro ao executar transação: #{inspect(reason)}", module: __MODULE__)
+        DeeperHub.Core.Logger.error("Erro ao executar transação: #{inspect(reason)}")
         {:error, reason}
     end
   end
@@ -621,7 +619,7 @@ defmodule DeeperHub.Core.Cache do
   ## Retorno
   
     * `{:ok, stream}` - Um stream de entradas do cache
-    * `{:error, reason}` - Se ocorrer um erro
+    * `{:error, reason}` - Erro ao criar stream
   
   ## Exemplos
   
@@ -666,7 +664,7 @@ defmodule DeeperHub.Core.Cache do
     case Cachex.stream(@cache_name, query) do
       {:ok, stream} -> {:ok, stream}
       {:error, reason} ->
-        Logger.error("Erro ao criar stream de cache: #{inspect(reason)}", module: __MODULE__)
+        DeeperHub.Core.Logger.error("Erro ao criar stream de cache: #{inspect(reason)}")
         {:error, reason}
     end
   end
@@ -713,7 +711,7 @@ defmodule DeeperHub.Core.Cache do
     case Cachex.incr(@cache_name, cache_key, amount, ttl: ttl) do
       {:ok, value} -> {:ok, value}
       {:error, reason} -> 
-        Logger.error("Erro ao incrementar contador #{cache_key}: #{inspect(reason)}", module: __MODULE__)
+        DeeperHub.Core.Logger.error("Erro ao incrementar contador #{cache_key}: #{inspect(reason)}")
         {:error, reason}
     end
   end
@@ -976,7 +974,7 @@ defmodule DeeperHub.Core.Cache do
       apply(Cachex, :memory, [cache_name])
     rescue
       e -> 
-        Logger.error("Erro ao obter memória do cache: #{inspect(e)}", module: __MODULE__)
+        DeeperHub.Core.Logger.error("Erro ao obter uso de memória do cache: #{inspect(e)}")
         {:error, :memory_unavailable}
     end
   end
