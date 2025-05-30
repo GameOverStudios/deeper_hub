@@ -59,6 +59,131 @@ O DeeperHub segue uma arquitetura modular com os seguintes componentes principai
 - **Rotas e Controllers**: Rotas HTTP e manipuladores de requisições
 - **Plugs**: Middlewares para processamento de requisições
 
+## Sistema de Autenticação
+
+O DeeperHub implementa um sistema completo de autenticação e autorização:
+
+- **Gestão de Usuários**: Registro, atualização e desativação de contas
+- **Autenticação JWT**: Tokens de acesso e refresh com rotação segura
+- **Autorização Baseada em Funções**: Controle de acesso granular a recursos
+- **Autenticação em Duas Etapas (2FA)**: Camada adicional de segurança
+- **Gerenciamento de Sessões**: Controle de sessões ativas com revogação
+- **Bloqueio de Contas**: Proteção contra tentativas de força bruta
+- **Verificação de Email**: Confirmação de identidade via email
+- **Recuperação de Senha**: Fluxo seguro para redefinição de senhas
+
+## Sistema de Comunicação em Tempo Real
+
+A comunicação em tempo real é implementada através de:
+
+- **WebSockets**: Conexões persistentes para comunicação bidirecional
+- **Canais de Comunicação**: Espaços virtuais para mensagens em grupo
+  - Canais públicos e privados
+  - Controle de acesso por membro
+  - Gerenciamento de papéis (admin, moderador, membro)
+- **Mensagens Diretas**: Comunicação privada entre usuários
+- **Sistema de Presença**: Rastreamento em tempo real de usuários online
+  - Status personalizáveis (online, ausente, ocupado)
+  - Notificações de mudança de status
+- **PubSub**: Sistema de publicação-assinatura para distribuição de mensagens
+- **Persistência de Mensagens**: Armazenamento de histórico de mensagens
+
+## Banco de Dados e Persistência
+
+O sistema de persistência de dados inclui:
+
+- **Banco de Dados SQLite**: Armazenamento relacional leve e embarcado
+- **Sistema de Migrações**: Evolução automática do esquema do banco de dados
+- **Pool de Conexões**: Gerenciamento eficiente de conexões com o banco
+- **Transações**: Garantia de consistência em operações complexas
+- **Índices Otimizados**: Consultas de alto desempenho
+- **Tabelas Principais**:
+  - Usuários e perfis
+  - Canais e membros
+  - Mensagens
+  - Eventos de segurança
+  - Tokens revogados
+  - Sessões de usuário
+  - Verificações de email
+
+## Sistema de Cache
+
+O cache otimiza o desempenho e reduz a carga no banco de dados:
+
+- **Política LRU**: Gerenciamento inteligente de memória (Least Recently Used)
+- **Compressão**: Redução do espaço ocupado pelos dados em cache
+- **Expiração Automática**: Remoção automática de dados antigos
+- **Namespaces**: Organização de dados em grupos lógicos
+- **Persistência em Disco**: Armazenamento opcional para itens importantes
+- **Warmers**: Pré-carregamento de dados frequentemente acessados
+- **Mecanismos de Resiliência**:
+  - Stale: Uso de dados expirados durante falhas
+  - Local: Cópias locais de dados frequentes
+  - Degraded: Modo de funcionalidade reduzida
+- **Monitoramento**: Coleta de métricas de desempenho
+
+## Sistema de Telemetria
+
+A telemetria fornece visão abrangente do desempenho do sistema:
+
+- **Adaptadores Especializados**:
+  - Cache: Métricas de uso e eficiência do cache
+  - HTTP: Métricas de requisições, tempos de resposta e erros
+  - Network: Métricas de conexões, mensagens e canais
+  - Security: Métricas de eventos de segurança e ameaças
+  - Database: Métricas de consultas, transações e desempenho
+- **Coleta de Métricas**:
+  - Contadores: Operações acumulativas
+  - Medidores: Valores numéricos que mudam ao longo do tempo
+  - Históricos: Distribuição de valores
+  - Eventos: Registros de ocorrências específicas
+- **Armazenamento de Métricas**: Retenção configurável para análise histórica
+- **Exportadores**: Integração com sistemas externos como Prometheus
+- **Relatórios**: Resumos periódicos de métricas importantes
+
+## Sistema de Segurança
+
+O DeeperHub implementa diversas camadas de segurança:
+
+- **Proteção contra Ataques**:
+  - Limite de taxa de requisições (Rate Limiting)
+  - Proteção contra força bruta
+  - Validação rigorosa de entradas
+- **Detecção de Anomalias**: Identificação de padrões suspeitos
+- **Reputação de IPs**: Classificação dinâmica de endereços IP
+- **Registro de Eventos de Segurança**: Auditoria completa de atividades sensíveis
+- **Sistema de Alertas**: Notificações em tempo real de incidentes
+- **Criptografia**: Proteção de dados sensíveis em repouso e em trânsito
+
+## Sistema de Email
+
+O sistema de emails gerencia comunicações com os usuários:
+
+- **Filas de Emails**: Processamento assíncrono para evitar bloqueios
+- **Templates**: Modelos personalizados para diferentes tipos de emails
+- **Retry com Backoff**: Tentativas automáticas em caso de falha
+- **Persistência de Fila**: Recuperação de emails não enviados em caso de reinicialização
+- **Tipos de Emails**:
+  - Confirmação de registro
+  - Verificação de email
+  - Recuperação de senha
+  - Notificações de segurança
+  - Alertas de novas mensagens
+
+## API HTTP
+
+O DeeperHub expoe uma API RESTful para integração com clientes:
+
+- **Endpoints Principais**:
+  - Autenticação e gerenciamento de usuários
+  - Gestão de canais e mensagens
+  - Consulta de presença e status
+  - Métricas e saúde do sistema
+- **Versionamento da API**: Suporte a múltiplas versões para compatibilidade
+- **Documentação Interativa**: Especificação OpenAPI/Swagger
+- **CORS**: Suporte a requisições de origens cruzadas
+- **Compressão**: Redução do tamanho das respostas
+
 ## Requisitos
 
 - Elixir 1.18 ou superior
