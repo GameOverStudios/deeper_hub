@@ -3,14 +3,16 @@ defmodule DeeperHub.Core.Cache.Telemetry.Reporter do
   Módulo para relatar métricas de telemetria do sistema de cache.
   
   Este módulo é responsável por coletar, processar e relatar métricas
-  relacionadas ao desempenho e uso do sistema de cache. Ele se integra
-  com o sistema de telemetria do Elixir para publicar eventos que podem
-  ser consumidos por ferramentas de monitoramento.
+  relacionadas ao desempenho e uso do sistema de cache. Ele estende
+  o sistema base de telemetria do DeeperHub e se integra com o
+  sistema de telemetria do Elixir para publicar eventos específicos do cache.
   """
   
   require DeeperHub.Core.Logger
   alias DeeperHub.Core.Logger
   alias Cachex
+  # BaseReporter será usado na implementação futura
+  # alias DeeperHub.Core.Telemetry.Reporter, as: BaseReporter
   
   @doc """
   Inicializa o reporter de telemetria para o cache.
