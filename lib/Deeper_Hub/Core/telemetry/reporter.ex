@@ -88,6 +88,51 @@ defmodule DeeperHub.Core.Telemetry.Reporter do
     
     {:ok, metrics}
   end
+
+  @doc """
+  Relata um evento de telemetria.
+
+  Esta função publica um evento de telemetria usando o sistema de telemetria do Elixir.
+  Os eventos são emitidos com base no caminho especificado e incluem os dados fornecidos.
+
+  ## Parâmetros
+
+    * `event_path` - Lista de átomos que definem o caminho do evento (ex: [:deeper_hub, :http, :request])
+    * `data` - Mapa com os dados do evento
+    * `opts` - Opções adicionais de configuração
+
+  ## Retorno
+
+    * `:ok` - Evento relatado com sucesso
+    * `{:error, reason}` - Erro ao relatar evento
+
+  ## Exemplos
+
+      iex> DeeperHub.Core.Telemetry.Reporter.report_event([:deeper_hub, :http, :request], %{method: :get, path: "/users"})
+      :ok
+  """
+  @spec report_event(list(atom()), map(), keyword()) :: :ok | {:error, term()}
+  def report_event(event_path, data, _opts \\ []) do
+    try do
+      # Adiciona timestamp se não estiver presente
+      data = Map.put_new(data, :timestamp, DateTime.utc_now())
+      
+      # Publica o evento usando telemetry
+      :telemetry.execute(event_path, data)
+      
+      # Loga o evento no nível de debug
+      Logger.debug("Evento de telemetria emitido: #{inspect(event_path)}", 
+                 module: __MODULE__, 
+                 data: %{event: data})
+      
+      :ok
+    rescue
+      e ->
+        Logger.error("Erro ao emitir evento de telemetria #{inspect(event_path)}: #{inspect(e)}", 
+                   module: __MODULE__)
+        {:error, e}
+    end
+  end
   
   @doc """
   Para o reporter de telemetria para um componente.

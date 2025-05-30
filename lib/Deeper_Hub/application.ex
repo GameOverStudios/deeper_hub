@@ -74,7 +74,10 @@ defmodule DeeperHub.Application do
       {DeeperHub.Core.HTTP.Supervisor, []},
       
       # Inicia o supervisor do subsistema de email
-      {DeeperHub.Core.Mail.Supervisor, []}
+      {DeeperHub.Core.Mail.Supervisor, []},
+      
+      # Inicia o supervisor do subsistema de telemetria
+      {DeeperHub.Core.Telemetry.Supervisor, []}
       
       # Outros supervisores podem ser adicionados aqui conforme necessário
     ]

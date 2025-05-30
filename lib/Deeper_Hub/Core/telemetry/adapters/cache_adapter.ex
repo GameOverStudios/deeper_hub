@@ -78,6 +78,17 @@ defmodule DeeperHub.Core.Telemetry.Adapters.CacheAdapter do
     * `:ok` - Handlers configurados com sucesso
     * `{:error, reason}` - Erro durante a configuração
   """
+  @spec setup(keyword()) :: {:ok, pid()} | {:error, term()}
+  def setup(opts \\ []) do
+    component = :cache
+    
+    try do
+      DeeperHub.Core.Telemetry.Configurator.setup(component, opts)
+    rescue
+      e -> {:error, e}
+    end
+  end
+  
   @spec setup_handlers(atom(), binary()) :: :ok | {:error, term()}
   def setup_handlers(cache_name, prefix) do
     try do
