@@ -91,6 +91,9 @@ Este documento contém uma análise detalhada do projeto DeeperHub e todas as ta
 - [x] Criar .formatter.exs para formatação de código
 - [x] Criar .credo.exs para análise de código
 - [x] Criar .github/workflows/ci.yml para CI/CD
+- [x] Criar coveralls.json para configuração de cobertura de testes
+- [x] Criar .sobelow-conf para configuração de verificação de segurança
+- [x] Criar .editorconfig para consistência de formatação entre editores
 
 ## 📊 RESUMO DAS TAREFAS COMPLETADAS
 
