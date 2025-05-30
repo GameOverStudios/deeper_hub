@@ -1,145 +1,105 @@
 defmodule DeeperHub.Core.Mail.Templates.PasswordReset do
   @moduledoc """
-  Template de email para redefinição de senha.
-  
-  Este módulo fornece funções para renderizar templates de email
-  para redefinição de senha, tanto em formato HTML quanto texto plano.
+  Template de email para reset de senha.
   """
-  
+
+  alias DeeperHub.Core.Mail.Templates.Base
+
   @doc """
-  Renderiza o template HTML para um email de redefinição de senha.
-  
+  Gera o email de reset de senha.
+
   ## Parâmetros
-  
-  - `assigns` - Variáveis para renderização do template
-    - `:username` - Nome do usuário
-    - `:reset_url` - URL para redefinição de senha
-    - `:expiration_hours` - Tempo de expiração do link em horas
-    - `:app_name` - Nome da aplicação
-    - `:support_email` - Email de suporte
-    - `:current_year` - Ano atual
-  
+    * `user` - Dados do usuário
+    * `reset_token` - Token de reset
+    * `opts` - Opções adicionais
+
   ## Retorno
-  
-  - String HTML do template renderizado
+    * Mapa com subject, html_body e text_body
   """
-  def render_html(assigns) do
-    # Prepara os assigns com valores padrão
-    assigns = Map.merge(%{
-      app_name: "DeeperHub",
-      username: "usuário",
-      reset_url: "#",
-      expiration_hours: 24,
-      current_year: DateTime.utc_now().year,
-      support_email: get_support_email()
-    }, assigns)
-    
-    """
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <title>Redefinição de Senha - #{assigns.app_name}</title>
-      <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background-color: #2196F3; color: white; padding: 10px 20px; border-radius: 5px 5px 0 0; }
-        .content { border: 1px solid #ddd; border-top: none; padding: 20px; border-radius: 0 0 5px 5px; }
-        .footer { margin-top: 20px; font-size: 12px; color: #777; text-align: center; }
-        .button { display: inline-block; background-color: #2196F3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; }
-        h1 { margin: 0; font-size: 22px; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <h1>Redefinição de Senha</h1>
-        </div>
-        <div class="content">
-          <p>Olá <strong>#{assigns.username}</strong>,</p>
-          
-          <p>Recebemos uma solicitação para redefinir a senha da sua conta no #{assigns.app_name}.</p>
-          
-          <div style="margin: 30px 0; text-align: center;">
-            <p>Para criar uma nova senha, clique no botão abaixo:</p>
-            <a href="#{assigns.reset_url}" class="button">Redefinir Senha</a>
-          </div>
-          
-          <p>Ou copie e cole o seguinte link no seu navegador:</p>
-          <p style="background-color: #f9f9f9; padding: 10px; border-left: 4px solid #2196F3;">
-            #{assigns.reset_url}
-          </p>
-          
-          <p><strong>Importante:</strong> Este link expirará em #{assigns.expiration_hours} horas.</p>
-          
-          <p>Se você não solicitou esta redefinição de senha, por favor ignore este email ou entre em contato com nossa equipe de suporte.</p>
-          
-          <p>Atenciosamente,<br>Equipe #{assigns.app_name}</p>
-        </div>
-        <div class="footer">
-          <p>&copy; #{assigns.current_year} #{assigns.app_name}. Todos os direitos reservados.</p>
-          <p>Para suporte, contate <a href="mailto:#{assigns.support_email}">#{assigns.support_email}</a></p>
-        </div>
+  def render(user, reset_token, opts \\ []) do
+    %{
+      subject: "Redefinir sua senha - DeeperHub",
+      html_body: html_body(user, reset_token, opts),
+      text_body: text_body(user, reset_token, opts)
+    }
+  end
+
+  defp html_body(user, reset_token, opts) do
+    reset_url = build_reset_url(reset_token, opts)
+
+    content = """
+    <div class="password-reset-message">
+      <h2>Olá, #{user.username}! 🔐</h2>
+
+      <p>Recebemos uma solicitação para redefinir a senha da sua conta no DeeperHub.</p>
+
+      <div class="alert alert-warning">
+        <strong>Atenção:</strong> Este link de redefinição expira em 1 hora por motivos de segurança.
       </div>
-    </body>
-    </html>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="#{reset_url}" class="btn">Redefinir Minha Senha</a>
+      </div>
+
+      <p>Se o botão acima não funcionar, você pode copiar e colar o seguinte link no seu navegador:</p>
+      <p style="word-break: break-all; background-color: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace;">
+        #{reset_url}
+      </p>
+
+      <div class="alert alert-danger">
+        <strong>Não solicitou esta redefinição?</strong><br>
+        Se você não solicitou a redefinição de senha, ignore este email. Sua senha atual permanecerá inalterada.
+        Por segurança, recomendamos que você verifique sua conta e considere alterar sua senha.
+      </div>
+
+      <h3>🛡️ Dicas de Segurança:</h3>
+      <ul>
+        <li>Use uma senha forte com pelo menos 12 caracteres</li>
+        <li>Inclua letras maiúsculas, minúsculas, números e símbolos</li>
+        <li>Não reutilize senhas de outras contas</li>
+        <li>Considere usar um gerenciador de senhas</li>
+        <li>Ative a autenticação de dois fatores quando disponível</li>
+      </ul>
+
+      <p>Se você continuar tendo problemas para acessar sua conta, entre em contato com nosso suporte.</p>
+    </div>
     """
+
+    Base.render_html("Redefinir Senha", content, Keyword.put(opts, :user_id, user.id))
   end
-  
-  @doc """
-  Renderiza o template de texto plano para um email de redefinição de senha.
-  
-  ## Parâmetros
-  
-  - `assigns` - Variáveis para renderização do template
-    - `:username` - Nome do usuário
-    - `:reset_url` - URL para redefinição de senha
-    - `:expiration_hours` - Tempo de expiração do link em horas
-    - `:app_name` - Nome da aplicação
-    - `:support_email` - Email de suporte
-    - `:current_year` - Ano atual
-  
-  ## Retorno
-  
-  - String de texto plano do template renderizado
-  """
-  def render_text(assigns) do
-    # Prepara os assigns com valores padrão
-    assigns = Map.merge(%{
-      app_name: "DeeperHub",
-      username: "usuário",
-      reset_url: "#",
-      expiration_hours: 24,
-      current_year: DateTime.utc_now().year,
-      support_email: get_support_email()
-    }, assigns)
-    
+
+  defp text_body(user, reset_token, opts) do
+    reset_url = build_reset_url(reset_token, opts)
+
+    content = """
+    Olá, #{user.username}!
+
+    Recebemos uma solicitação para redefinir a senha da sua conta no DeeperHub.
+
+    ATENÇÃO: Este link de redefinição expira em 1 hora por motivos de segurança.
+
+    Para redefinir sua senha, acesse o seguinte link:
+    #{reset_url}
+
+    Não solicitou esta redefinição?
+    Se você não solicitou a redefinição de senha, ignore este email. Sua senha atual permanecerá inalterada.
+    Por segurança, recomendamos que você verifique sua conta e considere alterar sua senha.
+
+    Dicas de Segurança:
+    - Use uma senha forte com pelo menos 12 caracteres
+    - Inclua letras maiúsculas, minúsculas, números e símbolos
+    - Não reutilize senhas de outras contas
+    - Considere usar um gerenciador de senhas
+    - Ative a autenticação de dois fatores quando disponível
+
+    Se você continuar tendo problemas para acessar sua conta, entre em contato com nosso suporte.
     """
-    Redefinição de Senha - #{assigns.app_name}
-    
-    Olá #{assigns.username},
-    
-    Recebemos uma solicitação para redefinir a senha da sua conta no #{assigns.app_name}.
-    
-    Para criar uma nova senha, acesse o link abaixo:
-    #{assigns.reset_url}
-    
-    Este link expirará em #{assigns.expiration_hours} horas.
-    
-    Se você não solicitou esta redefinição de senha, por favor ignore este email ou entre em contato com nossa equipe de suporte.
-    
-    Atenciosamente,
-    Equipe #{assigns.app_name}
-    
-    --
-    © #{assigns.current_year} #{assigns.app_name}. Todos os direitos reservados.
-    Para suporte, contate #{assigns.support_email}
-    """
+
+    Base.render_text("Redefinir Senha", content)
   end
-  
-  # Obtém o email de suporte das configurações
-  defp get_support_email do
-    Application.get_env(:deeper_hub, :mail, [])
-    |> Keyword.get(:support_email, "suporte@deeperhub.com")
+
+  defp build_reset_url(token, opts) do
+    base_url = Application.get_env(:deeper_hub, :base_url, "https://example.com")
+    "#{base_url}/auth/reset-password?token=#{token}"
   end
 end
