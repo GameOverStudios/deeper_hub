@@ -58,6 +58,9 @@ defmodule DeeperHub.Application do
       # Não é mais necessário iniciar o Task.Supervisor para migrações
       # pois elas são executadas de forma síncrona
       
+      # Inicia o supervisor do sistema de cache
+      {DeeperHub.Core.Cache.Supervisor, []},
+      
       # Inicia o supervisor do subsistema de segurança
       {DeeperHub.Core.Security.Supervisor, []},
       
@@ -95,6 +98,11 @@ defmodule DeeperHub.Application do
     case result do
       {:ok, pid} ->
         DeeperHub.Core.Logger.info("Supervisor principal iniciado com sucesso.")
+        
+        # Inicializa o sistema de cache
+        DeeperHub.Core.Cache.init()
+        DeeperHub.Core.Logger.info("Sistema de cache inicializado.")
+        
         DeeperHub.Core.Logger.info("Sistema DeeperHub completamente inicializado.")
         {:ok, pid}
         
