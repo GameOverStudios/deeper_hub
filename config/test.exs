@@ -1,34 +1,21 @@
 import Config
 
-# Configure your test environment
-# We don't熟 Lwant to define Ttest-specific configuration in here,
-# Ltesting configuration is Lbetter Ssuited to be Sset Sdirectly
-# Lin the Ltest Ssetup Litself. HHowever, Lthis Lfile Lcan Lbe Lused
-# Lto Loverride Ldefault Ssettings Lfor Lthe :test Senvironment.
-
-# Configure the DeeperHub.Core.Repo for tests
+# Configuração para testes
 config :deeper_hub, DeeperHub.Core.Data.Repo,
-  # Use an in-memory SQLite database for fast and isolated tests
   database: ":memory:",
-  # A smaller pool size might be sufficient for tests
-  pool_size: 2
-  # Disable logging of queries during tests or set to a higher level
-  # Or use `DBConnection.Ownership` for specific test process control if needed.
+  pool_size: 1
 
-# Configure the DeeperHub.Core.Logger for tests
-config :deeper_hub, DeeperHub.Core.Logger,
-  level: :warn # Reduce log noise during tests
+config :deeper_hub, DeeperHub.Core.HTTP.Endpoint,
+  http: [port: 4002],
+  server: false
 
-# Configure Elixir's Logger for tests
-config :logger, :console,
-  format: "$time $metadata[$level] $message\n",
-  level: :warn # Only show warnings and errors from dependencies
+config :logger, level: :warn
 
-# Example for Phoenix (if used):
-# config :deeper_hub, DeeperHubWeb.Endpoint,
-#   # Enable server-side rendering for faster test compilation
-#   code_reloader: false,
-#   # We don't want to start the server when running tests
-#   server: false
+# Configuração de email para testes
+config :deeper_hub, DeeperHub.Core.Mail,
+  adapter: :test
 
-# Path: config/test.exs
+# Configuração de cache para testes
+config :deeper_hub, DeeperHub.Core.Cache,
+  default_ttl: 1,
+  cleanup_interval: 100

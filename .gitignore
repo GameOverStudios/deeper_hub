@@ -10,6 +10,9 @@
 # Where third-party dependencies like ExDoc output generated docs.
 /doc/
 
+# Ignore .fetch files in case you like to edit your project deps locally.
+/.fetch
+
 # If the VM crashes, it generates a dump, let's ignore it too.
 erl_crash.dump
 
@@ -21,3 +24,50 @@ deeper_hub-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Database files
+/databases/
+*.db
+*.db-*
+
+# Log files
+/logs/
+*.log
+
+# Cache files
+/cache/
+*.cache
+
+# Release files
+/_build/prod/
+/releases/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.bak
+*.backup
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+
+# Application specific
+/priv/data/
+/uploads/
+/storage/

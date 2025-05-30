@@ -4,10 +4,16 @@ defmodule DeeperHub.MixProject do
   def project do
     [
       app: :deeper_hub,
-      version: "0.1.0",
+      version: "1.0.0",
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      aliases: aliases(),
+      releases: releases(),
+      preferred_cli_env: [
+        "test.watch": :test,
+        "test.coverage": :test
+      ]
     ]
   end
 
@@ -57,7 +63,6 @@ defmodule DeeperHub.MixProject do
       # Auth
       {:joken, "~> 2.6"},
       {:guardian, "~> 2.3"},
-      {:pbkdf2_elixir, "~> 2.2"},
       #{:bcrypt_elixir, "~> 3.0"},
 
       # Segurança
@@ -66,7 +71,34 @@ defmodule DeeperHub.MixProject do
       # Mail
       {:mail, "~> 0.4"},
       {:gen_smtp, "~> 1.2"},
+
+      # Produção
+      {:logger_file_backend, "~> 0.0.13"},
+      #{:phoenix_live_dashboard, "~> 0.8"},
+      {:recon, "~> 2.5"}
     ]
   end
 
+  # Aliases úteis para desenvolvimento
+  defp aliases do
+    [
+      setup: ["deps.get", "compile"],
+      "test.watch": ["test --listen-on-stdin"],
+      "test.coverage": ["test --cover"],
+      format: ["format", "credo --strict"],
+      "deps.clean": ["deps.clean --all"],
+      reset: ["deps.clean", "clean", "deps.get", "compile"]
+    ]
+  end
+
+  # Configuração de releases para produção
+  defp releases do
+    [
+      deeper_hub: [
+        include_executables_for: [:unix],
+        applications: [runtime_tools: :permanent],
+        steps: [:assemble, :tar]
+      ]
+    ]
+  end
 end

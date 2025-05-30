@@ -1,294 +1,250 @@
 # DeeperHub
 
-DeeperHub é um sistema de comunicação em tempo real construído com Elixir e OTP, projetado para fornecer canais de comunicação seguros e escaláveis. O sistema utiliza WebSockets para comunicação bidirecional em tempo real, autenticação JWT para segurança e SQLite para armazenamento de dados.
+Sistema de comunicação em tempo real construído com Elixir, focado em performance, segurança e escalabilidade.
 
-## Índice de Funcionalidades
+## 🚀 Funcionalidades
 
-- [Visão Geral](#visão-geral)
-- [Arquitetura do Sistema](#arquitetura-do-sistema)
-- [Sistema de Autenticação](#sistema-de-autenticação)
-- [Sistema de Comunicação em Tempo Real](#sistema-de-comunicação-em-tempo-real)
-- [Banco de Dados e Persistência](#banco-de-dados-e-persistência)
-- [Sistema de Cache](#sistema-de-cache)
-- [Sistema de Telemetria](#sistema-de-telemetria)
-- [Sistema de Segurança](#sistema-de-segurança)
-- [Sistema de Email](#sistema-de-email)
-- [API HTTP](#api-http)
-- [Instalação e Configuração](#instalação)
-- [Documentação](#documentação)
-- [Testes](#testes)
+- **Autenticação Segura**: JWT com suporte a 2FA
+- **Comunicação em Tempo Real**: WebSockets com canais
+- **Sistema de Presença**: Rastreamento de usuários online
+- **Cache Distribuído**: Sistema de cache avançado com Cachex
+- **Segurança Robusta**: Detecção de anomalias e proteção contra ataques
+- **Monitoramento**: Telemetria e métricas integradas
+- **Escalabilidade**: Suporte a clustering e load balancing
 
-## Visão Geral
+## 📋 Pré-requisitos
 
-O DeeperHub oferece uma plataforma completa para comunicação em tempo real com foco em desempenho, segurança e escalabilidade. Construido com a plataforma Elixir/OTP, o sistema aproveita os recursos de concorrência e tolerância a falhas nativos do Erlang.
+- Elixir 1.18+
+- Erlang/OTP 26+
+- SQLite 3
+- Redis (opcional, para cache distribuído)
+- Docker (opcional, para containerização)
 
-### Características Principais
+## 🛠️ Instalação
 
-- **Autenticação Segura**: Sistema completo de autenticação baseado em JWT
-- **WebSockets em Tempo Real**: Comunicação bidirecional de baixa latência
-- **Canais de Comunicação**: Sistema flexível de canais para mensagens em grupo
-- **Presença de Usuários**: Rastreamento de usuários online em tempo real
-- **Banco de Dados SQLite**: Armazenamento leve e portátil com migrações automáticas
-- **Arquitetura OTP**: Processos leves e supervisores para alta concorrência e tolerância a falhas
-- **Telemetria Avançada**: Monitoramento em tempo real de todos os componentes do sistema
-- **Cache Otimizado**: Sistema de cache com política LRU e mecanismos de resiliência
-- **Segurança Robusta**: Proteção contra ataques, detecção de anomalias e reputação de IPs
-
-## Arquitetura do Sistema
-
-O DeeperHub segue uma arquitetura modular com os seguintes componentes principais:
-
-### Core
-
-- **Network**: Gerenciamento de conexões WebSocket, canais e presença
-- **Data**: Acesso a banco de dados, migrações e operações transacionais
-- **HTTP**: Endpoints da API REST e middlewares
-- **Security**: Proteção contra ataques e monitoramento de segurança
-- **Cache**: Sistema de cache distribuído com políticas de expiração
-- **Logger**: Sistema de logging centralizado com níveis configuráveis
-- **Mail**: Sistema de envio de emails com filas e templates
-- **Telemetry**: Coleta e exportação de métricas de todos os componentes
-
-### Accounts
-
-- **Auth**: Autenticação, autorização e gerenciamento de sessões
-- **User**: Gerenciamento de usuários, perfis e preferências
-
-### Web Interface
-
-- **Rotas e Controllers**: Rotas HTTP e manipuladores de requisições
-- **Plugs**: Middlewares para processamento de requisições
-
-## Sistema de Autenticação
-
-O DeeperHub implementa um sistema completo de autenticação e autorização:
-
-- **Gestão de Usuários**: Registro, atualização e desativação de contas
-- **Autenticação JWT**: Tokens de acesso e refresh com rotação segura
-- **Autorização Baseada em Funções**: Controle de acesso granular a recursos
-- **Autenticação em Duas Etapas (2FA)**: Camada adicional de segurança
-- **Gerenciamento de Sessões**: Controle de sessões ativas com revogação
-- **Bloqueio de Contas**: Proteção contra tentativas de força bruta
-- **Verificação de Email**: Confirmação de identidade via email
-- **Recuperação de Senha**: Fluxo seguro para redefinição de senhas
-
-## Sistema de Comunicação em Tempo Real
-
-A comunicação em tempo real é implementada através de:
-
-- **WebSockets**: Conexões persistentes para comunicação bidirecional
-- **Canais de Comunicação**: Espaços virtuais para mensagens em grupo
-  - Canais públicos e privados
-  - Controle de acesso por membro
-  - Gerenciamento de papéis (admin, moderador, membro)
-- **Mensagens Diretas**: Comunicação privada entre usuários
-- **Sistema de Presença**: Rastreamento em tempo real de usuários online
-  - Status personalizáveis (online, ausente, ocupado)
-  - Notificações de mudança de status
-- **PubSub**: Sistema de publicação-assinatura para distribuição de mensagens
-- **Persistência de Mensagens**: Armazenamento de histórico de mensagens
-
-## Banco de Dados e Persistência
-
-O sistema de persistência de dados inclui:
-
-- **Banco de Dados SQLite**: Armazenamento relacional leve e embarcado
-- **Sistema de Migrações**: Evolução automática do esquema do banco de dados
-- **Pool de Conexões**: Gerenciamento eficiente de conexões com o banco
-- **Transações**: Garantia de consistência em operações complexas
-- **Índices Otimizados**: Consultas de alto desempenho
-- **Tabelas Principais**:
-  - Usuários e perfis
-  - Canais e membros
-  - Mensagens
-  - Eventos de segurança
-  - Tokens revogados
-  - Sessões de usuário
-  - Verificações de email
-
-## Sistema de Cache
-
-O cache otimiza o desempenho e reduz a carga no banco de dados:
-
-- **Política LRU**: Gerenciamento inteligente de memória (Least Recently Used)
-- **Compressão**: Redução do espaço ocupado pelos dados em cache
-- **Expiração Automática**: Remoção automática de dados antigos
-- **Namespaces**: Organização de dados em grupos lógicos
-- **Persistência em Disco**: Armazenamento opcional para itens importantes
-- **Warmers**: Pré-carregamento de dados frequentemente acessados
-- **Mecanismos de Resiliência**:
-  - Stale: Uso de dados expirados durante falhas
-  - Local: Cópias locais de dados frequentes
-  - Degraded: Modo de funcionalidade reduzida
-- **Monitoramento**: Coleta de métricas de desempenho
-
-## Sistema de Telemetria
-
-A telemetria fornece visão abrangente do desempenho do sistema:
-
-- **Adaptadores Especializados**:
-  - Cache: Métricas de uso e eficiência do cache
-  - HTTP: Métricas de requisições, tempos de resposta e erros
-  - Network: Métricas de conexões, mensagens e canais
-  - Security: Métricas de eventos de segurança e ameaças
-  - Database: Métricas de consultas, transações e desempenho
-- **Coleta de Métricas**:
-  - Contadores: Operações acumulativas
-  - Medidores: Valores numéricos que mudam ao longo do tempo
-  - Históricos: Distribuição de valores
-  - Eventos: Registros de ocorrências específicas
-- **Armazenamento de Métricas**: Retenção configurável para análise histórica
-- **Exportadores**: Integração com sistemas externos como Prometheus
-- **Relatórios**: Resumos periódicos de métricas importantes
-
-## Sistema de Segurança
-
-O DeeperHub implementa diversas camadas de segurança:
-
-- **Proteção contra Ataques**:
-  - Limite de taxa de requisições (Rate Limiting)
-  - Proteção contra força bruta
-  - Validação rigorosa de entradas
-- **Detecção de Anomalias**: Identificação de padrões suspeitos
-- **Reputação de IPs**: Classificação dinâmica de endereços IP
-- **Registro de Eventos de Segurança**: Auditoria completa de atividades sensíveis
-- **Sistema de Alertas**: Notificações em tempo real de incidentes
-- **Criptografia**: Proteção de dados sensíveis em repouso e em trânsito
-
-## Sistema de Email
-
-O sistema de emails gerencia comunicações com os usuários:
-
-- **Filas de Emails**: Processamento assíncrono para evitar bloqueios
-- **Templates**: Modelos personalizados para diferentes tipos de emails
-- **Retry com Backoff**: Tentativas automáticas em caso de falha
-- **Persistência de Fila**: Recuperação de emails não enviados em caso de reinicialização
-- **Tipos de Emails**:
-  - Confirmação de registro
-  - Verificação de email
-  - Recuperação de senha
-  - Notificações de segurança
-  - Alertas de novas mensagens
-
-## API HTTP
-
-O DeeperHub expoe uma API RESTful para integração com clientes:
-
-- **Endpoints Principais**:
-  - Autenticação e gerenciamento de usuários
-  - Gestão de canais e mensagens
-  - Consulta de presença e status
-  - Métricas e saúde do sistema
-- **Versionamento da API**: Suporte a múltiplas versões para compatibilidade
-- **Documentação Interativa**: Especificação OpenAPI/Swagger
-- **CORS**: Suporte a requisições de origens cruzadas
-- **Compressão**: Redução do tamanho das respostas
-
-## Requisitos
-
-- Elixir 1.18 ou superior
-- Erlang/OTP 26 ou superior
-- SQLite 3.35.0 ou superior
-
-## Instalação
-
-### Desenvolvimento
+### Desenvolvimento Local
 
 1. Clone o repositório:
-   ```bash
-   git clone https://github.com/seu-usuario/deeper_hub.git
-   cd deeper_hub
-   ```
+```bash
+git clone <repository-url>
+cd deeper_hub
+```
 
-2. Instale as dependências:
-   ```bash
-   mix deps.get
-   ```
+2. Execute o script de setup:
+```bash
+chmod +x scripts/setup.sh
+./scripts/setup.sh
+```
 
-3. Configure o ambiente:
-   ```bash
-   # Opcional: defina a chave secreta para JWT (ou use a padrão para desenvolvimento)
-   export GUARDIAN_SECRET_KEY="sua_chave_secreta"
-   ```
+3. Configure as variáveis de ambiente:
+```bash
+cp .env.example .env
+# Edite o arquivo .env com suas configurações
+```
 
-4. Compile o projeto:
-   ```bash
-   mix compile
-   ```
+4. Inicie o servidor:
+```bash
+mix run --no-halt
+```
 
-5. Inicie o servidor:
-   ```bash
-   mix run --no-halt
-   ```
+### Docker
 
-### Produção
+1. Build da imagem:
+```bash
+docker build -t deeper_hub .
+```
 
-Para implantação em produção, consulte o [Guia de Produção](docs/PRODUCAO.md).
+2. Execute com docker-compose:
+```bash
+docker-compose up -d
+```
 
-## Uso
+## ⚙️ Configuração
+
+### Variáveis de Ambiente
+
+Consulte o arquivo `.env.example` para todas as variáveis disponíveis:
+
+- `SECRET_KEY_BASE`: Chave secreta para sessões
+- `GUARDIAN_SECRET_KEY`: Chave secreta para JWT
+- `DATABASE_PATH`: Caminho para o banco SQLite
+- `PORT`: Porta do servidor (padrão: 4000)
+- `SMTP_*`: Configurações de email
+
+### Configuração por Ambiente
+
+- **Desenvolvimento**: `config/dev.exs`
+- **Produção**: `config/prod.exs`
+- **Testes**: `config/test.exs`
+- **Runtime**: `config/runtime.exs`
+
+## 🧪 Testes
+
+```bash
+# Executar todos os testes
+mix test
+
+# Testes com coverage
+mix test --cover
+
+# Testes em modo watch
+mix test.watch
+```
+
+## 📊 Monitoramento
+
+### Health Check
+
+```bash
+curl http://localhost:4000/health
+```
+
+### Métricas
+
+O sistema expõe métricas Prometheus em `/metrics` (quando configurado).
+
+### Logs
+
+- **Desenvolvimento**: Console colorido
+- **Produção**: JSON estruturado em arquivo
+
+## 🔒 Segurança
+
+### Funcionalidades Implementadas
+
+- Rate limiting por endpoint
+- Headers de segurança (HSTS, CSP, etc.)
+- Sanitização de dados sensíveis nos logs
+- Detecção de anomalias
+- Proteção contra ataques comuns (XSS, CSRF, SQL Injection)
+
+### Auditoria
+
+Todas as ações importantes são auditadas automaticamente:
+
+```elixir
+DeeperHub.Core.Logger.audit("user_login", 
+  user_id: user.id, 
+  ip_address: conn.remote_ip
+)
+```
+
+## 🚀 Deploy
+
+### Produção Manual
+
+```bash
+chmod +x scripts/deploy.sh
+./scripts/deploy.sh
+```
+
+### Docker em Produção
+
+```bash
+docker-compose -f docker-compose.yml up -d
+```
+
+### Variáveis de Produção
+
+Certifique-se de configurar:
+- `MIX_ENV=prod`
+- `SECRET_KEY_BASE` (gerado com `mix phx.gen.secret`)
+- `GUARDIAN_SECRET_KEY` (gerado com `mix guardian.gen.secret`)
+- `DATABASE_PATH` (caminho persistente)
+- Configurações SMTP para emails
+
+## 📚 API
 
 ### Autenticação
 
-```elixir
-# Registrar um novo usuário
-{:ok, user} = DeeperHub.Accounts.Auth.register_user(%{
-  username: "usuario",
-  email: "usuario@exemplo.com",
-  password: "Senha@123"
-})
+```bash
+# Login
+POST /auth/login
+{
+  "email": "user@example.com",
+  "password": "password"
+}
 
-# Autenticar usuário e obter tokens
-{:ok, user} = DeeperHub.Accounts.Auth.authenticate_user("usuario@exemplo.com", "Senha@123")
-{:ok, tokens} = DeeperHub.Accounts.Auth.generate_tokens(user)
-# tokens contém access_token e refresh_token
+# Refresh token
+POST /auth/refresh
+{
+  "refresh_token": "..."
+}
 ```
 
-### Canais
+### WebSockets
 
-```elixir
-# Criar um novo canal
-{:ok, channel} = DeeperHub.Core.Network.Channels.create("nome-do-canal", user_id)
+```javascript
+// Conectar ao socket
+const socket = new WebSocket('ws://localhost:4000/socket');
 
-# Inscrever um usuário em um canal
-:ok = DeeperHub.Core.Network.Channels.subscribe("nome-do-canal", user_id)
-
-# Enviar mensagem para um canal
-:ok = DeeperHub.Core.Network.Channels.broadcast("nome-do-canal", %{
-  content: "Olá, mundo!",
-  sender_id: user_id
-})
+// Entrar em um canal
+socket.send(JSON.stringify({
+  topic: "room:lobby",
+  event: "phx_join",
+  payload: {},
+  ref: "1"
+}));
 ```
 
-## Documentação
+## 🏗️ Arquitetura
 
-- [Arquitetura do Sistema](docs/ARQUITETURA.md)
-- [Guia de Produção](docs/PRODUCAO.md)
-- [Guia de Segurança](docs/SEGURANCA.md)
+```
+lib/
+├── deeper_hub/
+│   ├── accounts/          # Gerenciamento de usuários
+│   ├── core/
+│   │   ├── cache/         # Sistema de cache
+│   │   ├── data/          # Banco de dados
+│   │   ├── http/          # Endpoints HTTP
+│   │   ├── logger/        # Sistema de logging
+│   │   ├── mail/          # Sistema de email
+│   │   ├── network/       # WebSockets e canais
+│   │   ├── security/      # Segurança
+│   │   └── telemetry/     # Métricas
+│   └── web_interface/     # Controllers e rotas
+```
 
-A documentação da API pode ser gerada com ExDoc:
+## 🤝 Contribuição
+
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+### Padrões de Código
 
 ```bash
-mix docs
+# Formatar código
+mix format
+
+# Análise de código
+mix credo --strict
+
+# Verificação de segurança
+mix sobelow
 ```
 
-## Testes
+## 📄 Licença
 
-Execute os testes com:
+Este projeto está licenciado sob a MIT License - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
-```bash
-mix test
-```
+## 🆘 Suporte
 
-Para testes de carga:
+- **Issues**: [GitHub Issues](https://github.com/your-repo/deeper_hub/issues)
+- **Documentação**: [Docs](https://your-docs-url.com)
+- **Email**: support@deeperhub.com
 
-```bash
-mix run test/load/simple_load_test.exs
-```
+## 🎯 Roadmap
 
-## Licença
+- [ ] Interface web completa
+- [ ] Mobile app
+- [ ] Integração com terceiros
+- [ ] Machine learning para detecção de anomalias
+- [ ] Suporte a múltiplos bancos de dados
+- [ ] Clustering automático
 
-Este projeto está licenciado sob a licença MIT - veja o arquivo LICENSE para detalhes.
+---
 
-## Contribuição
-
-Contribuições são bem-vindas! Por favor, sinta-se à vontade para enviar pull requests ou abrir issues para discutir melhorias ou reportar problemas.
+Feito com ❤️ pela equipe DeeperHub
