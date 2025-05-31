@@ -9,18 +9,26 @@ config :logger,
     [level_lower_than: :warning]
   ]
 
-# Banco de dados com nome específico para ambiente de testes
+# Banco de dados em memória para testes mais rápidos
 config :deeper_hub, :database,
-  database_name: "deeper_hub_test.db",
-  pool_size: 2,
-  database_path: "databases/test"
+  database_name: ":memory:",
+  pool_size: 5
 
-# Cache com TTL reduzido para testes mais rápidos
+# Configuração do repositório Ecto com SQLite em memória para testes
+config :deeper_hub, DeeperHub.DataAccess.Repo,
+  database: ":memory:",
+  pool: Ecto.Adapters.SQL.Sandbox,
+  pool_size: 10,
+  journal_mode: :memory,
+  foreign_keys: :on,
+  busy_timeout: 5000
+
+# Configurações de cache mais agressivas para testes
 config :deeper_hub, :cache,
-  default_ttl: 60,  # 1 minuto em segundos
-  poll_interval: 5  # 5 segundos
+  default_ttl: 30,  # 30 segundos
+  poll_interval: 10  # 10 segundos
 
-# Telemetria com logging desabilitado para testes
+# Telemetria desabilitada para testes
 config :deeper_hub, :telemetry,
-  enabled: true,
+  enabled: false,
   enable_logging: false

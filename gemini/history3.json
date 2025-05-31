@@ -27,8 +27,8 @@ defmodule DeeperHub.Core.Data.Migrations.CreateUsersTable do
   \"\"\"
 
   alias DeeperHub.Core.Data.Repo
-  alias DeeperHub.Core.Logger
-  require DeeperHub.Core.Logger
+  alias DeeperHub.Logger
+  require DeeperHub.Logger
 
   @doc \"\"\"
   Executa a migração para criar a tabela de usuários.

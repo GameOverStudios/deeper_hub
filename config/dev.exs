@@ -15,6 +15,15 @@ config :deeper_hub, :database,
   pool_size: 5,
   show_sensitive_data_on_connection_error: true
 
+# Configuração do repositório Ecto com SQLite
+config :deeper_hub, DeeperHub.DataAccess.Repo,
+  database: Path.join([System.get_env("MIX_APP_PATH") || Path.expand("../_build/dev/lib/deeper_hub", __DIR__), "../../../databases/deeper_hub_dev.db"]),
+  pool_size: 5,
+  journal_mode: :wal,
+  foreign_keys: :on,
+  busy_timeout: 2000,
+  show_sensitive_data_on_connection_error: true
+
 # Cache com tamanho maior para desenvolvimento, permitindo mais experimentação
 config :deeper_hub, :cache,
   default_ttl: 300,  # 5 minutos em segundos

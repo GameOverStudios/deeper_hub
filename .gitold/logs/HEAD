@@ -1,6 +1,0 @@
-0000000000000000000000000000000000000000 9d148c45f77a68f931436e14b9bec5ff807c9da4 Your Name <you@example.com> 1748651393 -0300	commit (initial): Logger, Cache, Telemetry, Metrics
-9d148c45f77a68f931436e14b9bec5ff807c9da4 039ecbb57250efa489c96b61ae97de3a263a6759 Your Name <you@example.com> 1748652342 -0300	commit: Logger, Cache, Telemetry, Metrics
-039ecbb57250efa489c96b61ae97de3a263a6759 56cf611a63f6d23f41b177266338710f3890a6c1 Your Name <you@example.com> 1748652891 -0300	commit: CRUD Tests [OK]
-56cf611a63f6d23f41b177266338710f3890a6c1 2bf1aa27acf928609fc4e44f8f29534fff6ee107 Your Name <you@example.com> 1748655978 -0300	commit: EventBus [OK]
-2bf1aa27acf928609fc4e44f8f29534fff6ee107 6ecb788ec6b2deb3a2619978ae5c5fa1edb502fb Your Name <you@example.com> 1748657387 -0300	commit: All Modules OK
-6ecb788ec6b2deb3a2619978ae5c5fa1edb502fb e58d2388cb82d60c6d77ee87e7eb95cb612e2a5e Your Name <you@example.com> 1748658995 -0300	commit: PRODUCTION

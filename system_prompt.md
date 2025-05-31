@@ -118,7 +118,7 @@ lib/services/
 
 #### Módulos
 - Use `PascalCase` para nomes de módulos
-- Prefixe com o nome do projeto: `DeeperHub.Core.Logger`
+- Prefixe com o nome do projeto: `DeeperHub.Logger`
 - Seja descritivo e específico: `UserRegistrationService` não `UserService`
 
 #### Funções e Variáveis
@@ -158,7 +158,7 @@ lib/services/user_service/
 ### 1. ESTRUTURA DE MÓDULOS
 
 ```elixir
-defmodule DeeperHub.Core.Logger do
+defmodule DeeperHub.Logger do
   @moduledoc """
   Módulo responsável pelo sistema de logging da aplicação.
   
@@ -169,7 +169,7 @@ defmodule DeeperHub.Core.Logger do
   """
   
   # Aliases e imports no topo
-  alias DeeperHub.Core.Logger.Formatter
+  alias DeeperHub.Logger.Formatter
   
   # Constantes e configurações
   @default_level :info

@@ -2,7 +2,7 @@ import Config
 
 # Configurações globais compartilhadas entre todos os ambientes
 config :deeper_hub,
-  ecto_repos: []
+  ecto_repos: [DeeperHub.DataAccess.Repo]
 
 # Configurações de Logger
 config :logger,
