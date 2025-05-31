@@ -1,0 +1,1 @@
+cls & rmdir databases /S /Q & mix run
