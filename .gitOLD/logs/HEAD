@@ -1,6 +1,0 @@
-0000000000000000000000000000000000000000 cf3145ed538a5cba0fab1c6947c13cc97ffdd4c7 Your Name <you@example.com> 1747587233 -0300	commit (initial): Logger
-cf3145ed538a5cba0fab1c6947c13cc97ffdd4c7 10495df747ece97bd61e2933f62d995ea653b716 Your Name <you@example.com> 1747588210 -0300	commit: DBConnection Essencial
-10495df747ece97bd61e2933f62d995ea653b716 1a2996d84c29f01e613c9b629bd93f9753e60699 Your Name <you@example.com> 1747588406 -0300	commit: Crud
-1a2996d84c29f01e613c9b629bd93f9753e60699 b4b65a38afaad5d14edb336844203c229675985d Your Name <you@example.com> 1747588648 -0300	commit: DBConnection Essencial
-b4b65a38afaad5d14edb336844203c229675985d b4b65a38afaad5d14edb336844203c229675985d Your Name <you@example.com> 1747589605 -0300	reset: moving to HEAD
-b4b65a38afaad5d14edb336844203c229675985d 0d4ba180a194afdf4107da4c5896747ae639f687 Your Name <you@example.com> 1747592419 -0300	commit: Auto DataBase Migrations [OK]

@@ -1,7 +1,0 @@
-config :sobelow,
-  verbose: true,
-  private: false,
-  skip: [],
-  ignore: [],
-  ignore_files: ["lib/deeper_hub/release.ex"],
-  details: true
