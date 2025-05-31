@@ -107,7 +107,7 @@ def encontrar_blocos_markdown(texto):
             return [conteudo]
     
     # Se nada funcionar, tenta pegar todo o texto após a menção do arquivo
-    texto_apos_mencao = re.sub(r'^.*?Deeper/docs/[^\n]*?(?:\*\*|`)?\s*\n', '', texto, 1, re.DOTALL)
+    texto_apos_mencao = re.sub(r'^.*?Deeper/docs/[^\n]*?(?:\*\*|`)?\s*\n', '', texto, count=1, flags=re.DOTALL)
     if len(texto_apos_mencao.strip()) > 30:  # Conteúdo mínimo significativo
         return [texto_apos_mencao.strip()]
     
@@ -233,7 +233,7 @@ def main():
     diretorio_script = os.path.dirname(os.path.abspath(__file__))
     
     # Caminho para o arquivo history.json
-    caminho_history = os.path.join(diretorio_script, 'history3.json')
+    caminho_history = os.path.join(diretorio_script, 'history5.json')
     
     # Verifica se o arquivo existe
     if not os.path.exists(caminho_history):
