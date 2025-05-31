@@ -1,6 +1,6 @@
 # Migração Elixir: Criar Tabela `sys_profiles`
 
-Este módulo de migração Elixir é responsável por criar a tabela `sys_profiles` no banco de dados SQLite. Esta tabela serve como um elo entre uma conta de usuário (`sys_accounts`) e os dados específicos de seus diferentes tipos de perfis (ex: um perfil de pessoa em `bx_persons_data`, um perfil de organização em uma futura tabela `bx_organizations_data`, etc.).
+Este módulo de migração Elixir é responsável por criar a tabela `sys_profiles` no banco de dados SQLite. Esta tabela serve como um elo entre uma conta de usuário (`sys_accounts`) e os dados específicos de um tipo de perfil (por exemplo, dados de uma pessoa em `bx_persons_data`).
 
 ## Código da Migração (`lib/deeper/core/data/migrations/create_sys_profiles_table.ex`)
 
@@ -21,12 +21,15 @@ defmodule Deeper.Core.Data.Migrations.CreateSysProfilesTable do
   def up do
     Logger.info(\"Criando tabela sys_profiles...\", module: __MODULE__)
 
+    # Habilitar chaves estrangeiras para esta conexão, se não for o padrão do Repo
+    # Repo.execute(\"PRAGMA foreign_keys = ON;\") -- Descomente se necessário e se seu Repo não fizer isso automaticamente
+
     sql = \"\"\"
     CREATE TABLE IF NOT EXISTS sys_profiles (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       account_id INTEGER NOT NULL,
-      type TEXT NOT NULL,
-      content_id INTEGER NOT NULL,
+      type TEXT NOT NULL, -- Ex: 'bx_persons', 'bx_organizations'
+      content_id INTEGER NOT NULL, -- ID na tabela de dados específica do tipo
       status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'pending', 'suspended')),
       FOREIGN KEY (account_id) REFERENCES sys_accounts(id) ON DELETE CASCADE ON UPDATE CASCADE
     );
@@ -35,9 +38,8 @@ defmodule Deeper.Core.Data.Migrations.CreateSysProfilesTable do
     CREATE INDEX IF NOT EXISTS idx_sys_profiles_type_content_id ON sys_profiles(type, content_id);
     CREATE UNIQUE INDEX IF NOT EXISTS idx_sys_profiles_account_type_content ON sys_profiles(account_id, type, content_id);
     \"\"\"
-    # Adicionando PRAGMA para habilitar FKs se necessário para esta sessão de execução
-    # Idealmente, isso é configurado na conexão do Repo.
-    # Repo.execute(\"PRAGMA foreign_keys = ON;\")
+    # Adicionamos ON UPDATE CASCADE para a FK, embora o SQLite tenha um suporte limitado/comportamento específico para isso.
+    # A principal preocupação é o ON DELETE CASCADE.
 
     case Repo.execute(sql) do
       {:ok, _} ->
@@ -72,8 +74,9 @@ end
 
 ## Notas:
 
-*   A coluna `account_id` é uma chave estrangeira que referencia `sys_accounts.id`. A cláusula `ON DELETE CASCADE` garante que, se uma conta for excluída, todos os seus perfis associados também serão removidos. `ON UPDATE CASCADE` (se suportado e desejado para SQLite neste contexto) propagaria atualizações no `sys_accounts.id` (embora IDs de PK raramente mudem).
-*   A coluna `type` armazena uma string que identifica o tipo de perfil (ex: \"bx_persons\", \"bx_organizations\").
-*   A coluna `content_id` armazena o ID da entrada na tabela de dados específica para aquele `type` (ex: `id` da tabela `bx_persons_data`).
-*   O índice `idx_sys_profiles_account_type_content` garante que uma conta não possa ter múltiplos perfis do mesmo tipo apontando para o mesmo `content_id`.
-*   **Habilitação de Chaves Estrangeiras no SQLite:** Para que as constraints de chave estrangeira funcionem no SQLite, elas precisam ser habilitadas por conexão usando `PRAGMA foreign_keys = ON;`. É importante garantir que o módulo `Deeper.Core.Data.Repo` configure isso ao abrir conexões, ou que seja executado antes de DMLs que dependam de FKs. Para DDLs como `CREATE TABLE`, a definição da FK é geralmente aceita mesmo que a pragma não esteja ativa, mas a *imposição* da restrição ocorre em tempo de execução de DMLs se a pragma estiver `ON`.
+*   A coluna `account_id` possui uma chave estrangeira (`FOREIGN KEY`) que referencia `sys_accounts(id)`.
+    *   `ON DELETE CASCADE`: Se uma conta em `sys_accounts` for deletada, todos os perfis associados em `sys_profiles` também serão deletados automaticamente.
+    *   `ON UPDATE CASCADE`: Se o `id` de uma conta em `sys_accounts` for alterado (o que é incomum para chaves primárias autoincrementais, mas possível se fossem, por exemplo, UUIDs mutáveis), o `account_id` correspondente em `sys_profiles` seria atualizado. O suporte do SQLite para `ON UPDATE CASCADE` em chaves primárias autoincrementais é geralmente irrelevante, pois elas não mudam.
+*   `type` e `content_id` juntos identificam o registro específico nos dados do módulo do perfil (ex: um registro em `bx_persons_data`).
+*   Um índice único `idx_sys_profiles_account_type_content` garante que uma conta não possa ter múltiplos perfis do mesmo tipo apontando para o mesmo `content_id`.
+*   É importante que a tabela `sys_accounts` exista antes de executar esta migração devido à dependência da chave estrangeira. O sistema de execução de migrações deve garantir a ordem correta.
