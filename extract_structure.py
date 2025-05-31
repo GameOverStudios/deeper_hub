@@ -233,7 +233,7 @@ def main():
     diretorio_script = os.path.dirname(os.path.abspath(__file__))
     
     # Caminho para o arquivo history.json
-    caminho_history = os.path.join(diretorio_script, 'history2.json')
+    caminho_history = os.path.join(diretorio_script, 'history3.json')
     
     # Verifica se o arquivo existe
     if not os.path.exists(caminho_history):

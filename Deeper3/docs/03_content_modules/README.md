@@ -1,29 +1,18 @@
-# Documentação Deeper: APIs para Módulos de Conteúdo
+# Documentação Deeper: Módulos de Conteúdo
 
-Esta seção da documentação \"Deeper\" detalha as APIs RESTful para interagir com os dados específicos dos vários módulos de conteúdo do sistema UNA. Cada submódulo aqui representará um módulo de conteúdo do UNA (ex: Pessoas, Eventos, Grupos, Posts).
+Este diretório detalha a implementação da API para os diversos módulos de conteúdo do sistema \"Deeper\". Cada submódulo aqui representa um tipo específico de conteúdo que os usuários podem criar e interagir (ex: perfis, posts/artigos, eventos, grupos, etc.).
 
-O objetivo é fornecer endpoints para operações CRUD (Criar, Ler, Atualizar, Deletar) sobre os itens de conteúdo, bem como para listar coleções de conteúdo com filtros, paginação e ordenação. Além disso, serão abordadas interações comuns associadas a esses conteúdos, como comentários, votos, visualizações, etc., embora os sistemas genéricos para essas interações sejam definidos em `04_interaction_systems/`.
+A implementação de cada módulo de conteúdo geralmente envolverá:
 
-## Abordagem Geral para Módulos de Conteúdo:
+*   **Definição do Esquema SQLite:** `CREATE TABLE` statements para as tabelas de dados principais do módulo e quaisquer tabelas de metadados associadas.
+*   **Migrações Elixir:** Módulos para aplicar esses esquemas.
+*   **Módulos de Acesso a Dados (Repositórios):** Funções Elixir com SQL direto para CRUD e queries customizadas.
+*   **Endpoints da API:** Rotas e controllers Phoenix para expor as funcionalidades do módulo via REST.
+*   **Mapeamento da Lógica de Serviço:** Como as funcionalidades dos \"serviços\" do módulo PHP original do UNA são traduzidas para a API Elixir.
+*   **Integração com Sistemas Associados:** Como o módulo interage com comentários, votos, favoritos, arquivos, etc.
 
-Para cada módulo de conteúdo do UNA (ex: `bx_persons`):
+## Módulos de Conteúdo Documentados:
 
-1.  **Definição do Esquema de Dados:** As tabelas principais do módulo (ex: `bx_persons_data`, `bx_persons_pictures`) e suas tabelas de \"tracking\" (ex: `bx_persons_views_track`, `bx_persons_cmts`) serão definidas para SQLite.
-2.  **Migrações Elixir:** Serão criadas migrações para essas tabelas.
-3.  **Módulo de Acesso a Dados (Repo do Módulo):** Um Repo específico do módulo (ex: `Deeper.Content.PersonsRepo`) encapsulará as queries SQL para todas as operações de dados.
-4.  **Endpoints da API:** Serão definidos endpoints RESTful para:
-    *   Listar itens de conteúdo (com paginação, filtros, ordenação).
-    *   Criar novos itens de conteúdo.
-    *   Ler os detalhes de um item de conteúdo específico (por ID ou URI/slug).
-    *   Atualizar um item de conteúdo existente.
-    *   Deletar um item de conteúdo.
-    *   Endpoints para funcionalidades específicas do módulo (ex: upload de fotos para um perfil de pessoa, listagem de comentários de um post).
-5.  **Mapeamento de Lógica de \"Serviço\" (Blocos de Página):** Se o módulo PHP original expunha \"service calls\" usadas em blocos de página (`sys_pages_blocks`), esta seção documentará como esses serviços são mapeados para dados retornados pela API \"Deeper\" ou para endpoints de dados específicos.
-6.  **Interações Associadas:** Como os sistemas genéricos de comentários, votos, favoritos, etc. (definidos em `04_interaction_systems/`) se aplicam e são acessados no contexto deste módulo de conteúdo.
-
-## Estrutura de Submódulos:
-
-*   [**`bx_persons/`**](./bx_persons/README.md): API para o módulo \"Pessoas\".
-*   *(Outros módulos como `bx_posts/`, `bx_events/`, `bx_groups/` serão adicionados aqui conforme o desenvolvimento avança).*
-
-O desenvolvimento de cada API de módulo de conteúdo seguirá um padrão similar, adaptado às especificidades de cada tipo de conteúdo.
+*   [**Perfis de Usuário (`bx_persons/`)**](./bx_persons/README.md) - (JÁ COBERTO)
+*   [**Artigos/Posts (`deeper_articles/`)**](./deeper_articles/README.md) - (A SER DETALHADO ABAIXO)
+*   *(Outros módulos de conteúdo como `bx_events`, `bx_groups`, etc., serão adicionados aqui)*
