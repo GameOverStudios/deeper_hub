@@ -54,7 +54,7 @@ def encontrar_blocos_markdown(texto):
     
     # Detecta o início do primeiro bloco markdown após o caminho do arquivo
     # Primeiro, remove a menção do arquivo do início do texto para evitar confusão
-    texto_limpo = re.sub(r'^.*?Deeper/docs/[^\n]*?[\*\`]\s*', '', texto, 1, re.DOTALL)
+    texto_limpo = re.sub(r'^.*?Deeper/docs/[^\n]*?[\*\`]\s*', '', texto, count=1, flags=re.DOTALL)
     
     # Lista de linguagens para procurar
     linguagens = ['markdown', 'json', 'sql', 'elixir', 'python', 'javascript', 'html', 'css', '']
