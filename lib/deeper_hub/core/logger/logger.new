@@ -1,0 +1,329 @@
+defmodule DeeperHub.Core.Logger do
+  @moduledoc """
+  Módulo responsável pelo sistema de logging centralizado do DeeperHub.
+  Ele fornece funcionalidades para registrar mensagens de log em diferentes níveis,
+  com formatação customizável e integração com diferentes coletores de log (sinks).
+
+  Este módulo implementa macros para cada nível de log (:emergency, :alert, :critical, :error, :warning, :notice, :info, :debug)
+  que capturam automaticamente o módulo chamador e aplicam formatação consistente.
+
+  Características principais:
+  - Formatação colorida para melhor visualização no console
+  - Inclusão automática de data e nome do módulo
+  - Respeito ao nível de log configurado globalmente
+  - Suporte a metadados adicionais para enriquecer as mensagens de log
+
+  Exemplo de uso:
+  ```elixir
+  require DeeperHub.Core.Logger
+
+  DeeperHub.Core.Logger.info("Iniciando operação", user_id: "123")
+  DeeperHub.Core.Logger.error("Falha na operação", error: err, operation: :process_data)
+  ```
+  """
+
+  # Importação direta do Logger do Elixir - não requer a si mesmo para evitar dependência circular
+  alias Logger, as: ElixirLogger
+  import IO.ANSI
+
+  @doc """
+  Registra uma mensagem de log no nível :debug.
+  A mensagem incluirá a data, o nome do módulo chamador e será colorida.
+
+  ## Parâmetros
+    * `message` - Mensagem a ser registrada (string ou qualquer estrutura que possa ser convertida com inspect)
+    * `metadata` - Lista de palavras-chave com metadados adicionais (opcional)
+
+  ## Retorno
+    * `:ok` - Operação bem-sucedida
+
+  ## Exemplos
+
+      iex> require DeeperHub.Core.Logger
+      iex> DeeperHub.Core.Logger.debug("Valor calculado", valor: 42)
+      :ok
+  """
+  @spec debug(any(), keyword()) :: :ok
+  defmacro debug(message, metadata \\ []) do
+    caller_module_atom = __CALLER__.module
+    quote do
+      DeeperHub.Core.Logger.log(:debug, unquote(message), [module: unquote(caller_module_atom)] ++ unquote(metadata))
+    end
+  end
+
+  @doc """
+  Registra uma mensagem de log no nível :info.
+  A mensagem incluirá a data, o nome do módulo chamador e será colorida.
+
+  ## Parâmetros
+    * `message` - Mensagem a ser registrada (string ou qualquer estrutura que possa ser convertida com inspect)
+    * `metadata` - Lista de palavras-chave com metadados adicionais (opcional)
+
+  ## Retorno
+    * `:ok` - Operação bem-sucedida
+
+  ## Exemplos
+
+      iex> require DeeperHub.Core.Logger
+      iex> DeeperHub.Core.Logger.info("Operação concluída", duracao_ms: 150)
+      :ok
+  """
+  @spec info(any(), keyword()) :: :ok
+  defmacro info(message, metadata \\ []) do
+    caller_module_atom = __CALLER__.module
+    quote do
+      DeeperHub.Core.Logger.log(:info, unquote(message), [module: unquote(caller_module_atom)] ++ unquote(metadata))
+    end
+  end
+
+  @doc """
+  Registra uma mensagem de log no nível :notice.
+  A mensagem incluirá a data, o nome do módulo chamador e será colorida.
+
+  ## Parâmetros
+    * `message` - Mensagem a ser registrada (string ou qualquer estrutura que possa ser convertida com inspect)
+    * `metadata` - Lista de palavras-chave com metadados adicionais (opcional)
+
+  ## Retorno
+    * `:ok` - Operação bem-sucedida
+
+  ## Exemplos
+
+      iex> require DeeperHub.Core.Logger
+      iex> DeeperHub.Core.Logger.notice("Nova tentativa de conexão", tentativa: 3, max_tentativas: 5)
+      :ok
+  """
+  @spec notice(any(), keyword()) :: :ok
+  defmacro notice(message, metadata \\ []) do
+    caller_module_atom = __CALLER__.module
+    quote do
+      DeeperHub.Core.Logger.log(:notice, unquote(message), [module: unquote(caller_module_atom)] ++ unquote(metadata))
+    end
+  end
+
+  @doc """
+  Registra uma mensagem de log no nível :warning.
+  A mensagem incluirá a data, o nome do módulo chamador e será colorida.
+
+  ## Parâmetros
+    * `message` - Mensagem a ser registrada (string ou qualquer estrutura que possa ser convertida com inspect)
+    * `metadata` - Lista de palavras-chave com metadados adicionais (opcional)
+
+  ## Retorno
+    * `:ok` - Operação bem-sucedida
+
+  ## Exemplos
+
+      iex> require DeeperHub.Core.Logger
+      iex> DeeperHub.Core.Logger.warning("Cache parcialmente corrompido", entradas_invalidas: 3)
+      :ok
+  """
+  @spec warning(any(), keyword()) :: :ok
+  defmacro warning(message, metadata \\ []) do
+    caller_module_atom = __CALLER__.module
+    quote do
+      DeeperHub.Core.Logger.log(:warning, unquote(message), [module: unquote(caller_module_atom)] ++ unquote(metadata))
+    end
+  end
+
+  @doc """
+  Registra uma mensagem de log no nível :error.
+  A mensagem incluirá a data, o nome do módulo chamador e será colorida.
+
+  ## Parâmetros
+    * `message` - Mensagem a ser registrada (string ou qualquer estrutura que possa ser convertida com inspect)
+    * `metadata` - Lista de palavras-chave com metadados adicionais (opcional)
+
+  ## Retorno
+    * `:ok` - Operação bem-sucedida
+
+  ## Exemplos
+
+      iex> require DeeperHub.Core.Logger
+      iex> DeeperHub.Core.Logger.error("Falha ao processar transação", erro: %{code: 500, message: "Internal Server Error"})
+      :ok
+  """
+  @spec error(any(), keyword()) :: :ok
+  defmacro error(message, metadata \\ []) do
+    caller_module_atom = __CALLER__.module
+    quote do
+      DeeperHub.Core.Logger.log(:error, unquote(message), [module: unquote(caller_module_atom)] ++ unquote(metadata))
+    end
+  end
+
+  @doc """
+  Registra uma mensagem de log no nível :critical.
+  A mensagem incluirá a data, o nome do módulo chamador e será colorida.
+
+  ## Parâmetros
+    * `message` - Mensagem a ser registrada (string ou qualquer estrutura que possa ser convertida com inspect)
+    * `metadata` - Lista de palavras-chave com metadados adicionais (opcional)
+
+  ## Retorno
+    * `:ok` - Operação bem-sucedida
+
+  ## Exemplos
+
+      iex> require DeeperHub.Core.Logger
+      iex> DeeperHub.Core.Logger.critical("Serviço de autenticação indisponível", tentativas: 5, ultima_resposta: "Connection refused")
+      :ok
+  """
+  @spec critical(any(), keyword()) :: :ok
+  defmacro critical(message, metadata \\ []) do
+    caller_module_atom = __CALLER__.module
+    quote do
+      DeeperHub.Core.Logger.log(:critical, unquote(message), [module: unquote(caller_module_atom)] ++ unquote(metadata))
+    end
+  end
+
+  @doc """
+  Registra uma mensagem de log no nível :alert.
+  A mensagem incluirá a data, o nome do módulo chamador e será colorida.
+
+  ## Parâmetros
+    * `message` - Mensagem a ser registrada (string ou qualquer estrutura que possa ser convertida com inspect)
+    * `metadata` - Lista de palavras-chave com metadados adicionais (opcional)
+
+  ## Retorno
+    * `:ok` - Operação bem-sucedida
+
+  ## Exemplos
+
+      iex> require DeeperHub.Core.Logger
+      iex> DeeperHub.Core.Logger.alert("Tentativa de acesso não autorizado", ip: "192.168.1.100", usuario: "unknown")
+      :ok
+  """
+  @spec alert(any(), keyword()) :: :ok
+  defmacro alert(message, metadata \\ []) do
+    caller_module_atom = __CALLER__.module
+    quote do
+      DeeperHub.Core.Logger.log(:alert, unquote(message), [module: unquote(caller_module_atom)] ++ unquote(metadata))
+    end
+  end
+
+  @doc """
+  Registra uma mensagem de log no nível :emergency.
+  A mensagem incluirá a data, o nome do módulo chamador e será colorida.
+
+  ## Parâmetros
+    * `message` - Mensagem a ser registrada (string ou qualquer estrutura que possa ser convertida com inspect)
+    * `metadata` - Lista de palavras-chave com metadados adicionais (opcional)
+
+  ## Retorno
+    * `:ok` - Operação bem-sucedida
+
+  ## Exemplos
+
+      iex> require DeeperHub.Core.Logger
+      iex> DeeperHub.Core.Logger.emergency("Sistema de pagamento completamente indisponível", impacto: "crítico", clientes_afetados: 1500)
+      :ok
+  """
+  @spec emergency(any(), keyword()) :: :ok
+  defmacro emergency(message, metadata \\ []) do
+    caller_module_atom = __CALLER__.module
+    quote do
+      DeeperHub.Core.Logger.log(:emergency, unquote(message), [module: unquote(caller_module_atom)] ++ unquote(metadata))
+    end
+  end
+
+  @doc """
+  Função principal de registro de logs, usada pelas macros específicas de nível.
+
+  ## Parâmetros
+    * `level` - Nível do log (:debug, :info, :notice, :warning, :error, :critical, :alert, :emergency)
+    * `message` - Mensagem a ser registrada
+    * `metadata` - Metadados adicionais (opcional)
+
+  ## Retorno
+    * `:ok` - Operação bem-sucedida
+  """
+  @spec log(atom(), any(), keyword()) :: :ok
+  def log(level, message_content, metadata \\ []) when level in [:debug, :info, :notice, :warning, :error, :critical, :alert, :emergency] do
+    try do
+      # Configurações de cores para diferentes partes da mensagem
+      {date_color, module_text_color, message_color} = get_colors_for_level(level)
+
+      # Formato de data e hora
+      timestamp = DateTime.utc_now() |> Calendar.strftime("%Y-%m-%d %H:%M:%S")
+
+      # Preparação do nome do módulo
+      module_name_str = if Keyword.has_key?(metadata, :module) do
+        module_name = Keyword.get(metadata, :module)
+        |> Atom.to_string()
+        |> String.replace_prefix("Elixir.", "")
+        module_name
+      else
+        "Unknown"
+      end
+
+      # Adiciona metadados, se houver
+      metadata_str = if Keyword.delete(metadata, :module) == [] do
+        ""
+      else
+        metadata_without_module = Keyword.delete(metadata, :module)
+        " " <> inspect(metadata_without_module)
+      end
+
+      # Monta a mensagem de log completa
+      log_parts = [
+        date_color,
+        timestamp,
+        reset(),
+        " ",
+        "[",
+        module_text_color,
+        module_name_str,
+        reset(),
+        "]",
+        " ",
+        message_color,
+        formatar_conteudo_mensagem(message_content),
+        reset(),
+        metadata_str
+      ]
+
+      IO.puts(log_parts)
+      
+      # Também enviamos para o EventManager se for log crítico
+      emitir_evento_log(level, message_content, metadata)
+
+      :ok
+    rescue
+      e ->
+        # Fallback para garantir que erros no sistema de log não derrubem a aplicação
+        IO.puts("[LOGGER ERROR] Falha ao registrar log: #{Exception.message(e)}")
+        :ok
+    end
+  end
+
+  @doc false
+  @spec formatar_conteudo_mensagem(any()) :: String.t()
+  defp formatar_conteudo_mensagem(message) when is_binary(message), do: message
+  defp formatar_conteudo_mensagem(message), do: inspect(message, pretty: true, limit: 5000)
+
+  # Emite eventos para logs importantes que podem requerer ações adicionais
+  # Para eventos críticos, anteriormente enviávamos para o event bus
+  # Esta função foi mantida apenas para compatibilidade, mas seu código interno foi removido
+  defp emitir_evento_log(_level, _message, _metadata) when _level in [:error, :alert, :critical, :emergency] do
+    # EventManager foi removido do sistema
+    # Não há mais necessidade de emitir eventos
+    :ok
+  end
+  
+  defp emitir_evento_log(_level, _message, _metadata), do: :ok # Outros níveis não emitem eventos
+
+  # Retorna cores apropriadas para cada nível de log
+  defp get_colors_for_level(level) do
+    case level do
+      :debug -> {cyan(), cyan(), cyan()}
+      :info -> {green(), green(), white()}
+      :notice -> {bright_white(), bright_white(), bright_white()}
+      :warning -> {yellow(), yellow(), yellow()}
+      :error -> {light_red(), light_red(), light_red()}
+      :critical -> {red(), red(), red()}
+      :alert -> {light_magenta(), light_magenta(), light_magenta()}
+      :emergency -> {magenta(), magenta(), magenta()}
+      _ -> {white(), white(), white()}
+    end
+  end
+end

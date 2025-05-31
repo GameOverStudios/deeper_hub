@@ -2,8 +2,8 @@ defmodule DeeperHub.Core.Config.SystemConfig do
   @moduledoc """
   Configuração centralizada para todos os módulos do sistema DeeperHub.
 
-  Este módulo centraliza as configurações de Cache, Telemetry, Database e outros
-  subsistemas, permitindo fácil manutenção e consistência entre ambientes.
+  Este módulo centraliza as configurações de Database e outros
+  subsistemas essenciais, permitindo fácil manutenção e consistência entre ambientes.
   """
 
   require DeeperHub.Core.Logger
@@ -15,8 +15,6 @@ defmodule DeeperHub.Core.Config.SystemConfig do
   ## Retorno
 
   Um mapa com todas as configurações organizadas por subsistema:
-  - `:cache` - Configurações do sistema de cache
-  - `:telemetry` - Configurações do sistema de telemetria
   - `:database` - Configurações do banco de dados
   - `:supervisor` - Configurações dos supervisors
   """
@@ -26,27 +24,9 @@ defmodule DeeperHub.Core.Config.SystemConfig do
 
     %{
       environment: environment,
-      cache: get_cache_config(environment),
-      telemetry: get_telemetry_config(environment),
       database: get_database_config(environment),
       supervisor: get_supervisor_config(environment)
     }
-  end
-
-  @doc """
-  Obtém configurações específicas do sistema de cache.
-  """
-  @spec get_cache_config() :: keyword()
-  def get_cache_config do
-    get_cache_config(get_environment())
-  end
-
-  @doc """
-  Obtém configurações específicas do sistema de telemetria.
-  """
-  @spec get_telemetry_config() :: keyword()
-  def get_telemetry_config do
-    get_telemetry_config(get_environment())
   end
 
   @doc """
@@ -65,240 +45,137 @@ defmodule DeeperHub.Core.Config.SystemConfig do
     get_supervisor_config(get_environment())
   end
 
-  # Funções privadas para configurações por ambiente
+  @doc """
+  Obtém o ambiente atual da aplicação.
 
+  ## Retorno
+  - `:prod` - Ambiente de produção
+  - `:dev` - Ambiente de desenvolvimento
+  - `:test` - Ambiente de testes
+  """
   @spec get_environment() :: atom()
-  defp get_environment do
-    Application.get_env(:deeper_hub, :environment, :development)
+  def get_environment do
+    Application.get_env(:deeper_hub, :environment, :dev)
   end
 
-  @spec get_cache_config(atom()) :: keyword()
-  defp get_cache_config(environment) do
-    base_config = [
-      compressed: true,
-      stats: true,
-      transactions: true,
-      expiry_interval: 60_000,
-      default_ttl: 300,
-      use_warmers: true
-    ]
-
-    case environment do
-      :production ->
-        base_config ++
-        [
-          use_logger_hook: false,
-          use_lru_limit: true,
-          lru_limit: 50_000,
-          use_distributed: true,
-          telemetry: true,
-          telemetry_report_interval: 300_000, # 5 minutos
-          telemetry_logging: false,
-          prometheus_integration: true,
-          cache_limit: 50_000
-        ]
-
-      :test ->
-        base_config ++
-        [
-          use_logger_hook: false,
-          use_lru_limit: true,
-          lru_limit: 1_000,
-          use_distributed: false,
-          telemetry: false,
-          telemetry_logging: false,
-          prometheus_integration: false,
-          cache_limit: 1_000,
-          expiry_interval: 10_000 # Mais frequente para testes
-        ]
-
-      _ -> # :development
-        base_config ++
-        [
-          use_logger_hook: true,
-          use_lru_limit: true,
-          lru_limit: 10_000,
-          use_distributed: false,
-          telemetry: true,
-          telemetry_report_interval: 60_000, # 1 minuto
-          telemetry_logging: true,
-          prometheus_integration: false,
-          cache_limit: 10_000
-        ]
-    end
-  end
-
-  @spec get_telemetry_config(atom()) :: keyword()
-  defp get_telemetry_config(environment) do
-    base_config = [
-      telemetry_prefix: "deeper_hub",
-      enabled_adapters: [:cache, :database, :http, :network, :security]
-    ]
-
-    case environment do
-      :production ->
-        base_config ++
-        [
-          exporters: [:prometheus],
-          report_interval: 300_000, # 5 minutos
-          enable_logging: false,
-          enable_prometheus: true,
-          metrics_retention_hours: 24,
-          detailed_metrics: false
-        ]
-
-      :test ->
-        base_config ++
-        [
-          enabled_adapters: [:cache, :database], # Apenas essenciais para testes
-          exporters: [],
-          report_interval: 10_000,
-          enable_logging: false,
-          enable_prometheus: false,
-          detailed_metrics: false
-        ]
-
-      _ -> # :development
-        base_config ++
-        [
-          exporters: [],
-          report_interval: 60_000, # 1 minuto
-          enable_logging: true,
-          enable_prometheus: false,
-          metrics_retention_hours: 2,
-          detailed_metrics: true
-        ]
-    end
-  end
+  # Configurações específicas para cada ambiente
 
   @spec get_database_config(atom()) :: keyword()
   defp get_database_config(environment) do
+    # Configurações base para todos os ambientes
     base_config = [
-      pool_name: DeeperHub.DBConnectionPool,
-      show_sensitive_data_on_connection_error: false,
-      timeout: 15_000,
-      idle_interval: 15_000
+      db_path: "data/deeperhub.db",
+      pool_size: 5,
+      timeout: 15_000
     ]
 
+    # Configurações específicas por ambiente
     case environment do
-      :production ->
-        base_config ++
-        [
-          database: "databases/deeper_hub_prod.db",
+      :prod -> 
+        Keyword.merge(base_config, [
           pool_size: 20,
-          journal_mode: :wal,
-          busy_timeout: 10_000,
-          max_retries: 5,
-          retry_delay_ms: 500,
-          telemetry_enabled: true,
-          health_check_interval: 300_000 # 5 minutos
-        ]
-
-      :test ->
-        base_config ++
-        [
-          database: ":memory:", # Banco em memória para testes
+          timeout: 30_000,
+          auto_vacuum: true
+        ])
+      :test -> 
+        Keyword.merge(base_config, [
+          db_path: "data/test_db.db",
           pool_size: 2,
-          journal_mode: :memory,
-          busy_timeout: 1_000,
-          max_retries: 1,
-          retry_delay_ms: 100,
-          telemetry_enabled: false,
-          health_check_interval: 60_000
-        ]
-
-      _ -> # :development
-        base_config ++
-        [
-          database: "databases/deeper_hub_dev.db",
-          pool_size: 5,
-          journal_mode: :wal,
-          busy_timeout: 5_000,
-          max_retries: 3,
-          retry_delay_ms: 200,
-          telemetry_enabled: true,
-          health_check_interval: 60_000,
-          show_sensitive_data_on_connection_error: true
-        ]
+          auto_vacuum: false
+        ])
+      :dev -> 
+        Keyword.merge(base_config, [
+          pool_size: 10,
+          auto_vacuum: true
+        ])
     end
   end
 
   @spec get_supervisor_config(atom()) :: keyword()
   defp get_supervisor_config(environment) do
+    # Configurações base para todos os ambientes
+    base_config = [
+      max_restarts: 3,
+      max_seconds: 5
+    ]
+
+    # Configurações específicas por ambiente
     case environment do
-      :production ->
-        [
-          strategy: :one_for_one,
+      :prod -> 
+        Keyword.merge(base_config, [
           max_restarts: 5,
           max_seconds: 10,
-          restart_strategy: :permanent
-        ]
-
-      :test ->
-        [
-          strategy: :one_for_one,
+          shutdown_timeout: 10_000
+        ])
+      :test -> 
+        Keyword.merge(base_config, [
           max_restarts: 1,
+          max_seconds: 1,
+          shutdown_timeout: 1_000
+        ])
+      :dev -> 
+        Keyword.merge(base_config, [
+          max_restarts: 10,
           max_seconds: 5,
-          restart_strategy: :temporary
-        ]
-
-      _ -> # :development
-        [
-          strategy: :one_for_one,
-          max_restarts: 3,
-          max_seconds: 5,
-          restart_strategy: :permanent
-        ]
+          shutdown_timeout: 5_000
+        ])
     end
   end
 
   @doc """
-  Aplica as configurações do sistema na aplicação.
+  Aplica as configurações do sistema ao ambiente da aplicação.
 
   Esta função deve ser chamada durante a inicialização da aplicação
-  para garantir que todas as configurações sejam aplicadas corretamente.
+  para garantir que todas as configurações estejam disponíveis.
+
+  ## Retorno
+  - `:ok` - Configurações aplicadas com sucesso
   """
   @spec apply_system_config() :: :ok
   def apply_system_config do
+    Logger.info("Aplicando configurações do sistema...")
     config = get_system_config()
 
-    Logger.info("Aplicando configurações do sistema para ambiente: #{config.environment}")
+    # Registra as configurações aplicadas
+    Logger.debug("Configurações do ambiente: #{inspect(config.environment)}")
+    Logger.debug("Configurações de banco de dados: #{inspect(config.database)}")
+    Logger.debug("Configurações de supervisors: #{inspect(config.supervisor)}")
 
-    # Aplica configurações na aplicação
-    Application.put_env(:deeper_hub, :cache, config.cache)
-    Application.put_env(:deeper_hub, :telemetry, config.telemetry)
+    # Aplica configurações ao ambiente
+    Application.put_env(:deeper_hub, :environment, config.environment)
     Application.put_env(:deeper_hub, :database, config.database)
     Application.put_env(:deeper_hub, :supervisor, config.supervisor)
 
-    Logger.info("Configurações do sistema aplicadas com sucesso")
     :ok
   end
 
   @doc """
-  Valida se todas as configurações necessárias estão presentes.
+  Valida as configurações do sistema.
+
+  Esta função verifica se todas as configurações obrigatórias estão presentes
+  e se os valores estão dentro dos intervalos aceitáveis.
 
   ## Retorno
-
-  - `:ok` - Se todas as configurações estão válidas
-  - `{:error, missing_configs}` - Se alguma configuração obrigatória estiver faltando
+  - `:ok` - Configurações válidas
+  - `{:error, missing_configs}` - Lista de configurações ausentes ou inválidas
   """
-  @spec validate_config() :: :ok | {:error, list()}
+  @spec validate_config() :: :ok | {:error, list(atom())}
   def validate_config do
     config = get_system_config()
     missing = []
 
-    # Valida configurações obrigatórias
-    missing = if is_nil(config.cache[:default_ttl]), do: [:cache_default_ttl | missing], else: missing
-    missing = if is_nil(config.database[:pool_name]), do: [:database_pool_name | missing], else: missing
-    missing = if is_nil(config.telemetry[:telemetry_prefix]), do: [:telemetry_prefix | missing], else: missing
+    # Valida configurações do banco de dados
+    missing = if is_nil(config.database[:db_path]), do: [:db_path | missing], else: missing
+    missing = if is_nil(config.database[:pool_size]), do: [:pool_size | missing], else: missing
 
-    case missing do
-      [] ->
-        Logger.info("Validação de configuração concluída com sucesso")
-        :ok
-      missing_configs ->
-        Logger.error("Configurações obrigatórias faltando: #{inspect(missing_configs)}")
-        {:error, missing_configs}
+    # Valida configurações de supervisors
+    missing = if is_nil(config.supervisor[:max_restarts]), do: [:max_restarts | missing], else: missing
+    missing = if is_nil(config.supervisor[:max_seconds]), do: [:max_seconds | missing], else: missing
+
+    if Enum.empty?(missing) do
+      :ok
+    else
+      {:error, missing}
     end
   end
 end

@@ -65,8 +65,7 @@ defmodule DeeperHub.Core.Data.Repo do
   def execute(sql_string, params \\ [], opts \\ []) do
     Logger.debug("Executando SQL: #{sql_string} com parâmetros: #{inspect(params)}", module: __MODULE__)
 
-    # Inicia telemetria se habilitada
-    telemetry_ref = start_telemetry_if_enabled(sql_string, params, opts)
+    # Marca o tempo de início para logging de performance
     start_time = System.monotonic_time()
 
     # Extrai opções de retry
@@ -83,10 +82,10 @@ defmodule DeeperHub.Core.Data.Repo do
       fn result -> {:ok, result} end  # Handler que retorna o resultado completo
     )
 
-    # Finaliza telemetria se habilitada
+    # Calcula duração para logging de performance
     end_time = System.monotonic_time()
     duration_ms = System.convert_time_unit(end_time - start_time, :native, :millisecond)
-    finish_telemetry_if_enabled(telemetry_ref, result, duration_ms, opts)
+    Logger.debug("Operação concluída em #{duration_ms}ms", module: __MODULE__)
 
     result
   end
@@ -187,8 +186,7 @@ defmodule DeeperHub.Core.Data.Repo do
   def query(sql_string, params \\ [], opts \\ []) do
     Logger.debug("Consultando SQL: #{sql_string} com parâmetros: #{inspect(params)}", module: __MODULE__)
 
-    # Inicia telemetria se habilitada
-    telemetry_ref = start_telemetry_if_enabled(sql_string, params, opts)
+    # Marca o tempo de início para logging de performance
     start_time = System.monotonic_time()
 
     # Extrai opções de retry
@@ -214,10 +212,10 @@ defmodule DeeperHub.Core.Data.Repo do
       end
     )
 
-    # Finaliza telemetria se habilitada
+    # Calcula duração para logging de performance
     end_time = System.monotonic_time()
     duration_ms = System.convert_time_unit(end_time - start_time, :native, :millisecond)
-    finish_telemetry_if_enabled(telemetry_ref, result, duration_ms, opts)
+    Logger.debug("Consulta concluída em #{duration_ms}ms", module: __MODULE__)
 
     result
   end
@@ -257,57 +255,6 @@ defmodule DeeperHub.Core.Data.Repo do
     end
   end
 
-  # Funções de telemetria
-
-  # Inicia telemetria se habilitada
-  @spec start_telemetry_if_enabled(String.t(), list(), keyword()) :: reference() | nil
-  defp start_telemetry_if_enabled(sql_string, params, opts) do
-    if telemetry_enabled?() do
-      try do
-        alias DeeperHub.Core.Telemetry.Adapters.DatabaseAdapter
-
-        case DatabaseAdapter.start_query(sql_string, params, opts) do
-          {:ok, ref} -> ref
-          _ -> nil
-        end
-      rescue
-        _ -> nil
-      end
-    else
-      nil
-    end
-  end
-
-  # Finaliza telemetria se habilitada
-  @spec finish_telemetry_if_enabled(reference() | nil, any(), float(), keyword()) :: :ok
-  defp finish_telemetry_if_enabled(nil, _result, _duration_ms, _opts), do: :ok
-  defp finish_telemetry_if_enabled(telemetry_ref, result, duration_ms, opts) do
-    if telemetry_enabled?() do
-      try do
-        alias DeeperHub.Core.Telemetry.Adapters.DatabaseAdapter
-
-        case result do
-          {:ok, _} ->
-            DatabaseAdapter.stop_query(telemetry_ref, result, duration_ms, opts)
-          {:error, error} ->
-            # Reporta erro se a consulta falhou
-            DatabaseAdapter.report_query_error("", [], error, opts)
-        end
-      rescue
-        _ -> :ok
-      end
-    end
-    :ok
-  end
-
-  # Verifica se telemetria está habilitada
-  @spec telemetry_enabled?() :: boolean()
-  defp telemetry_enabled? do
-    Application.get_env(:deeper_hub, :database, [])
-    |> Keyword.get(:telemetry_enabled, false)
-  end
-
   # TODO: Implement Repo.stream/3_or_4 if needed
   # TODO: Implement functions for managing prepared statements if distinct from execute's internal prep is needed
-
 end

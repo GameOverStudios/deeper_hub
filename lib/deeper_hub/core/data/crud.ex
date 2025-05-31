@@ -10,7 +10,6 @@ defmodule DeeperHub.Core.Data.Crud do
 
   alias DeeperHub.Core.Data.Repo
   alias DeeperHub.Core.Logger
-  alias DeeperHub.Core.EventManager
   require DeeperHub.Core.Logger
 
   @doc """
@@ -40,12 +39,10 @@ defmodule DeeperHub.Core.Data.Crud do
       case Repo.query(sql, values) do
         {:ok, [%{} = inserted_record | _]} ->
           # SQLite often returns a list with one item for RETURNING *
-          # Emite evento de criação de dados
-          emit_data_event(:data_created, table, inserted_record)
+          # Registro foi criado com sucesso
           {:ok, inserted_record}
         {:ok, %{rows: [inserted_record | _]}} -> # Exqlite might wrap in rows key
-          # Emite evento de criação de dados
-          emit_data_event(:data_created, table, inserted_record)
+          # Registro foi criado com sucesso
           {:ok, inserted_record}
         {:ok, %{rows: []}} -> # Insert might not have returned anything (e.g. table without PK or RETURNING not fully supported for edge cases)
             Logger.warning("Crud.create for table '#{table}' did not return a record.", module: __MODULE__)
@@ -119,12 +116,10 @@ defmodule DeeperHub.Core.Data.Crud do
 
       case Repo.query(sql, values) do
         {:ok, [%{} = updated_record | _]} -> 
-          # Emite evento de atualização de dados
-          emit_data_event(:data_updated, table, updated_record)
+          # Registro foi atualizado com sucesso
           {:ok, updated_record}
         {:ok, %{rows: [updated_record | _]}} -> 
-          # Emite evento de atualização de dados
-          emit_data_event(:data_updated, table, updated_record)
+          # Registro foi atualizado com sucesso
           {:ok, updated_record}
         {:ok, %{rows: []}} -> {:error, :not_found} # No rows updated/returned
         {:error, reason} -> {:error, reason}
@@ -148,21 +143,17 @@ defmodule DeeperHub.Core.Data.Crud do
 
     case Repo.query(sql, [id]) do
       {:ok, [%{} = deleted_record | _]} -> 
-        # Emite evento de exclusão de dados
-        emit_data_event(:data_deleted, table, deleted_record)
+        # Registro foi excluído com sucesso
         {:ok, deleted_record} # RETURNING * worked
       {:ok, %{rows: [deleted_record | _]}} -> 
-        # Emite evento de exclusão de dados
-        emit_data_event(:data_deleted, table, deleted_record)
+        # Registro foi excluído com sucesso
         {:ok, deleted_record}
       {:ok, %{rows: [], num_rows: 0}} -> {:error, :not_found}
       {:ok, %{num_rows: 1}} -> 
-        # Emite evento de exclusão sem detalhes do registro
-        emit_data_event(:data_deleted, table, %{"id" => id})
+        # Registro foi excluído com sucesso
         {:ok, %{num_rows: 1}} # Deleted, but nothing returned by RETURNING *
       {:ok, result_map} when result_map.num_rows == 1 -> 
-        # Emite evento de exclusão sem detalhes do registro
-        emit_data_event(:data_deleted, table, %{"id" => id})
+        # Registro foi excluído com sucesso
         {:ok, result_map} # Generic case if num_rows is 1
       {:error, reason} -> {:error, reason}
       other ->
@@ -171,43 +162,7 @@ defmodule DeeperHub.Core.Data.Crud do
     end
   end
 
-  # Função auxiliar para emitir eventos de alteração de dados
-  @doc false
-  defp emit_data_event(event_type, table, record) when is_atom(event_type) and is_binary(table) do
-    # Certifica-se de que o registro tem um id
-    record_with_id = case record do
-      %{"id" => _} -> record
-      %{id: id} -> Map.put(record, "id", id)
-      _ -> record
-    end
 
-    # Prepara os dados do evento
-    event_data = %{
-      entity_type: table,
-      id: get_record_id(record_with_id),
-      record: record_with_id,
-      timestamp: :os.system_time(:millisecond)
-    }
-
-    # Publica o evento no EventBus
-    EventManager.publish(event_type, event_data, "crud")
-    :ok
-  rescue
-    error ->
-      Logger.error("Falha ao emitir evento #{event_type} para tabela #{table}: #{inspect(error)}", module: __MODULE__)
-      # Falhar silenciosamente para não interromper a operação principal
-      :error
-  end
-
-  # Extrai o ID de um registro, tratando diferentes formatos
-  @doc false
-  defp get_record_id(record) do
-    cond do
-      is_map_key(record, "id") -> record["id"]
-      is_map_key(record, :id) -> record.id
-      true -> nil
-    end
-  end
 
   # TODO:
   # - Implement get_by/2, list/3 (with proper condition parsing and options)
