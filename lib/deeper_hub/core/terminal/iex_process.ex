@@ -103,16 +103,28 @@ defmodule DeeperHub.Core.Terminal.IExProcess do
       Port.command(port, command_with_marker <> "\n")
       Logger.debug("IExProcess: Sent command to port #{inspect(port)}")
 
-      # Usando Task.start_link em vez de Task.start para garantir que a Task seja propriedade do processo atual
-      # e seja explicitamente conectada a ele. Isto permite a transferência do ownership do port.
+      # Criamos uma Task para coletar a saída sem vinculação (:link) com o processo atual
+      # para evitar que o port seja fechado quando a Task terminar
       task_pid = Process.spawn(fn ->
         Logger.debug("IExProcess: Task de coleta iniciada para sessão #{session_id} com PID #{inspect(self())}")
-        # IMPORTANTE: Transferimos a propriedade (ownership) do port para a Task
-        # Isso garante que as mensagens do port sejam enviadas para esta Task e não para o GenServer
+        # IMPORTANTE: Fazemos uma conexão temporária do port com a Task
+        # para que as mensagens do port sejam enviadas para esta Task durante a execução do comando
+        old_port_owner = Port.info(port)[:connected]
         true = Port.connect(port, self())
-        Logger.debug("IExProcess: Conexão da Task com o port #{inspect(port)} estabelecida")
-        collect_and_stream(port, client_pid, marker, [], System.monotonic_time(:millisecond), safety_timer_ref, manager_pid, session_id)
-      end, [:link])
+        Logger.debug("IExProcess: Conexão temporária da Task com o port #{inspect(port)} estabelecida. Owner anterior: #{inspect(old_port_owner)}")
+        
+        # Coleta a saída do comando
+        result = collect_and_stream(port, client_pid, marker, [], System.monotonic_time(:millisecond), safety_timer_ref, manager_pid, session_id)
+        
+        # IMPORTANTE: Devolvemos a propriedade do port para o processo original (SessionManager)
+        # para manter o port aberto entre os comandos
+        if is_pid(old_port_owner) and Process.alive?(old_port_owner) do
+          Logger.debug("IExProcess: Devolvendo conexão do port #{inspect(port)} para #{inspect(old_port_owner)}")
+          Port.connect(port, old_port_owner)
+        end
+        
+        result
+      end, []) # Sem :link para evitar que a Task feche o port ao terminar
       
       Logger.debug("IExProcess: Task de coleta #{inspect(task_pid)} iniciada para sessão #{session_id}")
       Process.monitor(task_pid) # Monitor para receber notificação se a task terminar
