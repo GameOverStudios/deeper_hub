@@ -48,11 +48,12 @@ defmodule DeeperHub.MixProject do
       #{:event_bus, "~> 1.7.0"},
 
       # WebSockets e HTTP
-      #{:cowboy, "~> 2.13"},
-      #{:plug, "~> 1.17"},
-      #{:plug_cowboy, "~> 2.7"},
+      {:cowboy, "~> 2.13"},
+      {:plug, "~> 1.17"},
+      {:plug_cowboy, "~> 2.7"},
+      {:plug_rest, "~> 0.14.0"},
       {:jason, "~> 1.4"},
-      #{:cors_plug, "~> 3.0"},
+      {:cors_plug, "~> 3.0"},
 
       # Auth
       #{:joken, "~> 2.6"},

@@ -43,7 +43,12 @@ defmodule DeeperHub.Application do
   defp init_repository do
     repo_children = [
       # Inicia o supervisor do repositório para gerenciar o pool de conexões do banco de dados
-      {DeeperHub.Core.Data.Repo.Supervisor, []}
+      {DeeperHub.Core.Data.Repo.Supervisor, []},
+
+      {Plug.Cowboy,
+        scheme: :http,
+        plug: DeeperHub.WebInterface.Router,
+        options: [port: 4000]},
     ]
 
     # Configuração do supervisor do repositório
