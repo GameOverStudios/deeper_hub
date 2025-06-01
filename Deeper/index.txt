@@ -1,0 +1,486 @@
+Estrutura de diretórios:
+==============================
+└── docs
+    ├── 00_core_concepts
+    │   ├── README.md
+    │   ├── api_design_conventions.md
+    │   ├── authentication_authorization.md
+    │   ├── database_schema_sqlite.md
+    │   ├── elixir_application_architecture.md
+    │   └── sql_optimization_notes.md
+    ├── 01_system_core
+    │   ├── README.md
+    │   ├── sys_accounts_and_profiles
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   ├── data_access_modules.md
+    │   │   ├── database_schema.md
+    │   │   └── migrations
+    │   │       ├── README.md
+    │   │       ├── create_bx_persons_data_table.elixir.md
+    │   │       ├── create_sys_accounts_table.elixir.md
+    │   │       └── create_sys_profiles_table.elixir.md
+    │   ├── sys_acl
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   ├── data_access_module.md
+    │   │   ├── database_schema.md
+    │   │   └── migrations
+    │   │       ├── README.md
+    │   │       ├── create_sys_acl_actions_table.elixir.md
+    │   │       ├── create_sys_acl_actions_track_table.elixir.md
+    │   │       ├── create_sys_acl_levels_members_table.elixir.md
+    │   │       ├── create_sys_acl_levels_table.elixir.md
+    │   │       └── create_sys_acl_matrix_table.elixir.md
+    │   ├── sys_localization
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   ├── data_access_module.md
+    │   │   ├── database_schema.md
+    │   │   └── migrations
+    │   │       ├── README.md
+    │   │       ├── create_sys_localization_categories_table.elixir.md
+    │   │       ├── create_sys_localization_keys_table.elixir.md
+    │   │       ├── create_sys_localization_languages_table.elixir.md
+    │   │       └── create_sys_localization_strings_table.elixir.md
+    │   ├── sys_modules_management
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   ├── data_access_module.md
+    │   │   ├── database_schema.md
+    │   │   └── migrations
+    │   │       ├── README.md
+    │   │       └── create_sys_modules_table.elixir.md
+    │   ├── sys_options
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   ├── data_access_module.md
+    │   │   ├── database_schema.md
+    │   │   └── migrations
+    │   │       ├── README.md
+    │   │       ├── create_sys_options_categories_table.elixir.md
+    │   │       ├── create_sys_options_mixes2options_table.elixir.md
+    │   │       ├── create_sys_options_mixes_table.elixir.md
+    │   │       ├── create_sys_options_table.elixir.md
+    │   │       └── create_sys_options_types_table.elixir.md
+    │   ├── sys_permalinks_and_routing
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   ├── data_access_module.md
+    │   │   ├── database_schema.md
+    │   │   └── migrations
+    │   │       ├── README.md
+    │   │       ├── create_sys_permalinks_table.elixir.md
+    │   │       └── create_sys_rewrite_rules_table.elixir.md
+    │   └── sys_standard_elements
+    │       ├── README.md
+    │       ├── api_endpoints.md
+    │       ├── data_access_module.md
+    │       ├── database_schema.md
+    │       └── migrations
+    │           ├── README.md
+    │           ├── create_sys_std_pages_table.elixir.md
+    │           ├── create_sys_std_pages_widgets_table.elixir.md
+    │           ├── create_sys_std_roles_actions2roles_table.elixir.md
+    │           ├── create_sys_std_roles_actions_table.elixir.md
+    │           ├── create_sys_std_roles_members_table.elixir.md
+    │           ├── create_sys_std_roles_table.elixir.md
+    │           ├── create_sys_std_widgets_bookmarks_table.elixir.md
+    │           └── create_sys_std_widgets_table.elixir.md
+    ├── 02_page_rendering_engine
+    │   ├── README.md
+    │   ├── sys_menu_engine
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   ├── data_access_module.md
+    │   │   ├── database_schema.md
+    │   │   └── migrations
+    │   │       ├── README.md
+    │   │       ├── create_sys_menu_items_table.elixir.md
+    │   │       ├── create_sys_menu_sets_table.elixir.md
+    │   │       ├── create_sys_menu_templates_table.elixir.md
+    │   │       └── create_sys_objects_menu_table.elixir.md
+    │   ├── sys_objects_page
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   ├── data_access_module.md
+    │   │   ├── database_schema.md
+    │   │   └── migrations
+    │   │       ├── README.md
+    │   │       ├── create_sys_objects_page_table.elixir.md
+    │   │       ├── create_sys_pages_blocks_data_table.elixir.md
+    │   │       ├── create_sys_pages_blocks_table.elixir.md
+    │   │       ├── create_sys_pages_design_boxes_table.elixir.md
+    │   │       ├── create_sys_pages_layouts_table.elixir.md
+    │   │       └── create_sys_pages_types_table.elixir.md
+    │   └── sys_pages_layouts
+    │       └── README.md
+    ├── 03_content_modules
+    │   ├── README.md
+    │   ├── bx_market
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   ├── associated_objects.md
+    │   │   ├── data_access_modules.md
+    │   │   ├── database_schema.md
+    │   │   ├── migrations
+    │   │   │   ├── README.md
+    │   │   │   ├── create_bx_market_categories_table.elixir.md
+    │   │   │   ├── create_bx_market_entries_table.elixir.md
+    │   │   │   └── create_bx_market_photos_table.elixir.md
+    │   │   └── service_logic_mapping.md
+    │   ├── bx_organizations
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   ├── associated_objects.md
+    │   │   ├── data_access_modules.md
+    │   │   ├── database_schema.md
+    │   │   ├── migrations
+    │   │   │   ├── README.md
+    │   │   │   ├── create_bx_organizations_categories_table.elixir.md
+    │   │   │   ├── create_bx_organizations_data_table.elixir.md
+    │   │   │   └── create_bx_organizations_members_table.elixir.md
+    │   │   └── service_logic_mapping.md
+    │   ├── bx_persons
+    │   │   ├── README.md
+    │   │   ├── api_endpoints
+    │   │   │   └── README.md
+    │   │   ├── api_endpoints.md
+    │   │   ├── associated_objects
+    │   │   │   └── README.md
+    │   │   ├── associated_objects.md
+    │   │   ├── data_access_module.md
+    │   │   ├── database_schema.md
+    │   │   ├── migrations
+    │   │   │   ├── README.md
+    │   │   │   ├── create_bx_persons_cmts_table.elixir.md
+    │   │   │   ├── create_bx_persons_data_table.elixir.md
+    │   │   │   ├── create_bx_persons_favorites_track_table.elixir.md
+    │   │   │   ├── create_bx_persons_meta_keywords_table.elixir.md
+    │   │   │   ├── create_bx_persons_meta_locations_table.elixir.md
+    │   │   │   ├── create_bx_persons_meta_mentions_table.elixir.md
+    │   │   │   ├── create_bx_persons_pictures_resized_table.elixir.md
+    │   │   │   ├── create_bx_persons_pictures_table.elixir.md
+    │   │   │   ├── create_bx_persons_reports_track_table.elixir.md
+    │   │   │   ├── create_bx_persons_scores_track_table.elixir.md
+    │   │   │   ├── create_bx_persons_skills_table.elixir.md
+    │   │   │   ├── create_bx_persons_views_track_table.elixir.md
+    │   │   │   └── create_bx_persons_votes_track_table.elixir.md
+    │   │   └── service_logic_mapping.md
+    │   ├── deeper_articles
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   ├── associated_objects.md
+    │   │   ├── data_access_module.md
+    │   │   ├── data_access_modules.md
+    │   │   ├── database_schema.md
+    │   │   ├── migrations
+    │   │   │   ├── README.md
+    │   │   │   ├── create_deeper_article_categories_table.elixir.md
+    │   │   │   ├── create_deeper_articles_categories_table.elixir.md
+    │   │   │   ├── create_deeper_articles_entries_table.elixir.md
+    │   │   │   ├── create_deeper_articles_table.elixir.md
+    │   │   │   ├── create_deeper_articles_tags_table.elixir.md
+    │   │   │   ├── create_deeper_articles_tags_to_entries_table.elixir.md
+    │   │   │   └── create_deeper_articles_to_categories_table.elixir.md
+    │   │   └── service_logic_mapping.md
+    │   ├── deeper_events
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   ├── associated_objects.md
+    │   │   ├── data_access_module.md
+    │   │   ├── data_access_modules.md
+    │   │   ├── database_schema.md
+    │   │   ├── migrations
+    │   │   │   ├── README.md
+    │   │   │   ├── create_deeper_event_categories_table.elixir.md
+    │   │   │   ├── create_deeper_event_rsvps_table.elixir.md
+    │   │   │   ├── create_deeper_events_categories_table.elixir.md
+    │   │   │   ├── create_deeper_events_entries_table.elixir.md
+    │   │   │   ├── create_deeper_events_participants_table.elixir.md
+    │   │   │   ├── create_deeper_events_table.elixir.md
+    │   │   │   └── create_deeper_events_to_categories_table.elixir.md
+    │   │   └── service_logic_mapping.md
+    │   ├── deeper_forums
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   ├── associated_objects.md
+    │   │   ├── data_access_modules.md
+    │   │   ├── database_schema.md
+    │   │   ├── migrations
+    │   │   │   ├── README.md
+    │   │   │   ├── create_deeper_forum_categories_table.elixir.md
+    │   │   │   ├── create_deeper_forum_posts_table.elixir.md
+    │   │   │   ├── create_deeper_forum_read_topics_table.elixir.md
+    │   │   │   ├── create_deeper_forum_subscriptions_table.elixir.md
+    │   │   │   ├── create_deeper_forum_topics_table.elixir.md
+    │   │   │   └── create_deeper_forums_table.elixir.md
+    │   │   └── service_logic_mapping.md
+    │   ├── deeper_groups
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   ├── associated_objects.md
+    │   │   ├── data_access_modules.md
+    │   │   ├── database_schema.md
+    │   │   ├── migrations
+    │   │   │   ├── README.md
+    │   │   │   ├── create_deeper_group_content_posts_table.elixir.md
+    │   │   │   ├── create_deeper_group_members_table.elixir.md
+    │   │   │   ├── create_deeper_groups_categories_table.elixir.md
+    │   │   │   ├── create_deeper_groups_content_feed_table.elixir.md
+    │   │   │   ├── create_deeper_groups_entries_table.elixir.md
+    │   │   │   ├── create_deeper_groups_invites_table.elixir.md
+    │   │   │   ├── create_deeper_groups_members_table.elixir.md
+    │   │   │   └── create_deeper_groups_table.elixir.md
+    │   │   └── service_logic_mapping.md
+    │   ├── deeper_photo_albums
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   ├── associated_objects.md
+    │   │   ├── data_access_modules.md
+    │   │   ├── database_schema.md
+    │   │   ├── migrations
+    │   │   │   ├── README.md
+    │   │   │   ├── create_deeper_album_photos_table.elixir.md
+    │   │   │   └── create_deeper_photo_albums_table.elixir.md
+    │   │   └── service_logic_mapping.md
+    │   └── deeper_polls
+    │       ├── README.md
+    │       ├── api_endpoints.md
+    │       ├── associated_objects.md
+    │       ├── data_access_modules.md
+    │       ├── database_schema.md
+    │       ├── migrations
+    │       │   ├── README.md
+    │       │   ├── create_deeper_poll_options_table.elixir.md
+    │       │   ├── create_deeper_poll_votes_table.elixir.md
+    │       │   └── create_deeper_polls_table.elixir.md
+    │       └── service_logic_mapping.md
+    ├── 04_interaction_systems
+    │   ├── README.md
+    │   ├── sys_comments_system
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   ├── data_access_module.md
+    │   │   ├── database_schema.md
+    │   │   └── migrations
+    │   │       ├── README.md
+    │   │       ├── create_deeper_comment_votes_track_table.elixir.md
+    │   │       ├── create_deeper_comments_table.elixir.md
+    │   │       ├── create_example_module_cmts_table.elixir.md
+    │   │       ├── create_sys_cmts_ids_table.elixir.md
+    │   │       └── create_sys_objects_cmts_table.elixir.md
+    │   ├── sys_favorites_system
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   ├── data_access_module.md
+    │   │   ├── database_schema.md
+    │   │   └── migrations
+    │   │       ├── README.md
+    │   │       ├── create_bx_persons_favorites_track_table.elixir.md
+    │   │       ├── create_deeper_favorites_track_table.elixir.md
+    │   │       ├── create_example_favorites_track_table.elixir.md
+    │   │       └── create_sys_objects_favorite_table.elixir.md
+    │   ├── sys_reactions_system
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   ├── data_access_module.md
+    │   │   ├── database_schema.md
+    │   │   └── migrations
+    │   │       ├── README.md
+    │   │       ├── create_deeper_object_reactions_summary_table.elixir.md
+    │   │       ├── create_deeper_reaction_types_table.elixir.md
+    │   │       ├── create_deeper_reactions_track_table.elixir.md
+    │   │       ├── create_example_reactions_summary_table.elixir.md
+    │   │       ├── create_example_reactions_track_table.elixir.md
+    │   │       ├── create_reactions_summary_table.elixir.md
+    │   │       ├── create_reactions_track_table.elixir.md
+    │   │       └── create_sys_objects_reaction_table.elixir.md
+    │   ├── sys_reporting_system
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   ├── data_access_module.md
+    │   │   ├── database_schema.md
+    │   │   └── migrations
+    │   │       ├── README.md
+    │   │       ├── create_bx_persons_reports_table.elixir.md
+    │   │       ├── create_bx_persons_reports_track_table.elixir.md
+    │   │       ├── create_deeper_report_types_table.elixir.md
+    │   │       ├── create_deeper_reports_track_table.elixir.md
+    │   │       ├── create_example_reports_summary_table.elixir.md
+    │   │       ├── create_example_reports_track_table.elixir.md
+    │   │       └── create_sys_objects_report_table.elixir.md
+    │   ├── sys_scoring_system
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   ├── data_access_module.md
+    │   │   ├── database_schema.md
+    │   │   └── migrations
+    │   │       ├── README.md
+    │   │       ├── create_bx_persons_scores_table.elixir.md
+    │   │       ├── create_bx_persons_scores_track_table.elixir.md
+    │   │       ├── create_deeper_scores_track_table.elixir.md
+    │   │       ├── create_example_scores_summary_table.elixir.md
+    │   │       ├── create_example_scores_track_table.elixir.md
+    │   │       └── create_sys_objects_score_table.elixir.md
+    │   └── sys_voting_system
+    │       ├── README.md
+    │       ├── api_endpoints.md
+    │       ├── data_access_module.md
+    │       ├── database_schema.md
+    │       └── migrations
+    │           ├── README.md
+    │           ├── create_bx_persons_votes_table.elixir.md
+    │           ├── create_bx_persons_votes_track_table.elixir.md
+    │           ├── create_deeper_votes_track_table.elixir.md
+    │           ├── create_example_votes_summary_table.elixir.md
+    │           ├── create_example_votes_track_table.elixir.md
+    │           └── create_sys_objects_vote_table.elixir.md
+    ├── 05_forms_and_grids
+    │   ├── README.md
+    │   ├── sys_forms_engine
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   ├── data_access_module.md
+    │   │   ├── database_schema.md
+    │   │   └── migrations
+    │   │       ├── README.md
+    │   │       ├── create_sys_form_display_inputs_table.elixir.md
+    │   │       ├── create_sys_form_displays_table.elixir.md
+    │   │       ├── create_sys_form_inputs_table.elixir.md
+    │   │       ├── create_sys_form_pre_lists_table.elixir.md
+    │   │       ├── create_sys_form_pre_values_table.elixir.md
+    │   │       └── create_sys_objects_form_table.elixir.md
+    │   └── sys_grids_engine
+    │       ├── README.md
+    │       ├── api_endpoints.md
+    │       ├── data_access_module.md
+    │       ├── database_schema.md
+    │       └── migrations
+    │           ├── README.md
+    │           ├── create_sys_grid_actions_table.elixir.md
+    │           ├── create_sys_grid_fields_table.elixir.md
+    │           └── create_sys_objects_grid_table.elixir.md
+    ├── 06_file_management
+    │   ├── README.md
+    │   ├── api_endpoints.md
+    │   ├── data_access_module.md
+    │   ├── data_access_module_extensions.md
+    │   ├── data_access_modules.md
+    │   ├── database_schema.md
+    │   └── migrations
+    │       ├── README.md
+    │       ├── create_deeper_file_versions_table.elixir.md
+    │       ├── create_deeper_files_table.elixir.md
+    │       ├── create_deeper_storage_backends_table.elixir.md
+    │       ├── create_sys_files_table.elixir.md
+    │       ├── create_sys_objects_storage_table.elixir.md
+    │       ├── create_sys_storage_ghosts_table.elixir.md
+    │       ├── create_sys_storage_tokens_table.elixir.md
+    │       └── create_sys_storage_user_quotas_table.elixir.md
+    ├── 07_studio_admin_api
+    │   ├── README.md
+    │   ├── acl
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   └── data_access_module_extensions.md
+    │   ├── acl_admin_api.md
+    │   ├── audit_log_viewer_api.md
+    │   ├── content_management
+    │   │   ├── README.md
+    │   │   ├── articles_admin_api.md
+    │   │   ├── bx_persons
+    │   │   │   ├── README.md
+    │   │   │   └── api_endpoints.md
+    │   │   ├── bx_posts
+    │   │   │   ├── README.md
+    │   │   │   └── api_endpoints.md
+    │   │   ├── events_admin_api.md
+    │   │   ├── forums_admin_api.md
+    │   │   ├── groups_admin_api.md
+    │   │   ├── market_admin_api.md
+    │   │   ├── organizations_admin_api.md
+    │   │   ├── photo_albums_admin_api.md
+    │   │   └── polls_admin_api.md
+    │   ├── email_templates_admin_api.md
+    │   ├── forms
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   └── data_access_module_extensions.md
+    │   ├── forms_grids_admin_api.md
+    │   ├── grids
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   └── data_access_module_extensions.md
+    │   ├── interactions_management
+    │   │   ├── README.md
+    │   │   ├── comments_moderation
+    │   │   │   └── README.md
+    │   │   ├── favorites_management
+    │   │   │   └── README.md
+    │   │   ├── reactions_management
+    │   │   │   └── README.md
+    │   │   ├── reports_processing
+    │   │   │   └── README.md
+    │   │   ├── scores_management
+    │   │   │   └── README.md
+    │   │   └── votes_management
+    │   │       └── README.md
+    │   ├── localization
+    │   │   └── README.md
+    │   ├── menu_admin_api.md
+    │   ├── menus
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   └── data_access_module_extensions.md
+    │   ├── modules
+    │   │   ├── README.md
+    │   │   └── api_endpoints.md
+    │   ├── modules_admin_api.md
+    │   ├── page_builder
+    │   │   ├── README.md
+    │   │   ├── api_endpoints.md
+    │   │   └── data_access_module_extensions.md
+    │   ├── page_builder_admin_api.md
+    │   ├── seo_admin_api.md
+    │   ├── settings
+    │   │   └── README.md
+    │   ├── standard_elements
+    │   │   ├── README.md
+    │   │   └── api_endpoints.md
+    │   ├── storage
+    │   │   └── README.md
+    │   ├── system_settings_admin_api.md
+    │   ├── system_tools
+    │   │   ├── README.md
+    │   │   ├── cache_management
+    │   │   │   └── README.md
+    │   │   ├── cron_jobs
+    │   │   │   ├── README.md
+    │   │   │   ├── data_access_module.md
+    │   │   │   └── migrations
+    │   │   │       ├── README.md
+    │   │   │       └── create_sys_cron_jobs_table.elixir.md
+    │   │   └── server_info
+    │   │       └── README.md
+    │   ├── system_tools_admin_api.md
+    │   ├── users_and_profiles
+    │   │   └── README.md
+    │   └── users_and_profiles_admin_api.md
+    ├── 08_advanced_features
+    │   ├── README.md
+    │   └── sys_connections
+    │       ├── README.md
+    │       ├── api_endpoints.md
+    │       ├── data_access_modules.md
+    │       ├── database_schema.md
+    │       ├── migrations
+    │       │   ├── README.md
+    │       │   ├── create_deeper_conn_bans_table.elixir.md
+    │       │   ├── create_deeper_conn_friends_table.elixir.md
+    │       │   └── create_deeper_conn_subscriptions_table.elixir.md
+    │       └── service_logic_mapping.md
+    └── XX_internal_core_details
+        ├── README.md
+        ├── deeper_core_data_repo_details.md
+        └── migrations_runner_details.md
