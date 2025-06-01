@@ -23,7 +23,7 @@ defmodule DeeperHub.MixProject do
   defp deps do
     [
       # Para geração de UUIDs
-      #{:uuid, "~> 1.1"},
+      {:uuid, "~> 1.1"},
 
       # Source Code
       #{:credo, "~> 1.7", only: [:dev, :test], runtime: false},

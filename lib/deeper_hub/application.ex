@@ -60,7 +60,8 @@ defmodule DeeperHub.Application do
   defp init_main_supervisors do
     # Define a árvore de supervisão principal da aplicação
     children = [
-      # Inicia o supervisor do subsistema de segurança
+      # Inicia o gerenciador de sessões de terminal
+      {DeeperHub.Core.Terminal.SessionManager, []},
     ]
 
     # Configuração do supervisor principal

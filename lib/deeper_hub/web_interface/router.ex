@@ -23,6 +23,7 @@ defmodule DeeperHub.WebInterface.Router do
   forward "/api/status", to: DeeperHub.WebInterface.Resources.StatusResource
   forward "/api/info", to: DeeperHub.WebInterface.Resources.ServerInfoResource
   forward "/api/routes", to: DeeperHub.WebInterface.Resources.RoutesResource
+  forward "/api/terminal", to: DeeperHub.WebInterface.Resources.TerminalResource
 
   # Rota principal para verificação da API
   get "/" do
