@@ -160,7 +160,7 @@ defmodule DeeperHub.Core.Terminal.IExProcess do
             :ok
 
           String.match?(line, ~r/\*\* \((.+Error)\)/) or String.match?(line, ~r/Error:/) ->
-            Logger.warn("IExProcess: Error line detected: '#{line}' for session #{session_id}")
+            Logger.warning("IExProcess: Error line detected: '#{line}' for session #{session_id}")
             error_details = gather_error_details(port, [line], marker, 3, 100)
             full_error_output = Enum.join(output_acc ++ error_details, "\n")
             formatted_error = OutputFormatter.format_error_message(full_error_output)
@@ -187,7 +187,7 @@ defmodule DeeperHub.Core.Terminal.IExProcess do
         process_lines_recursively(port, client_pid, marker, output_acc, start_time, safety_timer_ref, manager_pid, session_id, lines)
 
       {^port, {:exit_status, status}} ->
-        Logger.warn("IExProcess (collect_and_stream): Port #{inspect(port)} for session #{session_id} exited with status #{status}.")
+        Logger.warning("IExProcess (collect_and_stream): Port #{inspect(port)} for session #{session_id} exited with status #{status}.")
         send_chunk(client_pid, "\n[Terminal process (monitored by Task) exited with status: #{status}]")
         send_eof(client_pid, :port_terminated_in_task)
         cleanup_after_command(safety_timer_ref, manager_pid, session_id) # Garante limpeza
@@ -201,7 +201,7 @@ defmodule DeeperHub.Core.Terminal.IExProcess do
       @receive_timeout ->
         elapsed_time = System.monotonic_time(:millisecond) - start_time
         if elapsed_time > collection_timeout_ms do
-          Logger.warn("IExProcess (collect_and_stream): Collection timeout for command on port #{inspect(port)} for session #{session_id}. Elapsed: #{elapsed_time}ms")
+          Logger.warning("IExProcess (collect_and_stream): Collection timeout for command on port #{inspect(port)} for session #{session_id}. Elapsed: #{elapsed_time}ms")
           remaining_output = if Enum.empty?(output_acc), do: "[Command timed out in Task without further output]", else: Enum.join(OutputFormatter.clean_lines(output_acc, marker), "\n") <> "\n[Command timed out in Task]"
           send_chunk(client_pid, remaining_output)
           send_eof(client_pid, :task_timeout)
@@ -232,7 +232,7 @@ defmodule DeeperHub.Core.Terminal.IExProcess do
           :marker_found
 
         String.match?(head, ~r/\*\* \((.+Error)\)/) or String.match?(head, ~r/Error:/) ->
-          Logger.warn("IExProcess: Error line detected in processed line: '#{head}'")
+          Logger.warning("IExProcess: Error line detected in processed line: '#{head}'")
           error_details = [head]
           full_error_output = Enum.join(acc ++ error_details, "\n")
           formatted_error = OutputFormatter.format_error_message(full_error_output)

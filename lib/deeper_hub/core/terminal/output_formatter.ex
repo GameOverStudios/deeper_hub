@@ -10,8 +10,29 @@ defmodule DeeperHub.Core.Terminal.OutputFormatter do
   def clean_lines(lines, marker) when is_list(lines) do
     lines
     |> Enum.filter(fn l -> not String.contains?(l, marker) end)
-    |> Enum.filter(fn l -> not (String.starts_with?(l, "iex(") and String.ends_with?(l, "> ")) end)
-    # Adicionar outros filtros se necessário, como "\e[0K" ou códigos de escape ANSI se não desejados
+    # Remove linhas que são apenas prompts de continuação (...(n)>)
+    |> Enum.filter(fn l -> not Regex.match?(~r/^\s*\.\.\.\(\d+\)>\s*$/, l) end)
+    # Extrai o conteúdo após os prompts de continuação (...(n)>)
+    |> Enum.map(fn line ->
+      cond do
+        # Remove prompts de continuação no início da linha
+        Regex.match?(~r/^\s*\.\.\.\(\d+\)>\s*(.*)$/, line) ->
+          case Regex.run(~r/^\s*\.\.\.\(\d+\)>\s*(.*)$/, line) do
+            [_, content] -> content
+            _ -> line
+          end
+        # Remove prompts iex no início da linha
+        Regex.match?(~r/^\s*iex\(\d+\)>\s*(.*)$/, line) ->
+          case Regex.run(~r/^\s*iex\(\d+\)>\s*(.*)$/, line) do
+            [_, content] -> content
+            _ -> line
+          end
+        true -> line
+      end
+    end)
+    # Remove linhas que contêm apenas pontos (como "...", ".....")
+    |> Enum.filter(fn l -> not Regex.match?(~r/^\s*\.+\s*$/, l) end)
+    # Remove códigos de escape ANSI e outros artefatos
     |> Enum.map(&String.trim_trailing(&1, "\e[0K")) # Remove "erase to end of line"
   end
 

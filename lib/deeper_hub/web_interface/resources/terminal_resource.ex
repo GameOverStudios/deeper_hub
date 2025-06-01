@@ -187,7 +187,7 @@ defmodule DeeperHub.WebInterface.Resources.TerminalResource do
 
     after
       @chunk_receive_timeout ->
-        Logger.warn("TerminalResource (pid #{inspect(self())}): Timeout no receive_chunks_loop. Nenhuma mensagem recebida por #{@chunk_receive_timeout}ms. Fechando stream.")
+        Logger.warning("TerminalResource (pid #{inspect(self())}): Timeout no receive_chunks_loop. Nenhuma mensagem recebida por #{@chunk_receive_timeout}ms. Fechando stream.")
         # Envia um chunk final indicando o timeout e então retorna a `conn`.
         case chunk(current_conn, "\n[TIMEOUT NO SERVIDOR: Nenhum dado adicional recebido do terminal por #{@chunk_receive_timeout / 1000} segundos]\n") do
           {:ok, final_conn} ->
