@@ -164,11 +164,18 @@ defmodule DeeperHub.WebInterface.Resources.TerminalResource do
           |> String.replace(~r/\e\[[0-9;]*[mK]/, "") # Remove códigos ANSI comuns
           # Não faça String.trim() em chunks intermediários, pode quebrar a formatação de múltiplas linhas.
 
-        # Envia o chunk pela conexão. `Plug.Conn.chunk` retorna uma nova `conn`.
-        # É importante usar esta nova `conn` na próxima iteração do loop.
+        # Envia o chunk pela conexão. `Plug.Conn.chunk` retorna {:ok, conn} ou {:error, reason}
+        # É importante extrair o conn do retorno para a próxima iteração do loop.
         # Logger.debug("TerminalResource (pid #{inspect(self())}): Enviando chunk de #{byte_size(cleaned_data)} bytes.")
-        next_conn = chunk(current_conn, cleaned_data)
-        receive_chunks_loop(next_conn) # Continua o loop com a `conn` atualizada.
+        case chunk(current_conn, cleaned_data) do
+          {:ok, next_conn} ->
+            # Continua o loop com a `conn` atualizada
+            receive_chunks_loop(next_conn)
+          {:error, reason} ->
+            Logger.error("TerminalResource: Erro ao enviar chunk: #{inspect(reason)}")
+            # Encerra o loop se não for possível continuar enviando chunks
+            current_conn
+        end
 
       {:terminal_eof, reason} ->
         Logger.info("TerminalResource (pid #{inspect(self())}): EOF recebido, razão: #{reason}. Finalizando stream.")
@@ -182,8 +189,15 @@ defmodule DeeperHub.WebInterface.Resources.TerminalResource do
       @chunk_receive_timeout ->
         Logger.warn("TerminalResource (pid #{inspect(self())}): Timeout no receive_chunks_loop. Nenhuma mensagem recebida por #{@chunk_receive_timeout}ms. Fechando stream.")
         # Envia um chunk final indicando o timeout e então retorna a `conn`.
-        chunk(current_conn, "\n[TIMEOUT NO SERVIDOR: Nenhum dado adicional recebido do terminal por #{@chunk_receive_timeout / 1000} segundos]\n")
-        # Retorna a `conn` para finalizar a resposta.
+        case chunk(current_conn, "\n[TIMEOUT NO SERVIDOR: Nenhum dado adicional recebido do terminal por #{@chunk_receive_timeout / 1000} segundos]\n") do
+          {:ok, final_conn} ->
+            # Retorna a `conn` atualizada para finalizar a resposta
+            final_conn
+          {:error, reason} ->
+            Logger.error("TerminalResource: Erro ao enviar chunk de timeout: #{inspect(reason)}")
+            # Retorna a `conn` original se houve erro
+            current_conn
+        end
     end
   end
 
