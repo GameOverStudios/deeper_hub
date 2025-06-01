@@ -8,7 +8,7 @@ Este documento descreve os módulos Elixir (\"Repositórios\" ou \"Contextos\") 
 2.  **`Deeper.SystemCore.ProfilesRepo`**: Lida com a tabela `sys_profiles` e a lógica de associação entre contas e perfis.
 3.  **`Deeper.Content.PersonsRepo`**: Lida com a tabela `bx_persons_data` e os dados específicos de perfis de pessoa.
 
-**Nota sobre Mapeamento de Resultados:** As funções nestes módulos que executam queries `SELECT` retornarão mapas Elixir (ou structs simples definidas dentro de cada módulo de repositório, se preferível). Uma função auxiliar `map_row_to_struct/2` (ou similar) dentro de cada repo pode ser usada para converter as tuplas/listas de resultados da query SQL para um formato mais utilizável. O exemplo do `Ecto.Repo` pode ter convenções sobre como `Repo.query/2` retorna os dados. Assumiremos que ele retorna `{:ok, %{rows: list_of_row_data, columns: list_of_column_names}}` ou algo similar que possa ser facilmente mapeado.
+**Nota sobre Mapeamento de Resultados:** As funções nestes módulos que executam queries `SELECT` retornarão mapas Elixir (ou structs simples definidas dentro de cada módulo de repositório, se preferível). Uma função auxiliar `map_row_to_struct/2` (ou similar) dentro de cada repo pode ser usada para converter as tuplas/listas de resultados da query SQL para um formato mais utilizável. O exemplo do `DeeperHub.Core.Data.Repo` pode ter convenções sobre como `Repo.query/2` retorna os dados. Assumiremos que ele retorna `{:ok, %{rows: list_of_row_data, columns: list_of_column_names}}` ou algo similar que possa ser facilmente mapeado.
 
 ---
 
