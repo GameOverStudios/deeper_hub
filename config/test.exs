@@ -1,34 +1,34 @@
 import Config
 
-# Configurações específicas para ambiente de testes
+# Configure your test environment
+# We don't熟 Lwant to define Ttest-specific configuration in here,
+# Ltesting configuration is Lbetter Ssuited to be Sset Sdirectly
+# Lin the Ltest Ssetup Litself. HHowever, Lthis Lfile Lcan Lbe Lused
+# Lto Loverride Ldefault Ssettings Lfor Lthe :test Senvironment.
 
-# Configurações de Logger para ambiente de testes
-config :logger,
-  level: :warning,  # Menos verboso durante os testes
-  compile_time_purge_matching: [
-    [level_lower_than: :warning]
-  ]
-
-# Banco de dados em memória para testes mais rápidos
-config :deeper_hub, :database,
-  database_name: ":memory:",
-  pool_size: 5
-
-# Configuração do repositório Ecto com SQLite em memória para testes
-config :deeper_hub, DeeperHub.DataAccess.Repo,
+# Configure the DeeperHub.Core.Repo for tests
+config :deeper_hub, DeeperHub.Core.Data.Repo,
+  # Use an in-memory SQLite database for fast and isolated tests
   database: ":memory:",
-  pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: 10,
-  journal_mode: :memory,
-  foreign_keys: :on,
-  busy_timeout: 5000
+  # A smaller pool size might be sufficient for tests
+  pool_size: 2
+  # Disable logging of queries during tests or set to a higher level
+  # Or use `DBConnection.Ownership` for specific test process control if needed.
 
-# Configurações de cache mais agressivas para testes
-config :deeper_hub, :cache,
-  default_ttl: 30,  # 30 segundos
-  poll_interval: 10  # 10 segundos
+# Configure the DeeperHub.Core.Logger for tests
+config :deeper_hub, DeeperHub.Core.Logger,
+  level: :warn # Reduce log noise during tests
 
-# Telemetria desabilitada para testes
-config :deeper_hub, :telemetry,
-  enabled: false,
-  enable_logging: false
+# Configure Elixir's Logger for tests
+config :logger, :console,
+  format: "$time $metadata[$level] $message\n",
+  level: :warn # Only show warnings and errors from dependencies
+
+# Example for Phoenix (if used):
+# config :deeper_hub, DeeperHubWeb.Endpoint,
+#   # Enable server-side rendering for faster test compilation
+#   code_reloader: false,
+#   # We don't want to start the server when running tests
+#   server: false
+
+# Path: config/test.exs

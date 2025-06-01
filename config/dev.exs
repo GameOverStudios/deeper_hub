@@ -1,36 +1,47 @@
 import Config
 
-# Configurações específicas para ambiente de desenvolvimento
+# Configure your database
+# config :deeper_hub, DeeperHub.Core.Data.Repo,
+#   database: "deeper_hub_dev.db",
+#   pool_size: 10 # Or other dev-specific settings
 
-# Configurações de Logger mais detalhadas para desenvolvimento
-config :logger,
-  level: :debug,
-  compile_time_purge_matching: [
-    [level_lower_than: :debug]
-  ]
+# Set a more verbose log level for development
+config :deeper_hub, DeeperHub.Core.Logger,
+  level: :debug
 
-# Banco de dados com nome específico para ambiente de desenvolvimento
-config :deeper_hub, :database,
-  database_name: "deeper_hub_dev.db",
-  pool_size: 5,
-  show_sensitive_data_on_connection_error: true
+# Do not print debug messages in production
+config :logger, :console,
+  format: "$time $metadata[$level] $message\n",
+  metadata: [:request_id]
 
-# Configuração do repositório Ecto com SQLite
-config :deeper_hub, DeeperHub.DataAccess.Repo,
-  database: Path.join([System.get_env("MIX_APP_PATH") || Path.expand("../_build/dev/lib/deeper_hub", __DIR__), "../../../databases/deeper_hub_dev.db"]),
-  pool_size: 5,
-  journal_mode: :wal,
-  foreign_keys: :on,
-  busy_timeout: 2000,
-  show_sensitive_data_on_connection_error: true
+# Configurações de segurança para ambiente de desenvolvimento
+config :deeper_hub, :security,
+  # Proteção contra ataques de autenticação
+  block_duration: 300,                # 5 minutos em ambiente de desenvolvimento (900 em produção)
+  max_auth_attempts: 5,               # Limite menor para testes (10 em produção)
+  auth_period: 60,                    # 1 minuto
+  log_auth_attempts: true,            # Registrar todas as tentativas
+  
+  # Política de senhas (mais flexível para desenvolvimento)
+  password_min_length: 6,             # Menor que em produção (8)
+  password_require_uppercase: false,  # Desativado para facilitar testes
+  password_require_lowercase: true,
+  password_require_numbers: false,    # Desativado para facilitar testes
+  password_require_special: false,    # Desativado para facilitar testes
+  password_expiration_days: 0,        # Sem expiração em desenvolvimento
+  
+  # Tokens JWT
+  access_token_ttl: 3600 * 24,        # 24 horas (mais longo para desenvolvimento)
+  refresh_token_ttl: 30 * 24 * 3600,   # 30 dias
+  
+  # Configurações de sessão
+  session_duration: 24 * 60 * 60,      # 24 horas
+  persistent_session_duration: 90 * 24 * 60 * 60,  # 90 dias (mais longo para desenvolvimento)
+  inactivity_timeout: 8 * 60 * 60,     # 8 horas (mais longo para desenvolvimento)
+  max_concurrent_sessions: 10,         # Mais sessões permitidas em desenvolvimento
+  
+  # Verificação de email
+  require_email_verification: false,   # Desativado para facilitar testes
+  email_verification_token_expiration: 7 * 24 * 60 * 60  # 7 dias (mais longo para desenvolvimento)
 
-# Cache com tamanho maior para desenvolvimento, permitindo mais experimentação
-config :deeper_hub, :cache,
-  default_ttl: 300,  # 5 minutos em segundos
-  poll_interval: 60  # 1 minuto em segundos
-
-# Telemetria com logging habilitado para facilitar desenvolvimento
-config :deeper_hub, :telemetry,
-  enabled: true,
-  enable_logging: true,
-  report_interval: 30_000  # 30 segundos em milissegundos
+# Path: config/dev.exs

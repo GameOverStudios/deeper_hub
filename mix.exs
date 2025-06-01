@@ -7,9 +7,7 @@ defmodule DeeperHub.MixProject do
       version: "0.1.0",
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
-      deps: deps(),
-      aliases: aliases(),
-      releases: releases(),
+      deps: deps()
     ]
   end
 
@@ -29,16 +27,14 @@ defmodule DeeperHub.MixProject do
 
       # Source Code
       #{:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.38.1", only: :dev, runtime: false},
+      #{:ex_doc, "~> 0.38.1", only: :dev, runtime: false},
 
       # Tests
-      {:ex_machina, "~> 2.8.0", only: :test},
+      #{:ex_machina, "~> 2.8.0", only: :test},
 
-      # DBConnection e banco de dados
+      # DBConnection
       {:db_connection, "~> 2.7"},
       {:exqlite, "~> 0.30"},
-      {:ecto, "~> 3.12"},
-      {:ecto_sqlite3, "~> 0.19"},
 
       # Telemetria e observabilidade
       #{:telemetry, "~> 1.3"},
@@ -61,6 +57,7 @@ defmodule DeeperHub.MixProject do
       # Auth
       #{:joken, "~> 2.6"},
       #{:guardian, "~> 2.3"},
+      #{:pbkdf2_elixir, "~> 2.2"},
       #{:bcrypt_elixir, "~> 3.0"},
 
       # Segurança
@@ -72,30 +69,4 @@ defmodule DeeperHub.MixProject do
     ]
   end
 
-  # Aliases são atalhos para comandos mix
-  defp aliases do
-    [
-      setup: ["deps.get", "compile"],
-      test: ["test"],
-      "test.all": ["test --cover"],
-      "code.check": ["credo", "format --check-formatted"],
-      "code.fix": ["format"],
-      "db.reset": ["run priv/scripts/db_reset.exs"],
-    ]
-  end
-
-  # Configurações para releases
-  defp releases do
-    [
-      deeper_hub: [
-        include_executables_for: [:unix, :windows],
-        applications: [
-          deeper_hub: :permanent
-        ],
-        steps: [:assemble, :tar],
-        # Configurações específicas para produção podem ser definidas aqui
-        cookie: "#{Base.encode16(:crypto.strong_rand_bytes(32))}"
-      ]
-    ]
-  end
 end

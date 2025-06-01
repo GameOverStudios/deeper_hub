@@ -26,7 +26,7 @@ defmodule DeeperHub.Core.Data.Migrations.CreateUsersTable do
   no sistema DeeperHub, incluindo dados de autenticação e perfil.
   \"\"\"
 
-  alias DeeperHub.Core.Data.Repo
+  alias Ecto.Repo
   alias DeeperHub.Logger
   require DeeperHub.Logger
 
@@ -103,7 +103,7 @@ porque assim temos tudo o que precisamos já pronto para implementação....  o 
         types.Content(
             role="model",
             parts=[
-                types.Part.from_text(text="""Entendido! Mudança de planos: usaremos SQLite como banco de dados inicial e a biblioteca `DBConnection` (ou uma camada sobre ela como a que você mostrou com `DeeperHub.Core.Data.Repo`) para interações diretas com o banco de dados, escrevendo SQL manualmente nas migrações e nos contextos/módulos de acesso a dados. Isso significa que não usaremos os schemas e as abstrações de query do Ecto.
+                types.Part.from_text(text="""Entendido! Mudança de planos: usaremos SQLite como banco de dados inicial e a biblioteca `DBConnection` (ou uma camada sobre ela como a que você mostrou com `Ecto.Repo`) para interações diretas com o banco de dados, escrevendo SQL manualmente nas migrações e nos contextos/módulos de acesso a dados. Isso significa que não usaremos os schemas e as abstrações de query do Ecto.
 
 Essa abordagem dá controle total sobre o SQL, o que pode ser vantajoso para otimizações específicas e para quem prefere trabalhar diretamente com a linguagem SQL. A biblioteca `DBConnection` é a base para muitas outras bibliotecas de banco de dados em Elixir, incluindo o Ecto, e é excelente para gerenciar pools de conexões.
 
@@ -117,7 +117,7 @@ A estrutura geral de documentação que planejamos ainda é válida, mas o conte
 
 *   **Visão Geral do Projeto:**
     *   Objetivo: Criar um backend Elixir RESTful (\"Deeper\") para o UNA CMS, utilizando o banco de dados SQLite (inicialmente, mas com o SQL do UNA) e permitindo que um cliente remoto reconstrua a interface.
-    *   Tecnologias Chave: Elixir, Phoenix (para API REST), `DBConnection` (ou uma camada como `DeeperHub.Core.Data.Repo`), SQLite (inicialmente), JSON.
+    *   Tecnologias Chave: Elixir, Phoenix (para API REST), `DBConnection` (ou uma camada como `Ecto.Repo`), SQLite (inicialmente), JSON.
 *   **Princípios de Design da API:** (Mantém-se)
 *   **Processo de Desenvolvimento:**
     *   Foco em documentação primeiro (READMEs).

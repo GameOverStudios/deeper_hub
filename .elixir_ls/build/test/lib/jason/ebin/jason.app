@@ -9,7 +9,6 @@
                         'Elixir.Jason.Encoder.BitString',
                         'Elixir.Jason.Encoder.Date',
                         'Elixir.Jason.Encoder.DateTime',
-                        'Elixir.Jason.Encoder.Decimal',
                         'Elixir.Jason.Encoder.Float',
                         'Elixir.Jason.Encoder.Integer',
                         'Elixir.Jason.Encoder.Jason.Fragment',
