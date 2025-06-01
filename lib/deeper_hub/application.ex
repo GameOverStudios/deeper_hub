@@ -60,7 +60,9 @@ defmodule DeeperHub.Application do
     # Define a árvore de supervisão principal da aplicação
     children = [
       # Inicia o gerenciador de sessões de terminal
-      {DeeperHub.Core.Terminal.SessionManager, []}
+      {DeeperHub.Core.Terminal.SessionManager, []},
+      # Inicia o gerenciador de console
+      {DeeperHub.Core.Console.ConsoleManager, []}
     ]
 
     # Configuração do supervisor principal
