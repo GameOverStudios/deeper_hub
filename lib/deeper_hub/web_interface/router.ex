@@ -8,13 +8,13 @@ defmodule DeeperHub.WebInterface.Router do
 
   # Plugs de depuração
   plug Plug.Logger, log: :debug
-  
+
   # Parsers para formatos diferentes
   plug Plug.Parsers,
     parsers: [:json],
     pass: ["application/json"],
     json_decoder: Jason
-  
+
   # Pipeline principal
   plug :match
   plug :dispatch
@@ -22,6 +22,7 @@ defmodule DeeperHub.WebInterface.Router do
   # API Routes
   forward "/api/status", to: DeeperHub.WebInterface.Resources.StatusResource
   forward "/api/info", to: DeeperHub.WebInterface.Resources.ServerInfoResource
+  forward "/api/routes", to: DeeperHub.WebInterface.Resources.RoutesResource
 
   # Rota principal para verificação da API
   get "/" do
@@ -36,7 +37,7 @@ defmodule DeeperHub.WebInterface.Router do
     |> put_resp_content_type("application/json")
     |> send_resp(404, Jason.encode!(%{erro: "Rota não encontrada"}))
   end
-  
+
   # Log de erros
   def handle_errors(conn, %{kind: kind, reason: reason, stack: stack}) do
     IO.puts("Erro na API: #{inspect(kind)} - #{inspect(reason)}")
