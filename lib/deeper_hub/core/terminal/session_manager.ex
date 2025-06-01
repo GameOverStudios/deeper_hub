@@ -7,6 +7,7 @@ defmodule DeeperHub.Core.Terminal.SessionManager do
 
   # Nome completo usado para evitar referências cíclicas durante compilação
   alias DeeperHub.Core.Terminal.IExProcess
+  alias DeeperHub.Core.Terminal.CommandFilter
 
   @command_safety_timeout 25_000
 
@@ -87,6 +88,34 @@ defmodule DeeperHub.Core.Terminal.SessionManager do
   @impl true
   def handle_call({:execute_command, session_id, command, client_pid}, from, state) do
     Logger.debug("SessionManager: Recebido execute_command para sessão #{session_id}")
+    
+    # Verificar se o comando está autorizado antes de prosseguir
+    case CommandFilter.authorize(command, %{context: :api}) do
+      {:ok, filtered_command} ->
+        # Comando autorizado, prosseguir com a execução
+        execute_authorized_command(session_id, filtered_command, client_pid, from, state)
+        
+      {:error, reason} ->
+        # Comando não autorizado, retornar erro
+        error_message = case reason do
+          :blacklisted_term -> "Comando contém termos não permitidos"
+          :unauthorized_module -> "Comando usa módulos não autorizados"
+          :command_too_long -> "Comando excede o tamanho máximo permitido"
+          _ -> "Comando não autorizado: #{inspect(reason)}"
+        end
+        
+        # Se temos um cliente esperando, enviar mensagem de erro
+        if client_pid && Process.alive?(client_pid) do
+          send(client_pid, {:terminal_chunk, "\n[ERRO DE SEGURANÇA: #{error_message}]\n"})
+          send(client_pid, {:terminal_eof, :security_error})
+        end
+        
+        {:reply, {:error, reason}, state}
+    end
+  end
+  
+  # Função auxiliar para executar comando autorizado
+  defp execute_authorized_command(session_id, command, client_pid, from, state) do
     case Map.get(state.sessions, session_id) do
       nil ->
         Logger.warning("SessionManager: Tentativa de executar comando em sessão não encontrada: #{session_id}")
