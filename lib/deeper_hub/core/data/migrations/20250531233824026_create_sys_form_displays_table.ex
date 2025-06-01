@@ -38,8 +38,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysFormDisplaysTable do
       {:ok, _} ->
         Logger.info("Tabela sys_form_displays criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela sys_form_displays: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela sys_form_displays: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -51,12 +55,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysFormDisplaysTable do
   def down do
     Logger.info("Removendo tabela sys_form_displays...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS sys_form_displays;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela sys_form_displays removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela sys_form_displays: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela sys_form_displays: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

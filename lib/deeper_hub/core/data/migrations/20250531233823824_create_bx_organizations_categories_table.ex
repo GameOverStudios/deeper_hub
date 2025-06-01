@@ -30,14 +30,19 @@ defmodule DeeperHub.Core.Data.Migrations.CreateBxOrganizationsCategoriesTable do
     CREATE UNIQUE INDEX IF NOT EXISTS idx_bx_org_cat_name ON bx_organizations_categories(name);
     CREATE UNIQUE INDEX IF NOT EXISTS idx_bx_org_cat_uri ON bx_organizations_categories(uri);
     """
+
     # Nota: 'name' e 'uri' devem ser únicos. 'title' pode ser uma chave de tradução.
 
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela bx_organizations_categories criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela bx_organizations_categories: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela bx_organizations_categories: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -53,10 +58,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateBxOrganizationsCategoriesTable do
 
     case Repo.execute(sql) do
       {:ok, _} ->
-        Logger.info("Tabela bx_organizations_categories removida com sucesso.", module: __MODULE__)
+        Logger.info("Tabela bx_organizations_categories removida com sucesso.",
+          module: __MODULE__
+        )
+
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela bx_organizations_categories: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela bx_organizations_categories: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

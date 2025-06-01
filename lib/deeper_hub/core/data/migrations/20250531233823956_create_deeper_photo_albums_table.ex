@@ -53,14 +53,19 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperPhotoAlbumsTable do
     CREATE INDEX IF NOT EXISTS idx_dpa_slug ON deeper_photo_albums(slug);
     CREATE INDEX IF NOT EXISTS idx_dpa_privacy_level ON deeper_photo_albums(privacy_level);
     """
+
     # Repo.execute("PRAGMA foreign_keys = ON;") -- Se necessário
 
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela deeper_photo_albums criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela deeper_photo_albums: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela deeper_photo_albums: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -72,12 +77,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperPhotoAlbumsTable do
   def down do
     Logger.info("Removendo tabela deeper_photo_albums...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS deeper_photo_albums;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela deeper_photo_albums removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela deeper_photo_albums: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela deeper_photo_albums: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

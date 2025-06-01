@@ -65,8 +65,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysMenuItemsTable do
       {:ok, _} ->
         Logger.info("Tabela sys_menu_items criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela sys_menu_items: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela sys_menu_items: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -84,8 +88,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysMenuItemsTable do
       {:ok, _} ->
         Logger.info("Tabela sys_menu_items removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela sys_menu_items: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela sys_menu_items: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

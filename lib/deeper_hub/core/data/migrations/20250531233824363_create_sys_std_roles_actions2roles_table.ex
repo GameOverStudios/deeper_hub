@@ -27,17 +27,21 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysStdRolesActions2RolesTable do
       FOREIGN KEY (action_id) REFERENCES sys_std_roles_actions(id) ON DELETE CASCADE ON UPDATE CASCADE
     );
     """
+
     # Índices para FKs são geralmente criados automaticamente pelo SQLite quando a FK é definida,
     # mas podem ser adicionados explicitamente se necessário para otimizar queries que não usam a PK.
     # CREATE INDEX IF NOT EXISTS idx_sys_std_roles_actions2roles_action_id ON sys_std_roles_actions2roles(action_id);
-
 
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela sys_std_roles_actions2roles criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela sys_std_roles_actions2roles: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela sys_std_roles_actions2roles: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -53,10 +57,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysStdRolesActions2RolesTable do
 
     case Repo.execute(sql) do
       {:ok, _} ->
-        Logger.info("Tabela sys_std_roles_actions2roles removida com sucesso.", module: __MODULE__)
+        Logger.info("Tabela sys_std_roles_actions2roles removida com sucesso.",
+          module: __MODULE__
+        )
+
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela sys_std_roles_actions2roles: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela sys_std_roles_actions2roles: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

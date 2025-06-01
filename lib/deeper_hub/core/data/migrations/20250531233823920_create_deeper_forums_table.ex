@@ -59,6 +59,7 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperForumsTable do
     CREATE INDEX IF NOT EXISTS idx_df_order_index_title ON deeper_forums(order_index, title);
     CREATE INDEX IF NOT EXISTS idx_df_last_post_at ON deeper_forums(last_post_at DESC);
     """
+
     # Adicionar constraints de FK para last_topic_id e last_post_id via ALTER TABLE
     # em uma migração posterior ou garantir que a lógica da aplicação mantenha a integridade
     # se as tabelas forem criadas em uma ordem que não permita FKs imediatas.
@@ -70,8 +71,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperForumsTable do
       {:ok, _} ->
         Logger.info("Tabela deeper_forums criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela deeper_forums: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela deeper_forums: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -83,12 +88,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperForumsTable do
   def down do
     Logger.info("Removendo tabela deeper_forums...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS deeper_forums;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela deeper_forums removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela deeper_forums: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela deeper_forums: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

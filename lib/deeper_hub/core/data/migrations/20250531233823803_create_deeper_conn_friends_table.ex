@@ -49,8 +49,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperConnFriendsTable do
       {:ok, _} ->
         Logger.info("Tabela deeper_conn_friends criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela deeper_conn_friends: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela deeper_conn_friends: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -68,8 +72,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperConnFriendsTable do
       {:ok, _} ->
         Logger.info("Tabela deeper_conn_friends removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela deeper_conn_friends: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela deeper_conn_friends: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

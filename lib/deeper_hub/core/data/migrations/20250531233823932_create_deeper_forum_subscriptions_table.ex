@@ -76,15 +76,24 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperForumSubscriptionsTable do
     CREATE INDEX IF NOT EXISTS idx_dfs_profile_id_forum_id ON deeper_forum_subscriptions(profile_id, forum_id);
     CREATE INDEX IF NOT EXISTS idx_dfs_profile_id_topic_id ON deeper_forum_subscriptions(profile_id, topic_id);
     """
+
     # O DROP TABLE e CREATE TABLE sequencial é para garantir que a CHECK constraint esteja correta.
     # Em uma migração real, se a tabela já existisse, a alteração da CHECK seria mais complexa.
 
     case Repo.execute(sql) do
       {:ok, _} ->
-        Logger.info("Tabela deeper_forum_subscriptions criada com sucesso (com CHECK e índices parciais).", module: __MODULE__)
+        Logger.info(
+          "Tabela deeper_forum_subscriptions criada com sucesso (com CHECK e índices parciais).",
+          module: __MODULE__
+        )
+
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela deeper_forum_subscriptions: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela deeper_forum_subscriptions: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -96,12 +105,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperForumSubscriptionsTable do
   def down do
     Logger.info("Removendo tabela deeper_forum_subscriptions...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS deeper_forum_subscriptions;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela deeper_forum_subscriptions removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela deeper_forum_subscriptions: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela deeper_forum_subscriptions: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

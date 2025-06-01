@@ -74,8 +74,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateBxOrganizationsDataTable do
       {:ok, _} ->
         Logger.info("Tabela bx_organizations_data criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela bx_organizations_data: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela bx_organizations_data: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -93,8 +97,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateBxOrganizationsDataTable do
       {:ok, _} ->
         Logger.info("Tabela bx_organizations_data removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela bx_organizations_data: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela bx_organizations_data: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

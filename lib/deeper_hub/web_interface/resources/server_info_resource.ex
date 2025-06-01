@@ -5,9 +5,9 @@ defmodule DeeperHub.WebInterface.Resources.ServerInfoResource do
   de execução e configurações do sistema.
   """
   use Plug.Router
-  plug :match
-  plug :dispatch
-  
+  plug(:match)
+  plug(:dispatch)
+
   get "/" do
     # Informações detalhadas do servidor
     server_info = %{
@@ -21,18 +21,18 @@ defmodule DeeperHub.WebInterface.Resources.ServerInfoResource do
       aplicacoes: listar_aplicacoes(),
       timestamp: DateTime.utc_now() |> DateTime.to_iso8601()
     }
-    
+
     conn
     |> put_resp_content_type("application/json")
     |> send_resp(200, Jason.encode!(server_info))
   end
-  
+
   match _ do
     conn
     |> put_resp_content_type("application/json")
     |> send_resp(404, Jason.encode!(%{erro: "Recurso não encontrado"}))
   end
-  
+
   # Funções privadas auxiliares
   defp listar_aplicacoes do
     # Lista as principais aplicações em execução
@@ -40,14 +40,15 @@ defmodule DeeperHub.WebInterface.Resources.ServerInfoResource do
     |> Enum.map(fn app ->
       # Verifica se podemos obter as especificações da aplicação
       versao = Application.spec(app, :vsn)
-      
+
       case versao do
-        nil -> 
+        nil ->
           %{
             nome: app,
             status: "não_carregado"
           }
-        _ -> 
+
+        _ ->
           %{
             nome: app,
             versao: versao |> to_string(),

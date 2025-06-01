@@ -41,8 +41,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateBxPersonsPicturesResizedTable do
       {:ok, _} ->
         Logger.info("Tabela bx_persons_pictures_resized criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela bx_persons_pictures_resized: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela bx_persons_pictures_resized: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -54,12 +58,20 @@ defmodule DeeperHub.Core.Data.Migrations.CreateBxPersonsPicturesResizedTable do
   def down do
     Logger.info("Removendo tabela bx_persons_pictures_resized...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS bx_persons_pictures_resized;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
-        Logger.info("Tabela bx_persons_pictures_resized removida com sucesso.", module: __MODULE__)
+        Logger.info("Tabela bx_persons_pictures_resized removida com sucesso.",
+          module: __MODULE__
+        )
+
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela bx_persons_pictures_resized: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela bx_persons_pictures_resized: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

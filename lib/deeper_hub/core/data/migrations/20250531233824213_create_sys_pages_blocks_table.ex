@@ -48,20 +48,32 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysPagesBlocksTable do
     CREATE INDEX IF NOT EXISTS idx_sys_pages_blocks_module ON sys_pages_blocks(module);
     CREATE INDEX IF NOT EXISTS idx_sys_pages_blocks_type ON sys_pages_blocks(type);
     """
+
     Repo.execute(sql)
     |> tap(fn
-      {:ok, _} -> Logger.info("Tabela sys_pages_blocks criada com sucesso.", module: __MODULE__)
-      {:error, reason} -> Logger.error("Falha ao criar tabela sys_pages_blocks: #{inspect(reason)}", module: __MODULE__)
+      {:ok, _} ->
+        Logger.info("Tabela sys_pages_blocks criada com sucesso.", module: __MODULE__)
+
+      {:error, reason} ->
+        Logger.error("Falha ao criar tabela sys_pages_blocks: #{inspect(reason)}",
+          module: __MODULE__
+        )
     end)
   end
 
   def down do
     Logger.info("Removendo tabela sys_pages_blocks...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS sys_pages_blocks;"
+
     Repo.execute(sql)
     |> tap(fn
-      {:ok, _} -> Logger.info("Tabela sys_pages_blocks removida com sucesso.", module: __MODULE__)
-      {:error, reason} -> Logger.error("Falha ao remover tabela sys_pages_blocks: #{inspect(reason)}", module: __MODULE__)
+      {:ok, _} ->
+        Logger.info("Tabela sys_pages_blocks removida com sucesso.", module: __MODULE__)
+
+      {:error, reason} ->
+        Logger.error("Falha ao remover tabela sys_pages_blocks: #{inspect(reason)}",
+          module: __MODULE__
+        )
     end)
   end
 end

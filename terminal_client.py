@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-Cliente Python para terminal interativo Elixir.
-Este script permite conectar ao servidor DeeperHub e executar comandos Elixir remotamente.
+Cliente Python para terminal interativo Elixir com streaming.
+Este script permite conectar ao servidor DeeperHub e executar comandos Elixir remotamente,
+recebendo a saída em tempo real.
 """
 
 import requests
@@ -18,207 +19,204 @@ try:
     import readline
 except ImportError:
     try:
-        import pyreadline as readline
+        import pyreadline3 as readline # pyreadline está obsoleto, pyreadline3 é o sucessor
     except ImportError:
-        # Se não conseguir importar readline, continue sem suporte a histórico
-        pass
+        try:
+            import pyreadline as readline # Fallback para pyreadline se pyreadline3 não estiver disponível
+        except ImportError:
+            pass # Se não conseguir importar readline, continue sem suporte a histórico
 
 # Configuração do servidor
 SERVER_URL = "http://localhost:4000"
 API_PATH = "/api/terminal"
 
 # Inicializa o colorama para formatação de cores
-colorama.init()
+colorama.init(autoreset=True) # autoreset=True para não precisar adicionar Style.RESET_ALL sempre
 
 class TerminalClient:
     """Cliente para interação com o terminal remoto Elixir."""
-    
+
     def __init__(self, server_url=SERVER_URL):
         """Inicializa o cliente com a URL do servidor."""
         self.server_url = server_url
         self.api_url = f"{server_url}{API_PATH}"
         self.session_id = None
-        self.history = []
-    
+        # self.history = [] # Readline cuida do histórico se disponível
+
     def create_session(self):
         """Cria uma nova sessão de terminal no servidor."""
         try:
-            response = requests.post(f"{self.api_url}/sessions")
+            response = requests.post(f"{self.api_url}/sessions", timeout=10)
             if response.status_code == 201:
                 data = response.json()
                 self.session_id = data.get("session_id")
-                print(f"{Fore.GREEN}✓ Sessão criada com sucesso. ID: {self.session_id}{Style.RESET_ALL}")
+                print(f"{Fore.GREEN}✓ Sessão criada com sucesso. ID: {self.session_id}")
                 return True
             else:
-                print(f"{Fore.RED}✗ Erro ao criar sessão: {response.text}{Style.RESET_ALL}")
+                print(f"{Fore.RED}✗ Erro ao criar sessão (HTTP {response.status_code}): {response.text}")
                 return False
-        except Exception as e:
-            print(f"{Fore.RED}✗ Erro de conexão: {str(e)}{Style.RESET_ALL}")
+        except requests.exceptions.RequestException as e:
+            print(f"{Fore.RED}✗ Erro de conexão ao criar sessão: {str(e)}")
             return False
-    
+        except json.JSONDecodeError:
+            print(f"{Fore.RED}✗ Erro ao decodificar resposta JSON do servidor ao criar sessão.")
+            return False
+
     def list_sessions(self):
         """Lista todas as sessões ativas no servidor."""
         try:
-            response = requests.get(f"{self.api_url}/sessions")
+            response = requests.get(f"{self.api_url}/sessions", timeout=10)
             if response.status_code == 200:
                 data = response.json()
                 sessions = data.get("sessions", [])
-                
+
                 if not sessions:
-                    print(f"{Fore.YELLOW}Nenhuma sessão ativa encontrada.{Style.RESET_ALL}")
+                    print(f"{Fore.YELLOW}Nenhuma sessão ativa encontrada.")
                     return
-                
-                print(f"{Fore.CYAN}Sessões ativas:{Style.RESET_ALL}")
+
+                print(f"{Fore.CYAN}Sessões ativas:")
                 for session in sessions:
                     created_at = session.get("created_at", "N/A")
-                    session_id = session.get("id", "N/A")
-                    last_command = session.get("last_command", {})
-                    
-                    print(f"{Fore.CYAN}ID: {session_id}{Style.RESET_ALL}")
+                    session_id_info = session.get("id", "N/A") # Renomeado para evitar conflito
+                    last_command_info = session.get("last_command") # Renomeado
+
+                    print(f"{Fore.CYAN}ID: {session_id_info}")
                     print(f"  Criada em: {created_at}")
-                    if last_command:
-                        command = last_command.get("command", "N/A")
-                        executed_at = last_command.get("executed_at", "N/A")
-                        print(f"  Último comando: {command}")
+                    if last_command_info and isinstance(last_command_info, dict):
+                        command_text = last_command_info.get("command", "N/A") # Renomeado
+                        executed_at = last_command_info.get("executed_at", "N/A")
+                        print(f"  Último comando: {command_text}")
                         print(f"  Executado em: {executed_at}")
-                    print("")
+                    elif last_command_info: # Se for string (caso de formato antigo)
+                        print(f"  Último comando: {last_command_info}")
+                    print("") # Linha em branco para separar sessões
             else:
-                print(f"{Fore.RED}✗ Erro ao listar sessões: {response.text}{Style.RESET_ALL}")
-        except Exception as e:
-            print(f"{Fore.RED}✗ Erro de conexão: {str(e)}{Style.RESET_ALL}")
-    
-    def execute_command(self, command):
-        """Executa um comando na sessão atual."""
+                print(f"{Fore.RED}✗ Erro ao listar sessões (HTTP {response.status_code}): {response.text}")
+        except requests.exceptions.RequestException as e:
+            print(f"{Fore.RED}✗ Erro de conexão ao listar sessões: {str(e)}")
+        except json.JSONDecodeError:
+            print(f"{Fore.RED}✗ Erro ao decodificar resposta JSON do servidor ao listar sessões.")
+
+    def execute_command(self, command_to_execute): # Renomeado para evitar conflito
+        """Executa um comando na sessão atual e processa a saída em stream."""
         if not self.session_id:
-            print(f"{Fore.RED}✗ Nenhuma sessão ativa. Use 'new' para criar uma sessão.{Style.RESET_ALL}")
-            return None
-        
+            print(f"{Fore.RED}✗ Nenhuma sessão ativa. Use 'new' para criar uma sessão.")
+            return
+
+        url = f"{self.api_url}/sessions/{self.session_id}/execute"
+        payload = {"command": command_to_execute}
+        headers = {"Content-Type": "application/json", "Accept": "text/plain"} # Aceita text/plain para stream
+
+        # Timeout para a conexão inicial e para cada chunk recebido.
+        # O timeout total da operação de streaming pode ser maior.
+        # Um timeout muito longo aqui pode fazer o cliente travar se o servidor não enviar nada.
+        # Um timeout muito curto pode interromper streams longos.
+        # O servidor tem seu próprio timeout de comando.
+        # O timeout do requests.post com stream=True se aplica à conexão e ao tempo entre chunks.
+        stream_timeout = 60  # Segundos para esperar por cada parte do stream
+
+        print(f"{Fore.BLUE}Executando (aguardando saída)...{Style.RESET_ALL}")
+        output_buffer = [] # Para coletar toda a saída antes de imprimir (opcional, mas pode ajudar na formatação)
+        has_output = False
+
         try:
-            # Aumentar o timeout para 30 segundos para comandos que podem demorar mais
-            timeout = 30
-            print(f"Executando comando... (timeout: {timeout}s)")
-            
-            response = requests.post(
-                f"{self.api_url}/sessions/{self.session_id}/execute",
-                json={"command": command},
-                headers={"Content-Type": "application/json"},
-                timeout=timeout
-            )
-            
-            # Tentamos extrair a mensagem JSON, mesmo com código de erro
-            try:
-                data = response.json()
-            except ValueError:
-                data = {"message": response.text}
-            
-            # Processamos a resposta com base no status code
-            if response.status_code == 200:
-                result = data.get("result", "")
-                
-                # Verificamos se a resposta contém mensagens de erro formatadas do servidor
-                if result.startswith("ERRO:") or result.startswith("ERRO DETECTADO:"):
-                    # Dividimos a mensagem para exibir o tipo de erro em destaque
-                    error_parts = result.split("\n\n", 1)
-                    if len(error_parts) > 1:
-                        error_type, error_details = error_parts
-                        print(f"{Fore.RED}\n⚠️ {error_type}{Style.RESET_ALL}")
-                        # Retornamos apenas os detalhes do erro sem o cabeçalho
-                        result = error_details
-                    else:
-                        # Se não conseguirmos dividir, exibimos o erro completo
-                        print(f"{Fore.RED}\n⚠️ Erro no código Elixir{Style.RESET_ALL}")
-                # Verificações adicionais para mensagens de erro antigas
-                elif "UndefinedFunctionError" in result:
-                    print(f"{Fore.RED}\n⚠️ Erro: Função não definida{Style.RESET_ALL}")
-                    print(f"{Fore.YELLOW}Dica: Verifique se o nome da função está correto. Por exemplo, use IO.puts/1 em vez de IO.put/1{Style.RESET_ALL}")
-                elif "CompileError" in result:
-                    print(f"{Fore.RED}\n⚠️ Erro: Erro de compilação{Style.RESET_ALL}")
-                    print(f"{Fore.YELLOW}Dica: Verifique a sintaxe do seu código Elixir{Style.RESET_ALL}")
-                elif "** (" in result and ")" in result:
-                    print(f"{Fore.RED}\n⚠️ Erro no código Elixir{Style.RESET_ALL}")
-                # Verificamos se é uma mensagem de timeout de segurança
-                elif "[Timeout de segurança acionado" in result:
-                    print(f"{Fore.YELLOW}\n⏱️ {result.split('\n')[0]}{Style.RESET_ALL}")
-                    # Extrair e exibir a dica se existir
-                    if "Dica:" in result:
-                        dica = result.split("Dica:")[1].strip()
-                        print(f"{Fore.CYAN}Dica: {dica}{Style.RESET_ALL}")
-                
-                # Adiciona o comando ao histórico
-                self.history.append(command)
-                return result
-            elif response.status_code == 404:
-                print(f"{Fore.RED}✗ Sessão não encontrada ou expirada.{Style.RESET_ALL}")
-                self.session_id = None
-                return None
-            else:
-                error_msg = data.get("message", response.text)
-                print(f"{Fore.RED}✗ Erro ao executar comando: {error_msg}{Style.RESET_ALL}")
-                return None
-                
+            with requests.post(url, json=payload, headers=headers, stream=True, timeout=stream_timeout) as r:
+                if r.status_code == 200:
+                    # O servidor respondeu com 200 OK, indicando que o streaming começou.
+                    # Agora iteramos sobre os chunks.
+                    for chunk_bytes in r.iter_content(chunk_size=None, decode_unicode=True): # chunk_size=None para ler o que vier
+                        if chunk_bytes: # Filtra chunks de keep-alive vazios
+                            # Decodifica bytes para string (o servidor envia UTF-8)
+                            # r.iter_lines() já decodifica, mas iter_content dá mais controle
+                            # Se usar decode_unicode=True, chunk_bytes já será string
+                            chunk_str = chunk_bytes
+
+                            # Aqui, você pode processar cada chunk_str.
+                            # O servidor está enviando linhas completas, mas com iter_content
+                            # você pode receber partes de linhas. Para simplicidade, vamos assumir
+                            # que cada chunk do servidor é uma unidade de impressão.
+                            # Se o servidor envia cada chunk como uma linha JSON separada (NDJSON),
+                            # você faria json.loads(chunk_str) aqui.
+                            # No nosso caso, o servidor envia texto plano.
+                            
+                            # Imprime o chunk diretamente
+                            # print(chunk_str, end='', flush=True) # end='' para não adicionar nova linha extra
+                            
+                            # Ou acumula no buffer
+                            output_buffer.append(chunk_str)
+                            has_output = True
+
+                    # Após o loop, o stream terminou (ou o timeout do servidor foi atingido)
+                    # Imprime o buffer acumulado, se houver
+                    if has_output:
+                        # print() # Garante uma nova linha se a última não tiver
+                        full_output = "".join(output_buffer)
+
+                        # Tratamento de erros com base na saída (opcional, mas útil)
+                        if "ERRO:" in full_output or "** (" in full_output or "[TIMEOUT NO SERVIDOR:" in full_output or "[Sessão Manager:" in full_output:
+                            print(f"{Fore.YELLOW}{full_output}{Style.RESET_ALL}")
+                        elif "[Terminal process exited" in full_output or "[Processo do terminal da sessão encerrou" in full_output:
+                             print(f"{Fore.RED}{full_output}{Style.RESET_ALL}")
+                        else:
+                            print(f"{Fore.WHITE}{full_output}{Style.RESET_ALL}", end='') # end='' se a saída já tiver novas linhas
+
+                        # Adiciona ao histórico apenas se for bem-sucedido e tiver output
+                        # (readline cuida do histórico de entrada)
+                    # else:
+                    #     print(f"{Fore.YELLOW}Comando executado, mas sem saída do stream.{Style.RESET_ALL}")
+
+                elif r.status_code == 400:
+                    error_data = r.json()
+                    print(f"{Fore.RED}✗ Erro na requisição (HTTP {r.status_code}): {error_data.get('message', r.text)}")
+                elif r.status_code == 404:
+                    error_data = r.json()
+                    print(f"{Fore.RED}✗ Sessão não encontrada (HTTP {r.status_code}): {error_data.get('message', r.text)}")
+                    self.session_id = None # Reseta a sessão se não encontrada
+                else:
+                    # Outros erros HTTP antes do início do streaming
+                    print(f"{Fore.RED}✗ Erro ao iniciar execução (HTTP {r.status_code}): {r.text}")
+
         except requests.exceptions.Timeout:
-            print(f"{Fore.YELLOW}\n⏱️ Timeout: O comando está em execução, mas demorou mais que {timeout} segundos.{Style.RESET_ALL}")
-            print(f"{Fore.YELLOW}Possíveis causas:{Style.RESET_ALL}")
-            print(f"  • O comando é complexo e precisa de mais tempo")
-            print(f"  • Há um erro de sintaxe que impediu o término do comando")
-            print(f"  • O comando está em um loop infinito ou bloqueado\n")
-            
-            # Perguntar ao usuário se deseja tentar novamente com timeout maior
-            retry = input(f"{Fore.CYAN}Deseja tentar novamente com um timeout maior? (s/n): {Style.RESET_ALL}").strip().lower()
-            if retry == 's':
-                # Aumentar o timeout em 50% e tentar novamente
-                new_timeout = int(timeout * 1.5)
-                print(f"{Fore.CYAN}Tentando novamente com timeout de {new_timeout} segundos...{Style.RESET_ALL}")
-                try:
-                    response = requests.post(
-                        f"{self.api_url}/sessions/{self.session_id}/execute",
-                        json={"command": command},
-                        headers={"Content-Type": "application/json"},
-                        timeout=new_timeout
-                    )
-                    
-                    # Tentamos extrair a mensagem JSON, mesmo com código de erro
-                    try:
-                        data = response.json()
-                        if response.status_code == 200:
-                            result = data.get("result", "")
-                            self.history.append(command)
-                            return result
-                    except ValueError:
-                        pass
-                    
-                    print(f"{Fore.RED}A nova tentativa também falhou.{Style.RESET_ALL}")
-                except Exception:
-                    print(f"{Fore.RED}A nova tentativa também falhou.{Style.RESET_ALL}")
-            
-            return "[Comando em execução - Timeout do cliente atingido]"  
+            # Timeout pode ocorrer durante a conexão inicial ou entre chunks do stream
+            print(f"{Fore.YELLOW}\n⏱️ Timeout do cliente: A conexão com o servidor ou o stream de dados demorou mais que {stream_timeout}s.")
+            print(f"{Fore.YELLOW}   O comando pode ainda estar em execução no servidor ou a rede pode estar lenta.")
+        except requests.exceptions.ConnectionError as e:
+            print(f"{Fore.RED}✗ Erro de conexão ao executar comando: {str(e)}")
+        except json.JSONDecodeError:
+            # Isso aconteceria se um erro HTTP (ex: 400) retornasse algo que não é JSON válido
+            print(f"{Fore.RED}✗ Erro ao decodificar resposta de erro JSON do servidor.")
         except Exception as e:
-            print(f"{Fore.RED}✗ Erro de conexão: {str(e)}{Style.RESET_ALL}")
-            return None
-    
+            print(f"{Fore.RED}✗ Erro inesperado ao executar comando: {str(e)}")
+
     def terminate_session(self):
         """Encerra a sessão atual."""
         if not self.session_id:
-            print(f"{Fore.YELLOW}Nenhuma sessão ativa para encerrar.{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}Nenhuma sessão ativa para encerrar.")
             return False
-        
+
         try:
-            response = requests.delete(f"{self.api_url}/sessions/{self.session_id}")
+            response = requests.delete(f"{self.api_url}/sessions/{self.session_id}", timeout=10)
             if response.status_code == 200:
-                print(f"{Fore.GREEN}✓ Sessão encerrada com sucesso.{Style.RESET_ALL}")
+                data = response.json()
+                print(f"{Fore.GREEN}✓ {data.get('message', 'Sessão encerrada com sucesso.')}")
                 self.session_id = None
                 return True
             elif response.status_code == 404:
-                print(f"{Fore.YELLOW}Sessão não encontrada ou já encerrada.{Style.RESET_ALL}")
-                self.session_id = None
+                data = response.json()
+                print(f"{Fore.YELLOW}{data.get('message', 'Sessão não encontrada ou já encerrada.')}")
+                self.session_id = None # Considera encerrada
                 return True
             else:
-                print(f"{Fore.RED}✗ Erro ao encerrar sessão: {response.text}{Style.RESET_ALL}")
+                print(f"{Fore.RED}✗ Erro ao encerrar sessão (HTTP {response.status_code}): {response.text}")
                 return False
-        except Exception as e:
-            print(f"{Fore.RED}✗ Erro de conexão: {str(e)}{Style.RESET_ALL}")
+        except requests.exceptions.RequestException as e:
+            print(f"{Fore.RED}✗ Erro de conexão ao encerrar sessão: {str(e)}")
             return False
-    
+        except json.JSONDecodeError:
+            print(f"{Fore.RED}✗ Erro ao decodificar resposta JSON do servidor ao encerrar sessão.")
+            return False
+
+
     def print_help(self):
         """Exibe a ajuda do terminal."""
         help_text = f"""
@@ -226,93 +224,83 @@ class TerminalClient:
 
 {Fore.YELLOW}Comandos Especiais:{Style.RESET_ALL}
   {Fore.GREEN}help{Style.RESET_ALL}      - Exibe esta ajuda
-  {Fore.GREEN}new{Style.RESET_ALL}       - Cria uma nova sessão
+  {Fore.GREEN}new{Style.RESET_ALL}       - Cria uma nova sessão (encerra a atual se existir)
   {Fore.GREEN}list{Style.RESET_ALL}      - Lista todas as sessões ativas
   {Fore.GREEN}quit{Style.RESET_ALL}      - Sai do terminal (encerra a sessão atual)
   {Fore.GREEN}exit{Style.RESET_ALL}      - Sai do terminal (encerra a sessão atual)
   {Fore.GREEN}close{Style.RESET_ALL}     - Encerra a sessão atual sem sair do terminal
-  {Fore.GREEN}cls{Style.RESET_ALL}       - Limpa a tela
-  {Fore.GREEN}clear{Style.RESET_ALL}     - Limpa a tela
-  
+  {Fore.GREEN}cls{Style.RESET_ALL}       - Limpa a tela (Windows)
+  {Fore.GREEN}clear{Style.RESET_ALL}     - Limpa a tela (Linux/Mac)
+
 {Fore.YELLOW}Qualquer outro comando será enviado para o servidor Elixir.{Style.RESET_ALL}
 """
         print(help_text)
-    
+
     def run_terminal(self):
         """Executa o terminal interativo."""
-        print(f"{Fore.CYAN}=== Terminal Interativo Elixir ==={Style.RESET_ALL}")
+        print(f"{Fore.CYAN}=== Terminal Interativo Elixir (Cliente Python) ===")
         print(f"Digite '{Fore.GREEN}help{Style.RESET_ALL}' para ver os comandos disponíveis.")
-        print(f"Digite '{Fore.GREEN}new{Style.RESET_ALL}' para criar uma nova sessão.")
+        # Tenta criar uma sessão inicial automaticamente
+        # if not self.create_session():
+        # print(f"{Fore.YELLOW}Não foi possível criar uma sessão inicial. Tente 'new' manualmente.")
+        print(f"Use '{Fore.GREEN}new{Style.RESET_ALL}' para criar sua primeira sessão.")
         print("")
-        
-        # Loop principal do terminal
+
         while True:
-            # Prompt com informação da sessão
             if self.session_id:
-                prompt = f"{Fore.GREEN}iex ({self.session_id[:8]}...)> {Style.RESET_ALL}"
+                prompt_session_id = self.session_id[:8] # Primeiros 8 caracteres
+                prompt = f"{Fore.GREEN}iex ({prompt_session_id})> {Style.RESET_ALL}"
             else:
                 prompt = f"{Fore.YELLOW}[Sem Sessão]> {Style.RESET_ALL}"
-            
+
             try:
-                # Lê o comando do usuário
-                command = input(prompt)
-                
-                # Processa comandos especiais
-                if command.strip().lower() in ["exit", "quit"]:
+                user_input = input(prompt)
+                user_input_lower = user_input.strip().lower()
+
+                if user_input_lower in ["exit", "quit"]:
                     if self.session_id:
+                        print(f"{Fore.CYAN}Encerrando sessão atual antes de sair...")
                         self.terminate_session()
-                    print(f"{Fore.CYAN}Encerrando terminal...{Style.RESET_ALL}")
+                    print(f"{Fore.CYAN}Saindo do terminal...{Style.RESET_ALL}")
                     break
-                    
-                elif command.strip().lower() == "help":
+                elif user_input_lower == "help":
                     self.print_help()
-                    
-                elif command.strip().lower() == "new":
+                elif user_input_lower == "new":
+                    if self.session_id:
+                        print(f"{Fore.CYAN}Encerrando sessão atual ({self.session_id[:8]})...")
+                        self.terminate_session()
                     self.create_session()
-                    
-                elif command.strip().lower() == "list":
+                elif user_input_lower == "list":
                     self.list_sessions()
-                    
-                elif command.strip().lower() == "close":
+                elif user_input_lower == "close":
                     self.terminate_session()
-                    
-                elif command.strip().lower() in ["clear", "cls"]:
+                elif user_input_lower in ["clear", "cls"]:
                     os.system('cls' if os.name == 'nt' else 'clear')
-                    
-                elif command.strip():
-                    # Executa o comando no servidor
-                    result = self.execute_command(command)
-                    if result is not None:
-                        # Imprime o resultado com formatação adequada
-                        if result:
-                            print(f"\n{Fore.CYAN}Resultado:{Style.RESET_ALL}")
-                            print(f"{Fore.CYAN}{'-' * 50}{Style.RESET_ALL}")
-                            print(f"{Fore.WHITE}{result}{Style.RESET_ALL}")
-                            print(f"{Fore.CYAN}{'-' * 50}{Style.RESET_ALL}")
-                        else:
-                            print(f"{Fore.YELLOW}Comando executado sem saída visível.{Style.RESET_ALL}")
-                        
+                elif user_input.strip(): # Se não for um comando especial e não estiver vazio
+                    self.execute_command(user_input)
+                    print() # Adiciona uma linha em branco após a execução do comando para melhor legibilidade
+                # Não faz nada se a entrada for vazia (apenas pressionar Enter)
+
             except KeyboardInterrupt:
-                print("\nPressione Ctrl+D ou digite 'exit' para sair.")
-                
+                print("\nInterrupção pelo teclado. Digite 'exit' ou 'quit' para sair.")
             except EOFError:
+                print(f"\n{Fore.CYAN}Sinal de EOF recebido.{Style.RESET_ALL}")
                 if self.session_id:
+                    print(f"{Fore.CYAN}Encerrando sessão atual antes de sair...")
                     self.terminate_session()
-                print(f"\n{Fore.CYAN}Encerrando terminal...{Style.RESET_ALL}")
+                print(f"{Fore.CYAN}Saindo do terminal...{Style.RESET_ALL}")
                 break
-                
             except Exception as e:
-                print(f"{Fore.RED}✗ Erro: {str(e)}{Style.RESET_ALL}")
+                print(f"{Fore.RED}✗ Erro inesperado no loop do terminal: {str(e)}")
 
 def main():
     """Função principal do cliente."""
-    # Permite especificar uma URL de servidor alternativa
-    server_url = SERVER_URL
+    server_url_to_use = SERVER_URL
     if len(sys.argv) > 1:
-        server_url = sys.argv[1]
-    
-    # Cria e executa o cliente
-    client = TerminalClient(server_url)
+        server_url_to_use = sys.argv[1]
+        print(f"{Fore.YELLOW}Usando URL do servidor: {server_url_to_use}{Style.RESET_ALL}")
+
+    client = TerminalClient(server_url_to_use)
     client.run_terminal()
 
 if __name__ == "__main__":

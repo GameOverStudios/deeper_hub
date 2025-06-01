@@ -46,6 +46,7 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperPollsTable do
       {:ok, _} ->
         Logger.info("Tabela deeper_polls criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
         Logger.error("Falha ao criar tabela deeper_polls: #{inspect(reason)}", module: __MODULE__)
         {:error, reason}
@@ -59,12 +60,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperPollsTable do
   def down do
     Logger.info("Removendo tabela deeper_polls...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS deeper_polls;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela deeper_polls removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela deeper_polls: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela deeper_polls: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

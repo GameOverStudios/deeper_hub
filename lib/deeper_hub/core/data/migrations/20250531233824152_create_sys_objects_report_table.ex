@@ -45,8 +45,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysObjectsReportTable do
       {:ok, _} ->
         Logger.info("Tabela sys_objects_report criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela sys_objects_report: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela sys_objects_report: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -58,12 +62,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysObjectsReportTable do
   def down do
     Logger.info("Removendo tabela sys_objects_report...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS sys_objects_report;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela sys_objects_report removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela sys_objects_report: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela sys_objects_report: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

@@ -7,23 +7,24 @@ defmodule DeeperHub.WebInterface.Router do
   use Plug.ErrorHandler
 
   # Plugs de depuração
-  plug Plug.Logger, log: :debug
+  plug(Plug.Logger, log: :debug)
 
   # Parsers para formatos diferentes
-  plug Plug.Parsers,
+  plug(Plug.Parsers,
     parsers: [:json],
     pass: ["application/json"],
     json_decoder: Jason
+  )
 
   # Pipeline principal
-  plug :match
-  plug :dispatch
+  plug(:match)
+  plug(:dispatch)
 
   # API Routes
-  forward "/api/status", to: DeeperHub.WebInterface.Resources.StatusResource
-  forward "/api/info", to: DeeperHub.WebInterface.Resources.ServerInfoResource
-  forward "/api/routes", to: DeeperHub.WebInterface.Resources.RoutesResource
-  forward "/api/terminal", to: DeeperHub.WebInterface.Resources.TerminalResource
+  forward("/api/status", to: DeeperHub.WebInterface.Resources.StatusResource)
+  forward("/api/info", to: DeeperHub.WebInterface.Resources.ServerInfoResource)
+  forward("/api/routes", to: DeeperHub.WebInterface.Resources.RoutesResource)
+  forward("/api/terminal", to: DeeperHub.WebInterface.Resources.TerminalResource)
 
   # Rota principal para verificação da API
   get "/" do

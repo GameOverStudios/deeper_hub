@@ -31,14 +31,19 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysAclMatrixTable do
       FOREIGN KEY (IDAction) REFERENCES sys_acl_actions(ID) ON DELETE CASCADE ON UPDATE CASCADE
     );
     """
+
     # Repo.execute("PRAGMA foreign_keys = ON;")
 
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela sys_acl_matrix criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela sys_acl_matrix: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela sys_acl_matrix: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -50,12 +55,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysAclMatrixTable do
   def down do
     Logger.info("Removendo tabela sys_acl_matrix...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS sys_acl_matrix;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela sys_acl_matrix removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela sys_acl_matrix: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela sys_acl_matrix: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

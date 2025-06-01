@@ -4,8 +4,8 @@ defmodule DeeperHub.WebInterface.Resources.RoutesResource do
   Este módulo é responsável por fornecer documentação sobre os endpoints da API.
   """
   use Plug.Router
-  plug :match
-  plug :dispatch
+  plug(:match)
+  plug(:dispatch)
 
   get "/" do
     # Lista de todas as rotas disponíveis

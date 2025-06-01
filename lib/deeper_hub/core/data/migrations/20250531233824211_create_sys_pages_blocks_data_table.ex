@@ -36,8 +36,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysPagesBlocksDataTable do
       {:ok, _} ->
         Logger.info("Tabela sys_pages_blocks_data criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela sys_pages_blocks_data: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela sys_pages_blocks_data: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -55,8 +59,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysPagesBlocksDataTable do
       {:ok, _} ->
         Logger.info("Tabela sys_pages_blocks_data removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela sys_pages_blocks_data: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela sys_pages_blocks_data: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

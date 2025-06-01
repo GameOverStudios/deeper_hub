@@ -8,6 +8,7 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperArticlesTagsTable do
 
   def up do
     Logger.info("Criando tabela deeper_articles_tags...", module: __MODULE__)
+
     sql = """
     CREATE TABLE IF NOT EXISTS deeper_articles_tags (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,21 +19,33 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperArticlesTagsTable do
       updated_at INTEGER NOT NULL
     );
     """
+
     # Índices em name e slug são criados pelas constraints UNIQUE.
     Repo.execute(sql)
     |> tap(fn
-      {:ok, _} -> Logger.info("Tabela deeper_articles_tags criada com sucesso.", module: __MODULE__)
-      {:error, reason} -> Logger.error("Falha ao criar tabela deeper_articles_tags: #{inspect(reason)}", module: __MODULE__)
+      {:ok, _} ->
+        Logger.info("Tabela deeper_articles_tags criada com sucesso.", module: __MODULE__)
+
+      {:error, reason} ->
+        Logger.error("Falha ao criar tabela deeper_articles_tags: #{inspect(reason)}",
+          module: __MODULE__
+        )
     end)
   end
 
   def down do
     Logger.info("Removendo tabela deeper_articles_tags...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS deeper_articles_tags;"
+
     Repo.execute(sql)
     |> tap(fn
-      {:ok, _} -> Logger.info("Tabela deeper_articles_tags removida com sucesso.", module: __MODULE__)
-      {:error, reason} -> Logger.error("Falha ao remover tabela deeper_articles_tags: #{inspect(reason)}", module: __MODULE__)
+      {:ok, _} ->
+        Logger.info("Tabela deeper_articles_tags removida com sucesso.", module: __MODULE__)
+
+      {:error, reason} ->
+        Logger.error("Falha ao remover tabela deeper_articles_tags: #{inspect(reason)}",
+          module: __MODULE__
+        )
     end)
   end
 end

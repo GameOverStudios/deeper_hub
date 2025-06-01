@@ -25,6 +25,7 @@ defmodule DeeperHub.Core.Data.Migrations.CreateBxPersonsReportsTable do
     );
     CREATE INDEX IF NOT EXISTS idx_bx_persons_reports_object_id ON bx_persons_reports(object_id);
     """
+
     # O schema original do UNA tem id como PK e object_id como UNIQUE.
     # Esta abordagem é mantida.
 
@@ -32,8 +33,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateBxPersonsReportsTable do
       {:ok, _} ->
         Logger.info("Tabela bx_persons_reports criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela bx_persons_reports: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela bx_persons_reports: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -45,12 +50,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateBxPersonsReportsTable do
   def down do
     Logger.info("Removendo tabela bx_persons_reports...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS bx_persons_reports;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela bx_persons_reports removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela bx_persons_reports: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela bx_persons_reports: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

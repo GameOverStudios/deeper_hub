@@ -41,8 +41,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperGroupContentPostsTable do
       {:ok, _} ->
         Logger.info("Tabela deeper_group_content_posts criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela deeper_group_content_posts: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela deeper_group_content_posts: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -54,12 +58,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperGroupContentPostsTable do
   def down do
     Logger.info("Removendo tabela deeper_group_content_posts...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS deeper_group_content_posts;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela deeper_group_content_posts removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela deeper_group_content_posts: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela deeper_group_content_posts: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

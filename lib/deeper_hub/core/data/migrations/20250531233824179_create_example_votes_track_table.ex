@@ -10,14 +10,18 @@ defmodule DeeperHub.Core.Data.Migrations.CreateExampleVotesTrackTable do
   alias DeeperHub.Core.Logger
   require DeeperHub.Core.Logger
 
-  @table_name "example_votes_track" # Este nome seria dinâmico
+  # Este nome seria dinâmico
+  @table_name "example_votes_track"
 
   @doc """
   Executa a migração para criar a tabela de exemplo.
   """
   @spec up() :: :ok | {:error, any()}
   def up do
-    Logger.info("Criando tabela de exemplo de rastreamento de votos: #{@table_name}...", module: __MODULE__)
+    Logger.info("Criando tabela de exemplo de rastreamento de votos: #{@table_name}...",
+      module: __MODULE__
+    )
+
     # PRAGMA foreign_keys = ON;
 
     sql = """
@@ -41,8 +45,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateExampleVotesTrackTable do
       {:ok, _} ->
         Logger.info("Tabela #{@table_name} criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela #{@table_name}: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela #{@table_name}: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -54,12 +62,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateExampleVotesTrackTable do
   def down do
     Logger.info("Removendo tabela #{@table_name}...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS #{@table_name};"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela #{@table_name} removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela #{@table_name}: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela #{@table_name}: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

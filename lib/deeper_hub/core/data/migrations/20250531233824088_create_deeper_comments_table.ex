@@ -35,20 +35,32 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperCommentsTable do
     CREATE INDEX IF NOT EXISTS idx_deeper_comments_author_id ON deeper_comments(author_profile_id);
     CREATE INDEX IF NOT EXISTS idx_deeper_comments_parent_id ON deeper_comments(parent_id);
     """
+
     Repo.execute(sql)
     |> tap(fn
-      {:ok, _} -> Logger.info("Tabela deeper_comments criada com sucesso.", module: __MODULE__)
-      {:error, reason} -> Logger.error("Falha ao criar tabela deeper_comments: #{inspect(reason)}", module: __MODULE__)
+      {:ok, _} ->
+        Logger.info("Tabela deeper_comments criada com sucesso.", module: __MODULE__)
+
+      {:error, reason} ->
+        Logger.error("Falha ao criar tabela deeper_comments: #{inspect(reason)}",
+          module: __MODULE__
+        )
     end)
   end
 
   def down do
     Logger.info("Removendo tabela deeper_comments...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS deeper_comments;"
+
     Repo.execute(sql)
     |> tap(fn
-      {:ok, _} -> Logger.info("Tabela deeper_comments removida com sucesso.", module: __MODULE__)
-      {:error, reason} -> Logger.error("Falha ao remover tabela deeper_comments: #{inspect(reason)}", module: __MODULE__)
+      {:ok, _} ->
+        Logger.info("Tabela deeper_comments removida com sucesso.", module: __MODULE__)
+
+      {:error, reason} ->
+        Logger.error("Falha ao remover tabela deeper_comments: #{inspect(reason)}",
+          module: __MODULE__
+        )
     end)
   end
 end

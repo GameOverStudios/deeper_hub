@@ -5,8 +5,10 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysAccountsTable do
   Migração para criar a tabela sys_accounts.
   """
 
-  alias DeeperHub.Core.Data.Repo # Assumindo que este é o seu módulo de acesso ao DB
-  alias DeeperHub.Core.Logger    # Assumindo que este é o seu módulo de logging
+  # Assumindo que este é o seu módulo de acesso ao DB
+  alias DeeperHub.Core.Data.Repo
+  # Assumindo que este é o seu módulo de logging
+  alias DeeperHub.Core.Logger
   require DeeperHub.Core.Logger
 
   @doc """
@@ -48,6 +50,7 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysAccountsTable do
       {:ok, _} ->
         Logger.info("Tabela sys_accounts criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
         Logger.error("Falha ao criar tabela sys_accounts: #{inspect(reason)}", module: __MODULE__)
         {:error, reason}
@@ -67,8 +70,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysAccountsTable do
       {:ok, _} ->
         Logger.info("Tabela sys_accounts removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela sys_accounts: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela sys_accounts: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

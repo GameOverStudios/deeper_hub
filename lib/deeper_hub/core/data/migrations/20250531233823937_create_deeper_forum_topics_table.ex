@@ -52,14 +52,19 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperForumTopicsTable do
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela deeper_forum_topics criada com sucesso.", module: __MODULE__)
+
         # Agora que deeper_forum_topics existe, poderíamos (numa migração separada ou aqui se a ordem estiver garantida)
         # tentar adicionar a FK em deeper_forums para last_topic_id.
         # Ex: Repo.execute("ALTER TABLE deeper_forums ADD CONSTRAINT fk_last_topic FOREIGN KEY (last_topic_id) REFERENCES deeper_forum_topics(id) ON DELETE SET NULL;")
         # No SQLite, ALTER TABLE para adicionar FKs é limitado. Geralmente envolve recriar a tabela.
         # Manteremos a integridade via aplicação por enquanto para estas FKs circulares/posteriores.
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela deeper_forum_topics: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela deeper_forum_topics: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -71,12 +76,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperForumTopicsTable do
   def down do
     Logger.info("Removendo tabela deeper_forum_topics...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS deeper_forum_topics;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela deeper_forum_topics removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela deeper_forum_topics: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela deeper_forum_topics: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

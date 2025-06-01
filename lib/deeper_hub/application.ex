@@ -25,7 +25,10 @@ defmodule DeeperHub.Application do
         # Executar migrações de forma síncrona antes de iniciar outros serviços
         case DeeperHub.Core.Data.Migrations.initialize() do
           :ok ->
-            DeeperHub.Core.Logger.info("Migrações aplicadas com sucesso. Inicializando demais serviços.")
+            DeeperHub.Core.Logger.info(
+              "Migrações aplicadas com sucesso. Inicializando demais serviços."
+            )
+
             init_main_supervisors()
 
           {:error, reason} ->
@@ -44,11 +47,7 @@ defmodule DeeperHub.Application do
     repo_children = [
       # Inicia o supervisor do repositório para gerenciar o pool de conexões do banco de dados
       {DeeperHub.Core.Data.Repo.Supervisor, []},
-
-      {Plug.Cowboy,
-        scheme: :http,
-        plug: DeeperHub.WebInterface.Router,
-        options: [port: 4000]},
+      {Plug.Cowboy, scheme: :http, plug: DeeperHub.WebInterface.Router, options: [port: 4000]}
     ]
 
     # Configuração do supervisor do repositório
@@ -61,7 +60,7 @@ defmodule DeeperHub.Application do
     # Define a árvore de supervisão principal da aplicação
     children = [
       # Inicia o gerenciador de sessões de terminal
-      {DeeperHub.Core.Terminal.SessionManager, []},
+      {DeeperHub.Core.Terminal.SessionManager, []}
     ]
 
     # Configuração do supervisor principal

@@ -28,14 +28,19 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysAclActionsTrackTable do
       FOREIGN KEY (IDMember) REFERENCES sys_accounts(id) ON DELETE CASCADE ON UPDATE CASCADE
     );
     """
+
     # Repo.execute("PRAGMA foreign_keys = ON;")
 
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela sys_acl_actions_track criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela sys_acl_actions_track: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela sys_acl_actions_track: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -47,12 +52,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysAclActionsTrackTable do
   def down do
     Logger.info("Removendo tabela sys_acl_actions_track...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS sys_acl_actions_track;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela sys_acl_actions_track removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela sys_acl_actions_track: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela sys_acl_actions_track: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

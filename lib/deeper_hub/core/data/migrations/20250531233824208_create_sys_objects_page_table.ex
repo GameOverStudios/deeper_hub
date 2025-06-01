@@ -48,20 +48,32 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysObjectsPageTable do
     CREATE INDEX IF NOT EXISTS idx_sys_objects_page_module ON sys_objects_page(module);
     -- Índices em 'object' e 'uri' são criados pela constraint UNIQUE.
     """
+
     Repo.execute(sql)
     |> tap(fn
-      {:ok, _} -> Logger.info("Tabela sys_objects_page criada com sucesso.", module: __MODULE__)
-      {:error, reason} -> Logger.error("Falha ao criar tabela sys_objects_page: #{inspect(reason)}", module: __MODULE__)
+      {:ok, _} ->
+        Logger.info("Tabela sys_objects_page criada com sucesso.", module: __MODULE__)
+
+      {:error, reason} ->
+        Logger.error("Falha ao criar tabela sys_objects_page: #{inspect(reason)}",
+          module: __MODULE__
+        )
     end)
   end
 
   def down do
     Logger.info("Removendo tabela sys_objects_page...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS sys_objects_page;"
+
     Repo.execute(sql)
     |> tap(fn
-      {:ok, _} -> Logger.info("Tabela sys_objects_page removida com sucesso.", module: __MODULE__)
-      {:error, reason} -> Logger.error("Falha ao remover tabela sys_objects_page: #{inspect(reason)}", module: __MODULE__)
+      {:ok, _} ->
+        Logger.info("Tabela sys_objects_page removida com sucesso.", module: __MODULE__)
+
+      {:error, reason} ->
+        Logger.error("Falha ao remover tabela sys_objects_page: #{inspect(reason)}",
+          module: __MODULE__
+        )
     end)
   end
 end

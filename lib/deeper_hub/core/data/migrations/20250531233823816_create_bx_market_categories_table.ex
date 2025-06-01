@@ -34,6 +34,7 @@ defmodule DeeperHub.Core.Data.Migrations.CreateBxMarketCategoriesTable do
     CREATE UNIQUE INDEX IF NOT EXISTS idx_bx_market_categories_name ON bx_market_categories(name); -- Nome deve ser único
     CREATE UNIQUE INDEX IF NOT EXISTS idx_bx_market_categories_uri ON bx_market_categories(uri); -- URI deve ser única
     """
+
     # Nota: O nome da coluna 'order' foi mudado para 'order_index' para evitar
     # possível conflito com a palavra reservada ORDER em SQL.
 
@@ -41,8 +42,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateBxMarketCategoriesTable do
       {:ok, _} ->
         Logger.info("Tabela bx_market_categories criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela bx_market_categories: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela bx_market_categories: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -60,8 +65,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateBxMarketCategoriesTable do
       {:ok, _} ->
         Logger.info("Tabela bx_market_categories removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela bx_market_categories: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela bx_market_categories: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

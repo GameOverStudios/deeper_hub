@@ -41,8 +41,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateBxPersonsMetaLocationsTable do
       {:ok, _} ->
         Logger.info("Tabela bx_persons_meta_locations criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela bx_persons_meta_locations: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela bx_persons_meta_locations: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -54,12 +58,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateBxPersonsMetaLocationsTable do
   def down do
     Logger.info("Removendo tabela bx_persons_meta_locations...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS bx_persons_meta_locations;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela bx_persons_meta_locations removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela bx_persons_meta_locations: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela bx_persons_meta_locations: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

@@ -31,25 +31,37 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysOptionsTable do
 
     CREATE INDEX IF NOT EXISTS idx_sys_options_category_id ON sys_options(category_id);
     """
+
     # O índice em `name` é implicitamente criado pela constraint UNIQUE.
     case Repo.execute(sql) do
-      {:ok, _} -> :ok; {:error, reason} -> {:error, reason}
+      {:ok, _} -> :ok
+      {:error, reason} -> {:error, reason}
     end
     |> tap(fn
-      :ok -> Logger.info("Tabela sys_options criada com sucesso.", module: __MODULE__)
-      {:error, reason} -> Logger.error("Falha ao criar tabela sys_options: #{inspect(reason)}", module: __MODULE__)
+      :ok ->
+        Logger.info("Tabela sys_options criada com sucesso.", module: __MODULE__)
+
+      {:error, reason} ->
+        Logger.error("Falha ao criar tabela sys_options: #{inspect(reason)}", module: __MODULE__)
     end)
   end
 
   def down do
     Logger.info("Removendo tabela sys_options...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS sys_options;"
+
     case Repo.execute(sql) do
-      {:ok, _} -> :ok; {:error, reason} -> {:error, reason}
+      {:ok, _} -> :ok
+      {:error, reason} -> {:error, reason}
     end
     |> tap(fn
-      :ok -> Logger.info("Tabela sys_options removida com sucesso.", module: __MODULE__)
-      {:error, reason} -> Logger.error("Falha ao remover tabela sys_options: #{inspect(reason)}", module: __MODULE__)
+      :ok ->
+        Logger.info("Tabela sys_options removida com sucesso.", module: __MODULE__)
+
+      {:error, reason} ->
+        Logger.error("Falha ao remover tabela sys_options: #{inspect(reason)}",
+          module: __MODULE__
+        )
     end)
   end
 end

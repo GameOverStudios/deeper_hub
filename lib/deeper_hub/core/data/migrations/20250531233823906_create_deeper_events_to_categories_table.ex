@@ -32,10 +32,18 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperEventsToCategoriesTable do
 
     case Repo.execute(sql) do
       {:ok, _} ->
-        Logger.info("Tabela de junção deeper_events_to_categories criada com sucesso.", module: __MODULE__)
+        Logger.info("Tabela de junção deeper_events_to_categories criada com sucesso.",
+          module: __MODULE__
+        )
+
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela de junção deeper_events_to_categories: #{inspect(reason)}", module: __MODULE__)
+        Logger.error(
+          "Falha ao criar tabela de junção deeper_events_to_categories: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -47,12 +55,21 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperEventsToCategoriesTable do
   def down do
     Logger.info("Removendo tabela de junção deeper_events_to_categories...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS deeper_events_to_categories;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
-        Logger.info("Tabela de junção deeper_events_to_categories removida com sucesso.", module: __MODULE__)
+        Logger.info("Tabela de junção deeper_events_to_categories removida com sucesso.",
+          module: __MODULE__
+        )
+
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela de junção deeper_events_to_categories: #{inspect(reason)}", module: __MODULE__)
+        Logger.error(
+          "Falha ao remover tabela de junção deeper_events_to_categories: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

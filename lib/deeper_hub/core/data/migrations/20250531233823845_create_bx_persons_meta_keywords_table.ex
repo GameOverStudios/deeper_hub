@@ -35,8 +35,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateBxPersonsMetaKeywordsTable do
       {:ok, _} ->
         Logger.info("Tabela bx_persons_meta_keywords criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela bx_persons_meta_keywords: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela bx_persons_meta_keywords: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -48,12 +52,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateBxPersonsMetaKeywordsTable do
   def down do
     Logger.info("Removendo tabela bx_persons_meta_keywords...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS bx_persons_meta_keywords;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela bx_persons_meta_keywords removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela bx_persons_meta_keywords: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela bx_persons_meta_keywords: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

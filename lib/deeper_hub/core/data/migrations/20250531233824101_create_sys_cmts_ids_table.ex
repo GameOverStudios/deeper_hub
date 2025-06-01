@@ -45,6 +45,7 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysCmtsIdsTable do
       {:ok, _} ->
         Logger.info("Tabela sys_cmts_ids criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
         Logger.error("Falha ao criar tabela sys_cmts_ids: #{inspect(reason)}", module: __MODULE__)
         {:error, reason}
@@ -58,12 +59,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysCmtsIdsTable do
   def down do
     Logger.info("Removendo tabela sys_cmts_ids...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS sys_cmts_ids;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela sys_cmts_ids removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela sys_cmts_ids: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela sys_cmts_ids: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

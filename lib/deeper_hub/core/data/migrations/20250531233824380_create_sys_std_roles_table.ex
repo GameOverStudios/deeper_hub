@@ -33,8 +33,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysStdRolesTable do
       {:ok, _} ->
         Logger.info("Tabela sys_std_roles criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela sys_std_roles: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela sys_std_roles: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -52,8 +56,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysStdRolesTable do
       {:ok, _} ->
         Logger.info("Tabela sys_std_roles removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela sys_std_roles: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela sys_std_roles: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

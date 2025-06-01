@@ -27,8 +27,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysStorageUserQuotasTable do
       {:ok, _} ->
         Logger.info("Tabela sys_storage_user_quotas criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela sys_storage_user_quotas: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela sys_storage_user_quotas: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -37,12 +41,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysStorageUserQuotasTable do
   def down do
     Logger.info("Removendo tabela sys_storage_user_quotas...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS sys_storage_user_quotas;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela sys_storage_user_quotas removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela sys_storage_user_quotas: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela sys_storage_user_quotas: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

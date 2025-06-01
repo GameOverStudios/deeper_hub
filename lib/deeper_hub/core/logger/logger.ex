@@ -4,20 +4,20 @@ defmodule DeeperHub.Core.Logger do
   Módulo responsável pelo sistema de logging centralizado do DeeperHub.
   Ele fornece funcionalidades para registrar mensagens de log em diferentes níveis,
   com formatação customizável e integração com diferentes coletores de log (sinks).
-  
+
   Este módulo implementa macros para cada nível de log (:debug, :info, :warn, :error, :critical)
   que capturam automaticamente o módulo chamador e aplicam formatação consistente.
-  
+
   Características principais:
   - Formatação colorida para melhor visualização no console
   - Inclusão automática de data e nome do módulo
   - Respeito ao nível de log configurado globalmente
   - Suporte a metadados adicionais para enriquecer as mensagens de log
-  
+
   Exemplo de uso:
   ```elixir
   require DeeperHub.Core.Logger
-  
+
   DeeperHub.Core.Logger.info("Iniciando operação", user_id: "123")
   DeeperHub.Core.Logger.error("Falha na operação", error: err, operation: :process_data)
   ```
@@ -29,7 +29,7 @@ defmodule DeeperHub.Core.Logger do
   @doc """
   Registra uma mensagem de log no nível :debug.
   A mensagem incluirá a data, o nome do módulo chamador e será colorida.
-  
+
   ## Parâmetros
     * `message` - Mensagem a ser registrada (string ou qualquer estrutura que possa ser convertida com inspect)
     * `metadata` - Lista de palavras-chave com metadados adicionais (opcional)
@@ -50,15 +50,20 @@ defmodule DeeperHub.Core.Logger do
   @spec debug(any(), keyword()) :: :ok
   defmacro debug(message, metadata \\ []) do
     caller_module_atom = __CALLER__.module
+
     quote do
-      DeeperHub.Core.Logger.__log__(:debug, unquote(message), Keyword.put(unquote(metadata), :module, unquote(caller_module_atom)))
+      DeeperHub.Core.Logger.__log__(
+        :debug,
+        unquote(message),
+        Keyword.put(unquote(metadata), :module, unquote(caller_module_atom))
+      )
     end
   end
 
   @doc """
   Registra uma mensagem de log no nível :info.
   A mensagem incluirá a data, o nome do módulo chamador e será colorida.
-  
+
   ## Parâmetros
     * `message` - Mensagem a ser registrada (string ou qualquer estrutura que possa ser convertida com inspect)
     * `metadata` - Lista de palavras-chave com metadados adicionais (opcional)
@@ -79,15 +84,20 @@ defmodule DeeperHub.Core.Logger do
   @spec info(any(), keyword()) :: :ok
   defmacro info(message, metadata \\ []) do
     caller_module_atom = __CALLER__.module
+
     quote do
-      DeeperHub.Core.Logger.__log__(:info, unquote(message), Keyword.put(unquote(metadata), :module, unquote(caller_module_atom)))
+      DeeperHub.Core.Logger.__log__(
+        :info,
+        unquote(message),
+        Keyword.put(unquote(metadata), :module, unquote(caller_module_atom))
+      )
     end
   end
 
   @doc """
   Registra uma mensagem de log no nível :warn.
   A mensagem incluirá a data, o nome do módulo chamador e será colorida.
-  
+
   ## Parâmetros
     * `message` - Mensagem a ser registrada (string ou qualquer estrutura que possa ser convertida com inspect)
     * `metadata` - Lista de palavras-chave com metadados adicionais (opcional)
@@ -108,15 +118,20 @@ defmodule DeeperHub.Core.Logger do
   @spec warn(any(), keyword()) :: :ok
   defmacro warn(message, metadata \\ []) do
     caller_module_atom = __CALLER__.module
+
     quote do
-      DeeperHub.Core.Logger.__log__(:warn, unquote(message), Keyword.put(unquote(metadata), :module, unquote(caller_module_atom)))
+      DeeperHub.Core.Logger.__log__(
+        :warn,
+        unquote(message),
+        Keyword.put(unquote(metadata), :module, unquote(caller_module_atom))
+      )
     end
   end
 
   @doc """
   Registra uma mensagem de log no nível :error.
   A mensagem incluirá a data, o nome do módulo chamador e será colorida.
-  
+
   ## Parâmetros
     * `message` - Mensagem a ser registrada (string ou qualquer estrutura que possa ser convertida com inspect)
     * `metadata` - Lista de palavras-chave com metadados adicionais (opcional)
@@ -137,8 +152,13 @@ defmodule DeeperHub.Core.Logger do
   @spec error(any(), keyword()) :: :ok
   defmacro error(message, metadata \\ []) do
     caller_module_atom = __CALLER__.module
+
     quote do
-      DeeperHub.Core.Logger.__log__(:error, unquote(message), Keyword.put(unquote(metadata), :module, unquote(caller_module_atom)))
+      DeeperHub.Core.Logger.__log__(
+        :error,
+        unquote(message),
+        Keyword.put(unquote(metadata), :module, unquote(caller_module_atom))
+      )
     end
   end
 
@@ -146,7 +166,7 @@ defmodule DeeperHub.Core.Logger do
   Registra uma mensagem de log no nível :critical.
   Este nível é usado para erros que exigem atenção imediata.
   A mensagem incluirá a data, o nome do módulo chamador e será colorida.
-  
+
   ## Parâmetros
     * `message` - Mensagem a ser registrada (string ou qualquer estrutura que possa ser convertida com inspect)
     * `metadata` - Lista de palavras-chave com metadados adicionais (opcional)
@@ -167,8 +187,13 @@ defmodule DeeperHub.Core.Logger do
   @spec critical(any(), keyword()) :: :ok
   defmacro critical(message, metadata \\ []) do
     caller_module_atom = __CALLER__.module
+
     quote do
-      DeeperHub.Core.Logger.__log__(:critical, unquote(message), Keyword.put(unquote(metadata), :module, unquote(caller_module_atom)))
+      DeeperHub.Core.Logger.__log__(
+        :critical,
+        unquote(message),
+        Keyword.put(unquote(metadata), :module, unquote(caller_module_atom))
+      )
     end
   end
 
@@ -187,7 +212,7 @@ defmodule DeeperHub.Core.Logger do
         date_str = datetime |> DateTime.to_date() |> Date.to_string()
         time_str = datetime |> DateTime.to_time() |> Time.to_string() |> String.slice(0, 8)
         timestamp = "#{date_str} #{time_str}"
-        
+
         # Extrai informações do módulo
         module_name_atom = metadata[:module] || :UnknownModule
         module_name_str = Atom.to_string(module_name_atom)
@@ -208,14 +233,15 @@ defmodule DeeperHub.Core.Logger do
 
         # Usa default se nível desconhecido
         message_color = Map.get(level_message_color_map, level, default_color())
-        
+
         # Formata os metadados adicionais, se houver
-        metadata_str = if Enum.empty?(metadata) or Keyword.keys(metadata) == [:module] do
-          ""
-        else
-          metadata_without_module = Keyword.delete(metadata, :module)
-          " " <> inspect(metadata_without_module)
-        end
+        metadata_str =
+          if Enum.empty?(metadata) or Keyword.keys(metadata) == [:module] do
+            ""
+          else
+            metadata_without_module = Keyword.delete(metadata, :module)
+            " " <> inspect(metadata_without_module)
+          end
 
         # Monta a mensagem de log completa
         log_parts = [
@@ -240,7 +266,7 @@ defmodule DeeperHub.Core.Logger do
 
       :ok
     rescue
-      e -> 
+      e ->
         # Fallback para garantir que erros no sistema de log não derrubem a aplicação
         IO.puts("[LOGGER ERROR] Falha ao registrar log: #{Exception.message(e)}")
         :ok

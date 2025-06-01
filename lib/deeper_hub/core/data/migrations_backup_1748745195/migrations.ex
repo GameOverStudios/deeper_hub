@@ -32,25 +32,35 @@ defmodule DeeperHub.Core.Data.Migrations do
 
     case wait_for_pool(max_attempts, wait_time_ms) do
       :ok ->
-        Logger.info("Pool de conexões disponível. Prosseguindo com as migrações.", module: __MODULE__)
+        Logger.info("Pool de conexões disponível. Prosseguindo com as migrações.",
+          module: __MODULE__
+        )
 
         # Primeiro, inicializa o banco de dados (garante que o diretório e arquivo existam)
         with :ok <- DeeperHub.Core.Data.Migrations.Initializer.initialize(),
              :ok <- ensure_migrations_table(),
              {:ok, applied_versions} <- get_applied_migrations(),
              {:ok, available_migrations} <- get_available_migrations(),
-             pending_migrations = filter_pending_migrations(available_migrations, applied_versions),
+             pending_migrations =
+               filter_pending_migrations(available_migrations, applied_versions),
              :ok <- apply_migrations(pending_migrations) do
-
           Logger.info("Sistema de migrações inicializado com sucesso.", module: __MODULE__)
           :ok
         else
           {:error, reason} = error ->
-            Logger.error("Falha ao inicializar sistema de migrações: #{inspect(reason)}", module: __MODULE__)
+            Logger.error("Falha ao inicializar sistema de migrações: #{inspect(reason)}",
+              module: __MODULE__
+            )
+
             error
         end
+
       {:error, :pool_not_found} ->
-        Logger.error("Pool de conexões não está disponível para executar migrações após #{max_attempts} tentativas", module: __MODULE__)
+        Logger.error(
+          "Pool de conexões não está disponível para executar migrações após #{max_attempts} tentativas",
+          module: __MODULE__
+        )
+
         {:error, :pool_not_found}
     end
   end
@@ -62,11 +72,15 @@ defmodule DeeperHub.Core.Data.Migrations do
   end
 
   defp wait_for_pool(attempt, max_attempts, wait_time_ms) do
-    Logger.debug("Verificando disponibilidade do pool de conexões (tentativa #{attempt}/#{max_attempts})...", module: __MODULE__)
+    Logger.debug(
+      "Verificando disponibilidade do pool de conexões (tentativa #{attempt}/#{max_attempts})...",
+      module: __MODULE__
+    )
 
     # Verifica se o processo do pool existe e está registrado
-    pool_name = Application.get_env(:deeper_hub, DeeperHub.Core.Data.Repo, [])
-                |> Keyword.get(:pool_name, DeeperHub.DBConnectionPool)
+    pool_name =
+      Application.get_env(:deeper_hub, DeeperHub.Core.Data.Repo, [])
+      |> Keyword.get(:pool_name, DeeperHub.DBConnectionPool)
 
     pool_pid = Process.whereis(pool_name)
 
@@ -79,11 +93,19 @@ defmodule DeeperHub.Core.Data.Migrations do
       # Se o processo não existe ou não está vivo
       true ->
         if attempt < max_attempts do
-          Logger.warn("Pool de conexões #{inspect(pool_name)} não encontrado ou não está ativo. Aguardando #{wait_time_ms}ms antes da próxima tentativa...", module: __MODULE__)
+          Logger.warn(
+            "Pool de conexões #{inspect(pool_name)} não encontrado ou não está ativo. Aguardando #{wait_time_ms}ms antes da próxima tentativa...",
+            module: __MODULE__
+          )
+
           Process.sleep(wait_time_ms)
           wait_for_pool(attempt + 1, max_attempts, wait_time_ms)
         else
-          Logger.error("Pool de conexões #{inspect(pool_name)} não encontrado ou não está ativo após #{max_attempts} tentativas.", module: __MODULE__)
+          Logger.error(
+            "Pool de conexões #{inspect(pool_name)} não encontrado ou não está ativo após #{max_attempts} tentativas.",
+            module: __MODULE__
+          )
+
           {:error, :pool_not_found}
         end
     end
@@ -96,7 +118,9 @@ defmodule DeeperHub.Core.Data.Migrations do
     try do
       # Verifica se o processo do pool existe e está ativo
       if Process.alive?(Process.whereis(pool_name)) do
-        Logger.info("Pool de conexões #{inspect(pool_name)} está registrado e ativo.", module: __MODULE__)
+        Logger.info("Pool de conexões #{inspect(pool_name)} está registrado e ativo.",
+          module: __MODULE__
+        )
 
         # Aguarda um curto período para permitir que o pool seja completamente inicializado
         Process.sleep(500)
@@ -104,10 +128,17 @@ defmodule DeeperHub.Core.Data.Migrations do
         # Tenta executar uma consulta simples usando o módulo Repo
         case DeeperHub.Core.Data.Repo.query("SELECT 1 AS test;") do
           {:ok, _rows} ->
-            Logger.info("Pool de conexões #{inspect(pool_name)} está funcional.", module: __MODULE__)
+            Logger.info("Pool de conexões #{inspect(pool_name)} está funcional.",
+              module: __MODULE__
+            )
+
             :ok
+
           {:error, error} ->
-            Logger.warn("Erro ao executar consulta de teste via Repo: #{inspect(error)}", module: __MODULE__)
+            Logger.warn("Erro ao executar consulta de teste via Repo: #{inspect(error)}",
+              module: __MODULE__
+            )
+
             retry_or_fail(attempt, max_attempts, wait_time_ms)
         end
       else
@@ -116,7 +147,10 @@ defmodule DeeperHub.Core.Data.Migrations do
       end
     rescue
       error ->
-        Logger.warn("Exceção ao verificar pool de conexões: #{inspect(error)}", module: __MODULE__)
+        Logger.warn("Exceção ao verificar pool de conexões: #{inspect(error)}",
+          module: __MODULE__
+        )
+
         retry_or_fail(attempt, max_attempts, wait_time_ms)
     end
   end
@@ -124,11 +158,18 @@ defmodule DeeperHub.Core.Data.Migrations do
   # Função auxiliar para decidir se deve tentar novamente ou falhar
   defp retry_or_fail(attempt, max_attempts, wait_time_ms) do
     if attempt < max_attempts do
-      Logger.warn("Tentando novamente em #{wait_time_ms}ms (tentativa #{attempt}/#{max_attempts})...", module: __MODULE__)
+      Logger.warn(
+        "Tentando novamente em #{wait_time_ms}ms (tentativa #{attempt}/#{max_attempts})...",
+        module: __MODULE__
+      )
+
       Process.sleep(wait_time_ms)
       wait_for_pool(attempt + 1, max_attempts, wait_time_ms)
     else
-      Logger.error("Falha ao verificar funcionalidade do pool após #{max_attempts} tentativas.", module: __MODULE__)
+      Logger.error("Falha ao verificar funcionalidade do pool após #{max_attempts} tentativas.",
+        module: __MODULE__
+      )
+
       {:error, :pool_not_found}
     end
   end
@@ -153,6 +194,7 @@ defmodule DeeperHub.Core.Data.Migrations do
       {:ok, _} ->
         Logger.debug("Tabela de migrações verificada/criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
         Logger.error("Falha ao criar tabela de migrações: #{inspect(reason)}", module: __MODULE__)
         {:error, reason}
@@ -176,6 +218,7 @@ defmodule DeeperHub.Core.Data.Migrations do
         versions = Enum.map(rows, fn [version] -> version end)
         Logger.debug("Migrações aplicadas: #{inspect(versions)}", module: __MODULE__)
         {:ok, versions}
+
       {:error, reason} ->
         Logger.error("Falha ao obter migrações aplicadas: #{inspect(reason)}", module: __MODULE__)
         {:error, reason}
@@ -219,7 +262,8 @@ defmodule DeeperHub.Core.Data.Migrations do
       {"20250531233823882", DeeperHub.Core.Data.Migrations.CreateDeeperArticlesEntriesTable},
       {"20250531233823886", DeeperHub.Core.Data.Migrations.CreateDeeperArticlesTable},
       {"20250531233823891", DeeperHub.Core.Data.Migrations.CreateDeeperArticlesTagsTable},
-      {"20250531233823895", DeeperHub.Core.Data.Migrations.CreateDeeperArticlesTagsToEntriesTable},
+      {"20250531233823895",
+       DeeperHub.Core.Data.Migrations.CreateDeeperArticlesTagsToEntriesTable},
       {"20250531233823898", DeeperHub.Core.Data.Migrations.CreateDeeperArticlesToCategoriesTable},
       {"20250531233823900", DeeperHub.Core.Data.Migrations.CreateDeeperArticleCategoriesTable},
       {"20250531233823902", DeeperHub.Core.Data.Migrations.CreateDeeperEventsTable},
@@ -327,11 +371,14 @@ defmodule DeeperHub.Core.Data.Migrations do
 
   Retorna uma lista de tuplas `{version, module}` com as migrações pendentes.
   """
-  @spec filter_pending_migrations([{String.t(), module()}], [String.t()]) :: [{String.t(), module()}]
+  @spec filter_pending_migrations([{String.t(), module()}], [String.t()]) :: [
+          {String.t(), module()}
+        ]
   def filter_pending_migrations(available_migrations, applied_versions) do
-    pending = Enum.filter(available_migrations, fn {version, _module} ->
-      not Enum.member?(applied_versions, version)
-    end)
+    pending =
+      Enum.filter(available_migrations, fn {version, _module} ->
+        not Enum.member?(applied_versions, version)
+      end)
 
     Logger.info("Migrações pendentes: #{length(pending)}", module: __MODULE__)
     pending
@@ -356,38 +403,63 @@ defmodule DeeperHub.Core.Data.Migrations do
     Enum.reduce_while(sorted_migrations, :ok, fn {version, module}, _acc ->
       Logger.info("Aplicando migração #{version} (#{inspect(module)})...", module: __MODULE__)
 
-      result = Repo.transaction(fn _conn ->
-        result_of_up = apply(module, :up, [])
-        case result_of_up do
-          success_indicator when success_indicator == :ok or 
-                                 (is_tuple(success_indicator) and 
-                                  elem(success_indicator, 0) == :ok and 
-                                  tuple_size(success_indicator) == 2) ->
-            # Função 'up' da migração executada com sucesso
-            timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
-            insert_sql = "INSERT INTO schema_migrations (version, inserted_at) VALUES (?, ?);"
-            case Repo.execute(insert_sql, [version, timestamp]) do
-              {:ok, _} -> 
-                :ok # Indica sucesso para a função da transação
-              {:error, reason_insert} -> 
-                Logger.error("Falha ao registrar migração #{version} (#{inspect(module)}) na tabela schema_migrations: #{inspect(reason_insert)}", module: __MODULE__)
-                {:error, {:schema_migrations_insert_failed, version, module, reason_insert}}
-            end
-          {:error, reason_up} -> # Função 'up' da migração retornou um erro
-            Logger.error("Função up da migração #{version} (#{inspect(module)}) retornou erro: #{inspect(reason_up)}", module: __MODULE__)
-            {:error, {:migration_up_failed, version, module, reason_up}}
-          unexpected_result ->
-            Logger.error("Resultado inesperado da função up da migração #{version} (#{inspect(module)}): #{inspect(unexpected_result)}", module: __MODULE__)
-            {:error, {:unexpected_migration_result, version, module, unexpected_result}}
-        end
-      end)
+      result =
+        Repo.transaction(fn _conn ->
+          result_of_up = apply(module, :up, [])
+
+          case result_of_up do
+            success_indicator
+            when success_indicator == :ok or
+                   (is_tuple(success_indicator) and
+                      elem(success_indicator, 0) == :ok and
+                      tuple_size(success_indicator) == 2) ->
+              # Função 'up' da migração executada com sucesso
+              timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
+              insert_sql = "INSERT INTO schema_migrations (version, inserted_at) VALUES (?, ?);"
+
+              case Repo.execute(insert_sql, [version, timestamp]) do
+                {:ok, _} ->
+                  # Indica sucesso para a função da transação
+                  :ok
+
+                {:error, reason_insert} ->
+                  Logger.error(
+                    "Falha ao registrar migração #{version} (#{inspect(module)}) na tabela schema_migrations: #{inspect(reason_insert)}",
+                    module: __MODULE__
+                  )
+
+                  {:error, {:schema_migrations_insert_failed, version, module, reason_insert}}
+              end
+
+            # Função 'up' da migração retornou um erro
+            {:error, reason_up} ->
+              Logger.error(
+                "Função up da migração #{version} (#{inspect(module)}) retornou erro: #{inspect(reason_up)}",
+                module: __MODULE__
+              )
+
+              {:error, {:migration_up_failed, version, module, reason_up}}
+
+            unexpected_result ->
+              Logger.error(
+                "Resultado inesperado da função up da migração #{version} (#{inspect(module)}): #{inspect(unexpected_result)}",
+                module: __MODULE__
+              )
+
+              {:error, {:unexpected_migration_result, version, module, unexpected_result}}
+          end
+        end)
 
       case result do
         {:ok, :ok} ->
           Logger.info("Migração #{version} aplicada com sucesso.", module: __MODULE__)
           {:cont, :ok}
+
         {:error, reason} ->
-          Logger.error("Falha ao aplicar migração #{version}: #{inspect(reason)}", module: __MODULE__)
+          Logger.error("Falha ao aplicar migração #{version}: #{inspect(reason)}",
+            module: __MODULE__
+          )
+
           {:halt, {:error, reason}}
       end
     end)

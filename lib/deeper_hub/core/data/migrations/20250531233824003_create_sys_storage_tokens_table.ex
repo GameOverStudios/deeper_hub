@@ -39,8 +39,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysStorageTokensTable do
       {:ok, _} ->
         Logger.info("Tabela sys_storage_tokens criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela sys_storage_tokens: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela sys_storage_tokens: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -52,12 +56,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysStorageTokensTable do
   def down do
     Logger.info("Removendo tabela sys_storage_tokens...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS sys_storage_tokens;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela sys_storage_tokens removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela sys_storage_tokens: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela sys_storage_tokens: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

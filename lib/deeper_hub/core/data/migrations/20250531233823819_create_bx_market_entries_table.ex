@@ -66,8 +66,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateBxMarketEntriesTable do
       {:ok, _} ->
         Logger.info("Tabela bx_market_entries criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela bx_market_entries: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela bx_market_entries: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -85,8 +89,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateBxMarketEntriesTable do
       {:ok, _} ->
         Logger.info("Tabela bx_market_entries removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela bx_market_entries: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela bx_market_entries: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

@@ -36,8 +36,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperEventCategoriesTable do
       {:ok, _} ->
         Logger.info("Tabela deeper_event_categories criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela deeper_event_categories: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela deeper_event_categories: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -49,12 +53,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperEventCategoriesTable do
   def down do
     Logger.info("Removendo tabela deeper_event_categories...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS deeper_event_categories;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela deeper_event_categories removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela deeper_event_categories: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela deeper_event_categories: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

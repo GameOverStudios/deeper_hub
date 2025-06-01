@@ -49,8 +49,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperForumPostsTable do
         # essa integridade é melhor gerenciada pela aplicação ou as tabelas recriadas com as FKs
         # em uma ordem específica se o esquema for totalmente novo.
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela deeper_forum_posts: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela deeper_forum_posts: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -62,12 +66,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperForumPostsTable do
   def down do
     Logger.info("Removendo tabela deeper_forum_posts...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS deeper_forum_posts;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela deeper_forum_posts removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela deeper_forum_posts: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela deeper_forum_posts: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

@@ -19,21 +19,33 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysLocalizationKeysTable do
 
     CREATE INDEX IF NOT EXISTS idx_sys_localization_keys_idcategory ON sys_localization_keys(IDCategory);
     """
+
     # O índice em "Key" é criado pela constraint UNIQUE.
     Repo.execute(sql)
     |> tap(fn
-      {:ok, _} -> Logger.info("Tabela sys_localization_keys criada com sucesso.", module: __MODULE__)
-      {:error, reason} -> Logger.error("Falha ao criar tabela sys_localization_keys: #{inspect(reason)}", module: __MODULE__)
+      {:ok, _} ->
+        Logger.info("Tabela sys_localization_keys criada com sucesso.", module: __MODULE__)
+
+      {:error, reason} ->
+        Logger.error("Falha ao criar tabela sys_localization_keys: #{inspect(reason)}",
+          module: __MODULE__
+        )
     end)
   end
 
   def down do
     Logger.info("Removendo tabela sys_localization_keys...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS sys_localization_keys;"
+
     Repo.execute(sql)
     |> tap(fn
-      {:ok, _} -> Logger.info("Tabela sys_localization_keys removida com sucesso.", module: __MODULE__)
-      {:error, reason} -> Logger.error("Falha ao remover tabela sys_localization_keys: #{inspect(reason)}", module: __MODULE__)
+      {:ok, _} ->
+        Logger.info("Tabela sys_localization_keys removida com sucesso.", module: __MODULE__)
+
+      {:error, reason} ->
+        Logger.error("Falha ao remover tabela sys_localization_keys: #{inspect(reason)}",
+          module: __MODULE__
+        )
     end)
   end
 end

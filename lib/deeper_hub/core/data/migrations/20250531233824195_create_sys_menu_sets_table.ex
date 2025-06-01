@@ -31,8 +31,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysMenuSetsTable do
       {:ok, _} ->
         Logger.info("Tabela sys_menu_sets criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela sys_menu_sets: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela sys_menu_sets: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -50,8 +54,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysMenuSetsTable do
       {:ok, _} ->
         Logger.info("Tabela sys_menu_sets removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela sys_menu_sets: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela sys_menu_sets: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

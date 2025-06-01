@@ -12,17 +12,20 @@ config :deeper_hub, DeeperHub.Core.Data.Repo,
   database: ":memory:",
   # A smaller pool size might be sufficient for tests
   pool_size: 2
-  # Disable logging of queries during tests or set to a higher level
-  # Or use `DBConnection.Ownership` for specific test process control if needed.
+
+# Disable logging of queries during tests or set to a higher level
+# Or use `DBConnection.Ownership` for specific test process control if needed.
 
 # Configure the DeeperHub.Core.Logger for tests
 config :deeper_hub, DeeperHub.Core.Logger,
-  level: :warn # Reduce log noise during tests
+  # Reduce log noise during tests
+  level: :warn
 
 # Configure Elixir's Logger for tests
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
-  level: :warn # Only show warnings and errors from dependencies
+  # Only show warnings and errors from dependencies
+  level: :warn
 
 # Example for Phoenix (if used):
 # config :deeper_hub, DeeperHubWeb.Endpoint,

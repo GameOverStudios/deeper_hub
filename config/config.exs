@@ -11,22 +11,32 @@ import Config
 # The Repo module (DeeperHub.Core.Repo) needs to be configured.
 # Here you define the adapter, database path, pool size, etc.
 config :deeper_hub, DeeperHub.Core.Data.Repo,
-  adapter: Exqlite.Connection, # Corrigido: Exqlite.Connection é o adaptador correto para DBConnection
-  database: System.get_env("DEEPER_HUB_DB_PATH", "databases/deeper_hub_dev.db"), # Permite sobrescrever via variável de ambiente
+  # Corrigido: Exqlite.Connection é o adaptador correto para DBConnection
+  adapter: Exqlite.Connection,
+  # Permite sobrescrever via variável de ambiente
+  database: System.get_env("DEEPER_HUB_DB_PATH", "databases/deeper_hub_dev.db"),
   pool_name: DeeperHub.DBConnectionPool,
   pool_size: String.to_integer(System.get_env("DEEPER_HUB_DB_POOL_SIZE", "10")),
-  journal_mode: :wal, # Write-Ahead Logging para melhor concorrência
-  busy_timeout: 5000, # Quanto tempo esperar se o banco de dados estiver bloqueado
-  show_sensitive_data_on_connection_error: true, # Mostra detalhes de erros de conexão para facilitar a depuração
-  timeout: 15_000, # Timeout para operações de banco de dados
-  idle_interval: 15_000, # Intervalo para ping em conexões ociosas
+  # Write-Ahead Logging para melhor concorrência
+  journal_mode: :wal,
+  # Quanto tempo esperar se o banco de dados estiver bloqueado
+  busy_timeout: 5000,
+  # Mostra detalhes de erros de conexão para facilitar a depuração
+  show_sensitive_data_on_connection_error: true,
+  # Timeout para operações de banco de dados
+  timeout: 15_000,
+  # Intervalo para ping em conexões ociosas
+  idle_interval: 15_000,
   # Removido after_connect que estava causando erro
-  pragmas: [foreign_keys: "ON"] # Habilita chaves estrangeiras usando a configuração correta
+  # Habilita chaves estrangeiras usando a configuração correta
+  pragmas: [foreign_keys: "ON"]
 
 # Configure the DeeperHub.Core.Logger
 config :deeper_hub, DeeperHub.Core.Logger,
-  level: :debug # Default log level
-  # Other logger specific configurations can go here
+  # Default log level
+  level: :debug
+
+# Other logger specific configurations can go here
 
 # Configurações gerais da aplicação
 config :deeper_hub,
@@ -35,11 +45,15 @@ config :deeper_hub,
 # Configuração do Guardian para autenticação JWT
 config :deeper_hub, DeeperHub.Accounts.Auth.Guardian,
   issuer: "deeper_hub",
-  secret_key: System.get_env("GUARDIAN_SECRET_KEY", "FnRMgZYZlnQWZ7jfLqaZL4yUwIhJ7MvgJSskg/zbC0UglEVWyqIJ3hWJrzJc5AuV"),
+  secret_key:
+    System.get_env(
+      "GUARDIAN_SECRET_KEY",
+      "FnRMgZYZlnQWZ7jfLqaZL4yUwIhJ7MvgJSskg/zbC0UglEVWyqIJ3hWJrzJc5AuV"
+    ),
   ttl: {1, :day}
 
 # Configuração de email
-config :deeper_hub, :mail, 
+config :deeper_hub, :mail,
   sender_email: System.get_env("MAIL_SENDER", "noreply@deeperhub.com"),
   support_email: System.get_env("MAIL_SUPPORT", "suporte@deeperhub.com"),
   test_mode: System.get_env("MAIL_TEST_MODE", "true") == "true",

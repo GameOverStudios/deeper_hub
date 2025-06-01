@@ -8,6 +8,7 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperArticlesCategoriesTable do
 
   def up do
     Logger.info("Criando tabela deeper_articles_categories...", module: __MODULE__)
+
     sql = """
     CREATE TABLE IF NOT EXISTS deeper_articles_categories (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,20 +28,32 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperArticlesCategoriesTable do
     CREATE INDEX IF NOT EXISTS idx_deeper_articles_categories_parent_id ON deeper_articles_categories(parent_id);
     -- O índice em slug é criado pela constraint UNIQUE.
     """
+
     Repo.execute(sql)
     |> tap(fn
-      {:ok, _} -> Logger.info("Tabela deeper_articles_categories criada com sucesso.", module: __MODULE__)
-      {:error, reason} -> Logger.error("Falha ao criar tabela deeper_articles_categories: #{inspect(reason)}", module: __MODULE__)
+      {:ok, _} ->
+        Logger.info("Tabela deeper_articles_categories criada com sucesso.", module: __MODULE__)
+
+      {:error, reason} ->
+        Logger.error("Falha ao criar tabela deeper_articles_categories: #{inspect(reason)}",
+          module: __MODULE__
+        )
     end)
   end
 
   def down do
     Logger.info("Removendo tabela deeper_articles_categories...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS deeper_articles_categories;"
+
     Repo.execute(sql)
     |> tap(fn
-      {:ok, _} -> Logger.info("Tabela deeper_articles_categories removida com sucesso.", module: __MODULE__)
-      {:error, reason} -> Logger.error("Falha ao remover tabela deeper_articles_categories: #{inspect(reason)}", module: __MODULE__)
+      {:ok, _} ->
+        Logger.info("Tabela deeper_articles_categories removida com sucesso.", module: __MODULE__)
+
+      {:error, reason} ->
+        Logger.error("Falha ao remover tabela deeper_articles_categories: #{inspect(reason)}",
+          module: __MODULE__
+        )
     end)
   end
 end

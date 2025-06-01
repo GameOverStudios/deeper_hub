@@ -39,8 +39,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateBxPersonsVotesTrackTable do
       {:ok, _} ->
         Logger.info("Tabela bx_persons_votes_track criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela bx_persons_votes_track: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela bx_persons_votes_track: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -52,12 +56,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateBxPersonsVotesTrackTable do
   def down do
     Logger.info("Removendo tabela bx_persons_votes_track...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS bx_persons_votes_track;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela bx_persons_votes_track removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela bx_persons_votes_track: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela bx_persons_votes_track: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

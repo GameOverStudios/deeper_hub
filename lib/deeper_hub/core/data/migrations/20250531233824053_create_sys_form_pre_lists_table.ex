@@ -35,8 +35,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysFormPreListsTable do
       {:ok, _} ->
         Logger.info("Tabela sys_form_pre_lists criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela sys_form_pre_lists: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela sys_form_pre_lists: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -48,12 +52,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysFormPreListsTable do
   def down do
     Logger.info("Removendo tabela sys_form_pre_lists...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS sys_form_pre_lists;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela sys_form_pre_lists removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela sys_form_pre_lists: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela sys_form_pre_lists: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

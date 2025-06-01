@@ -54,6 +54,7 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperFilesTable do
       {:ok, _} ->
         Logger.info("Tabela deeper_files criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
         Logger.error("Falha ao criar tabela deeper_files: #{inspect(reason)}", module: __MODULE__)
         {:error, reason}
@@ -67,12 +68,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperFilesTable do
   def down do
     Logger.info("Removendo tabela deeper_files...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS deeper_files;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela deeper_files removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela deeper_files: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela deeper_files: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

@@ -40,8 +40,12 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysGridFieldsTable do
       {:ok, _} ->
         Logger.info("Tabela sys_grid_fields criada com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela sys_grid_fields: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela sys_grid_fields: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end
@@ -53,12 +57,17 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysGridFieldsTable do
   def down do
     Logger.info("Removendo tabela sys_grid_fields...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS sys_grid_fields;"
+
     case Repo.execute(sql) do
       {:ok, _} ->
         Logger.info("Tabela sys_grid_fields removida com sucesso.", module: __MODULE__)
         :ok
+
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela sys_grid_fields: #{inspect(reason)}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela sys_grid_fields: #{inspect(reason)}",
+          module: __MODULE__
+        )
+
         {:error, reason}
     end
   end

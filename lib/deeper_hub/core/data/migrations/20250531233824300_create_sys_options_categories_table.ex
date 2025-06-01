@@ -20,24 +20,38 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysOptionsCategoriesTable do
       FOREIGN KEY (type_id) REFERENCES sys_options_types(id) ON DELETE CASCADE ON UPDATE CASCADE
     );
     """
+
     case Repo.execute(sql) do
-      {:ok, _} -> :ok; {:error, reason} -> {:error, reason}
+      {:ok, _} -> :ok
+      {:error, reason} -> {:error, reason}
     end
     |> tap(fn
-      :ok -> Logger.info("Tabela sys_options_categories criada com sucesso.", module: __MODULE__)
-      {:error, reason} -> Logger.error("Falha ao criar tabela sys_options_categories: #{inspect(reason)}", module: __MODULE__)
+      :ok ->
+        Logger.info("Tabela sys_options_categories criada com sucesso.", module: __MODULE__)
+
+      {:error, reason} ->
+        Logger.error("Falha ao criar tabela sys_options_categories: #{inspect(reason)}",
+          module: __MODULE__
+        )
     end)
   end
 
   def down do
     Logger.info("Removendo tabela sys_options_categories...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS sys_options_categories;"
+
     case Repo.execute(sql) do
-      {:ok, _} -> :ok; {:error, reason} -> {:error, reason}
+      {:ok, _} -> :ok
+      {:error, reason} -> {:error, reason}
     end
     |> tap(fn
-      :ok -> Logger.info("Tabela sys_options_categories removida com sucesso.", module: __MODULE__)
-      {:error, reason} -> Logger.error("Falha ao remover tabela sys_options_categories: #{inspect(reason)}", module: __MODULE__)
+      :ok ->
+        Logger.info("Tabela sys_options_categories removida com sucesso.", module: __MODULE__)
+
+      {:error, reason} ->
+        Logger.error("Falha ao remover tabela sys_options_categories: #{inspect(reason)}",
+          module: __MODULE__
+        )
     end)
   end
 end

@@ -8,6 +8,7 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysPagesDesignBoxesTable do
 
   def up do
     Logger.info("Criando tabela sys_pages_design_boxes...", module: __MODULE__)
+
     sql = """
     CREATE TABLE IF NOT EXISTS sys_pages_design_boxes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -16,20 +17,32 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysPagesDesignBoxesTable do
       "order" INTEGER NOT NULL DEFAULT 0
     );
     """
+
     Repo.execute(sql)
     |> tap(fn
-      {:ok, _} -> Logger.info("Tabela sys_pages_design_boxes criada com sucesso.", module: __MODULE__)
-      {:error, reason} -> Logger.error("Falha ao criar tabela sys_pages_design_boxes: #{inspect(reason)}", module: __MODULE__)
+      {:ok, _} ->
+        Logger.info("Tabela sys_pages_design_boxes criada com sucesso.", module: __MODULE__)
+
+      {:error, reason} ->
+        Logger.error("Falha ao criar tabela sys_pages_design_boxes: #{inspect(reason)}",
+          module: __MODULE__
+        )
     end)
   end
 
   def down do
     Logger.info("Removendo tabela sys_pages_design_boxes...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS sys_pages_design_boxes;"
+
     Repo.execute(sql)
     |> tap(fn
-      {:ok, _} -> Logger.info("Tabela sys_pages_design_boxes removida com sucesso.", module: __MODULE__)
-      {:error, reason} -> Logger.error("Falha ao remover tabela sys_pages_design_boxes: #{inspect(reason)}", module: __MODULE__)
+      {:ok, _} ->
+        Logger.info("Tabela sys_pages_design_boxes removida com sucesso.", module: __MODULE__)
+
+      {:error, reason} ->
+        Logger.error("Falha ao remover tabela sys_pages_design_boxes: #{inspect(reason)}",
+          module: __MODULE__
+        )
     end)
   end
 end

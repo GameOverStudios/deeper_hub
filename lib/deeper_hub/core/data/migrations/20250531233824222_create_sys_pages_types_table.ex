@@ -8,6 +8,7 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysPagesTypesTable do
 
   def up do
     Logger.info("Criando tabela sys_pages_types...", module: __MODULE__)
+
     sql = """
     CREATE TABLE IF NOT EXISTS sys_pages_types (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -16,20 +17,32 @@ defmodule DeeperHub.Core.Data.Migrations.CreateSysPagesTypesTable do
       "order" INTEGER NOT NULL DEFAULT 0
     );
     """
+
     Repo.execute(sql)
     |> tap(fn
-      {:ok, _} -> Logger.info("Tabela sys_pages_types criada com sucesso.", module: __MODULE__)
-      {:error, reason} -> Logger.error("Falha ao criar tabela sys_pages_types: #{inspect(reason)}", module: __MODULE__)
+      {:ok, _} ->
+        Logger.info("Tabela sys_pages_types criada com sucesso.", module: __MODULE__)
+
+      {:error, reason} ->
+        Logger.error("Falha ao criar tabela sys_pages_types: #{inspect(reason)}",
+          module: __MODULE__
+        )
     end)
   end
 
   def down do
     Logger.info("Removendo tabela sys_pages_types...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS sys_pages_types;"
+
     Repo.execute(sql)
     |> tap(fn
-      {:ok, _} -> Logger.info("Tabela sys_pages_types removida com sucesso.", module: __MODULE__)
-      {:error, reason} -> Logger.error("Falha ao remover tabela sys_pages_types: #{inspect(reason)}", module: __MODULE__)
+      {:ok, _} ->
+        Logger.info("Tabela sys_pages_types removida com sucesso.", module: __MODULE__)
+
+      {:error, reason} ->
+        Logger.error("Falha ao remover tabela sys_pages_types: #{inspect(reason)}",
+          module: __MODULE__
+        )
     end)
   end
 end

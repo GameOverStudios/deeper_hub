@@ -22,20 +22,37 @@ defmodule DeeperHub.Core.Data.Migrations.CreateDeeperArticlesTagsToEntriesTable 
     CREATE INDEX IF NOT EXISTS idx_datte_entry_id ON deeper_articles_tags_to_entries(entry_id);
     -- CREATE INDEX IF NOT EXISTS idx_datte_tag_id ON deeper_articles_tags_to_entries(tag_id); (coberto pela PK)
     """
+
     Repo.execute(sql)
     |> tap(fn
-      {:ok, _} -> Logger.info("Tabela deeper_articles_tags_to_entries criada com sucesso.", module: __MODULE__)
-      {:error, reason} -> Logger.error("Falha ao criar tabela deeper_articles_tags_to_entries: #{inspect(reason)}", module: __MODULE__)
+      {:ok, _} ->
+        Logger.info("Tabela deeper_articles_tags_to_entries criada com sucesso.",
+          module: __MODULE__
+        )
+
+      {:error, reason} ->
+        Logger.error("Falha ao criar tabela deeper_articles_tags_to_entries: #{inspect(reason)}",
+          module: __MODULE__
+        )
     end)
   end
 
   def down do
     Logger.info("Removendo tabela deeper_articles_tags_to_entries...", module: __MODULE__)
     sql = "DROP TABLE IF EXISTS deeper_articles_tags_to_entries;"
+
     Repo.execute(sql)
     |> tap(fn
-      {:ok, _} -> Logger.info("Tabela deeper_articles_tags_to_entries removida com sucesso.", module: __MODULE__)
-      {:error, reason} -> Logger.error("Falha ao remover tabela deeper_articles_tags_to_entries: #{inspect(reason)}", module: __MODULE__)
+      {:ok, _} ->
+        Logger.info("Tabela deeper_articles_tags_to_entries removida com sucesso.",
+          module: __MODULE__
+        )
+
+      {:error, reason} ->
+        Logger.error(
+          "Falha ao remover tabela deeper_articles_tags_to_entries: #{inspect(reason)}",
+          module: __MODULE__
+        )
     end)
   end
 end
