@@ -1,0 +1,58 @@
+defmodule DeeperHub.Core.Data.Migrations.BxJobsQnrAnswers do
+  @moduledoc """
+  Migration para criar e remover a tabela bx_jobs_qnr_answers.
+  """
+
+  alias DeeperHub.Core.Data.Repo
+  alias DeeperHub.Core.Logger
+  require DeeperHub.Core.Logger
+
+  @doc """
+  Cria a tabela de bx_jobs_qnr_answers.
+  """
+  def up do
+    Logger.info("Criando tabela de bx_jobs_qnr_answers...", module: __MODULE__)
+
+    sql = """
+CREATE TABLE IF NOT EXISTS bx_jobs_qnr_answers (
+id int(10) unsigned NOT NULL  auto_increment,
+question_id int(10) unsigned NOT NULL DEFAULT 0,
+profile_id int(10) unsigned NOT NULL DEFAULT 0,
+added int(10) NOT NULL DEFAULT 0,
+answer varchar(255) NOT NULL DEFAULT,
+  PRIMARY KEY (id)
+);
+    """
+
+    case Repo.execute(sql) do
+      {:ok, _} ->
+        Logger.info("Tabela de bx_jobs_qnr_answers criada com sucesso.", module: __MODULE__)
+        :ok
+
+      {:error, reason} ->
+        Logger.error("Falha ao criar tabela de bx_jobs_qnr_answers: #{reason}", module: __MODULE__)
+        {:error, reason}
+    end
+  end
+
+  @doc """
+  Remove a tabela de bx_jobs_qnr_answers.
+  """
+  def down do
+    Logger.info("Removendo tabela de bx_jobs_qnr_answers...", module: __MODULE__)
+
+    sql = """
+    DROP TABLE IF EXISTS bx_jobs_qnr_answers
+    """
+
+    case Repo.execute(sql) do
+      {:ok, _} ->
+        Logger.info("Tabela de bx_jobs_qnr_answers removida com sucesso.", module: __MODULE__)
+        :ok
+
+      {:error, reason} ->
+        Logger.error("Falha ao remover tabela de bx_jobs_qnr_answers: #{reason}", module: __MODULE__)
+        {:error, reason}
+    end
+  end
+end

@@ -53,19 +53,23 @@ def limpar_diretorios():
     schemas_dir = os.path.join("lib", "deeper_hub", "core", "data", "schemas")
     resources_dir = os.path.join("lib", "deeper_hub", "web_interface", "resources")
     router_dir = os.path.join("lib", "deeper_hub", "web_interface")
+    base_dir = os.path.join("lib", "deeper_hub", "core", "data")
+    web_base_dir = os.path.join("lib", "deeper_hub", "web_interface")
     
-    for dir_path in [migrations_dir, schemas_dir, resources_dir, router_dir]:
+    # Criar diretórios se não existirem
+    for dir_path in [migrations_dir, schemas_dir, resources_dir, router_dir, base_dir, web_base_dir]:
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
-        elif dir_path in [migrations_dir, schemas_dir, resources_dir]:
-            # Limpa o diretório
-            for arquivo in os.listdir(dir_path):
-                caminho_arquivo = os.path.join(dir_path, arquivo)
-                if os.path.isfile(caminho_arquivo):
-                    try:
-                        os.unlink(caminho_arquivo)
-                    except PermissionError:
-                        print(f"Aviso: Não foi possível excluir {caminho_arquivo} - arquivo em uso")
+    
+    # Limpar diretórios que precisam ser limpos
+    for dir_path in [migrations_dir, schemas_dir, resources_dir]:
+        for arquivo in os.listdir(dir_path):
+            caminho_arquivo = os.path.join(dir_path, arquivo)
+            if os.path.isfile(caminho_arquivo):
+                try:
+                    os.unlink(caminho_arquivo)
+                except PermissionError:
+                    print(f"Aviso: Não foi possível excluir {caminho_arquivo} - arquivo em uso")
 
 # Função para ler o conteúdo de um arquivo de template
 def ler_template(caminho_template):
@@ -294,6 +298,43 @@ def criar_router(tabelas):
     except PermissionError:
         print(f"Aviso: Não foi possível criar o router - arquivo em uso ou sem permissão")
 
+# Função para criar os módulos base
+def criar_modulos_base():
+    print("Criando módulos base...")
+    
+    # Diretórios para os módulos base
+    schema_base_dir = os.path.join("lib", "deeper_hub", "core", "data")
+    resource_base_dir = os.path.join("lib", "deeper_hub", "web_interface")
+    
+    # Criar diretórios se não existirem
+    for dir_path in [schema_base_dir, resource_base_dir]:
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+    
+    # Caminho dos arquivos de módulos base
+    schema_base_path = os.path.join(schema_base_dir, "schema_base.ex")
+    resource_base_path = os.path.join(resource_base_dir, "resource_base.ex")
+    
+    # Ler templates de módulos base
+    schema_base_template = ler_template("schema_base_template.md")
+    resource_base_template = ler_template("resource_base_template.md")
+    
+    # Criar arquivo SchemaBase
+    try:
+        with open(schema_base_path, 'w', encoding='utf-8') as arquivo:
+            arquivo.write(schema_base_template)
+        print("Módulo SchemaBase criado com sucesso.")
+    except PermissionError:
+        print(f"Aviso: Não foi possível criar o módulo SchemaBase - arquivo em uso ou sem permissão")
+    
+    # Criar arquivo ResourceBase
+    try:
+        with open(resource_base_path, 'w', encoding='utf-8') as arquivo:
+            arquivo.write(resource_base_template)
+        print("Módulo ResourceBase criado com sucesso.")
+    except PermissionError:
+        print(f"Aviso: Não foi possível criar o módulo ResourceBase - arquivo em uso ou sem permissão")
+
 # Função principal
 if __name__ == "__main__":
     # Conectar ao MySQL
@@ -304,6 +345,9 @@ if __name__ == "__main__":
         # Limpar diretórios
         limpar_diretorios()
         print("Diretórios limpos com sucesso.")
+        
+        # Criar módulos base
+        criar_modulos_base()
         
         # Obter tabelas
         tabelas = obter_tabelas(conexao)
