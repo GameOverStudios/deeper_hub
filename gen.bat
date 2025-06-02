@@ -1,0 +1,1 @@
+cls & cd generator & python generator.py & cd ..
