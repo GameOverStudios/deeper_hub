@@ -1,0 +1,59 @@
+defmodule DeeperHub.Core.Data.Migrations.BxAdsCategoriesTypes do
+  @moduledoc """
+  Migration para criar e remover a tabela bx_ads_categories_types.
+  """
+
+  alias DeeperHub.Core.Data.Repo
+  alias DeeperHub.Core.Logger
+  require DeeperHub.Core.Logger
+
+  @doc """
+  Cria a tabela de bx_ads_categories_types.
+  """
+  def up do
+    Logger.info("Criando tabela de bx_ads_categories_types...", module: __MODULE__)
+
+    sql = """
+CREATE TABLE IF NOT EXISTS bx_ads_categories_types (
+id int(11) unsigned NOT NULL  auto_increment,
+name varchar(64) NOT NULL DEFAULT,
+title varchar(255) NOT NULL DEFAULT,
+display_add varchar(255) NOT NULL DEFAULT,
+display_edit varchar(255) NOT NULL DEFAULT,
+display_view varchar(255) NOT NULL DEFAULT,
+  PRIMARY KEY (id)
+);
+    """
+
+    case Repo.execute(sql) do
+      {:ok, _} ->
+        Logger.info("Tabela de bx_ads_categories_types criada com sucesso.", module: __MODULE__)
+        :ok
+
+      {:error, reason} ->
+        Logger.error("Falha ao criar tabela de bx_ads_categories_types: #{reason}", module: __MODULE__)
+        {:error, reason}
+    end
+  end
+
+  @doc """
+  Remove a tabela de bx_ads_categories_types.
+  """
+  def down do
+    Logger.info("Removendo tabela de bx_ads_categories_types...", module: __MODULE__)
+
+    sql = """
+    DROP TABLE IF EXISTS bx_ads_categories_types
+    """
+
+    case Repo.execute(sql) do
+      {:ok, _} ->
+        Logger.info("Tabela de bx_ads_categories_types removida com sucesso.", module: __MODULE__)
+        :ok
+
+      {:error, reason} ->
+        Logger.error("Falha ao remover tabela de bx_ads_categories_types: #{reason}", module: __MODULE__)
+        {:error, reason}
+    end
+  end
+end

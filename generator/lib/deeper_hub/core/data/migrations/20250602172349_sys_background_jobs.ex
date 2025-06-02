@@ -1,0 +1,59 @@
+defmodule DeeperHub.Core.Data.Migrations.SysBackgroundJobs do
+  @moduledoc """
+  Migration para criar e remover a tabela sys_background_jobs.
+  """
+
+  alias DeeperHub.Core.Data.Repo
+  alias DeeperHub.Core.Logger
+  require DeeperHub.Core.Logger
+
+  @doc """
+  Cria a tabela de sys_background_jobs.
+  """
+  def up do
+    Logger.info("Criando tabela de sys_background_jobs...", module: __MODULE__)
+
+    sql = """
+CREATE TABLE IF NOT EXISTS sys_background_jobs (
+id int(11) unsigned NOT NULL  auto_increment,
+name varchar(128) NOT NULL DEFAULT,
+added int(11) unsigned NOT NULL DEFAULT 0,
+priority tinyint(4) unsigned NOT NULL DEFAULT 0,
+service_call text NOT NULL DEFAULT '',
+status varchar(16) NOT NULL DEFAULT awaiting,
+  PRIMARY KEY (id)
+);
+    """
+
+    case Repo.execute(sql) do
+      {:ok, _} ->
+        Logger.info("Tabela de sys_background_jobs criada com sucesso.", module: __MODULE__)
+        :ok
+
+      {:error, reason} ->
+        Logger.error("Falha ao criar tabela de sys_background_jobs: #{reason}", module: __MODULE__)
+        {:error, reason}
+    end
+  end
+
+  @doc """
+  Remove a tabela de sys_background_jobs.
+  """
+  def down do
+    Logger.info("Removendo tabela de sys_background_jobs...", module: __MODULE__)
+
+    sql = """
+    DROP TABLE IF EXISTS sys_background_jobs
+    """
+
+    case Repo.execute(sql) do
+      {:ok, _} ->
+        Logger.info("Tabela de sys_background_jobs removida com sucesso.", module: __MODULE__)
+        :ok
+
+      {:error, reason} ->
+        Logger.error("Falha ao remover tabela de sys_background_jobs: #{reason}", module: __MODULE__)
+        {:error, reason}
+    end
+  end
+end
