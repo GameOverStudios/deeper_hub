@@ -1,5 +1,0 @@
-0000000000000000000000000000000000000000 8804e7bc4e25b0cb3b0821a5206f50923e0be385 Your Name <you@example.com> 1748742751 -0300	commit (initial): First AutoStart Migrations
-8804e7bc4e25b0cb3b0821a5206f50923e0be385 5ae779e5f52b5d81bf19c0a03f723c6ea1fc119a Your Name <you@example.com> 1748743066 -0300	commit: Initial Essencial [OK]
-5ae779e5f52b5d81bf19c0a03f723c6ea1fc119a a140586251293a66fb20baf34b338a2a46bdb457 Your Name <you@example.com> 1748743307 -0300	commit: Add Gemini MDs
-a140586251293a66fb20baf34b338a2a46bdb457 ca9b16012f94e4b10688913c9269c618bed09b9c Your Name <you@example.com> 1748745942 -0300	commit: MIGRATIONS [OK]
-ca9b16012f94e4b10688913c9269c618bed09b9c ca9b16012f94e4b10688913c9269c618bed09b9c Your Name <you@example.com> 1748749011 -0300	reset: moving to HEAD

@@ -1,3 +1,4 @@
+# <file path="deeper_hub/core/data/crud.ex">
 defmodule DeeperHub.Core.Data.Crud do
   @moduledoc """
   Provides generic CRUD (Create, Read, Update, Delete) operations
@@ -6,35 +7,60 @@ defmodule DeeperHub.Core.Data.Crud do
   This module relies on `DeeperHub.Core.Data.Repo` for query execution.
   It assumes table names are strings and primary keys are typically 'id'.
   Input `params` and `conditions` are expected to be maps.
+  SQLite 3.35.0+ is recommended for `RETURNING *` support.
   """
 
   alias DeeperHub.Core.Data.Repo
   alias DeeperHub.Core.Logger
   require DeeperHub.Core.Logger
 
+  # Helper function to transform Exqlite result (list of lists + column names) into a list of maps
+  defp transform_exqlite_result_to_maps(nil, _rows) do
+    Logger.warn("transform_exqlite_result_to_maps called with nil columns.", module: __MODULE__)
+    [] # Or handle as an error
+  end
+  defp transform_exqlite_result_to_maps(_columns, nil) do
+    Logger.warn("transform_exqlite_result_to_maps called with nil rows.", module: __MODULE__)
+    [] # Or handle as an error
+  end
+  defp transform_exqlite_result_to_maps(columns, rows) when is_list(columns) and is_list(rows) do
+    Enum.map(rows, fn row_values ->
+      if length(columns) == length(row_values) do
+        Enum.zip(columns, row_values) |> Map.new()
+      else
+        Logger.error(
+          "Mismatch between column count and row value count. Columns: #{inspect(columns)}, Row: #{inspect(row_values)}",
+          module: __MODULE__
+        )
+        # Return an empty map or raise an error, depending on desired strictness
+        %{}
+      end
+    end)
+  end
+
+
   @doc """
   Inserts a new record into the specified table.
 
   Returns `{:ok, record_map}` with the inserted record (if `RETURNING *` is supported
   and used) or `{:error, reason}`.
-
-  ## Examples
-
-      Crud.create("users", %{name: "Alice", email: "alice@example.com"})
-      #=> {:ok, %{"id" => 1, "name" => "Alice", "email" => "alice@example.com", ...}}
   """
+  @spec create(String.t(), map()) :: {:ok, map()} | {:error, any()}
   def create(table, params) when is_binary(table) and is_map(params) do
     if map_size(params) == 0 do
       Logger.warn("Crud.create called with empty params for table '#{table}'.",
         module: __MODULE__
       )
-
       {:error, :empty_params}
     else
-      # Convert atoms to strings if they are keys
-      columns = params |> Map.keys() |> Enum.map(&Atom.to_string/1)
+      string_keyed_params =
+        Enum.into(params, %{}, fn {k, v} ->
+          {if(is_atom(k), do: Atom.to_string(k), else: k), v}
+        end)
+
+      columns = Map.keys(string_keyed_params)
       placeholders = Enum.map(1..length(columns), &"$#{&1}")
-      values = Map.values(params)
+      values = Map.values(string_keyed_params)
 
       sql =
         "INSERT INTO #{table} (#{Enum.join(columns, ", ")}) VALUES (#{Enum.join(placeholders, ", ")}) RETURNING *"
@@ -42,33 +68,42 @@ defmodule DeeperHub.Core.Data.Crud do
       Logger.debug("Crud.create SQL: #{sql} with values: #{inspect(values)}", module: __MODULE__)
 
       case Repo.query(sql, values) do
-        {:ok, [%{} = inserted_record | _]} ->
-          # SQLite often returns a list with one item for RETURNING *
-          {:ok, inserted_record}
-
-        # Exqlite might wrap in rows key
-        {:ok, %{rows: [inserted_record | _]}} ->
-          {:ok, inserted_record}
-
-        # Insert might not have returned anything (e.g. table without PK or RETURNING not fully supported for edge cases)
-        {:ok, %{rows: []}} ->
-          Logger.warn("Crud.create for table '#{table}' did not return a record.",
+        # Exqlite.Result struct contains :columns and :rows (list of lists)
+        {:ok, %Exqlite.Result{columns: returned_columns, rows: [[_ | _] = first_row_values | _]}} ->
+          [inserted_record | _] = transform_exqlite_result_to_maps(returned_columns, [first_row_values])
+          Logger.debug(
+            "Crud.create successful for table '#{table}'. Record: #{inspect(inserted_record)}",
             module: __MODULE__
           )
+          {:ok, inserted_record}
 
-          # Or perhaps {:ok, nil} depending on desired contract
+        {:ok, %Exqlite.Result{num_rows: 0, rows: []}} -> # No record returned by RETURNING
+          Logger.warn(
+            "Crud.create for table '#{table}' did not return a record via RETURNING *. Check table schema, SQLite version, or if INSERT failed silently.",
+            module: __MODULE__
+          )
           {:error, :creation_failed_no_return}
 
-        {:error, reason} ->
-          {:error, reason}
+        {:ok, %Exqlite.Result{rows: []}} -> # Similar to above
+            Logger.warn(
+              "Crud.create for table '#{table}' (with Result struct) did not return any rows. Assuming creation failed or no return.",
+              module: __MODULE__
+            )
+            {:error, :creation_failed_no_return_via_result_struct}
 
-        other ->
+        {:error, reason} ->
           Logger.error(
-            "Crud.create received unexpected result from Repo.query for table '#{table}': #{inspect(other)}",
+            "Crud.create failed for table '#{table}'. Reason: #{inspect(reason)}",
             module: __MODULE__
           )
+          {:error, reason}
 
-          {:error, {:unexpected_repo_result, other}}
+        other_ok_format -> # Catch-all for other {:ok, ...} formats that don't match
+            Logger.error(
+              "Crud.create received an unexpected :ok format from Repo.query for table '#{table}': #{inspect(other_ok_format)}",
+              module: __MODULE__
+            )
+            {:error, {:unexpected_create_return_format, other_ok_format}}
       end
     end
   end
@@ -79,43 +114,43 @@ defmodule DeeperHub.Core.Data.Crud do
   Returns `{:ok, record_map}` if found, `{:error, :not_found}` if not found,
   or `{:error, reason}` for other errors.
   """
+  @spec get(String.t(), any()) :: {:ok, map()} | {:error, :not_found | any()}
   def get(table, id) when is_binary(table) do
     sql = "SELECT * FROM #{table} WHERE id = $1 LIMIT 1"
     Logger.debug("Crud.get SQL: #{sql} with id: #{id}", module: __MODULE__)
 
     case Repo.query(sql, [id]) do
-      {:ok, [%{} = record | _]} ->
+      {:ok, %Exqlite.Result{columns: returned_columns, rows: [[_ | _] = first_row_values | _]}} ->
+        [record | _] = transform_exqlite_result_to_maps(returned_columns, [first_row_values])
         {:ok, record}
 
-      {:ok, %{rows: [record | _]}} ->
-        {:ok, record}
-
-      {:ok, %{rows: []}} ->
+      {:ok, %Exqlite.Result{rows: []}} -> # No record found
         {:error, :not_found}
 
       {:error, reason} ->
+        Logger.error(
+          "Crud.get failed for table '#{table}' (id: #{id}). Reason: #{inspect(reason)}",
+          module: __MODULE__
+        )
         {:error, reason}
 
       other ->
         Logger.error(
-          "Crud.get received unexpected result from Repo.query for table '#{table}': #{inspect(other)}",
+          "Crud.get received unexpected result from Repo.query for table '#{table}', id: #{id}: #{inspect(other)}",
           module: __MODULE__
         )
-
         {:error, {:unexpected_repo_result, other}}
     end
   end
 
   @doc """
-  Lists all records from a table. Optionally filters by conditions.
-  (Filtering and options like limit/order to be implemented more robustly later)
+  Lists all records from a table.
   """
+  @spec list(String.t(), map(), list()) :: {:ok, list(map())} | {:error, any()}
   def list(table, conditions \\ %{}, _opts \\ []) when is_binary(table) do
-    # Basic implementation without sophisticated condition parsing yet
-    # This will be expanded to build a proper WHERE clause.
     if map_size(conditions) > 0 do
       Logger.warn(
-        "Crud.list called with conditions, but condition parsing is not fully implemented yet for table '#{table}'. Fetching all.",
+        "Crud.list called with conditions for table '#{table}', but condition parsing is not fully implemented yet. Fetching all records.",
         module: __MODULE__
       )
     end
@@ -123,8 +158,24 @@ defmodule DeeperHub.Core.Data.Crud do
     sql = "SELECT * FROM #{table}"
     Logger.debug("Crud.list SQL: #{sql} for table '#{table}'", module: __MODULE__)
 
-    # Repo.query should return {:ok, list_of_maps} or {:error, ...}
-    Repo.query(sql, [])
+    case Repo.query(sql, []) do
+      {:ok, %Exqlite.Result{columns: returned_columns, rows: rows_values}} when is_list(rows_values) ->
+        records = transform_exqlite_result_to_maps(returned_columns, rows_values)
+        {:ok, records}
+
+      {:error, reason} ->
+        Logger.error("Crud.list failed for table '#{table}'. Reason: #{inspect(reason)}",
+          module: __MODULE__
+        )
+        {:error, reason}
+
+      other ->
+        Logger.error(
+          "Crud.list received unexpected result from Repo.query for table '#{table}': #{inspect(other)}",
+          module: __MODULE__
+        )
+        {:error, {:unexpected_repo_result, other}}
+    end
   end
 
   @doc """
@@ -132,49 +183,55 @@ defmodule DeeperHub.Core.Data.Crud do
 
   Returns `{:ok, updated_record_map}` or `{:error, reason}`.
   Returns `{:error, :not_found}` if no record was updated (e.g., ID does not exist).
+  Assumes SQLite 3.35.0+ for `RETURNING *`.
   """
+  @spec update(String.t(), any(), map()) :: {:ok, map()} | {:error, any()}
   def update(table, id, params) when is_binary(table) and is_map(params) do
     if map_size(params) == 0 do
       Logger.warn("Crud.update called with empty params for table '#{table}', id: #{id}.",
         module: __MODULE__
       )
-
       {:error, :empty_params}
     else
-      columns_to_update = params |> Map.keys() |> Enum.map(&Atom.to_string/1)
+      string_keyed_params =
+        Enum.into(params, %{}, fn {k, v} ->
+          {if(is_atom(k), do: Atom.to_string(k), else: k), v}
+        end)
+
+      columns_to_update = Map.keys(string_keyed_params)
 
       set_clauses =
         Enum.map_join(1..length(columns_to_update), ", ", fn i ->
           "#{columns_to_update[i - 1]} = $#{i}"
         end)
 
-      # Add id as the last parameter for WHERE clause
-      values = Map.values(params) ++ [id]
+      values = Map.values(string_keyed_params) ++ [id]
       id_placeholder_index = length(columns_to_update) + 1
 
       sql = "UPDATE #{table} SET #{set_clauses} WHERE id = $#{id_placeholder_index} RETURNING *"
       Logger.debug("Crud.update SQL: #{sql} with values: #{inspect(values)}", module: __MODULE__)
 
       case Repo.query(sql, values) do
-        {:ok, [%{} = updated_record | _]} ->
+        {:ok, %Exqlite.Result{columns: returned_columns, rows: [[_ | _] = first_row_values | _]}} ->
+          [updated_record | _] = transform_exqlite_result_to_maps(returned_columns, [first_row_values])
           {:ok, updated_record}
 
-        {:ok, %{rows: [updated_record | _]}} ->
-          {:ok, updated_record}
-
-        # No rows updated/returned
-        {:ok, %{rows: []}} ->
+        {:ok, %Exqlite.Result{rows: []}} -> # No rows updated/returned (ID not found)
+          Logger.info("Crud.update for table '#{table}', id: #{id} did not affect any rows or RETURNING * yielded no result. Assuming not found.", module: __MODULE__)
           {:error, :not_found}
 
         {:error, reason} ->
+          Logger.error(
+            "Crud.update failed for table '#{table}' (id: #{id}). Reason: #{inspect(reason)}",
+            module: __MODULE__
+          )
           {:error, reason}
 
         other ->
           Logger.error(
-            "Crud.update received unexpected result from Repo.query for table '#{table}': #{inspect(other)}",
+            "Crud.update received unexpected result from Repo.query for table '#{table}', id: #{id}: #{inspect(other)}",
             module: __MODULE__
           )
-
           {:error, {:unexpected_repo_result, other}}
       end
     end
@@ -183,50 +240,39 @@ defmodule DeeperHub.Core.Data.Crud do
   @doc """
   Deletes a record from the table by its primary key (assumed to be 'id').
 
-  Returns `{:ok, deleted_record_map}` if `RETURNING *` is effective,
-  `{:ok, %{num_rows: 1}}` if deletion was successful but no record returned,
-  `{:error, :not_found}` if no record was deleted, or `{:error, reason}`.
+  Returns `{:ok, deleted_record_map}` if `RETURNING *` is effective and record existed.
+  Returns `{:error, :not_found}` if no record was deleted.
+  Or `{:error, reason}` for other DB errors.
+  Assumes SQLite 3.35.0+ for `RETURNING *`.
   """
+  @spec delete(String.t(), any()) :: {:ok, map()} | {:error, any()}
   def delete(table, id) when is_binary(table) do
     sql = "DELETE FROM #{table} WHERE id = $1 RETURNING *"
     Logger.debug("Crud.delete SQL: #{sql} with id: #{id}", module: __MODULE__)
 
     case Repo.query(sql, [id]) do
-      # RETURNING * worked
-      {:ok, [%{} = deleted_record | _]} ->
+      {:ok, %Exqlite.Result{columns: returned_columns, rows: [[_ | _] = first_row_values | _]}} ->
+        [deleted_record | _] = transform_exqlite_result_to_maps(returned_columns, [first_row_values])
         {:ok, deleted_record}
 
-      {:ok, %{rows: [deleted_record | _]}} ->
-        {:ok, deleted_record}
-
-      {:ok, %{rows: [], num_rows: 0}} ->
+      {:ok, %Exqlite.Result{rows: []}} -> # No record returned by RETURNING (ID did not exist)
+        Logger.info("Crud.delete for table '#{table}', id: #{id}. No record returned by RETURNING *, assuming not found.", module: __MODULE__)
         {:error, :not_found}
 
-      # Deleted, but nothing returned by RETURNING *
-      {:ok, %{num_rows: 1}} ->
-        {:ok, %{num_rows: 1}}
-
-      # Generic case if num_rows is 1
-      {:ok, result_map} when result_map.num_rows == 1 ->
-        {:ok, result_map}
-
       {:error, reason} ->
+        Logger.error(
+          "Crud.delete failed for table '#{table}' (id: #{id}). Reason: #{inspect(reason)}",
+          module: __MODULE__
+        )
         {:error, reason}
 
       other ->
         Logger.error(
-          "Crud.delete received unexpected result from Repo.query for table '#{table}': #{inspect(other)}",
+          "Crud.delete received unexpected result from Repo.query for table '#{table}', id: #{id}: #{inspect(other)}",
           module: __MODULE__
         )
-
         {:error, {:unexpected_repo_result, other}}
     end
   end
-
-  # TODO:
-  # - Implement get_by/2, list/3 (with proper condition parsing and options)
-  # - Implement update_by/3, delete_by/2
-  # - Helper function for building WHERE clauses from maps more robustly.
-  # - Helper function for handling different primary key names.
-  # - More robust error handling and result parsing from Repo.
 end
+# </file>
