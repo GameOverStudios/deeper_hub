@@ -60,7 +60,7 @@ def obter_tabelas_campos(conexao):
 
 # Função para criar arquivos de schema Elixir
 def criar_schema(tabela, campos, relacoes=None):
-    print(f"DEBUG: Iniciando criar_schema para tabela {tabela} com {len(campos)} campos")
+    #print(f"DEBUG: Iniciando criar_schema para tabela {tabela} com {len(campos)} campos")
     # Criar diretório schemas se não existir
     diretorio_schema = "schemas"
     if not os.path.exists(diretorio_schema):
@@ -131,7 +131,7 @@ def criar_schema(tabela, campos, relacoes=None):
                 default = ""
                 if campo[4] is not None: # Verificar se o default existe
                     # Tratar valores padrão comuns
-                    if tipo_elixir == "boolean": # MySQL tinyint(1)
+                    if tipo_elixir == "boolean": # tinyint(1)
                         default = f", default: {str(campo[4] == '1' or str(campo[4]).lower() == 'true').lower()}"
                     elif tipo_elixir == "integer" or tipo_elixir == "float":
                         try:
@@ -165,9 +165,9 @@ def criar_schema(tabela, campos, relacoes=None):
                     valores_enum = tipo_campo[5:-1].split(',')
                     valores_enum = [v.strip('\'"') for v in valores_enum]
                     valores_atom = [f":{v}" for v in valores_enum]
-                    arquivo.write(f'    field :{nome_campo}, Ecto.Enum, values: [{", ".join(valores_atom)}]{default}{nullable}  # MySQL: {tipo_campo}\n')
+                    arquivo.write(f'    field :{nome_campo}, Ecto.Enum, values: [{", ".join(valores_atom)}]{default}{nullable}  # {tipo_campo}\n')
                 else:
-                    arquivo.write(f'    field :{nome_campo}, :{tipo_elixir}{default}{nullable}  # MySQL: {tipo_campo}\n')
+                    arquivo.write(f'    field :{nome_campo}, :{tipo_elixir}{default}{nullable}  # {tipo_campo}\n')
             
             # Timestamps
             arquivo.write('\n    timestamps()\n')
