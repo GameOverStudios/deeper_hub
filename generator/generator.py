@@ -1,8 +1,7 @@
 import os
-import shutil
 import mysql.connector
-from datetime import datetime
 import re
+from datetime import datetime, date
 
 # Função para conectar ao MySQL
 def conectar_mysql(host='localhost', usuario='root', senha='', banco='una'):
@@ -50,6 +49,7 @@ def obter_relacoes(conexao):
 def limpar_diretorios():
     # Cria diretórios se não existirem
     migrations_dir = os.path.join("lib", "deeper_hub", "core", "data", "migrations")
+    seeds_dir = os.path.join("lib", "deeper_hub", "core", "data", "migrations", "seeds")
     schemas_dir = os.path.join("lib", "deeper_hub", "core", "data", "schemas")
     resources_dir = os.path.join("lib", "deeper_hub", "web_interface", "resources")
     router_dir = os.path.join("lib", "deeper_hub", "web_interface")
@@ -57,19 +57,39 @@ def limpar_diretorios():
     web_base_dir = os.path.join("lib", "deeper_hub", "web_interface")
     
     # Criar diretórios se não existirem
-    for dir_path in [migrations_dir, schemas_dir, resources_dir, router_dir, base_dir, web_base_dir]:
+    for dir_path in [migrations_dir, seeds_dir, schemas_dir, resources_dir, router_dir, base_dir, web_base_dir]:
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
     
     # Limpar diretórios que precisam ser limpos
     for dir_path in [migrations_dir, schemas_dir, resources_dir]:
-        for arquivo in os.listdir(dir_path):
-            caminho_arquivo = os.path.join(dir_path, arquivo)
-            if os.path.isfile(caminho_arquivo):
-                try:
-                    os.unlink(caminho_arquivo)
-                except PermissionError:
-                    print(f"Aviso: Não foi possível excluir {caminho_arquivo} - arquivo em uso")
+        if dir_path == migrations_dir:
+            # Para migrations, preservar o diretório seeds
+            for arquivo in os.listdir(dir_path):
+                caminho_arquivo = os.path.join(dir_path, arquivo)
+                if os.path.isfile(caminho_arquivo):
+                    try:
+                        os.unlink(caminho_arquivo)
+                    except PermissionError:
+                        print(f"Aviso: Não foi possível excluir {caminho_arquivo} - arquivo em uso")
+        else:
+            # Para outros diretórios, limpar tudo
+            for arquivo in os.listdir(dir_path):
+                caminho_arquivo = os.path.join(dir_path, arquivo)
+                if os.path.isfile(caminho_arquivo):
+                    try:
+                        os.unlink(caminho_arquivo)
+                    except PermissionError:
+                        print(f"Aviso: Não foi possível excluir {caminho_arquivo} - arquivo em uso")
+    
+    # Limpar diretório seeds
+    for arquivo in os.listdir(seeds_dir):
+        caminho_arquivo = os.path.join(seeds_dir, arquivo)
+        if os.path.isfile(caminho_arquivo):
+            try:
+                os.unlink(caminho_arquivo)
+            except PermissionError:
+                print(f"Aviso: Não foi possível excluir {caminho_arquivo} - arquivo em uso")
 
 # Função para ler o conteúdo de um arquivo de template
 def ler_template(caminho_template):
@@ -117,7 +137,7 @@ def criar_schema(tabela, campos, relacoes=None):
     try:
         with open(arquivo_path, 'w', encoding='utf-8') as arquivo:
             arquivo.write(conteudo)
-        print(f"Schema para tabela {tabela} criado com sucesso.")
+        print(f"    + {tabela} Schema")
     except PermissionError:
         print(f"Aviso: Não foi possível criar o schema para {tabela} - arquivo em uso ou sem permissão")
 
@@ -155,7 +175,7 @@ def criar_migration(tabela, campos, relacoes=None):
     try:
         with open(arquivo_path, 'w', encoding='utf-8') as arquivo:
             arquivo.write(conteudo)
-        print(f"Migration para tabela {tabela} criada com sucesso.")
+        print(f"    + {tabela} Migration")
     except PermissionError:
         print(f"Aviso: Não foi possível criar a migration para {tabela} - arquivo em uso ou sem permissão")
 
@@ -251,7 +271,7 @@ def criar_resource(tabela, campos, relacoes=None):
     try:
         with open(arquivo_path, 'w', encoding='utf-8') as arquivo:
             arquivo.write(conteudo)
-        print(f"Resource para tabela {tabela} criado com sucesso.")
+        print(f"    + {tabela} Resource")
     except PermissionError:
         print(f"Aviso: Não foi possível criar o resource para {tabela} - arquivo em uso ou sem permissão")
 
@@ -335,6 +355,141 @@ def criar_modulos_base():
     except PermissionError:
         print(f"Aviso: Não foi possível criar o módulo ResourceBase - arquivo em uso ou sem permissão")
 
+# Função para gerar seeds das tabelas
+def criar_seeds(conexao, tabela):
+    print(f"Gerando seeds para a tabela: {tabela}")
+    
+    # Diretório para os seeds
+    seeds_dir = os.path.join("lib", "deeper_hub", "core", "data", "migrations", "seeds")
+    
+    # Verificar se a tabela tem dados
+    cursor = conexao.cursor()
+    cursor.execute(f"SELECT COUNT(*) FROM {tabela}")
+    count = cursor.fetchone()[0]
+    
+    if count == 0:
+        print(f"Tabela {tabela} não possui registros. Seed não gerado.")
+        return
+    
+    # Obter dados da tabela
+    cursor.execute(f"SELECT * FROM {tabela}")
+    registros = cursor.fetchall()
+    
+    # Obter nomes das colunas
+    cursor.execute(f"SHOW COLUMNS FROM {tabela}")
+    colunas = [coluna[0] for coluna in cursor.fetchall()]
+    
+    # Nome do arquivo de seed
+    nome_arquivo = f"seed_{tabela}.ex"
+    caminho_arquivo = os.path.join(seeds_dir, nome_arquivo)
+    
+    # Gerar comandos de inserção
+    inserts = []
+    for registro in registros:
+        # Criar mapa com os valores
+        valores = {}
+        for i, coluna in enumerate(colunas):
+            valor = registro[i]
+            
+            # Formatar valor de acordo com o tipo
+            if valor is None:
+                valor_str = "nil"
+            elif isinstance(valor, str):
+                # Escapar aspas
+                valor = valor.replace('"', '\\"')
+                valor_str = f'"{valor}"'
+            elif isinstance(valor, (int, float)):
+                valor_str = str(valor)
+            elif isinstance(valor, bytes):
+                # Converter bytes para string hexadecimal
+                valor_str = f'<<{valor.hex()}::binary>>'
+            elif isinstance(valor, datetime):
+                # Formatar datetime
+                valor_str = f'~N"{valor.strftime("%Y-%m-%d %H:%M:%S")}"'
+            elif isinstance(valor, date):
+                # Formatar date
+                valor_str = f'~D"{valor.strftime("%Y-%m-%d")}"'
+            else:
+                # Outros tipos
+                valor_str = f'"{str(valor)}"'
+            
+            valores[coluna] = valor_str
+        
+        # Criar comando de inserção
+        # Escapar aspas nos nomes das colunas para SQL
+        campos_str = ", ".join([campo for campo in valores.keys()])
+        valores_str = ", ".join([valores[campo] for campo in valores.keys()])
+        
+        insert = f"    Repo.execute(\"INSERT INTO {tabela} ({campos_str}) VALUES ({', '.join(['?' for _ in valores])})\", [{valores_str}])"
+        inserts.append(insert)
+    
+    # Juntar todos os inserts
+    inserts_str = "\n".join(inserts)
+    
+    # Ler template de seed
+    template = ler_template("seed_template.md")
+    
+    # Substituir placeholders
+    # Converter nome da tabela para formato de módulo Elixir (CamelCase)
+    modulo_nome = ''.join(word.capitalize() for word in tabela.split('_'))
+    substituicoes = {
+        "MODULE_NAME": modulo_nome,
+        "TABLE_NAME": tabela,
+        "SEED_INSERTS": inserts_str
+    }
+    
+    conteudo = substituir_placeholders(template, substituicoes)
+    
+    # Criar arquivo de seed
+    try:
+        with open(caminho_arquivo, 'w', encoding='utf-8') as arquivo:
+            arquivo.write(conteudo)
+        
+        print(f"    + {tabela} Seeds")
+    except Exception as e:
+        print(f"Erro ao gerar seed para a tabela {tabela}: {str(e)}")
+
+# Função para criar o gerenciador de seeds
+def criar_seed_manager(tabelas_com_seed):
+    print("Gerando gerenciador de seeds...")
+    
+    # Diretório para os seeds
+    seeds_dir = os.path.join("lib", "deeper_hub", "core", "data", "migrations", "seeds")
+    
+    # Nome do arquivo do gerenciador
+    nome_arquivo = "seed_manager.ex"
+    caminho_arquivo = os.path.join(seeds_dir, nome_arquivo)
+    
+    # Gerar lista de módulos de seed
+    modulos_seed = []
+    for tabela in tabelas_com_seed:
+        # Converter nome da tabela para formato de módulo Elixir (CamelCase)
+        modulo_nome = ''.join(word.capitalize() for word in tabela.split('_'))
+        modulo = f"DeeperHub.Core.Data.Migrations.Seeds.{modulo_nome}Seed"
+        modulos_seed.append(modulo)
+    
+    # Formatar a lista de módulos para o template
+    modulos_str = ",\n      ".join(modulos_seed)
+    
+    # Ler template do gerenciador de seeds
+    template = ler_template("seed_manager_template.md")
+    
+    # Substituir placeholders
+    substituicoes = {
+        "SEED_MODULES": modulos_str
+    }
+    
+    conteudo = substituir_placeholders(template, substituicoes)
+    
+    # Criar arquivo do gerenciador de seeds
+    try:
+        with open(caminho_arquivo, 'w', encoding='utf-8') as arquivo:
+            arquivo.write(conteudo)
+        
+        print("Gerenciador de seeds gerado com sucesso.")
+    except Exception as e:
+        print(f"Erro ao gerar gerenciador de seeds: {str(e)}")
+
 # Função principal
 if __name__ == "__main__":
     # Conectar ao MySQL
@@ -356,7 +511,10 @@ if __name__ == "__main__":
         # Obter relações
         relacoes = obter_relacoes(conexao)
         
-        # Processar cada tabela individualmente (criar migration, schema e resource)
+        # Lista para armazenar tabelas que têm seeds
+        tabelas_com_seed = []
+        
+        # Processar cada tabela individualmente (criar migration, schema, resource e seed)
         for tabela in tabelas:
             campos = obter_campos(conexao, tabela)
             print(f"Processando tabela: {tabela}")
@@ -370,10 +528,24 @@ if __name__ == "__main__":
             # Criar resource para esta tabela
             criar_resource(tabela, campos, relacoes)
             
-            print(f"Tabela {tabela} processada com sucesso.")
+            # Verificar se a tabela tem dados para seed
+            cursor = conexao.cursor()
+            cursor.execute(f"SELECT COUNT(*) FROM {tabela}")
+            count = cursor.fetchone()[0]
+            
+            # Criar seed para esta tabela (se tiver dados)
+            if count > 0:
+                criar_seeds(conexao, tabela)
+                tabelas_com_seed.append(tabela)
+            
+            print(f"    + {tabela} [OK]")
         
         # Criar router com todas as tabelas
         criar_router(tabelas)
+        
+        # Criar gerenciador de seeds se houver tabelas com seed
+        if tabelas_com_seed:
+            criar_seed_manager(tabelas_com_seed)
         
         print("Processo concluído com sucesso!")
         
