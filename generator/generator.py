@@ -51,30 +51,21 @@ def limpar_diretorios():
     # Cria diretórios se não existirem
     migrations_dir = os.path.join("lib", "deeper_hub", "core", "data", "migrations")
     schemas_dir = os.path.join("lib", "deeper_hub", "core", "data", "schemas")
+    resources_dir = os.path.join("lib", "deeper_hub", "web_interface", "resources")
+    router_dir = os.path.join("lib", "deeper_hub", "web_interface")
     
-    if not os.path.exists(migrations_dir):
-        os.makedirs(migrations_dir)
-    else:
-        # Limpa o diretório de migrations
-        for arquivo in os.listdir(migrations_dir):
-            caminho_arquivo = os.path.join(migrations_dir, arquivo)
-            if os.path.isfile(caminho_arquivo):
-                try:
-                    os.unlink(caminho_arquivo)
-                except PermissionError:
-                    print(f"Aviso: Não foi possível excluir {caminho_arquivo} - arquivo em uso")
-    
-    if not os.path.exists(schemas_dir):
-        os.makedirs(schemas_dir)
-    else:
-        # Limpa o diretório de schemas
-        for arquivo in os.listdir(schemas_dir):
-            caminho_arquivo = os.path.join(schemas_dir, arquivo)
-            if os.path.isfile(caminho_arquivo):
-                try:
-                    os.unlink(caminho_arquivo)
-                except PermissionError:
-                    print(f"Aviso: Não foi possível excluir {caminho_arquivo} - arquivo em uso")
+    for dir_path in [migrations_dir, schemas_dir, resources_dir, router_dir]:
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+        elif dir_path in [migrations_dir, schemas_dir, resources_dir]:
+            # Limpa o diretório
+            for arquivo in os.listdir(dir_path):
+                caminho_arquivo = os.path.join(dir_path, arquivo)
+                if os.path.isfile(caminho_arquivo):
+                    try:
+                        os.unlink(caminho_arquivo)
+                    except PermissionError:
+                        print(f"Aviso: Não foi possível excluir {caminho_arquivo} - arquivo em uso")
 
 # Função para ler o conteúdo de um arquivo de template
 def ler_template(caminho_template):
@@ -106,7 +97,7 @@ def criar_schema(tabela, campos, relacoes=None):
     arquivo_path = os.path.join(base_output_path, f"{tabela}.ex")
     
     # Ler o template de schema
-    template_path = "schema_template.ex"
+    template_path = "schema_template.md"
     template = ler_template(template_path)
     
     # Preparar as substituições
@@ -144,7 +135,7 @@ def criar_migration(tabela, campos, relacoes=None):
     create_table_sql = gerar_create_table_sql(tabela, campos, relacoes)
     
     # Ler o template de migration
-    template_path = "migration_template.ex"
+    template_path = "migration_template.md"
     template = ler_template(template_path)
     
     # Preparar as substituições
@@ -219,6 +210,90 @@ def gerar_create_table_sql(tabela, campos, relacoes=None):
     
     return sql
 
+# Função para criar resource para uma tabela específica usando templates
+def criar_resource(tabela, campos, relacoes=None):
+    # Diretório para salvar os resources
+    base_output_path = os.path.join("lib", "deeper_hub", "web_interface", "resources")
+    if not os.path.exists(base_output_path):
+        os.makedirs(base_output_path)
+    
+    # Converter nome da tabela para formato de módulo Elixir (CamelCase)
+    modulo_nome = ''.join(word.capitalize() for word in tabela.split('_'))
+    resource_name = modulo_nome
+    
+    # Converter para singular (regra simples, pode precisar de ajustes)
+    nome_singular = tabela
+    if nome_singular.endswith('s'):
+        nome_singular = nome_singular[:-1]
+    
+    # Caminho do arquivo de resource
+    arquivo_path = os.path.join(base_output_path, f"{tabela}_resource.ex")
+    
+    # Ler o template de resource
+    template_path = "resource_template.md"
+    template = ler_template(template_path)
+    
+    # Preparar as substituições
+    substituicoes = {
+        "RESOURCE_NAME": resource_name,
+        "MODULE_NAME": modulo_nome,
+        "TABLE_NAME": tabela,
+        "SINGULAR_NAME": nome_singular
+    }
+    
+    # Substituir os placeholders
+    conteudo = substituir_placeholders(template, substituicoes)
+    
+    try:
+        with open(arquivo_path, 'w', encoding='utf-8') as arquivo:
+            arquivo.write(conteudo)
+        print(f"Resource para tabela {tabela} criado com sucesso.")
+    except PermissionError:
+        print(f"Aviso: Não foi possível criar o resource para {tabela} - arquivo em uso ou sem permissão")
+
+# Função para criar ou atualizar o router com as novas rotas
+def criar_router(tabelas):
+    # Diretório para salvar o router
+    base_output_path = os.path.join("lib", "deeper_hub", "web_interface")
+    if not os.path.exists(base_output_path):
+        os.makedirs(base_output_path)
+    
+    # Caminho do arquivo de router
+    arquivo_path = os.path.join(base_output_path, "router.ex")
+    
+    # Gerar rotas para todas as tabelas
+    rotas = []
+    for tabela in tabelas:
+        modulo_nome = ''.join(word.capitalize() for word in tabela.split('_'))
+        rota = f'forward("/api/{tabela}", to: DeeperHub.WebInterface.Resources.{modulo_nome}Resource)'
+        rotas.append(rota)
+    
+    # Adicionar rotas padrão
+    rotas.extend([
+        'forward("/api/status", to: DeeperHub.WebInterface.Resources.StatusResource)',
+        'forward("/api/info", to: DeeperHub.WebInterface.Resources.ServerInfoResource)',
+        'forward("/api/routes", to: DeeperHub.WebInterface.Resources.RoutesResource)'
+    ])
+    
+    # Ler o template de router
+    template_path = "router_template.md"
+    template = ler_template(template_path)
+    
+    # Preparar as substituições
+    substituicoes = {
+        "API_ROUTES": "\n  ".join(rotas)
+    }
+    
+    # Substituir os placeholders
+    conteudo = substituir_placeholders(template, substituicoes)
+    
+    try:
+        with open(arquivo_path, 'w', encoding='utf-8') as arquivo:
+            arquivo.write(conteudo)
+        print(f"Router criado com sucesso.")
+    except PermissionError:
+        print(f"Aviso: Não foi possível criar o router - arquivo em uso ou sem permissão")
+
 # Função principal
 if __name__ == "__main__":
     # Conectar ao MySQL
@@ -237,7 +312,7 @@ if __name__ == "__main__":
         # Obter relações
         relacoes = obter_relacoes(conexao)
         
-        # Processar cada tabela individualmente (criar migration e schema)
+        # Processar cada tabela individualmente (criar migration, schema e resource)
         for tabela in tabelas:
             campos = obter_campos(conexao, tabela)
             print(f"Processando tabela: {tabela}")
@@ -248,7 +323,13 @@ if __name__ == "__main__":
             # Criar schema para esta tabela
             criar_schema(tabela, campos, relacoes)
             
+            # Criar resource para esta tabela
+            criar_resource(tabela, campos, relacoes)
+            
             print(f"Tabela {tabela} processada com sucesso.")
+        
+        # Criar router com todas as tabelas
+        criar_router(tabelas)
         
         print("Processo concluído com sucesso!")
         
