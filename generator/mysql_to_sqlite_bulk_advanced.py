@@ -220,7 +220,7 @@ def migrar_dados_em_lote(conexao_mysql, conexao_sqlite, tabela, estrutura, taman
     registros_migrados = 0
     erros_count = 0
     erro_mensagem = ""
-    lote = 0
+    lote_num = 0
     
     inicio = time.time()
     
@@ -281,11 +281,11 @@ def migrar_dados_em_lote(conexao_mysql, conexao_sqlite, tabela, estrutura, taman
             # Confirmar a transação
             cursor_sqlite.execute("COMMIT")
             
-            registros_migrados += len(registros)
+            registros_migrados += len(lote)
             offset += tamanho_lote
-            lote += 1
+            lote_num = lote_num + 1
             
-            print(f"    Lote {lote}: {len(registros)} registros migrados ({registros_migrados}/{total_registros})")
+            print(f"    Lote {lote_num}: {len(lote)} registros migrados ({registros_migrados}/{total_registros})")
         except Exception as e:
             # Em caso de erro, tentar reverter a transação
             try:
