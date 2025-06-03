@@ -20,9 +20,9 @@ defmodule DeeperHub.WebInterface.Router do
   plug(:match)
   plug(:dispatch)
 
-  # TODO: Implementar estes recursos quando necessário
-  # forward("/api/terminal", to: DeeperHub.WebInterface.Resources.TerminalResource)
-  # forward("/api/console", to: DeeperHub.WebInterface.Resources.ConsoleResource)
+  # Recursos para terminal e console
+  forward("/api/terminal", to: DeeperHub.WebInterface.Resources.TerminalResource)
+  forward("/api/console", to: DeeperHub.WebInterface.Resources.ConsoleResource)
 
   # Rota principal para verificação da API
   get "/" do
