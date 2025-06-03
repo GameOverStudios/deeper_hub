@@ -27,6 +27,20 @@ def obter_campos(conexao, tabela):
     campos = cursor.fetchall()
     return campos
 
+# Função para obter a chave primária de uma tabela
+def obter_chave_primaria(conexao, tabela):
+    cursor = conexao.cursor()
+    cursor.execute(f"""
+    SELECT COLUMN_NAME
+    FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = '{tabela}'
+    AND CONSTRAINT_NAME = 'PRIMARY'
+    ORDER BY ORDINAL_POSITION
+    """)
+    colunas_pk = [coluna[0] for coluna in cursor.fetchall()]
+    return colunas_pk
+
 # Função para obter informações das relações entre tabelas (chaves estrangeiras)
 def obter_relacoes(conexao):
     cursor = conexao.cursor()
@@ -142,11 +156,17 @@ def criar_schema(tabela, campos, relacoes=None):
         print(f"Aviso: Não foi possível criar o schema para {tabela} - arquivo em uso ou sem permissão")
 
 # Função para criar migration para uma tabela específica usando templates
-def criar_migration(tabela, campos, relacoes=None):
+def criar_migration(tabela, campos, relacoes=None, conexao=None):
     # Diretório para salvar as migrations
     base_output_path = os.path.join("../lib", "deeper_hub", "core", "data", "migrations")
     if not os.path.exists(base_output_path):
         os.makedirs(base_output_path)
+    
+    # Obter informações sobre a chave primária da tabela
+    chaves_primarias = None
+    if conexao:
+        chaves_primarias = obter_chave_primaria(conexao, tabela)
+        print(f"Chaves primárias para {tabela}: {chaves_primarias}")
     
     # Converter nome da tabela para formato de módulo Elixir (CamelCase)
     modulo_nome = ''.join(word.capitalize() for word in tabela.split('_'))
@@ -157,11 +177,11 @@ def criar_migration(tabela, campos, relacoes=None):
     arquivo_path = os.path.join(base_output_path, f"{timestamp}_{tabela}.ex")
     
     # Gerar SQL para criar a tabela
-    create_table_sql = gerar_create_table_sql(tabela, campos, relacoes)
+    sql_create_table = gerar_create_table_sql(tabela, campos, relacoes, chaves_primarias)
     
     # Adicionar indentação correta para o heredoc em Elixir
     # Cada linha deve ter 4 espaços de indentação para alinhar com as aspas triplas de fechamento
-    sql_indentado = "    " + create_table_sql.replace("\n", "\n    ")
+    sql_indentado = "    " + sql_create_table.replace("\n", "\n    ")
     
     # Ler o template de migration
     template_path = "migration_template.md"
@@ -185,7 +205,7 @@ def criar_migration(tabela, campos, relacoes=None):
         print(f"Aviso: Não foi possível criar a migration para {tabela} - arquivo em uso ou sem permissão")
 
 # Função para gerar SQL para criar tabela
-def gerar_create_table_sql(tabela, campos, relacoes=None):
+def gerar_create_table_sql(tabela, campos, relacoes=None, chaves_primarias=None):
     # Iniciar o SQL para criar a tabela
     sql = f"CREATE TABLE IF NOT EXISTS {tabela} (\n"
     
@@ -245,16 +265,62 @@ def gerar_create_table_sql(tabela, campos, relacoes=None):
     
     # Adicionar chave primária se não estiver nas colunas e não houver AUTOINCREMENT
     if not any(("PRIMARY KEY" in coluna) or ("AUTOINCREMENT" in coluna) for coluna in colunas):
-        # Verificar se existe coluna id
-        if any(coluna.strip().startswith("id ") for coluna in colunas):
-            # Substituir a coluna id existente
-            for i, coluna in enumerate(colunas):
-                if coluna.strip().startswith("id "):
-                    colunas[i] = "  id INTEGER PRIMARY KEY AUTOINCREMENT"
-                    break
+        # Verificar se temos informações sobre a chave primária da tabela original
+        if chaves_primarias and len(chaves_primarias) > 0:
+            # Se for uma única coluna e for 'id', podemos usar AUTOINCREMENT
+            if len(chaves_primarias) == 1 and chaves_primarias[0].lower() == 'id':
+                # Substituir a coluna id existente
+                for i, coluna in enumerate(colunas):
+                    if coluna.strip().startswith("id "):
+                        colunas[i] = "  id INTEGER PRIMARY KEY AUTOINCREMENT"
+                        break
+            else:
+                # Se for uma chave composta ou não for 'id', adicionar como PRIMARY KEY
+                # Verificar se os nomes das colunas precisam ser escapados (palavras reservadas)
+                pk_colunas = []
+                for pk_col in chaves_primarias:
+                    if pk_col.lower() in palavras_reservadas:
+                        pk_colunas.append(f'"{pk_col}"')
+                    else:
+                        pk_colunas.append(pk_col)
+                
+                # Adicionar a definição da chave primária
+                colunas.append(f"  PRIMARY KEY ({', '.join(pk_colunas)})")
         else:
-            # Adicionar chave primária composta
-            colunas.append("  PRIMARY KEY (id)")
+            # Sem informações da chave primária original, usar heurística
+            # Verificar se existe coluna id
+            if any(coluna.strip().startswith("id ") for coluna in colunas):
+                # Substituir a coluna id existente
+                for i, coluna in enumerate(colunas):
+                    if coluna.strip().startswith("id "):
+                        colunas[i] = "  id INTEGER PRIMARY KEY AUTOINCREMENT"
+                        break
+            else:
+                # Procurar por uma coluna que possa ser a chave primária (normalmente termina com _id)
+                id_column = None
+                for coluna in colunas:
+                    # Extrair o nome da coluna da definição
+                    col_parts = coluna.strip().split(' ')
+                    if len(col_parts) > 0:
+                        col_name = col_parts[0].strip('"')
+                        # Verificar se a coluna termina com _id ou é chamada de id
+                        if col_name.endswith('_id') or col_name == 'id':
+                            id_column = col_name
+                            break
+                
+                # Se encontrou uma coluna de ID, usá-la como chave primária
+                if id_column:
+                    colunas.append(f"  PRIMARY KEY ({id_column})")
+                else:
+                    # Se não encontrou nenhuma coluna de ID, usar a primeira coluna como chave primária
+                    if colunas:
+                        first_col = colunas[0].strip().split(' ')[0].strip('"')
+                        colunas.append(f"  PRIMARY KEY ({first_col})")
+                    else:
+                        # Caso extremo: não há colunas definidas
+                        colunas.append("  PRIMARY KEY (id)")
+                        print(f"AVISO: Tabela {tabela} não tem colunas de ID identificáveis. Usando 'id' como padrão.")
+                        print("Isso pode causar erros se a coluna 'id' não existir na tabela.")
     
     # Adicionar chaves estrangeiras se existirem
     if relacoes:
@@ -633,8 +699,8 @@ if __name__ == "__main__":
             campos = obter_campos(conexao, tabela)
             print(f"Processando tabela: {tabela}")
             
-            # Criar migration para esta tabela
-            criar_migration(tabela, campos, relacoes)
+            # Criar migration
+            criar_migration(tabela, campos, relacoes, conexao)
             
             # Criar schema para esta tabela
             criar_schema(tabela, campos, relacoes)
