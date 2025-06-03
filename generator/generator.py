@@ -437,7 +437,7 @@ def criar_seeds(conexao, tabela):
         print(f"Erro ao gerar seed para a tabela {tabela}: {str(e)}")
 
 # Função para atualizar o registro de migrações
-def atualizar_registro_migracoes():
+def atualizar_registro_migracoes(tabelas_com_seed=[]):
     # Diretório das migrações
     migrations_dir = os.path.join("../lib", "deeper_hub", "core", "data", "migrations_generated")
     if not os.path.exists(migrations_dir):
@@ -476,7 +476,10 @@ def atualizar_registro_migracoes():
   Este módulo é gerado e atualizado automaticamente pelo gerador.
   \"\"\"
 
-  @doc \"\"\"
+  alias DeeperHub.Core.Logger
+  require DeeperHub.Core.Logger
+
+  @doc \"\"\" 
   Retorna a lista de migrações disponíveis no sistema.
   Cada migração é representada por uma tupla {versão, módulo}.
   \"\"\"
@@ -488,16 +491,48 @@ def atualizar_registro_migracoes():
     for timestamp, modulo in migrations:
         conteudo += f"      {{\"{timestamp}\", {modulo}}},\n"
     
+    # Fechar a lista de migrações
+    conteudo += "    ]\n  end\n\n"
+    
+    # Adicionar função para executar seeds
+    conteudo += "  @doc \"\"\"\n  Retorna a lista de seeds disponíveis no sistema.\n  \"\"\"\n  def available_seeds do\n    [\n"
+    
+    # Adicionar cada seed
+    for tabela in tabelas_com_seed:
+        # Converter nome da tabela para formato de módulo Elixir (CamelCase)
+        modulo_nome = ''.join(word.capitalize() for word in tabela.split('_'))
+        modulo_completo = f"DeeperHub.Core.Data.Migrations.Seeds.{modulo_nome}Seed"
+        
+        conteudo += f"      {modulo_completo},\n"
+    
     # Fechar o módulo
-    conteudo += "    ]\n  end\nend\n"
+    conteudo += "    ]\n  end\n\n"
+    
+    # Adicionar função para executar seeds
+    conteudo += """  @doc """
+  Executa todos os seeds disponíveis.
+  """
+  def run_seeds do
+    Logger.info("Executando seeds...", module: __MODULE__)
+    
+    Enum.each(available_seeds(), fn seed_module ->
+      Logger.info("Executando seed: #{inspect(seed_module)}", module: __MODULE__)
+      seed_module.run()
+    end)
+    
+    Logger.info("Seeds executados com sucesso.", module: __MODULE__)
+    :ok
+  end
+end
+"""
     
     # Escrever o arquivo de registro
     try:
         with open(registry_path, 'w', encoding='utf-8') as arquivo:
             arquivo.write(conteudo)
-        print("Registro de migrações atualizado com sucesso.")
+        print("Registro de migrações e seeds atualizado com sucesso.")
     except Exception as e:
-        print(f"Erro ao atualizar registro de migrações: {str(e)}")
+        print(f"Erro ao atualizar registro de migrações e seeds: {str(e)}")
 
 # Função para criar o gerenciador de seeds
 def criar_seed_manager(tabelas_com_seed):
@@ -606,7 +641,7 @@ if __name__ == "__main__":
             print(f"    + {tabela} [OK]")
         
         # Atualizar o registro de migrações após criar todas as migrações
-        atualizar_registro_migracoes()
+        atualizar_registro_migracoes(tabelas_com_seed)
         
         # Criar router com todas as tabelas se não estiver gerando para uma tabela específica
         # Se estiver gerando para uma tabela específica, obter todas as tabelas para o router

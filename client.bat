@@ -1,2 +1,1 @@
-cd client_terminal & python terminal_client.py
-cd ..
+python "client terminal\terminal_client.py"

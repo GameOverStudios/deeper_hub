@@ -43,8 +43,10 @@ defmodule DeeperHub.Core.Data.Migrations do
              {:ok, available_migrations} <- get_available_migrations(),
              pending_migrations =
                filter_pending_migrations(available_migrations, applied_versions),
-             :ok <- apply_migrations(pending_migrations) do
-          Logger.info("Sistema de migrações inicializado com sucesso.", module: __MODULE__)
+             :ok <- apply_migrations(pending_migrations),
+             # Executa os seeds após as migrações
+             :ok <- run_seeds() do
+          Logger.info("Sistema de migrações e seeds inicializados com sucesso.", module: __MODULE__)
           :ok
         else
           {:error, reason} = error ->
@@ -337,5 +339,27 @@ defmodule DeeperHub.Core.Data.Migrations do
           {:halt, {:error, reason}}
       end
     end)
+  end
+
+  @doc """
+  Executa todos os seeds disponíveis.
+  
+  Retorna `:ok` se todos os seeds foram executados com sucesso,
+  ou `{:error, reason}` se ocorreu algum erro.
+  """
+  @spec run_seeds() :: :ok | {:error, any()}
+  def run_seeds do
+    Logger.info("Executando seeds do banco de dados...", module: __MODULE__)
+    
+    try do
+      # Executa os seeds usando o registro de migrações
+      DeeperHub.Core.Data.Migrations.MigrationRegistry.run_seeds()
+      Logger.info("Seeds executados com sucesso.", module: __MODULE__)
+      :ok
+    rescue
+      e ->
+        Logger.error("Falha ao executar seeds: #{inspect(e)}", module: __MODULE__)
+        {:error, e}
+    end
   end
 end

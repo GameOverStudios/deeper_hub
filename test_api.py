@@ -57,13 +57,37 @@ def update_category(category_id, title):
 
 def delete_category(category_id):
     """Remove uma categoria"""
-    print(f"\n=== Removendo categoria com ID: {category_id} ===")
+    print(f"Removendo categoria {category_id}... ", end="")
     response = requests.delete(f"{BASE_URL}/api/bx_ads_categories_types/{category_id}")
-    print(f"Status: {response.status_code}")
     if response.status_code == 204:
-        print("Categoria removida com sucesso!")
+        print("OK")
     else:
-        print(f"Resposta: {response.text}")
+        print(f"ERRO ({response.status_code})")
+    return response.status_code == 204
+
+def batch_delete_categories(category_ids):
+    """Remove várias categorias em lote"""
+    if not category_ids:
+        return True
+        
+    print("\n--- Removendo categorias em lote ---")
+    batch_delete = {
+        "operations": [
+            {
+                "action": "delete",
+                "id": category_id
+            } for category_id in category_ids
+        ]
+    }
+    
+    response = requests.post(
+        f"{BASE_URL}/api/bx_ads_categories_types/batch",
+        json=batch_delete,
+        headers={"Content-Type": "application/json"}
+    )
+    success = response.status_code == 200
+    print(f"Remoção em lote: {'OK' if success else 'ERRO'} ({len(category_ids)} categorias)")
+    return success
 
 def search_categories(search_term=None, filters=None, page=None, page_size=None, order_by=None, order_direction=None, fields=None):
     """Busca categorias com filtros avançados, paginação e ordenação"""
@@ -103,18 +127,33 @@ def test_pagination():
     """Testa a paginação de categorias"""
     print("\n=== Testando paginação de categorias ===")
     
-    # Cria várias categorias para testar paginação
+    # Cria várias categorias para testar paginação usando operações em lote
+    batch_data = {
+        "operations": [
+            {
+                "action": "create",
+                "data": {
+                    "name": f"categoria{i}",
+                    "title": f"Categoria {i}",
+                    "display_add": f"Adicionar Categoria {i}",
+                    "display_edit": f"Editar Categoria {i}",
+                    "display_view": f"Visualizar Categoria {i}"
+                }
+            } for i in range(1, 11)
+        ]
+    }
+    
+    print("\n--- Criando categorias em lote para teste de paginação ---")
+    response = requests.post(
+        f"{BASE_URL}/api/bx_ads_categories_types/batch",
+        json=batch_data,
+        headers={"Content-Type": "application/json"}
+    )
+    
     category_ids = []
-    for i in range(1, 11):
-        category_id = create_category(
-            f"categoria{i}",
-            f"Categoria {i}",
-            f"Adicionar Categoria {i}",
-            f"Editar Categoria {i}",
-            f"Visualizar Categoria {i}"
-        )
-        if category_id:
-            category_ids.append(category_id)
+    if response.status_code == 200:
+        results = response.json().get("data", {}).get("results", [])
+        category_ids = [item.get("id") for item in results if item.get("success") and item.get("id")]
     
     # Testa paginação com diferentes tamanhos de página
     print("\n--- Testando página 1 com 3 itens por página ---")
@@ -137,24 +176,39 @@ def test_ordering():
     """Testa a ordenação de categorias"""
     print("\n=== Testando ordenação de categorias ===")
     
-    # Cria categorias para testar ordenação
+    # Cria categorias para testar ordenação usando operações em lote
     categories = [
         ("categoria_z", "Z Categoria"),
         ("categoria_a", "A Categoria"),
         ("categoria_m", "M Categoria")
     ]
     
+    batch_data = {
+        "operations": [
+            {
+                "action": "create",
+                "data": {
+                    "name": name,
+                    "title": title,
+                    "display_add": f"Adicionar {title}",
+                    "display_edit": f"Editar {title}",
+                    "display_view": f"Visualizar {title}"
+                }
+            } for name, title in categories
+        ]
+    }
+    
+    print("\n--- Criando categorias em lote para teste de ordenação ---")
+    response = requests.post(
+        f"{BASE_URL}/api/bx_ads_categories_types/batch",
+        json=batch_data,
+        headers={"Content-Type": "application/json"}
+    )
+    
     category_ids = []
-    for name, title in categories:
-        category_id = create_category(
-            name,
-            title,
-            f"Adicionar {title}",
-            f"Editar {title}",
-            f"Visualizar {title}"
-        )
-        if category_id:
-            category_ids.append(category_id)
+    if response.status_code == 200:
+        results = response.json().get("data", {}).get("results", [])
+        category_ids = [item.get("id") for item in results if item.get("success") and item.get("id")]
     
     # Testa ordenação por nome (ascendente)
     print("\n--- Testando ordenação por nome (ascendente) ---")
@@ -371,8 +425,8 @@ def run_full_test():
         "Visualizar Destaque"
     )
     
-    # Pausa para garantir que as categorias foram criadas
-    time.sleep(1)
+    # Não precisamos mais de pausa aqui
+    # A API deve responder imediatamente
     
     # Lista categorias após criação
     test_categories_list()
