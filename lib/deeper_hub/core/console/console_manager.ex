@@ -10,8 +10,6 @@ defmodule DeeperHub.Core.Console.ConsoleManager do
   use GenServer
   require Logger
 
-  alias DeeperHub.Core.Console.CommandRegistry
-
   # Estrutura para representar uma sessão de console
   defmodule Session do
     @moduledoc """
@@ -79,6 +77,15 @@ defmodule DeeperHub.Core.Console.ConsoleManager do
   end
   def execute_command(server, session_id, command) do
     execute_command(server, session_id, command, nil)
+  end
+
+
+
+  @doc """
+  Executa um comando em uma sessão de console (REST) sem client_pid.
+  """
+  def execute_command(session_id, command) do
+    execute_command(session_id, command, nil)
   end
 
   @doc """
@@ -300,17 +307,7 @@ defmodule DeeperHub.Core.Console.ConsoleManager do
   end
 
   @doc """
-  Executa um comando em uma sessão de console (REST) com client_pid opcional.
-  """
-  def execute_command(session_id, command, client_pid) do
-    execute_command(__MODULE__, session_id, command, client_pid)
-  end
 
-  @doc """
-  Executa um comando em uma sessão de console (REST) sem client_pid.
-  """
-  def execute_command(session_id, command) do
-    execute_command(session_id, command, nil)
   end
 
   @doc """

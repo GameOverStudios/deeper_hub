@@ -93,7 +93,7 @@ defmodule DeeperHub.Core.Data.Migrations do
       # Se o processo não existe ou não está vivo
       true ->
         if attempt < max_attempts do
-          Logger.warn(
+          Logger.warning(
             "Pool de conexões #{inspect(pool_name)} não encontrado ou não está ativo. Aguardando #{wait_time_ms}ms antes da próxima tentativa...",
             module: __MODULE__
           )
@@ -135,19 +135,19 @@ defmodule DeeperHub.Core.Data.Migrations do
             :ok
 
           {:error, error} ->
-            Logger.warn("Erro ao executar consulta de teste via Repo: #{inspect(error)}",
+            Logger.warning("Erro ao executar consulta de teste via Repo: #{inspect(error)}",
               module: __MODULE__
             )
 
             retry_or_fail(attempt, max_attempts, wait_time_ms)
         end
       else
-        Logger.warn("Pool de conexões #{inspect(pool_name)} não está ativo.", module: __MODULE__)
+        Logger.warning("Pool de conexões #{inspect(pool_name)} não está ativo.", module: __MODULE__)
         retry_or_fail(attempt, max_attempts, wait_time_ms)
       end
     rescue
       error ->
-        Logger.warn("Exceção ao verificar pool de conexões: #{inspect(error)}",
+        Logger.warning("Exceção ao verificar pool de conexões: #{inspect(error)}",
           module: __MODULE__
         )
 
@@ -158,7 +158,7 @@ defmodule DeeperHub.Core.Data.Migrations do
   # Função auxiliar para decidir se deve tentar novamente ou falhar
   defp retry_or_fail(attempt, max_attempts, wait_time_ms) do
     if attempt < max_attempts do
-      Logger.warn(
+      Logger.warning(
         "Tentando novamente em #{wait_time_ms}ms (tentativa #{attempt}/#{max_attempts})...",
         module: __MODULE__
       )

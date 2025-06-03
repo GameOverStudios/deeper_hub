@@ -158,6 +158,10 @@ def criar_migration(tabela, campos, relacoes=None):
     # Gerar SQL para criar a tabela
     create_table_sql = gerar_create_table_sql(tabela, campos, relacoes)
     
+    # Adicionar indentação correta para o heredoc em Elixir
+    # Cada linha deve ter 4 espaços de indentação para alinhar com as aspas triplas de fechamento
+    sql_indentado = "    " + create_table_sql.replace("\n", "\n    ")
+    
     # Ler o template de migration
     template_path = "migration_template.md"
     template = ler_template(template_path)
@@ -166,7 +170,7 @@ def criar_migration(tabela, campos, relacoes=None):
     substituicoes = {
         "MODULE_NAME": modulo_nome,
         "TABLE_NAME": tabela,
-        "CREATE_TABLE_SQL": create_table_sql.replace("`", "")
+        "CREATE_TABLE_SQL": sql_indentado.replace("`", "")
     }
     
     # Substituir os placeholders
@@ -191,31 +195,55 @@ def gerar_create_table_sql(tabela, campos, relacoes=None):
         tipo_campo = campo[1]
         nulo = "NULL" if campo[2] == "YES" else "NOT NULL"
         padrao = f"DEFAULT {campo[4]}" if campo[4] is not None else ""
-        extra = campo[5] if campo[5] else ""
         
-        # Mapear tipos de dados MySQL para tipos mais apropriados para Elixir
+        # Remover extras específicos do MySQL que não são compatíveis com SQLite
+        extra = ""
+        if campo[5]:
+            # Remover auto_increment que não existe no SQLite
+            if "auto_increment" in campo[5].lower():
+                extra = "PRIMARY KEY AUTOINCREMENT"
+            else:
+                extra = campo[5]
+        
+        # Mapear tipos de dados MySQL para tipos compatíveis com SQLite
         if "int" in tipo_campo.lower():
-            tipo_elixir = "integer"
+            tipo_sqlite = "INTEGER"
         elif "varchar" in tipo_campo.lower() or "text" in tipo_campo.lower():
-            tipo_elixir = "string"
-        elif "date" in tipo_campo.lower() or "time" in tipo_campo.lower():
-            tipo_elixir = "datetime"
-        elif "decimal" in tipo_campo.lower() or "float" in tipo_campo.lower() or "double" in tipo_campo.lower():
-            tipo_elixir = "float"
+            tipo_sqlite = "TEXT"
+            # Remover o tamanho do varchar que não é necessário no SQLite
+            tipo_campo = re.sub(r'varchar\(\d+\)', 'TEXT', tipo_campo, flags=re.IGNORECASE)
+        elif "date" in tipo_campo.lower() or "datetime" in tipo_campo.lower():
+            tipo_sqlite = "TEXT"
+            tipo_campo = "TEXT"
+        elif "float" in tipo_campo.lower() or "double" in tipo_campo.lower() or "decimal" in tipo_campo.lower():
+            tipo_sqlite = "REAL"
+            tipo_campo = "REAL"
         elif "bool" in tipo_campo.lower():
-            tipo_elixir = "boolean"
+            tipo_sqlite = "INTEGER"
+            tipo_campo = "INTEGER"
         else:
-            tipo_elixir = "string"  # Padrão para tipos desconhecidos
+            tipo_sqlite = "TEXT"
+            tipo_campo = "TEXT"
         
+        # Para Elixir, mapeamos os tipos SQLite para tipos Elixir
+        if tipo_sqlite == "INTEGER":
+            tipo_elixir = "integer"
+        elif tipo_sqlite == "TEXT":
+            tipo_elixir = "string"
+        elif tipo_sqlite == "REAL":
+            tipo_elixir = "float"
+        else:
+            tipo_elixir = "string"
+        
+        # Construir a definição da coluna
         coluna = f"  {nome_campo} {tipo_campo} {nulo} {padrao} {extra}".strip()
         colunas.append(coluna)
     
-    # Adicionar chave primária
-    for campo in campos:
-        if campo[3] == "PRI":
-            colunas.append(f"  PRIMARY KEY ({campo[0]})")
+    # Adicionar chave primária se não estiver nas colunas e não houver AUTOINCREMENT
+    if not any(("PRIMARY KEY" in coluna) or ("AUTOINCREMENT" in coluna) for coluna in colunas):
+        colunas.append("  PRIMARY KEY (id)")
     
-    # Adicionar chaves estrangeiras se houver relações
+    # Adicionar chaves estrangeiras se existirem
     if relacoes:
         for relacao in relacoes:
             tabela_origem = relacao[0]
@@ -224,8 +252,8 @@ def gerar_create_table_sql(tabela, campos, relacoes=None):
             coluna_referencia = relacao[3]
             
             if tabela_origem == tabela:
-                constraint_name = f"fk_{tabela}_{coluna_origem}"
-                foreign_key = f"  CONSTRAINT {constraint_name} FOREIGN KEY ({coluna_origem}) REFERENCES {tabela_referencia}({coluna_referencia})"
+                # SQLite usa uma sintaxe mais simples para chaves estrangeiras
+                foreign_key = f"  FOREIGN KEY ({coluna_origem}) REFERENCES {tabela_referencia}({coluna_referencia})"
                 colunas.append(foreign_key)
     
     # Finalizar o SQL

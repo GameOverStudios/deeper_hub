@@ -23,6 +23,10 @@ defmodule DeeperHub.WebInterface.Router do
   # API Routes
   {{API_ROUTES}}
 
+  
+  forward("/api/terminal", to: DeeperHub.WebInterface.Resources.TerminalResource)
+  forward("/api/console", to: DeeperHub.WebInterface.Resources.ConsoleResource)
+
   # Rota principal para verificação da API
   get "/" do
     conn

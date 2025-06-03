@@ -32,7 +32,7 @@ defmodule DeeperHub.MixProject do
       # Tests
       # {:ex_machina, "~> 2.8.0", only: :test},
 
-      # DBConnection
+      # Acesso ao banco de dados com DBConnection
       {:db_connection, "~> 2.7"},
       {:exqlite, "~> 0.30"},
 

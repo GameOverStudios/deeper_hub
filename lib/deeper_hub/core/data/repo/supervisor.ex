@@ -110,7 +110,7 @@ defmodule DeeperHub.Core.Data.Repo.Supervisor do
     case Process.whereis(pool_name) do
       nil ->
         if attempt < max_attempts do
-          Logger.warn(
+          Logger.warning(
             "Pool #{inspect(pool_name)} ainda não está registrado. Tentativa #{attempt}/#{max_attempts}"
           )
 

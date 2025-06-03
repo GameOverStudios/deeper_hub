@@ -86,15 +86,30 @@ defmodule DeeperHub.Core.Terminal.SessionManager do
   end
 
   @impl true
+  def handle_call(:list_sessions, _from, state) do
+    sessions_info =
+      Enum.map(state.sessions, fn {id, session} ->
+        %{
+          id: id,
+          created_at: session.created_at,
+          last_command: session.last_command,
+          # Adicionar status do port se útil para debug
+          port_status: if(session.port && Port.info(session.port), do: "active", else: "inactive_or_closed")
+        }
+      end)
+    {:reply, {:ok, sessions_info}, state}
+  end
+
+  @impl true
   def handle_call({:execute_command, session_id, command, client_pid}, from, state) do
     Logger.debug("SessionManager: Recebido execute_command para sessão #{session_id}")
-    
+
     # Verificar se o comando está autorizado antes de prosseguir
     case CommandFilter.authorize(command, %{context: :api}) do
       {:ok, filtered_command} ->
         # Comando autorizado, prosseguir com a execução
         execute_authorized_command(session_id, filtered_command, client_pid, from, state)
-        
+
       {:error, reason} ->
         # Comando não autorizado, retornar erro
         error_message = case reason do
@@ -103,17 +118,41 @@ defmodule DeeperHub.Core.Terminal.SessionManager do
           :command_too_long -> "Comando excede o tamanho máximo permitido"
           _ -> "Comando não autorizado: #{inspect(reason)}"
         end
-        
+
         # Se temos um cliente esperando, enviar mensagem de erro
         if client_pid && Process.alive?(client_pid) do
           send(client_pid, {:terminal_chunk, "\n[ERRO DE SEGURANÇA: #{error_message}]\n"})
           send(client_pid, {:terminal_eof, :security_error})
         end
-        
+
         {:reply, {:error, reason}, state}
     end
   end
-  
+
+  @impl true
+  def handle_call({:terminate_session, session_id}, _from, state) do
+    case Map.get(state.sessions, session_id) do
+      nil ->
+        {:reply, {:error, :session_not_found}, state}
+      %DeeperHub.Core.Terminal.Session{port: port, safety_timer_ref: timer_ref} ->
+        if timer_ref, do: Process.cancel_timer(timer_ref)
+        closing_status = safe_close_port(port)
+        Logger.info("Sessão de terminal #{session_id} encerrada. Status do Port.close: #{closing_status}")
+        sessions = Map.delete(state.sessions, session_id)
+        {:reply, :ok, %{state | sessions: sessions}}
+    end
+  end
+
+  @impl true
+  def handle_call(:terminate_all_sessions, _from, state) do
+    Logger.info("Encerrando todas as sessões de terminal")
+    Enum.each(state.sessions, fn {_id, %DeeperHub.Core.Terminal.Session{port: port, safety_timer_ref: timer_ref}} ->
+      if timer_ref, do: Process.cancel_timer(timer_ref)
+      safe_close_port(port)
+    end)
+    {:reply, :ok, %{state | sessions: %{}}}
+  end
+
   # Função auxiliar para executar comando autorizado
   defp execute_authorized_command(session_id, command, client_pid, from, state) do
     case Map.get(state.sessions, session_id) do
@@ -164,44 +203,11 @@ defmodule DeeperHub.Core.Terminal.SessionManager do
     end
   end
 
-  @impl true
-  def handle_call(:list_sessions, _from, state) do
-    sessions_info =
-      Enum.map(state.sessions, fn {id, session} ->
-        %{
-          id: id,
-          created_at: session.created_at,
-          last_command: session.last_command,
-          # Adicionar status do port se útil para debug
-          port_status: if(session.port && Port.info(session.port), do: "active", else: "inactive_or_closed")
-        }
-      end)
-    {:reply, {:ok, sessions_info}, state}
-  end
 
-  @impl true
-  def handle_call({:terminate_session, session_id}, _from, state) do
-    case Map.get(state.sessions, session_id) do
-      nil ->
-        {:reply, {:error, :session_not_found}, state}
-      %DeeperHub.Core.Terminal.Session{port: port, safety_timer_ref: timer_ref} ->
-        if timer_ref, do: Process.cancel_timer(timer_ref)
-        closing_status = safe_close_port(port)
-        Logger.info("Sessão de terminal #{session_id} encerrada. Status do Port.close: #{closing_status}")
-        sessions = Map.delete(state.sessions, session_id)
-        {:reply, :ok, %{state | sessions: sessions}}
-    end
-  end
 
-  @impl true
-  def handle_call(:terminate_all_sessions, _from, state) do
-    Logger.info("Encerrando todas as sessões de terminal")
-    Enum.each(state.sessions, fn {_id, %DeeperHub.Core.Terminal.Session{port: port, safety_timer_ref: timer_ref}} ->
-      if timer_ref, do: Process.cancel_timer(timer_ref)
-      safe_close_port(port)
-    end)
-    {:reply, :ok, %{state | sessions: %{}}}
-  end
+
+
+
 
   # --- Agrupando todos os handle_info juntos ---
   @impl true
@@ -226,18 +232,6 @@ defmodule DeeperHub.Core.Terminal.SessionManager do
   end
 
   @impl true
-  def handle_cast({:command_stream_completed, session_id}, state) do
-    case Map.get(state.sessions, session_id) do
-      nil -> {:noreply, state}
-      %DeeperHub.Core.Terminal.Session{} = session ->
-        Logger.debug("Comando completou stream para sessão #{session_id}. Limpando estado do client/timer.")
-        updated_session = %{session | safety_timer_ref: nil, client_pid: nil}
-        updated_sessions = Map.put(state.sessions, session_id, updated_session)
-        {:noreply, %{state | sessions: updated_sessions}}
-    end
-  end
-
-  @impl true
   def handle_info({port_obj, {:exit_status, status}}, state) do # Renomeado port para port_obj
     case find_session_by_port(port_obj, state.sessions) do
       {session_id, %DeeperHub.Core.Terminal.Session{safety_timer_ref: timer_ref, client_pid: client_pid}} ->
@@ -245,7 +239,7 @@ defmodule DeeperHub.Core.Terminal.SessionManager do
         if timer_ref, do: Process.cancel_timer(timer_ref)
 
         if client_pid && Process.alive?(client_pid) do
-          send(client_pid, {:terminal_chunk, "\n[Processo do terminal da sessão encerrou (status: #{status})]"})
+          send(client_pid, {:terminal_chunk, "\n[Processo do terminal da sessão encerrou (status: #{status})]"}) 
           send(client_pid, {:terminal_eof, :port_terminated})
         end
         updated_sessions = Map.delete(state.sessions, session_id)
@@ -273,6 +267,24 @@ defmodule DeeperHub.Core.Terminal.SessionManager do
     Logger.debug("SessionManager: Mensagem não tratada: #{inspect(msg)}")
     {:noreply, state}
   end
+
+  @impl true
+  def handle_cast({:command_stream_completed, session_id}, state) do
+    case Map.get(state.sessions, session_id) do
+      nil -> {:noreply, state}
+      %DeeperHub.Core.Terminal.Session{} = session ->
+        Logger.debug("Comando completou stream para sessão #{session_id}. Limpando estado do client/timer.")
+        updated_session = %{session | safety_timer_ref: nil, client_pid: nil}
+        updated_sessions = Map.put(state.sessions, session_id, updated_session)
+        {:noreply, %{state | sessions: updated_sessions}}
+    end
+  end
+
+
+
+
+
+
 
   @impl true
   def terminate(reason, state) do

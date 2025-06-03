@@ -16,11 +16,11 @@ defmodule DeeperHub.Core.Data.Crud do
 
   # Helper function to transform Exqlite result (list of lists + column names) into a list of maps
   defp transform_exqlite_result_to_maps(nil, _rows) do
-    Logger.warn("transform_exqlite_result_to_maps called with nil columns.", module: __MODULE__)
+    Logger.warning("transform_exqlite_result_to_maps called with nil columns.", module: __MODULE__)
     [] # Or handle as an error
   end
   defp transform_exqlite_result_to_maps(_columns, nil) do
-    Logger.warn("transform_exqlite_result_to_maps called with nil rows.", module: __MODULE__)
+    Logger.warning("transform_exqlite_result_to_maps called with nil rows.", module: __MODULE__)
     [] # Or handle as an error
   end
   defp transform_exqlite_result_to_maps(columns, rows) when is_list(columns) and is_list(rows) do
@@ -48,7 +48,7 @@ defmodule DeeperHub.Core.Data.Crud do
   @spec create(String.t(), map()) :: {:ok, map()} | {:error, any()}
   def create(table, params) when is_binary(table) and is_map(params) do
     if map_size(params) == 0 do
-      Logger.warn("Crud.create called with empty params for table '#{table}'.",
+      Logger.warning("Crud.create called with empty params for table '#{table}'.",
         module: __MODULE__
       )
       {:error, :empty_params}
@@ -78,14 +78,14 @@ defmodule DeeperHub.Core.Data.Crud do
           {:ok, inserted_record}
 
         {:ok, %Exqlite.Result{num_rows: 0, rows: []}} -> # No record returned by RETURNING
-          Logger.warn(
+          Logger.warning(
             "Crud.create for table '#{table}' did not return a record via RETURNING *. Check table schema, SQLite version, or if INSERT failed silently.",
             module: __MODULE__
           )
           {:error, :creation_failed_no_return}
 
         {:ok, %Exqlite.Result{rows: []}} -> # Similar to above
-            Logger.warn(
+            Logger.warning(
               "Crud.create for table '#{table}' (with Result struct) did not return any rows. Assuming creation failed or no return.",
               module: __MODULE__
             )
@@ -149,7 +149,7 @@ defmodule DeeperHub.Core.Data.Crud do
   @spec list(String.t(), map(), list()) :: {:ok, list(map())} | {:error, any()}
   def list(table, conditions \\ %{}, _opts \\ []) when is_binary(table) do
     if map_size(conditions) > 0 do
-      Logger.warn(
+      Logger.warning(
         "Crud.list called with conditions for table '#{table}', but condition parsing is not fully implemented yet. Fetching all records.",
         module: __MODULE__
       )
@@ -188,7 +188,7 @@ defmodule DeeperHub.Core.Data.Crud do
   @spec update(String.t(), any(), map()) :: {:ok, map()} | {:error, any()}
   def update(table, id, params) when is_binary(table) and is_map(params) do
     if map_size(params) == 0 do
-      Logger.warn("Crud.update called with empty params for table '#{table}', id: #{id}.",
+      Logger.warning("Crud.update called with empty params for table '#{table}', id: #{id}.",
         module: __MODULE__
       )
       {:error, :empty_params}

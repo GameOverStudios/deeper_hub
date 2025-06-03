@@ -11,9 +11,7 @@ import Config
 # The Repo module (DeeperHub.Core.Repo) needs to be configured.
 # Here you define the adapter, database path, pool size, etc.
 config :deeper_hub, DeeperHub.Core.Data.Repo,
-  # Corrigido: Exqlite.Connection é o adaptador correto para DBConnection
-  adapter: Exqlite.Connection,
-  # Permite sobrescrever via variável de ambiente
+  # Configuração para db_connection e exqlite
   database: System.get_env("DEEPER_HUB_DB_PATH", "databases/deeper_hub_dev.db"),
   pool_name: DeeperHub.DBConnectionPool,
   pool_size: String.to_integer(System.get_env("DEEPER_HUB_DB_POOL_SIZE", "10")),
@@ -21,14 +19,11 @@ config :deeper_hub, DeeperHub.Core.Data.Repo,
   journal_mode: :wal,
   # Quanto tempo esperar se o banco de dados estiver bloqueado
   busy_timeout: 5000,
-  # Mostra detalhes de erros de conexão para facilitar a depuração
-  show_sensitive_data_on_connection_error: true,
   # Timeout para operações de banco de dados
   timeout: 15_000,
   # Intervalo para ping em conexões ociosas
   idle_interval: 15_000,
-  # Removido after_connect que estava causando erro
-  # Habilita chaves estrangeiras usando a configuração correta
+  # Habilita chaves estrangeiras
   pragmas: [foreign_keys: "ON"]
 
 # Configure the DeeperHub.Core.Logger
@@ -39,8 +34,7 @@ config :deeper_hub, DeeperHub.Core.Logger,
 # Other logger specific configurations can go here
 
 # Configurações gerais da aplicação
-config :deeper_hub,
-  ecto_repos: [DeeperHub.Core.Data.Repo]
+config :deeper_hub, []
 
 # Configuração do Guardian para autenticação JWT
 config :deeper_hub, DeeperHub.Accounts.Auth.Guardian,
