@@ -61,13 +61,13 @@ defmodule DeeperHub.WebInterface.Resources.ConsoleResource do
     require Logger
     Logger.info("Executando comando na sessão de console #{session_id}: #{command}")
     
-    # Simulação de execução de comando
-    result = "Comando executado no console: #{command}"
+    # Executar o comando Elixir e capturar a saída
+    {result, exit_status} = execute_elixir_command(command)
     
     conn
     |> put_resp_content_type("application/json")
     |> send_resp(200, Jason.encode!(%{
-      status: "success",
+      status: if(exit_status == 0, do: "success", else: "error"),
       session_id: session_id,
       result: result
     }))
@@ -95,6 +95,28 @@ defmodule DeeperHub.WebInterface.Resources.ConsoleResource do
     |> send_resp(404, Jason.encode!(%{erro: "Rota de console não encontrada"}))
   end
 
+  # Função para executar comandos Elixir
+  defp execute_elixir_command(command) do
+    # Criar um arquivo temporário para o código
+    tmp_file = Path.join(System.tmp_dir!(), "elixir_cmd_#{:erlang.unique_integer([:positive])}.exs")
+    
+    try do
+      # Escrever o comando no arquivo
+      File.write!(tmp_file, command)
+      
+      # Executar o comando usando o elixir
+      case System.cmd("elixir", [tmp_file], stderr_to_stdout: true) do
+        {output, 0} -> {output, 0}
+        {error, status} -> {error, status}
+      end
+    rescue
+      e -> {"Erro ao executar comando: #{inspect(e)}", 1}
+    after
+      # Limpar o arquivo temporário
+      File.rm(tmp_file)
+    end
+  end
+  
   # Tratamento de erros
   def handle_errors(conn, %{kind: kind, reason: reason, stack: stack}) do
     require Logger
