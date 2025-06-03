@@ -95,12 +95,75 @@ defmodule DeeperHub.Core.Data.Migrations.Initializer do
 
       false ->
         Logger.info(
-          "Arquivo do banco de dados não encontrado. Será criado automaticamente na primeira conexão.",
+          "Arquivo do banco de dados não encontrado. Será criado e otimizado automaticamente.",
           module: __MODULE__
         )
 
-        # O arquivo será criado automaticamente pelo SQLite na primeira conexão
-        :ok
+        # Garantir que o diretório exista
+        db_dir = Path.dirname(db_path)
+        File.mkdir_p!(db_dir)
+
+        # Criar o banco de dados com configurações otimizadas
+        create_optimized_db(db_path)
+    end
+  end
+
+  @doc """
+  Cria um banco de dados SQLite otimizado com os pragmas recomendados para máximo desempenho.
+  
+  Aplica as seguintes otimizações:
+  - journal_mode = WAL (Write-Ahead Logging para melhor concorrência)
+  - synchronous = NORMAL (equilíbrio entre desempenho e segurança)
+  - cache_size = -10000 (10MB de cache em memória)
+  - temp_store = MEMORY (armazena tabelas temporárias na memória)
+  - mmap_size = 30000000000 (30GB para memory mapping)
+  - auto_vacuum = INCREMENTAL (mantém o arquivo compacto)
+  - read_uncommitted = 1 (permite leituras mais rápidas)
+  - foreign_keys = ON (habilita integridade referencial)
+  """
+  @spec create_optimized_db(String.t()) :: :ok | {:error, any()}
+  def create_optimized_db(db_path) do
+    Logger.info("Criando banco de dados SQLite otimizado: #{db_path}", module: __MODULE__)
+
+    try do
+      # Criar uma conexão temporária diretamente com o SQLite
+      {:ok, conn} = Exqlite.Connection.connect(database: db_path)
+
+      # Aplicar pragmas para otimização
+      pragmas = [
+        "PRAGMA journal_mode = WAL",
+        "PRAGMA synchronous = NORMAL",
+        "PRAGMA cache_size = -10000",
+        "PRAGMA page_size = 4096",
+        "PRAGMA foreign_keys = ON",
+        "PRAGMA temp_store = MEMORY",
+        "PRAGMA mmap_size = 30000000000",
+        "PRAGMA auto_vacuum = INCREMENTAL",
+        "PRAGMA read_uncommitted = 1",
+        "PRAGMA busy_timeout = 5000"
+      ]
+
+      # Aplicar cada pragma e registrar o resultado
+      Enum.each(pragmas, fn pragma ->
+        case Exqlite.Connection.execute(conn, pragma, [], []) do
+          {:ok, %{rows: [[result]]}} ->
+            Logger.debug("Aplicado: #{pragma} => #{result}", module: __MODULE__)
+          {:ok, _} ->
+            Logger.debug("Aplicado: #{pragma}", module: __MODULE__)
+          {:error, reason} ->
+            Logger.warning("Erro ao aplicar #{pragma}: #{inspect(reason)}", module: __MODULE__)
+        end
+      end)
+
+      # Fechar a conexão
+      :ok = Exqlite.Connection.disconnect(nil, conn)
+      
+      Logger.info("Banco de dados criado e otimizado com sucesso: #{db_path}", module: __MODULE__)
+      :ok
+    rescue
+      e ->
+        Logger.error("Erro ao criar banco de dados otimizado: #{inspect(e)}", module: __MODULE__)
+        {:error, e}
     end
   end
 end
