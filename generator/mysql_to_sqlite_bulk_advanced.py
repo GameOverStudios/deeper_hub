@@ -188,6 +188,9 @@ def migrar_dados_em_lote(conexao_mysql, conexao_sqlite, tabela, estrutura, taman
         estrutura: Estrutura da tabela
         tamanho_lote: Tamanho do lote para migração
         modo_insercao: Modo de inserção ("REPLACE", "IGNORE" ou "NORMAL")
+        
+    Retorna:
+        Uma tupla (registros_migrados, erros_count, erro_mensagem)
     """
     cursor_mysql = conexao_mysql.cursor()
     cursor_sqlite = conexao_sqlite.cursor()
@@ -198,7 +201,7 @@ def migrar_dados_em_lote(conexao_mysql, conexao_sqlite, tabela, estrutura, taman
     
     if total_registros == 0:
         print(f"  - Tabela {tabela} está vazia, pulando migração de dados...")
-        return 0, 0  # Retorna (registros_migrados, erros_count)
+        return 0, 0, "Tabela vazia"  # Retorna (registros_migrados, erros_count, erro_mensagem)
     
     print(f"  - Migrando {total_registros} registros da tabela {tabela}...")
     
@@ -216,14 +219,24 @@ def migrar_dados_em_lote(conexao_mysql, conexao_sqlite, tabela, estrutura, taman
     offset = 0
     registros_migrados = 0
     erros_count = 0
+    erro_mensagem = ""
     lote = 0
     
     inicio = time.time()
     
     while offset < total_registros:
+        # Garantir que o offset nunca seja negativo
+        offset_seguro = max(0, offset)
+        
         # Buscar um lote de dados do MySQL
-        cursor_mysql.execute(f"SELECT {colunas_str} FROM {tabela} LIMIT {offset}, {tamanho_lote}")
-        lote = cursor_mysql.fetchall()
+        try:
+            cursor_mysql.execute(f"SELECT {colunas_str} FROM {tabela} LIMIT {offset_seguro}, {tamanho_lote}")
+            lote = cursor_mysql.fetchall()
+        except Exception as e_sql:
+            erro_mensagem = f"Erro na consulta SQL: {str(e_sql)}"
+            print(f"  - {erro_mensagem}")
+            erros_count += 1
+            break
         
         if not lote:
             break
@@ -282,13 +295,19 @@ def migrar_dados_em_lote(conexao_mysql, conexao_sqlite, tabela, estrutura, taman
                 pass
                 
             erros_count += 1
-            print(f"\n    Erro ao migrar lote para {tabela}: {str(e)}")
+            erro_mensagem = f"Erro ao migrar lote para {tabela}: {str(e)}"
+            print(f"\n    {erro_mensagem}")
+            
+            # Registrar o traceback completo para depuração
+            import traceback
+            print(f"    Traceback: {traceback.format_exc()}")
             
             # Tentar migrar registro por registro para identificar o problema
             print("    Tentando migrar registros individualmente para identificar o problema...")
             
             # Obter os registros novamente para migração individual
-            cursor_mysql.execute(f"SELECT * FROM {tabela} LIMIT {tamanho_lote} OFFSET {offset - tamanho_lote}")
+            offset_individual = max(0, offset - tamanho_lote)  # Garantir que o offset nunca seja negativo
+            cursor_mysql.execute(f"SELECT * FROM {tabela} LIMIT {tamanho_lote} OFFSET {offset_individual}")
             registros_individuais = cursor_mysql.fetchall()
             try:
                 cursor_sqlite.execute("BEGIN TRANSACTION")
@@ -329,12 +348,23 @@ def migrar_dados_em_lote(conexao_mysql, conexao_sqlite, tabela, estrutura, taman
                     
                     except Exception as e_individual:
                         erros_count += 1
-                        print(f"    Erro no registro {i}: {str(e_individual)}")
+                        erro_individual = f"Erro no registro {i}: {str(e_individual)}"
+                        print(f"    {erro_individual}")
                         print(f"    Dados: {registro}")
+                        
+                        # Atualizar a mensagem de erro principal
+                        if not erro_mensagem or erro_mensagem.startswith("Erro na transação"):
+                            erro_mensagem = f"Erro individual na tabela {tabela}: {str(e_individual)}"
+                        
+                        # Registrar o traceback do erro individual
+                        import traceback
+                        print(f"    Traceback individual: {traceback.format_exc()}")
                 cursor_sqlite.execute("COMMIT")
                 break
             except Exception as e_transaction:
-                # Em caso de erro na transação, tentar reverter
+                erros_count += 1
+                erro_mensagem = f"Erro na transação em lote: {str(e_transaction)}"
+                print(f"  - {erro_mensagem}")
                 try:
                     cursor_sqlite.execute("ROLLBACK")
                 except Exception:
@@ -350,7 +380,7 @@ def migrar_dados_em_lote(conexao_mysql, conexao_sqlite, tabela, estrutura, taman
     cursor_mysql.close()
     cursor_sqlite.close()
     
-    return registros_migrados, erros_count
+    return registros_migrados, erros_count, erro_mensagem
 
 def main():
     # Configurações de conexão MySQL
@@ -389,6 +419,7 @@ def main():
         total_registros_migrados = 0
         total_erros = 0
         erros_por_tabela = {}
+        erros_mensagens = {}  # Armazenar mensagens de erro por tabela
         
         # Migrar cada tabela
         for tabela in tabelas:
@@ -421,17 +452,23 @@ def main():
                 ]
                 
                 modo = "IGNORE" if tabela in tabelas_com_restricoes else "REPLACE"
-                registros_migrados, erros = migrar_dados_em_lote(conexao_mysql, conexao_sqlite, tabela, estrutura, modo_insercao=modo)
+                registros_migrados, erros, erro_msg = migrar_dados_em_lote(conexao_mysql, conexao_sqlite, tabela, estrutura, modo_insercao=modo)
                 total_registros_migrados += registros_migrados
                 total_erros += erros
                 
                 # Registrar erros por tabela
                 if erros > 0:
                     erros_por_tabela[tabela] = erros
+                    erros_mensagens[tabela] = erro_msg
             except Exception as e_tabela:
-                print(f"  - Erro ao processar tabela {tabela}: {str(e_tabela)}")
+                erro_msg = str(e_tabela)
+                print(f"  - Erro ao processar tabela {tabela}: {erro_msg}")
                 total_erros += 1
                 erros_por_tabela[tabela] = 1  # Registrar erro na tabela
+                erros_mensagens[tabela] = erro_msg if erro_msg else "Erro desconhecido"  # Registrar mensagem de erro
+                # Registrar o traceback completo para depuração
+                import traceback
+                print(f"    Traceback: {traceback.format_exc()}")
                 continue  # Continuar com a próxima tabela
         
         print("\n" + "=" * 50)
@@ -447,9 +484,13 @@ def main():
         
         # Exibir erros por tabela
         if erros_por_tabela:
-            print("\nErros por tabela:")
+            print("\nTabelas com erros:")
             for tabela, erros in sorted(erros_por_tabela.items(), key=lambda x: x[1], reverse=True):
                 print(f"  - {tabela}: {erros} erros")
+                if tabela in erros_mensagens and erros_mensagens[tabela]:
+                    print(f"    Mensagem: {erros_mensagens[tabela]}\n")
+                else:
+                    print(f"    Mensagem: Erro desconhecido ou sem mensagem\n")
         
         print("=" * 50)
         
