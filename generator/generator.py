@@ -48,10 +48,10 @@ def obter_relacoes(conexao):
 # Função para limpar diretórios de migrations e schemas
 def limpar_diretorios():
     # Cria diretórios se não existirem
-    migrations_dir = os.path.join("../lib", "deeper_hub", "core", "data", "migrations")
-    seeds_dir = os.path.join("../lib", "deeper_hub", "core", "data", "migrations", "seeds")
-    schemas_dir = os.path.join("../lib", "deeper_hub", "core", "data", "schemas")
-    resources_dir = os.path.join("../lib", "deeper_hub", "web_interface", "resources")
+    migrations_dir = os.path.join("../lib", "deeper_hub", "core", "data", "migrations_generated")
+    seeds_dir = os.path.join("../lib", "deeper_hub", "core", "data", "migrations_generated", "seeds")
+    schemas_dir = os.path.join("../lib", "deeper_hub", "core", "data", "schemas_generated")
+    resources_dir = os.path.join("../lib", "deeper_hub", "web_interface", "resources_generated")
     router_dir = os.path.join("../lib", "deeper_hub", "web_interface")
     base_dir = os.path.join("../lib", "deeper_hub", "core", "data")
     web_base_dir = os.path.join("../lib", "deeper_hub", "web_interface")
@@ -105,7 +105,7 @@ def substituir_placeholders(template, substituicoes):
 # Função para criar schemas usando templates
 def criar_schema(tabela, campos, relacoes=None):
     # Diretório para salvar os schemas
-    base_output_path = os.path.join("../lib", "deeper_hub", "core", "data", "schemas")
+    base_output_path = os.path.join("../lib", "deeper_hub", "core", "data", "schemas_generated")
     if not os.path.exists(base_output_path):
         os.makedirs(base_output_path)
     
@@ -144,7 +144,7 @@ def criar_schema(tabela, campos, relacoes=None):
 # Função para criar migration para uma tabela específica usando templates
 def criar_migration(tabela, campos, relacoes=None):
     # Diretório para salvar as migrations
-    base_output_path = os.path.join("../lib", "deeper_hub", "core", "data", "migrations")
+    base_output_path = os.path.join("../lib", "deeper_hub", "core", "data", "migrations_generated")
     if not os.path.exists(base_output_path):
         os.makedirs(base_output_path)
     
@@ -268,7 +268,7 @@ def gerar_create_table_sql(tabela, campos, relacoes=None):
 # Função para criar resource para uma tabela específica usando templates
 def criar_resource(tabela, campos, relacoes=None):
     # Diretório para salvar os resources
-    base_output_path = os.path.join("../lib", "deeper_hub", "web_interface", "resources")
+    base_output_path = os.path.join("../lib", "deeper_hub", "web_interface", "resources_generated")
     if not os.path.exists(base_output_path):
         os.makedirs(base_output_path)
     
@@ -347,7 +347,7 @@ def criar_seeds(conexao, tabela):
     print(f"Gerando seeds para a tabela: {tabela}")
     
     # Diretório para os seeds
-    seeds_dir = os.path.join("../lib", "deeper_hub", "core", "data", "migrations", "seeds")
+    seeds_dir = os.path.join("../lib", "deeper_hub", "core", "data", "migrations_generated", "seeds")
     
     # Verificar se a tabela tem dados
     cursor = conexao.cursor()
@@ -439,7 +439,7 @@ def criar_seeds(conexao, tabela):
 # Função para atualizar o registro de migrações
 def atualizar_registro_migracoes():
     # Diretório das migrações
-    migrations_dir = os.path.join("../lib", "deeper_hub", "core", "data", "migrations")
+    migrations_dir = os.path.join("../lib", "deeper_hub", "core", "data", "migrations_generated")
     if not os.path.exists(migrations_dir):
         os.makedirs(migrations_dir)
     
@@ -504,7 +504,7 @@ def criar_seed_manager(tabelas_com_seed):
     print("Gerando gerenciador de seeds...")
     
     # Diretório para os seeds
-    seeds_dir = os.path.join("../lib", "deeper_hub", "core", "data", "migrations", "seeds")
+    seeds_dir = os.path.join("../lib", "deeper_hub", "core", "data", "migrations_generated", "seeds")
     
     # Nome do arquivo do gerenciador
     nome_arquivo = "seed_manager.ex"
@@ -613,7 +613,7 @@ if __name__ == "__main__":
         if args.table:
             # Para o router, precisamos de todas as tabelas existentes
             # Verificar se já existem arquivos de resource para outras tabelas
-            resources_dir = os.path.join("../lib", "deeper_hub", "web_interface", "resources")
+            resources_dir = os.path.join("../lib", "deeper_hub", "web_interface", "resources_generated")
             existing_resources = [f.replace("_resource.ex", "") for f in os.listdir(resources_dir) 
                                 if f.endswith("_resource.ex") and os.path.isfile(os.path.join(resources_dir, f))]
             
@@ -629,7 +629,7 @@ if __name__ == "__main__":
         if tabelas_com_seed:
             # Se estiver gerando para uma tabela específica, verificar seeds existentes
             if args.table:
-                seeds_dir = os.path.join("../lib", "deeper_hub", "core", "data", "migrations", "seeds")
+                seeds_dir = os.path.join("../lib", "deeper_hub", "core", "data", "migrations_generated", "seeds")
                 existing_seeds = [f.replace("seed_", "").replace(".ex", "") for f in os.listdir(seeds_dir) 
                                 if f.startswith("seed_") and f != "seed_manager.ex" and os.path.isfile(os.path.join(seeds_dir, f))]
                 

@@ -10,7 +10,7 @@ defmodule DeeperHub.Core.Data.Migrations.MigrationRegistry do
   """
   def available_migrations do
     [
-      {"20250603012210", DeeperHub.Core.Data.Migrations.BxAdsCategoriesTypes},
+      {"20250603014354", DeeperHub.Core.Data.Migrations.BxAdsCategoriesTypes},
     ]
   end
 end
