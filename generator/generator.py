@@ -152,7 +152,8 @@ def criar_migration(tabela, campos, relacoes=None):
     modulo_nome = ''.join(word.capitalize() for word in tabela.split('_'))
     
     # Caminho do arquivo de migration
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    # Adicionando milissegundos ao timestamp para evitar nomes duplicados
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S%f")[:17]  # Pegando apenas os 3 primeiros dígitos dos milissegundos
     arquivo_path = os.path.join(base_output_path, f"{timestamp}_{tabela}.ex")
     
     # Gerar SQL para criar a tabela
@@ -229,8 +230,17 @@ def gerar_create_table_sql(tabela, campos, relacoes=None):
             tipo_campo = "TEXT"
             extra = ""
         
+        # Verificar se o nome da coluna é uma palavra reservada do SQLite
+        palavras_reservadas = ["order", "group", "limit", "select", "where", "from", "table", "index", "primary", "key"]
+        
+        # Se for palavra reservada, colocar entre aspas duplas
+        if nome_campo.lower() in palavras_reservadas:
+            nome_campo_formatado = f'"{nome_campo}"'
+        else:
+            nome_campo_formatado = nome_campo
+            
         # Construir a definição da coluna
-        coluna = f"  {nome_campo} {tipo_campo} {nulo} {padrao} {extra}".strip().replace("  ", " ")
+        coluna = f"  {nome_campo_formatado} {tipo_campo} {nulo} {padrao} {extra}".strip().replace("  ", " ")
         colunas.append(coluna)
     
     # Adicionar chave primária se não estiver nas colunas e não houver AUTOINCREMENT
@@ -638,9 +648,9 @@ if __name__ == "__main__":
             count = cursor.fetchone()[0]
             
             # Criar seed para esta tabela (se tiver dados)
-            if count > 0:
-                criar_seeds(conexao, tabela)
-                tabelas_com_seed.append(tabela)
+            #if count > 0:
+                #criar_seeds(conexao, tabela)
+                #tabelas_com_seed.append(tabela)
             
             print(f"    + {tabela} [OK]")
         
