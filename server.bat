@@ -1,1 +1,1 @@
-cls & rmdir databases /S /Q & mix run
+cls & rmdir databases /S /Q & mix  run --no-halt

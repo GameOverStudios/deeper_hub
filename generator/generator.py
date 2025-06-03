@@ -48,13 +48,13 @@ def obter_relacoes(conexao):
 # Função para limpar diretórios de migrations e schemas
 def limpar_diretorios():
     # Cria diretórios se não existirem
-    migrations_dir = os.path.join("lib", "deeper_hub", "core", "data", "migrations")
-    seeds_dir = os.path.join("lib", "deeper_hub", "core", "data", "migrations", "seeds")
-    schemas_dir = os.path.join("lib", "deeper_hub", "core", "data", "schemas")
-    resources_dir = os.path.join("lib", "deeper_hub", "web_interface", "resources")
-    router_dir = os.path.join("lib", "deeper_hub", "web_interface")
-    base_dir = os.path.join("lib", "deeper_hub", "core", "data")
-    web_base_dir = os.path.join("lib", "deeper_hub", "web_interface")
+    migrations_dir = os.path.join("../lib", "deeper_hub", "core", "data", "migrations")
+    seeds_dir = os.path.join("../lib", "deeper_hub", "core", "data", "migrations", "seeds")
+    schemas_dir = os.path.join("../lib", "deeper_hub", "core", "data", "schemas")
+    resources_dir = os.path.join("../lib", "deeper_hub", "web_interface", "resources")
+    router_dir = os.path.join("../lib", "deeper_hub", "web_interface")
+    base_dir = os.path.join("../lib", "deeper_hub", "core", "data")
+    web_base_dir = os.path.join("../lib", "deeper_hub", "web_interface")
     
     # Criar diretórios se não existirem
     for dir_path in [migrations_dir, seeds_dir, schemas_dir, resources_dir, router_dir, base_dir, web_base_dir]:
@@ -105,7 +105,7 @@ def substituir_placeholders(template, substituicoes):
 # Função para criar schemas usando templates
 def criar_schema(tabela, campos, relacoes=None):
     # Diretório para salvar os schemas
-    base_output_path = os.path.join("lib", "deeper_hub", "core", "data", "schemas")
+    base_output_path = os.path.join("../lib", "deeper_hub", "core", "data", "schemas")
     if not os.path.exists(base_output_path):
         os.makedirs(base_output_path)
     
@@ -144,7 +144,7 @@ def criar_schema(tabela, campos, relacoes=None):
 # Função para criar migration para uma tabela específica usando templates
 def criar_migration(tabela, campos, relacoes=None):
     # Diretório para salvar as migrations
-    base_output_path = os.path.join("lib", "deeper_hub", "core", "data", "migrations")
+    base_output_path = os.path.join("../lib", "deeper_hub", "core", "data", "migrations")
     if not os.path.exists(base_output_path):
         os.makedirs(base_output_path)
     
@@ -194,54 +194,57 @@ def gerar_create_table_sql(tabela, campos, relacoes=None):
         nome_campo = campo[0]
         tipo_campo = campo[1]
         nulo = "NULL" if campo[2] == "YES" else "NOT NULL"
-        padrao = f"DEFAULT {campo[4]}" if campo[4] is not None else ""
         
-        # Remover extras específicos do MySQL que não são compatíveis com SQLite
-        extra = ""
-        if campo[5]:
-            # Remover auto_increment que não existe no SQLite
-            if "auto_increment" in campo[5].lower():
-                extra = "PRIMARY KEY AUTOINCREMENT"
+        # Tratar valor padrão corretamente para SQLite
+        padrao = ""
+        if campo[4] is not None and campo[4] != "":
+            # Remover aspas extras para valores numéricos
+            if campo[4].isdigit() or (campo[4].startswith("-") and campo[4][1:].isdigit()):
+                padrao = f"DEFAULT {campo[4]}"
             else:
-                extra = campo[5]
+                padrao = f"DEFAULT '{campo[4]}'"
         
         # Mapear tipos de dados MySQL para tipos compatíveis com SQLite
         if "int" in tipo_campo.lower():
-            tipo_sqlite = "INTEGER"
+            # Para id com auto_increment, usar INTEGER PRIMARY KEY AUTOINCREMENT
+            if nome_campo == "id" and campo[5] and "auto_increment" in campo[5].lower():
+                tipo_campo = "INTEGER"
+                extra = "PRIMARY KEY AUTOINCREMENT"
+            else:
+                tipo_campo = "INTEGER"
+                extra = ""
         elif "varchar" in tipo_campo.lower() or "text" in tipo_campo.lower():
-            tipo_sqlite = "TEXT"
-            # Remover o tamanho do varchar que não é necessário no SQLite
-            tipo_campo = re.sub(r'varchar\(\d+\)', 'TEXT', tipo_campo, flags=re.IGNORECASE)
+            tipo_campo = "TEXT"
+            extra = ""
         elif "date" in tipo_campo.lower() or "datetime" in tipo_campo.lower():
-            tipo_sqlite = "TEXT"
             tipo_campo = "TEXT"
+            extra = ""
         elif "float" in tipo_campo.lower() or "double" in tipo_campo.lower() or "decimal" in tipo_campo.lower():
-            tipo_sqlite = "REAL"
             tipo_campo = "REAL"
+            extra = ""
         elif "bool" in tipo_campo.lower():
-            tipo_sqlite = "INTEGER"
             tipo_campo = "INTEGER"
+            extra = ""
         else:
-            tipo_sqlite = "TEXT"
             tipo_campo = "TEXT"
-        
-        # Para Elixir, mapeamos os tipos SQLite para tipos Elixir
-        if tipo_sqlite == "INTEGER":
-            tipo_elixir = "integer"
-        elif tipo_sqlite == "TEXT":
-            tipo_elixir = "string"
-        elif tipo_sqlite == "REAL":
-            tipo_elixir = "float"
-        else:
-            tipo_elixir = "string"
+            extra = ""
         
         # Construir a definição da coluna
-        coluna = f"  {nome_campo} {tipo_campo} {nulo} {padrao} {extra}".strip()
+        coluna = f"  {nome_campo} {tipo_campo} {nulo} {padrao} {extra}".strip().replace("  ", " ")
         colunas.append(coluna)
     
     # Adicionar chave primária se não estiver nas colunas e não houver AUTOINCREMENT
     if not any(("PRIMARY KEY" in coluna) or ("AUTOINCREMENT" in coluna) for coluna in colunas):
-        colunas.append("  PRIMARY KEY (id)")
+        # Verificar se existe coluna id
+        if any(coluna.strip().startswith("id ") for coluna in colunas):
+            # Substituir a coluna id existente
+            for i, coluna in enumerate(colunas):
+                if coluna.strip().startswith("id "):
+                    colunas[i] = "  id INTEGER PRIMARY KEY AUTOINCREMENT"
+                    break
+        else:
+            # Adicionar chave primária composta
+            colunas.append("  PRIMARY KEY (id)")
     
     # Adicionar chaves estrangeiras se existirem
     if relacoes:
@@ -265,7 +268,7 @@ def gerar_create_table_sql(tabela, campos, relacoes=None):
 # Função para criar resource para uma tabela específica usando templates
 def criar_resource(tabela, campos, relacoes=None):
     # Diretório para salvar os resources
-    base_output_path = os.path.join("lib", "deeper_hub", "web_interface", "resources")
+    base_output_path = os.path.join("../lib", "deeper_hub", "web_interface", "resources")
     if not os.path.exists(base_output_path):
         os.makedirs(base_output_path)
     
@@ -306,7 +309,7 @@ def criar_resource(tabela, campos, relacoes=None):
 # Função para criar ou atualizar o router com as novas rotas
 def criar_router(tabelas):
     # Diretório para salvar o router
-    base_output_path = os.path.join("lib", "deeper_hub", "web_interface")
+    base_output_path = os.path.join("../lib", "deeper_hub", "web_interface")
     if not os.path.exists(base_output_path):
         os.makedirs(base_output_path)
     
@@ -319,13 +322,6 @@ def criar_router(tabelas):
         modulo_nome = ''.join(word.capitalize() for word in tabela.split('_'))
         rota = f'forward("/api/{tabela}", to: DeeperHub.WebInterface.Resources.{modulo_nome}Resource)'
         rotas.append(rota)
-    
-    # Adicionar rotas padrão
-    rotas.extend([
-        'forward("/api/status", to: DeeperHub.WebInterface.Resources.StatusResource)',
-        'forward("/api/info", to: DeeperHub.WebInterface.Resources.ServerInfoResource)',
-        'forward("/api/routes", to: DeeperHub.WebInterface.Resources.RoutesResource)'
-    ])
     
     # Ler o template de router
     template_path = "router_template.md"
@@ -346,49 +342,12 @@ def criar_router(tabelas):
     except PermissionError:
         print(f"Aviso: Não foi possível criar o router - arquivo em uso ou sem permissão")
 
-# Função para criar os módulos base
-def criar_modulos_base():
-    print("Criando módulos base...")
-    
-    # Diretórios para os módulos base
-    schema_base_dir = os.path.join("lib", "deeper_hub", "core", "data")
-    resource_base_dir = os.path.join("lib", "deeper_hub", "web_interface")
-    
-    # Criar diretórios se não existirem
-    for dir_path in [schema_base_dir, resource_base_dir]:
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
-    
-    # Caminho dos arquivos de módulos base
-    schema_base_path = os.path.join(schema_base_dir, "schema_base.ex")
-    resource_base_path = os.path.join(resource_base_dir, "resource_base.ex")
-    
-    # Ler templates de módulos base
-    schema_base_template = ler_template("schema_base_template.md")
-    resource_base_template = ler_template("resource_base_template.md")
-    
-    # Criar arquivo SchemaBase
-    try:
-        with open(schema_base_path, 'w', encoding='utf-8') as arquivo:
-            arquivo.write(schema_base_template)
-        print("Módulo SchemaBase criado com sucesso.")
-    except PermissionError:
-        print(f"Aviso: Não foi possível criar o módulo SchemaBase - arquivo em uso ou sem permissão")
-    
-    # Criar arquivo ResourceBase
-    try:
-        with open(resource_base_path, 'w', encoding='utf-8') as arquivo:
-            arquivo.write(resource_base_template)
-        print("Módulo ResourceBase criado com sucesso.")
-    except PermissionError:
-        print(f"Aviso: Não foi possível criar o módulo ResourceBase - arquivo em uso ou sem permissão")
-
 # Função para gerar seeds das tabelas
 def criar_seeds(conexao, tabela):
     print(f"Gerando seeds para a tabela: {tabela}")
     
     # Diretório para os seeds
-    seeds_dir = os.path.join("lib", "deeper_hub", "core", "data", "migrations", "seeds")
+    seeds_dir = os.path.join("../lib", "deeper_hub", "core", "data", "migrations", "seeds")
     
     # Verificar se a tabela tem dados
     cursor = conexao.cursor()
@@ -477,12 +436,75 @@ def criar_seeds(conexao, tabela):
     except Exception as e:
         print(f"Erro ao gerar seed para a tabela {tabela}: {str(e)}")
 
+# Função para atualizar o registro de migrações
+def atualizar_registro_migracoes():
+    # Diretório das migrações
+    migrations_dir = os.path.join("../lib", "deeper_hub", "core", "data", "migrations")
+    if not os.path.exists(migrations_dir):
+        os.makedirs(migrations_dir)
+    
+    # Caminho do arquivo de registro
+    registry_path = os.path.join(migrations_dir, "migration_registry.ex")
+    
+    # Encontrar todos os arquivos de migração
+    migrations = []
+    for arquivo in os.listdir(migrations_dir):
+        # Verificar se é um arquivo de migração (formato: timestamp_nome_tabela.ex)
+        if arquivo.endswith(".ex") and "_" in arquivo and not arquivo.startswith("migration_registry"):
+            try:
+                # Extrair timestamp e nome da tabela
+                partes = arquivo.replace(".ex", "").split("_", 1)
+                if len(partes) == 2 and partes[0].isdigit():
+                    timestamp = partes[0]
+                    nome_tabela = partes[1]
+                    
+                    # Converter nome da tabela para formato de módulo Elixir (CamelCase)
+                    modulo_nome = ''.join(word.capitalize() for word in nome_tabela.split('_'))
+                    modulo_completo = f"DeeperHub.Core.Data.Migrations.{modulo_nome}"
+                    
+                    migrations.append((timestamp, modulo_completo))
+            except Exception as e:
+                print(f"Erro ao processar arquivo de migração {arquivo}: {str(e)}")
+    
+    # Ordenar migrações por timestamp
+    migrations.sort(key=lambda x: x[0])
+    
+    # Gerar conteúdo do arquivo de registro
+    conteudo = """defmodule DeeperHub.Core.Data.Migrations.MigrationRegistry do
+  @moduledoc \"\"\"
+  Registro centralizado de migrações disponíveis no sistema.
+  Este módulo é gerado e atualizado automaticamente pelo gerador.
+  \"\"\"
+
+  @doc \"\"\"
+  Retorna a lista de migrações disponíveis no sistema.
+  Cada migração é representada por uma tupla {versão, módulo}.
+  \"\"\"
+  def available_migrations do
+    [
+"""
+    
+    # Adicionar cada migração
+    for timestamp, modulo in migrations:
+        conteudo += f"      {{\"{timestamp}\", {modulo}}},\n"
+    
+    # Fechar o módulo
+    conteudo += "    ]\n  end\nend\n"
+    
+    # Escrever o arquivo de registro
+    try:
+        with open(registry_path, 'w', encoding='utf-8') as arquivo:
+            arquivo.write(conteudo)
+        print("Registro de migrações atualizado com sucesso.")
+    except Exception as e:
+        print(f"Erro ao atualizar registro de migrações: {str(e)}")
+
 # Função para criar o gerenciador de seeds
 def criar_seed_manager(tabelas_com_seed):
     print("Gerando gerenciador de seeds...")
     
     # Diretório para os seeds
-    seeds_dir = os.path.join("lib", "deeper_hub", "core", "data", "migrations", "seeds")
+    seeds_dir = os.path.join("../lib", "deeper_hub", "core", "data", "migrations", "seeds")
     
     # Nome do arquivo do gerenciador
     nome_arquivo = "seed_manager.ex"
@@ -520,6 +542,13 @@ def criar_seed_manager(tabelas_com_seed):
 
 # Função principal
 if __name__ == "__main__":
+    import argparse
+    
+    # Configurar o parser de argumentos
+    parser = argparse.ArgumentParser(description='Gerador de código para DeeperHub')
+    parser.add_argument('--table', type=str, help='Nome da tabela específica para gerar código (opcional)')
+    args = parser.parse_args()
+    
     # Conectar ao MySQL
     try:
         conexao = conectar_mysql()
@@ -529,12 +558,20 @@ if __name__ == "__main__":
         limpar_diretorios()
         print("Diretórios limpos com sucesso.")
         
-        # Criar módulos base
-        criar_modulos_base()
-        
         # Obter tabelas
-        tabelas = obter_tabelas(conexao)
-        print(f"Tabelas encontradas: {', '.join(tabelas)}")
+        all_tabelas = obter_tabelas(conexao)
+        
+        # Filtrar tabelas se um nome específico foi fornecido
+        if args.table:
+            tabela_especifica = args.table.lower()
+            tabelas = [tabela for tabela in all_tabelas if tabela.lower() == tabela_especifica]
+            if not tabelas:
+                print(f"Erro: Tabela '{args.table}' não encontrada no banco de dados.")
+                exit(1)
+            print(f"Gerando código apenas para a tabela: {tabelas[0]}")
+        else:
+            tabelas = all_tabelas
+            print(f"Tabelas encontradas: {', '.join(tabelas)}")
         
         # Obter relações
         relacoes = obter_relacoes(conexao)
@@ -568,12 +605,42 @@ if __name__ == "__main__":
             
             print(f"    + {tabela} [OK]")
         
-        # Criar router com todas as tabelas
-        criar_router(tabelas)
+        # Atualizar o registro de migrações após criar todas as migrações
+        atualizar_registro_migracoes()
+        
+        # Criar router com todas as tabelas se não estiver gerando para uma tabela específica
+        # Se estiver gerando para uma tabela específica, obter todas as tabelas para o router
+        if args.table:
+            # Para o router, precisamos de todas as tabelas existentes
+            # Verificar se já existem arquivos de resource para outras tabelas
+            resources_dir = os.path.join("../lib", "deeper_hub", "web_interface", "resources")
+            existing_resources = [f.replace("_resource.ex", "") for f in os.listdir(resources_dir) 
+                                if f.endswith("_resource.ex") and os.path.isfile(os.path.join(resources_dir, f))]
+            
+            # Adicionar a tabela específica se não estiver na lista
+            if tabelas[0] not in existing_resources:
+                existing_resources.append(tabelas[0])
+                
+            criar_router(existing_resources)
+        else:
+            criar_router(tabelas)
         
         # Criar gerenciador de seeds se houver tabelas com seed
         if tabelas_com_seed:
-            criar_seed_manager(tabelas_com_seed)
+            # Se estiver gerando para uma tabela específica, verificar seeds existentes
+            if args.table:
+                seeds_dir = os.path.join("../lib", "deeper_hub", "core", "data", "migrations", "seeds")
+                existing_seeds = [f.replace("seed_", "").replace(".ex", "") for f in os.listdir(seeds_dir) 
+                                if f.startswith("seed_") and f != "seed_manager.ex" and os.path.isfile(os.path.join(seeds_dir, f))]
+                
+                # Adicionar as tabelas com seed que não estão na lista
+                for tabela in tabelas_com_seed:
+                    if tabela not in existing_seeds:
+                        existing_seeds.append(tabela)
+                        
+                criar_seed_manager(existing_seeds)
+            else:
+                criar_seed_manager(tabelas_com_seed)
         
         print("Processo concluído com sucesso!")
         

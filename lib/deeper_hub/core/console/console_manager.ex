@@ -7,9 +7,8 @@ defmodule DeeperHub.Core.Console.ConsoleManager do
   específicas através de comandos predefinidos, proporcionando segurança
   e facilidade de uso para operações comuns.
   """
-  require DeeperHub.Core.Logger
-  alias DeeperHub.Core.Logger
   use GenServer
+  require Logger
 
   # Estrutura para representar uma sessão de console
   defmodule Session do

@@ -239,7 +239,7 @@ defmodule DeeperHub.Core.Terminal.SessionManager do
         if timer_ref, do: Process.cancel_timer(timer_ref)
 
         if client_pid && Process.alive?(client_pid) do
-          send(client_pid, {:terminal_chunk, "\n[Processo do terminal da sessão encerrou (status: #{status})]"})
+          send(client_pid, {:terminal_chunk, "\n[Processo do terminal da sessão encerrou (status: #{status})]"}) 
           send(client_pid, {:terminal_eof, :port_terminated})
         end
         updated_sessions = Map.delete(state.sessions, session_id)

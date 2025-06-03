@@ -1,16 +1,16 @@
-defmodule DeeperHub.WebInterface.Resources.{{MODULE_NAME}}Resource do
+defmodule DeeperHub.WebInterface.Resources.BxAdsCategoriesTypesResource do
   @moduledoc """
-  Recurso REST para {{SINGULAR_NAME}}s.
-  Fornece endpoints para gerenciar {{SINGULAR_NAME}}s.
+  Recurso REST para bx_ads_categories_types.
+  Fornece endpoints para gerenciar bx_ads_categories_types.
   """
 
   use Plug.Router
   
   alias DeeperHub.Core.Logger
   require DeeperHub.Core.Logger
-  alias DeeperHub.Core.Data.Schemas.{{MODULE_NAME}}, as: Schema
+  alias DeeperHub.Core.Data.Schemas.BxAdsCategoriesTypes, as: Schema
   
-  @resource_name "{{SINGULAR_NAME}}"
+  @resource_name "bx_ads_categories_type"
   
   plug :match
   plug Plug.Parsers, parsers: [:json], json_decoder: Jason

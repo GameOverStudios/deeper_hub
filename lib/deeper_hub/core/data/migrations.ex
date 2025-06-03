@@ -233,11 +233,8 @@ defmodule DeeperHub.Core.Data.Migrations do
   """
   @spec get_available_migrations() :: {:ok, [{String.t(), module()}]} | {:error, any()}
   def get_available_migrations do
-    # Lista de migrações disponíveis
-    # Cada migração é representada por uma tupla {versão, módulo}
-    migrations = [
-      {"20250518000001", DeeperHub.Core.Data.Migrations.CreateUsersTable},
-    ]
+    # Obtém a lista de migrações do registro centralizado
+    migrations = DeeperHub.Core.Data.Migrations.MigrationRegistry.available_migrations()
 
     Logger.debug("Migrações disponíveis: #{inspect(migrations)}", module: __MODULE__)
     {:ok, migrations}

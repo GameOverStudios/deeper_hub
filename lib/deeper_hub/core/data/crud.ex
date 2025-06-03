@@ -77,6 +77,41 @@ defmodule DeeperHub.Core.Data.Crud do
           )
           {:ok, inserted_record}
 
+        # Caso especial para quando o SQLite retorna uma lista de listas diretamente
+        {:ok, [[_ | _] = first_row | _]} when is_list(first_row) ->
+          # Precisamos obter os nomes das colunas
+          case Repo.query("PRAGMA table_info(#{table});", []) do
+            {:ok, %Exqlite.Result{columns: _, rows: column_info}} ->
+              # O PRAGMA table_info retorna: cid, name, type, notnull, dflt_value, pk
+              # Precisamos extrair apenas os nomes das colunas (índice 1)
+              column_names = Enum.map(column_info, fn row -> Enum.at(row, 1) end)
+              [inserted_record | _] = transform_exqlite_result_to_maps(column_names, [first_row])
+              Logger.debug(
+                "Crud.create successful for table '#{table}' (direct list format). Record: #{inspect(inserted_record)}",
+                module: __MODULE__
+              )
+              {:ok, inserted_record}
+
+            {:ok, column_info} when is_list(column_info) ->
+              # Formato alternativo do PRAGMA
+              column_names = Enum.map(column_info, fn row -> Enum.at(row, 1) end)
+              [inserted_record | _] = transform_exqlite_result_to_maps(column_names, [first_row])
+              Logger.debug(
+                "Crud.create successful for table '#{table}' (direct list format). Record: #{inspect(inserted_record)}",
+                module: __MODULE__
+              )
+              {:ok, inserted_record}
+
+            _ ->
+              # Se não conseguirmos obter os nomes das colunas, retornamos um mapa com índices numéricos
+              Logger.warning(
+                "Crud.create não conseguiu obter nomes de colunas para '#{table}'. Criando mapa com índices.",
+                module: __MODULE__
+              )
+              inserted_record = Enum.with_index(first_row) |> Enum.into(%{}, fn {value, index} -> {"column_#{index}", value} end)
+              {:ok, inserted_record}
+          end
+
         {:ok, %Exqlite.Result{num_rows: 0, rows: []}} -> # No record returned by RETURNING
           Logger.warning(
             "Crud.create for table '#{table}' did not return a record via RETURNING *. Check table schema, SQLite version, or if INSERT failed silently.",
@@ -99,7 +134,7 @@ defmodule DeeperHub.Core.Data.Crud do
           {:error, reason}
 
         other_ok_format -> # Catch-all for other {:ok, ...} formats that don't match
-            Logger.error(
+            Logger.warning(
               "Crud.create received an unexpected :ok format from Repo.query for table '#{table}': #{inspect(other_ok_format)}",
               module: __MODULE__
             )
@@ -124,7 +159,37 @@ defmodule DeeperHub.Core.Data.Crud do
         [record | _] = transform_exqlite_result_to_maps(returned_columns, [first_row_values])
         {:ok, record}
 
+      # Caso especial para quando o SQLite retorna uma lista de listas diretamente
+      {:ok, [[_ | _] = first_row | _]} when is_list(first_row) ->
+        # Precisamos obter os nomes das colunas
+        case Repo.query("PRAGMA table_info(#{table});", []) do
+          {:ok, %Exqlite.Result{columns: _, rows: column_info}} ->
+            # O PRAGMA table_info retorna: cid, name, type, notnull, dflt_value, pk
+            # Precisamos extrair apenas os nomes das colunas (índice 1)
+            column_names = Enum.map(column_info, fn row -> Enum.at(row, 1) end)
+            [record | _] = transform_exqlite_result_to_maps(column_names, [first_row])
+            {:ok, record}
+
+          {:ok, column_info} when is_list(column_info) ->
+            # Formato alternativo do PRAGMA
+            column_names = Enum.map(column_info, fn row -> Enum.at(row, 1) end)
+            [record | _] = transform_exqlite_result_to_maps(column_names, [first_row])
+            {:ok, record}
+
+          _ ->
+            # Se não conseguirmos obter os nomes das colunas, retornamos um mapa com índices numéricos
+            Logger.warning(
+              "Crud.get não conseguiu obter nomes de colunas para '#{table}'. Criando mapa com índices.",
+              module: __MODULE__
+            )
+            record = Enum.with_index(first_row) |> Enum.into(%{}, fn {value, index} -> {"column_#{index}", value} end)
+            {:ok, record}
+        end
+
       {:ok, %Exqlite.Result{rows: []}} -> # No record found
+        {:error, :not_found}
+
+      {:ok, []} -> # No record found (formato alternativo)
         {:error, :not_found}
 
       {:error, reason} ->
@@ -135,7 +200,7 @@ defmodule DeeperHub.Core.Data.Crud do
         {:error, reason}
 
       other ->
-        Logger.error(
+        Logger.warning(
           "Crud.get received unexpected result from Repo.query for table '#{table}', id: #{id}: #{inspect(other)}",
           module: __MODULE__
         )
@@ -163,6 +228,42 @@ defmodule DeeperHub.Core.Data.Crud do
         records = transform_exqlite_result_to_maps(returned_columns, rows_values)
         {:ok, records}
 
+      # Caso especial para quando o SQLite retorna uma lista vazia
+      {:ok, []} ->
+        # Tabela vazia, retornar lista vazia
+        Logger.debug(
+          "Crud.list encontrou tabela vazia para '#{table}'",
+          module: __MODULE__
+        )
+        {:ok, []}
+        
+      # Caso especial para quando o SQLite retorna uma lista de listas diretamente
+      {:ok, rows_values} when is_list(rows_values) and length(rows_values) > 0 and is_list(hd(rows_values)) ->
+        # Precisamos obter os nomes das colunas de outra forma
+        # Podemos fazer uma consulta PRAGMA table_info para obter os nomes das colunas
+        case Repo.query("PRAGMA table_info(#{table});", []) do
+          {:ok, %Exqlite.Result{columns: _, rows: column_info}} ->
+            # O PRAGMA table_info retorna: cid, name, type, notnull, dflt_value, pk
+            # Precisamos extrair apenas os nomes das colunas (índice 1)
+            column_names = Enum.map(column_info, fn row -> Enum.at(row, 1) end)
+            records = transform_exqlite_result_to_maps(column_names, rows_values)
+            {:ok, records}
+
+          {:ok, column_info} when is_list(column_info) ->
+            # Formato alternativo do PRAGMA
+            column_names = Enum.map(column_info, fn row -> Enum.at(row, 1) end)
+            records = transform_exqlite_result_to_maps(column_names, rows_values)
+            {:ok, records}
+
+          _ ->
+            # Se não conseguirmos obter os nomes das colunas, retornamos os dados brutos
+            Logger.warning(
+              "Crud.list não conseguiu obter nomes de colunas para '#{table}'. Retornando dados brutos.",
+              module: __MODULE__
+            )
+            {:ok, rows_values}
+        end
+
       {:error, reason} ->
         Logger.error("Crud.list failed for table '#{table}'. Reason: #{inspect(reason)}",
           module: __MODULE__
@@ -170,7 +271,7 @@ defmodule DeeperHub.Core.Data.Crud do
         {:error, reason}
 
       other ->
-        Logger.error(
+        Logger.warning(
           "Crud.list received unexpected result from Repo.query for table '#{table}': #{inspect(other)}",
           module: __MODULE__
         )
@@ -202,7 +303,7 @@ defmodule DeeperHub.Core.Data.Crud do
 
       set_clauses =
         Enum.map_join(1..length(columns_to_update), ", ", fn i ->
-          "#{columns_to_update[i - 1]} = $#{i}"
+          "#{Enum.at(columns_to_update, i - 1)} = $#{i}"
         end)
 
       values = Map.values(string_keyed_params) ++ [id]
@@ -216,8 +317,39 @@ defmodule DeeperHub.Core.Data.Crud do
           [updated_record | _] = transform_exqlite_result_to_maps(returned_columns, [first_row_values])
           {:ok, updated_record}
 
+        # Caso especial para quando o SQLite retorna uma lista de listas diretamente
+        {:ok, [[_ | _] = first_row | _]} when is_list(first_row) ->
+          # Precisamos obter os nomes das colunas
+          case Repo.query("PRAGMA table_info(#{table});", []) do
+            {:ok, %Exqlite.Result{columns: _, rows: column_info}} ->
+              # O PRAGMA table_info retorna: cid, name, type, notnull, dflt_value, pk
+              # Precisamos extrair apenas os nomes das colunas (índice 1)
+              column_names = Enum.map(column_info, fn row -> Enum.at(row, 1) end)
+              [updated_record | _] = transform_exqlite_result_to_maps(column_names, [first_row])
+              {:ok, updated_record}
+
+            {:ok, column_info} when is_list(column_info) ->
+              # Formato alternativo do PRAGMA
+              column_names = Enum.map(column_info, fn row -> Enum.at(row, 1) end)
+              [updated_record | _] = transform_exqlite_result_to_maps(column_names, [first_row])
+              {:ok, updated_record}
+
+            _ ->
+              # Se não conseguirmos obter os nomes das colunas, retornamos um mapa com índices numéricos
+              Logger.warning(
+                "Crud.update não conseguiu obter nomes de colunas para '#{table}'. Criando mapa com índices.",
+                module: __MODULE__
+              )
+              updated_record = Enum.with_index(first_row) |> Enum.into(%{}, fn {value, index} -> {"column_#{index}", value} end)
+              {:ok, updated_record}
+          end
+
         {:ok, %Exqlite.Result{rows: []}} -> # No rows updated/returned (ID not found)
           Logger.info("Crud.update for table '#{table}', id: #{id} did not affect any rows or RETURNING * yielded no result. Assuming not found.", module: __MODULE__)
+          {:error, :not_found}
+
+        {:ok, []} -> # No rows updated/returned (ID not found) - formato alternativo
+          Logger.info("Crud.update for table '#{table}', id: #{id} did not affect any rows. Assuming not found.", module: __MODULE__)
           {:error, :not_found}
 
         {:error, reason} ->
@@ -228,7 +360,7 @@ defmodule DeeperHub.Core.Data.Crud do
           {:error, reason}
 
         other ->
-          Logger.error(
+          Logger.warning(
             "Crud.update received unexpected result from Repo.query for table '#{table}', id: #{id}: #{inspect(other)}",
             module: __MODULE__
           )
@@ -255,8 +387,39 @@ defmodule DeeperHub.Core.Data.Crud do
         [deleted_record | _] = transform_exqlite_result_to_maps(returned_columns, [first_row_values])
         {:ok, deleted_record}
 
+      # Caso especial para quando o SQLite retorna uma lista de listas diretamente
+      {:ok, [[_ | _] = first_row | _]} when is_list(first_row) ->
+        # Precisamos obter os nomes das colunas
+        case Repo.query("PRAGMA table_info(#{table});", []) do
+          {:ok, %Exqlite.Result{columns: _, rows: column_info}} ->
+            # O PRAGMA table_info retorna: cid, name, type, notnull, dflt_value, pk
+            # Precisamos extrair apenas os nomes das colunas (índice 1)
+            column_names = Enum.map(column_info, fn row -> Enum.at(row, 1) end)
+            [deleted_record | _] = transform_exqlite_result_to_maps(column_names, [first_row])
+            {:ok, deleted_record}
+
+          {:ok, column_info} when is_list(column_info) ->
+            # Formato alternativo do PRAGMA
+            column_names = Enum.map(column_info, fn row -> Enum.at(row, 1) end)
+            [deleted_record | _] = transform_exqlite_result_to_maps(column_names, [first_row])
+            {:ok, deleted_record}
+
+          _ ->
+            # Se não conseguirmos obter os nomes das colunas, retornamos um mapa com índices numéricos
+            Logger.warning(
+              "Crud.delete não conseguiu obter nomes de colunas para '#{table}'. Criando mapa com índices.",
+              module: __MODULE__
+            )
+            deleted_record = Enum.with_index(first_row) |> Enum.into(%{}, fn {value, index} -> {"column_#{index}", value} end)
+            {:ok, deleted_record}
+        end
+
       {:ok, %Exqlite.Result{rows: []}} -> # No record returned by RETURNING (ID did not exist)
         Logger.info("Crud.delete for table '#{table}', id: #{id}. No record returned by RETURNING *, assuming not found.", module: __MODULE__)
+        {:error, :not_found}
+
+      {:ok, []} -> # No record returned by RETURNING (ID did not exist) - formato alternativo
+        Logger.info("Crud.delete for table '#{table}', id: #{id}. No record returned, assuming not found.", module: __MODULE__)
         {:error, :not_found}
 
       {:error, reason} ->
@@ -267,7 +430,7 @@ defmodule DeeperHub.Core.Data.Crud do
         {:error, reason}
 
       other ->
-        Logger.error(
+        Logger.warning(
           "Crud.delete received unexpected result from Repo.query for table '#{table}', id: #{id}: #{inspect(other)}",
           module: __MODULE__
         )

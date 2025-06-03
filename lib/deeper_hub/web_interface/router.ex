@@ -20,7 +20,10 @@ defmodule DeeperHub.WebInterface.Router do
   plug(:match)
   plug(:dispatch)
 
-  # Recursos para terminal e console
+  # API Routes
+  forward("/api/bx_ads_categories_types", to: DeeperHub.WebInterface.Resources.BxAdsCategoriesTypesResource)
+
+  
   forward("/api/terminal", to: DeeperHub.WebInterface.Resources.TerminalResource)
   forward("/api/console", to: DeeperHub.WebInterface.Resources.ConsoleResource)
 
