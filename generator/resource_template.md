@@ -30,6 +30,9 @@ defmodule DeeperHub.WebInterface.Resources.{{MODULE_NAME}}Resource do
   @default_page_size 20
   @max_page_size 100
   
+  # Função necessária para o Plug.Router
+  def init(opts), do: opts
+
   plug :match
   plug Plug.Parsers, parsers: [:json], json_decoder: Jason
   plug :dispatch
