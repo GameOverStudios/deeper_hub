@@ -22,8 +22,12 @@ defmodule DeeperHub.Core.Data.Migrations.{{MODULE_NAME}} do
         Logger.info("Tabela de {{TABLE_NAME}} criada com sucesso.", module: __MODULE__)
         :ok
 
+      {:error, %Exqlite.Error{message: message}} ->
+        Logger.error("Falha ao criar tabela de {{TABLE_NAME}}: #{message}", module: __MODULE__)
+        {:error, message}
+        
       {:error, reason} ->
-        Logger.error("Falha ao criar tabela de {{TABLE_NAME}}: #{reason}", module: __MODULE__)
+        Logger.error("Falha ao criar tabela de {{TABLE_NAME}}: #{inspect(reason)}", module: __MODULE__)
         {:error, reason}
     end
   end
@@ -43,8 +47,12 @@ defmodule DeeperHub.Core.Data.Migrations.{{MODULE_NAME}} do
         Logger.info("Tabela de {{TABLE_NAME}} removida com sucesso.", module: __MODULE__)
         :ok
 
+      {:error, %Exqlite.Error{message: message}} ->
+        Logger.error("Falha ao remover tabela de {{TABLE_NAME}}: #{message}", module: __MODULE__)
+        {:error, message}
+        
       {:error, reason} ->
-        Logger.error("Falha ao remover tabela de {{TABLE_NAME}}: #{reason}", module: __MODULE__)
+        Logger.error("Falha ao remover tabela de {{TABLE_NAME}}: #{inspect(reason)}", module: __MODULE__)
         {:error, reason}
     end
   end

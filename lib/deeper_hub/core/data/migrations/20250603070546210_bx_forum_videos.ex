@@ -1,0 +1,72 @@
+defmodule DeeperHub.Core.Data.Migrations.BxForumVideos do
+  @moduledoc """
+  Migration para criar e remover a tabela bx_forum_videos.
+  """
+
+  alias DeeperHub.Core.Data.Repo
+  alias DeeperHub.Core.Logger
+  require DeeperHub.Core.Logger
+
+  @doc """
+  Cria a tabela de bx_forum_videos.
+  """
+  def up do
+    Logger.info("Criando tabela de bx_forum_videos...", module: __MODULE__)
+
+    sql = """
+    CREATE TABLE IF NOT EXISTS bx_forum_videos (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    profile_id INTEGER NOT NULL,
+    remote_id TEXT NOT NULL,
+    path TEXT NOT NULL,
+    file_name TEXT NOT NULL,
+    mime_type TEXT NOT NULL,
+    ext TEXT NOT NULL,
+    size INTEGER NOT NULL,
+    dimensions TEXT NOT NULL,
+    added INTEGER NOT NULL,
+    modified INTEGER NOT NULL,
+    private INTEGER NOT NULL
+    );
+    """
+
+    case Repo.execute(sql) do
+      {:ok, _} ->
+        Logger.info("Tabela de bx_forum_videos criada com sucesso.", module: __MODULE__)
+        :ok
+
+      {:error, %Exqlite.Error{message: message}} ->
+        Logger.error("Falha ao criar tabela de bx_forum_videos: #{message}", module: __MODULE__)
+        {:error, message}
+        
+      {:error, reason} ->
+        Logger.error("Falha ao criar tabela de bx_forum_videos: #{inspect(reason)}", module: __MODULE__)
+        {:error, reason}
+    end
+  end
+
+  @doc """
+  Remove a tabela de bx_forum_videos.
+  """
+  def down do
+    Logger.info("Removendo tabela de bx_forum_videos...", module: __MODULE__)
+
+    sql = """
+    DROP TABLE IF EXISTS bx_forum_videos
+    """
+
+    case Repo.execute(sql) do
+      {:ok, _} ->
+        Logger.info("Tabela de bx_forum_videos removida com sucesso.", module: __MODULE__)
+        :ok
+
+      {:error, %Exqlite.Error{message: message}} ->
+        Logger.error("Falha ao remover tabela de bx_forum_videos: #{message}", module: __MODULE__)
+        {:error, message}
+        
+      {:error, reason} ->
+        Logger.error("Falha ao remover tabela de bx_forum_videos: #{inspect(reason)}", module: __MODULE__)
+        {:error, reason}
+    end
+  end
+end

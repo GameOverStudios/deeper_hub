@@ -121,23 +121,20 @@ defmodule DeeperHub.Core.Data.Migrations.Initializer do
   - read_uncommitted = 1 (permite leituras mais rápidas)
   - foreign_keys = ON (habilita integridade referencial)
   """
-  @spec create_optimized_db(String.t()) :: :ok | {:error, any()}
-  def create_optimized_db(db_path) do
-    Logger.info("Criando banco de dados SQLite otimizado: #{db_path}", module: __MODULE__)
-
+  @spec create_optimized_db(String.t()) :: :ok | {:error, term()}
+  defp create_optimized_db(db_path) do
     try do
-      # Criar uma conexão temporária diretamente com o SQLite
-      {:ok, conn} = Exqlite.Connection.connect(database: db_path)
-
-      # Aplicar pragmas para otimização
+      # Criar arquivo vazio para o SQLite
+      File.touch!(db_path)
+      
+      # Lista de pragmas para otimização
       pragmas = [
         "PRAGMA journal_mode = WAL",
         "PRAGMA synchronous = NORMAL",
         "PRAGMA cache_size = -10000",
-        "PRAGMA page_size = 4096",
-        "PRAGMA foreign_keys = ON",
         "PRAGMA temp_store = MEMORY",
         "PRAGMA mmap_size = 30000000000",
+        "PRAGMA foreign_keys = ON",
         "PRAGMA auto_vacuum = INCREMENTAL",
         "PRAGMA read_uncommitted = 1",
         "PRAGMA busy_timeout = 5000"
@@ -145,7 +142,7 @@ defmodule DeeperHub.Core.Data.Migrations.Initializer do
 
       # Aplicar cada pragma e registrar o resultado
       Enum.each(pragmas, fn pragma ->
-        case Exqlite.Connection.execute(conn, pragma, [], []) do
+        case DeeperHub.Core.Data.Repo.execute(pragma, [], []) do
           {:ok, %{rows: [[result]]}} ->
             Logger.debug("Aplicado: #{pragma} => #{result}", module: __MODULE__)
           {:ok, _} ->
@@ -154,9 +151,6 @@ defmodule DeeperHub.Core.Data.Migrations.Initializer do
             Logger.warning("Erro ao aplicar #{pragma}: #{inspect(reason)}", module: __MODULE__)
         end
       end)
-
-      # Fechar a conexão
-      :ok = Exqlite.Connection.disconnect(nil, conn)
       
       Logger.info("Banco de dados criado e otimizado com sucesso: #{db_path}", module: __MODULE__)
       :ok
