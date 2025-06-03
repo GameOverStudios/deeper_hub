@@ -178,8 +178,17 @@ def criar_tabela_sqlite(conexao_sqlite, tabela, estrutura):
     
     cursor.close()
 
-def migrar_dados_em_lote(conexao_mysql, conexao_sqlite, tabela, estrutura, tamanho_lote=1000):
-    """Migra dados do MySQL para o SQLite em lotes."""
+def migrar_dados_em_lote(conexao_mysql, conexao_sqlite, tabela, estrutura, tamanho_lote=1000, modo_insercao="REPLACE"):
+    """Migra dados do MySQL para o SQLite em lotes.
+    
+    Parâmetros:
+        conexao_mysql: Conexão com o banco MySQL
+        conexao_sqlite: Conexão com o banco SQLite
+        tabela: Nome da tabela a ser migrada
+        estrutura: Estrutura da tabela
+        tamanho_lote: Tamanho do lote para migração
+        modo_insercao: Modo de inserção ("REPLACE", "IGNORE" ou "NORMAL")
+    """
     cursor_mysql = conexao_mysql.cursor()
     cursor_sqlite = conexao_sqlite.cursor()
     
@@ -189,7 +198,7 @@ def migrar_dados_em_lote(conexao_mysql, conexao_sqlite, tabela, estrutura, taman
     
     if total_registros == 0:
         print(f"  - Tabela {tabela} está vazia, pulando migração de dados...")
-        return 0
+        return 0, 0  # Retorna (registros_migrados, erros_count)
     
     print(f"  - Migrando {total_registros} registros da tabela {tabela}...")
     
@@ -206,6 +215,8 @@ def migrar_dados_em_lote(conexao_mysql, conexao_sqlite, tabela, estrutura, taman
     # Iniciar a migração em lotes
     offset = 0
     registros_migrados = 0
+    erros_count = 0
+    lote = 0
     
     inicio = time.time()
     
@@ -245,65 +256,91 @@ def migrar_dados_em_lote(conexao_mysql, conexao_sqlite, tabela, estrutura, taman
                         else:
                             registro_formatado.append(str(valor))
                 
-                # Inserir no SQLite
-                sql_insert = f"INSERT INTO {tabela} ({colunas_sqlite_str}) VALUES ({placeholders})"
+                # Determinar o tipo de inserção com base no modo_insercao
+                if modo_insercao == "REPLACE":
+                    sql_insert = f"INSERT OR REPLACE INTO {tabela} ({colunas_sqlite_str}) VALUES ({placeholders})"
+                elif modo_insercao == "IGNORE":
+                    sql_insert = f"INSERT OR IGNORE INTO {tabela} ({colunas_sqlite_str}) VALUES ({placeholders})"
+                else:  # modo NORMAL
+                    sql_insert = f"INSERT INTO {tabela} ({colunas_sqlite_str}) VALUES ({placeholders})"
                 cursor_sqlite.execute(sql_insert, registro_formatado)
             
             # Confirmar a transação
             cursor_sqlite.execute("COMMIT")
             
-            registros_migrados += len(lote)
+            registros_migrados += len(registros)
             offset += tamanho_lote
+            lote += 1
             
-            # Exibir progresso
-            progresso = min(100, int((registros_migrados / total_registros) * 100))
-            print(f"    Progresso: {progresso}% ({registros_migrados}/{total_registros})", end="\r")
-            
+            print(f"    Lote {lote}: {len(registros)} registros migrados ({registros_migrados}/{total_registros})")
         except Exception as e:
-            # Em caso de erro, reverter a transação
-            cursor_sqlite.execute("ROLLBACK")
+            # Em caso de erro, tentar reverter a transação
+            try:
+                cursor_sqlite.execute("ROLLBACK")
+            except Exception as e_rollback:
+                # Ignora erro se não houver transação ativa
+                pass
+                
+            erros_count += 1
             print(f"\n    Erro ao migrar lote para {tabela}: {str(e)}")
             
             # Tentar migrar registro por registro para identificar o problema
             print("    Tentando migrar registros individualmente para identificar o problema...")
             
-            cursor_sqlite.execute("BEGIN TRANSACTION")
-            for i, registro in enumerate(lote):
-                try:
-                    # Converter valores para o formato adequado
-                    registro_formatado = []
-                    for j, valor in enumerate(registro):
-                        if valor is None:
-                            registro_formatado.append(None)
-                        else:
-                            # Converter para o tipo adequado
-                            tipo_sqlite = mapear_tipo_mysql_para_sqlite(estrutura['colunas'][j]['tipo'])
-                            
-                            if tipo_sqlite == 'INTEGER':
-                                try:
-                                    registro_formatado.append(int(valor) if valor != '' else None)
-                                except (ValueError, TypeError):
-                                    registro_formatado.append(0)
-                            elif tipo_sqlite == 'REAL':
-                                try:
-                                    registro_formatado.append(float(valor) if valor != '' else None)
-                                except (ValueError, TypeError):
-                                    registro_formatado.append(0.0)
+            # Obter os registros novamente para migração individual
+            cursor_mysql.execute(f"SELECT * FROM {tabela} LIMIT {tamanho_lote} OFFSET {offset - tamanho_lote}")
+            registros_individuais = cursor_mysql.fetchall()
+            try:
+                cursor_sqlite.execute("BEGIN TRANSACTION")
+                for i, registro in enumerate(registros_individuais):
+                    try:
+                        # Converter valores para o formato adequado
+                        registro_formatado = []
+                        for j, valor in enumerate(registro):
+                            if valor is None:
+                                registro_formatado.append(None)
                             else:
-                                registro_formatado.append(str(valor))
+                                # Converter para o tipo adequado
+                                tipo_sqlite = mapear_tipo_mysql_para_sqlite(estrutura['colunas'][j]['tipo'])
+                                
+                                if tipo_sqlite == 'INTEGER':
+                                    try:
+                                        registro_formatado.append(int(valor) if valor != '' else None)
+                                    except (ValueError, TypeError):
+                                        registro_formatado.append(0)
+                                elif tipo_sqlite == 'REAL':
+                                    try:
+                                        registro_formatado.append(float(valor) if valor != '' else None)
+                                    except (ValueError, TypeError):
+                                        registro_formatado.append(0.0)
+                                else:
+                                    registro_formatado.append(str(valor))
+                        
+                        # Determinar o tipo de inserção com base no modo_insercao
+                        if modo_insercao == "REPLACE":
+                            sql_insert = f"INSERT OR REPLACE INTO {tabela} ({colunas_sqlite_str}) VALUES ({placeholders})"
+                        elif modo_insercao == "IGNORE":
+                            sql_insert = f"INSERT OR IGNORE INTO {tabela} ({colunas_sqlite_str}) VALUES ({placeholders})"
+                        else:  # modo NORMAL
+                            sql_insert = f"INSERT INTO {tabela} ({colunas_sqlite_str}) VALUES ({placeholders})"
+                        cursor_sqlite.execute(sql_insert, registro_formatado)
+                        
+                        registros_migrados += 1
                     
-                    # Inserir no SQLite
-                    sql_insert = f"INSERT INTO {tabela} ({colunas_sqlite_str}) VALUES ({placeholders})"
-                    cursor_sqlite.execute(sql_insert, registro_formatado)
-                    
-                    registros_migrados += 1
-                    
-                except Exception as e_individual:
-                    print(f"    Erro no registro {i}: {str(e_individual)}")
-                    print(f"    Dados: {registro}")
-            
-            cursor_sqlite.execute("COMMIT")
-            break
+                    except Exception as e_individual:
+                        erros_count += 1
+                        print(f"    Erro no registro {i}: {str(e_individual)}")
+                        print(f"    Dados: {registro}")
+                cursor_sqlite.execute("COMMIT")
+                break
+            except Exception as e_transaction:
+                # Em caso de erro na transação, tentar reverter
+                try:
+                    cursor_sqlite.execute("ROLLBACK")
+                except Exception:
+                    pass
+                print(f"    Erro na transação individual: {str(e_transaction)}")
+                break
     
     fim = time.time()
     tempo_total = fim - inicio
@@ -313,7 +350,7 @@ def migrar_dados_em_lote(conexao_mysql, conexao_sqlite, tabela, estrutura, taman
     cursor_mysql.close()
     cursor_sqlite.close()
     
-    return registros_migrados
+    return registros_migrados, erros_count
 
 def main():
     # Configurações de conexão MySQL
@@ -321,7 +358,7 @@ def main():
         'host': 'localhost',
         'user': 'root',
         'password': '',
-        'database': 'deeper_hub'
+        'database': 'una'
     }
     
     # Caminho do banco SQLite
@@ -350,26 +387,70 @@ def main():
         total_tabelas = len(tabelas)
         tabelas_processadas = 0
         total_registros_migrados = 0
+        total_erros = 0
+        erros_por_tabela = {}
         
         # Migrar cada tabela
         for tabela in tabelas:
-            tabelas_processadas += 1
-            print(f"\nProcessando tabela {tabelas_processadas}/{total_tabelas}: {tabela}")
-            
-            # Obter a estrutura detalhada da tabela
-            estrutura = obter_estrutura_tabela_detalhada(conexao_mysql, tabela)
-            
-            # Criar a tabela no SQLite
-            criar_tabela_sqlite(conexao_sqlite, tabela, estrutura)
-            
-            # Migrar os dados em lotes
-            registros_migrados = migrar_dados_em_lote(conexao_mysql, conexao_sqlite, tabela, estrutura)
-            total_registros_migrados += registros_migrados
+            try:
+                tabelas_processadas += 1
+                print(f"\nProcessando tabela {tabelas_processadas}/{total_tabelas}: {tabela}")
+                
+                # Obter a estrutura detalhada da tabela
+                estrutura = obter_estrutura_tabela_detalhada(conexao_mysql, tabela)
+                
+                # Verificar se a tabela já existe no SQLite
+                cursor_sqlite = conexao_sqlite.cursor()
+                cursor_sqlite.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{tabela}'")
+                tabela_existe = cursor_sqlite.fetchone() is not None
+                cursor_sqlite.close()
+                
+                # Criar a tabela no SQLite se não existir
+                if not tabela_existe:
+                    criar_tabela_sqlite(conexao_sqlite, tabela, estrutura)
+                    tabela_existe = True  # Agora a tabela existe
+                else:
+                    print(f"  - Tabela {tabela} já existe no SQLite, pulando criação...")
+                
+                # Migrar dados
+                # Tabelas conhecidas com problemas de UNIQUE constraint
+                tabelas_com_restricoes = [
+                    'sys_transcoder_filters',
+                    'sys_transcoder_images_files',
+                    'sys_transcoder_videos_files'
+                ]
+                
+                modo = "IGNORE" if tabela in tabelas_com_restricoes else "REPLACE"
+                registros_migrados, erros = migrar_dados_em_lote(conexao_mysql, conexao_sqlite, tabela, estrutura, modo_insercao=modo)
+                total_registros_migrados += registros_migrados
+                total_erros += erros
+                
+                # Registrar erros por tabela
+                if erros > 0:
+                    erros_por_tabela[tabela] = erros
+            except Exception as e_tabela:
+                print(f"  - Erro ao processar tabela {tabela}: {str(e_tabela)}")
+                total_erros += 1
+                erros_por_tabela[tabela] = 1  # Registrar erro na tabela
+                continue  # Continuar com a próxima tabela
         
         print("\n" + "=" * 50)
         print(f"Migração concluída em {datetime.now()}")
         print(f"Total de tabelas migradas: {tabelas_processadas}")
         print(f"Total de registros migrados: {total_registros_migrados}")
+        print(f"Total de erros encontrados: {total_erros}")
+        
+        # Exibir taxa de sucesso
+        if total_registros_migrados + total_erros > 0:
+            taxa_sucesso = (total_registros_migrados / (total_registros_migrados + total_erros)) * 100
+            print(f"Taxa de sucesso: {taxa_sucesso:.2f}%")
+        
+        # Exibir erros por tabela
+        if erros_por_tabela:
+            print("\nErros por tabela:")
+            for tabela, erros in sorted(erros_por_tabela.items(), key=lambda x: x[1], reverse=True):
+                print(f"  - {tabela}: {erros} erros")
+        
         print("=" * 50)
         
     except Exception as e:
