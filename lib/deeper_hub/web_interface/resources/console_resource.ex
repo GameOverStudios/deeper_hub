@@ -18,6 +18,25 @@ defmodule DeeperHub.WebInterface.Resources.ConsoleResource do
   plug(:match)
   plug(:dispatch)
 
+  # Rota para listar todas as sessões de console
+  get "/sessions" do
+    require Logger
+    Logger.info("Listando todas as sessões de console")
+    
+    # Simulação de lista de sessões
+    sessions = [
+      %{id: UUID.uuid4(), created_at: DateTime.utc_now() |> DateTime.to_string(), status: "active"},
+      %{id: UUID.uuid4(), created_at: DateTime.utc_now() |> DateTime.to_string(), status: "active"}
+    ]
+    
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{
+      status: "success",
+      sessions: sessions
+    }))
+  end
+  
   # Rota para criar uma nova sessão de console
   post "/sessions" do
     require Logger
